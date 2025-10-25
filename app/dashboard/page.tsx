@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { BotonCerrarSesion } from "@/components/logout-button"
 import Link from "next/link"
 import { Plus, Ticket } from "lucide-react"
 
@@ -71,11 +72,7 @@ export default async function UserDashboardPage() {
           </div>
           <div className="flex items-center gap-4">
             <span className="text-sm text-muted-foreground">{profile?.nombre_completo || profile?.correo}</span>
-            <form action="/auth/logout" method="post">
-              <Button variant="outline" size="sm">
-                Cerrar Sesión
-              </Button>
-            </form>
+            <BotonCerrarSesion />
           </div>
         </div>
       </header>
