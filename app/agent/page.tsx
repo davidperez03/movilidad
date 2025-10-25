@@ -18,90 +18,90 @@ export default async function AgentDashboardPage() {
     redirect("/auth/login")
   }
 
-  // Get user profile
-  const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single()
+  // Obtener perfil del usuario
+  const { data: profile } = await supabase.from("perfiles").select("*").eq("id", user.id).single()
 
-  // Check if user is agent or admin
-  if (profile?.role !== "agent" && profile?.role !== "admin") {
+  // Verificar si el usuario es agente o administrador
+  if (profile?.rol !== "agente" && profile?.rol !== "administrador") {
     redirect("/dashboard")
   }
 
-  // Get all tickets
+  // Obtener todos los tickets
   const { data: allTickets } = await supabase
     .from("tickets")
     .select(
       `
       *,
-      created_by_profile:profiles!tickets_created_by_fkey(full_name, email),
-      assigned_to_profile:profiles!tickets_assigned_to_fkey(full_name, email)
+      perfil_creador:perfiles!tickets_creado_por_fkey(nombre_completo, correo),
+      perfil_asignado:perfiles!tickets_asignado_a_fkey(nombre_completo, correo)
     `,
     )
-    .order("created_at", { ascending: false })
+    .order("creado_en", { ascending: false })
 
-  // Get tickets assigned to this agent
+  // Obtener tickets asignados a este agente
   const { data: myTickets } = await supabase
     .from("tickets")
     .select(
       `
       *,
-      created_by_profile:profiles!tickets_created_by_fkey(full_name, email)
+      perfil_creador:perfiles!tickets_creado_por_fkey(nombre_completo, correo)
     `,
     )
-    .eq("assigned_to", user.id)
-    .order("created_at", { ascending: false })
+    .eq("asignado_a", user.id)
+    .order("creado_en", { ascending: false })
 
-  // Get unassigned tickets
+  // Obtener tickets sin asignar
   const { data: unassignedTickets } = await supabase
     .from("tickets")
     .select(
       `
       *,
-      created_by_profile:profiles!tickets_created_by_fkey(full_name, email)
+      perfil_creador:perfiles!tickets_creado_por_fkey(nombre_completo, correo)
     `,
     )
-    .is("assigned_to", null)
-    .order("created_at", { ascending: false })
+    .is("asignado_a", null)
+    .order("creado_en", { ascending: false })
 
-  // Calculate statistics
+  // Calcular estadísticas
   const stats = {
     total: allTickets?.length || 0,
     assigned: myTickets?.length || 0,
     unassigned: unassignedTickets?.length || 0,
-    resolved: allTickets?.filter((t) => t.status === "resolved" || t.status === "closed").length || 0,
+    resolved: allTickets?.filter((t) => t.estado === "resuelto" || t.estado === "cerrado").length || 0,
   }
 
   const statusColors = {
-    new: "bg-blue-500/10 text-blue-500 border-blue-500/20",
-    in_progress: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20",
-    resolved: "bg-green-500/10 text-green-500 border-green-500/20",
-    closed: "bg-gray-500/10 text-gray-500 border-gray-500/20",
+    nuevo: "bg-blue-500/10 text-blue-500 border-blue-500/20",
+    en_progreso: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20",
+    resuelto: "bg-green-500/10 text-green-500 border-green-500/20",
+    cerrado: "bg-gray-500/10 text-gray-500 border-gray-500/20",
   }
 
   const priorityColors = {
-    low: "bg-gray-500/10 text-gray-500 border-gray-500/20",
-    medium: "bg-blue-500/10 text-blue-500 border-blue-500/20",
-    high: "bg-orange-500/10 text-orange-500 border-orange-500/20",
-    urgent: "bg-red-500/10 text-red-500 border-red-500/20",
+    baja: "bg-gray-500/10 text-gray-500 border-gray-500/20",
+    media: "bg-blue-500/10 text-blue-500 border-blue-500/20",
+    alta: "bg-orange-500/10 text-orange-500 border-orange-500/20",
+    urgente: "bg-red-500/10 text-red-500 border-red-500/20",
   }
 
   const typeLabels = {
-    technical_support: "Soporte Técnico",
-    internal_request: "Solicitud Interna",
-    general_task: "Tarea General",
+    soporte_tecnico: "Soporte Técnico",
+    solicitud_interna: "Solicitud Interna",
+    tarea_general: "Tarea General",
   }
 
   const statusLabels = {
-    new: "Nuevo",
-    in_progress: "En Progreso",
-    resolved: "Resuelto",
-    closed: "Cerrado",
+    nuevo: "Nuevo",
+    en_progreso: "En Progreso",
+    resuelto: "Resuelto",
+    cerrado: "Cerrado",
   }
 
   const priorityLabels = {
-    low: "Baja",
-    medium: "Media",
-    high: "Alta",
-    urgent: "Urgente",
+    baja: "Baja",
+    media: "Media",
+    alta: "Alta",
+    urgente: "Urgente",
   }
 
   const TicketCard = ({ ticket }: { ticket: any }) => (
@@ -110,15 +110,15 @@ export default async function AgentDashboardPage() {
         <CardHeader>
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <CardTitle className="text-lg">{ticket.title}</CardTitle>
-              <CardDescription className="mt-1 line-clamp-2">{ticket.description}</CardDescription>
+              <CardTitle className="text-lg">{ticket.titulo}</CardTitle>
+              <CardDescription className="mt-1 line-clamp-2">{ticket.descripcion}</CardDescription>
             </div>
             <div className="flex flex-col gap-2">
-              <Badge className={statusColors[ticket.status as keyof typeof statusColors]}>
-                {statusLabels[ticket.status as keyof typeof statusLabels]}
+              <Badge className={statusColors[ticket.estado as keyof typeof statusColors]}>
+                {statusLabels[ticket.estado as keyof typeof statusLabels]}
               </Badge>
-              <Badge className={priorityColors[ticket.priority as keyof typeof priorityColors]}>
-                {priorityLabels[ticket.priority as keyof typeof priorityLabels]}
+              <Badge className={priorityColors[ticket.prioridad as keyof typeof priorityColors]}>
+                {priorityLabels[ticket.prioridad as keyof typeof priorityLabels]}
               </Badge>
             </div>
           </div>
@@ -126,15 +126,15 @@ export default async function AgentDashboardPage() {
         <CardContent>
           <div className="flex flex-col gap-2 text-sm text-muted-foreground">
             <div className="flex items-center justify-between">
-              <span>{typeLabels[ticket.type as keyof typeof typeLabels]}</span>
-              <span>Creado: {new Date(ticket.created_at).toLocaleDateString("es-ES")}</span>
+              <span>{typeLabels[ticket.tipo as keyof typeof typeLabels]}</span>
+              <span>Creado: {new Date(ticket.creado_en).toLocaleDateString("es-ES")}</span>
             </div>
             <div className="flex items-center justify-between">
               <span>
-                Creado por: {ticket.created_by_profile?.full_name || ticket.created_by_profile?.email || "Desconocido"}
+                Creado por: {ticket.perfil_creador?.nombre_completo || ticket.perfil_creador?.correo || "Desconocido"}
               </span>
-              {ticket.assigned_to_profile && (
-                <span>Asignado a: {ticket.assigned_to_profile?.full_name || ticket.assigned_to_profile?.email}</span>
+              {ticket.perfil_asignado && (
+                <span>Asignado a: {ticket.perfil_asignado?.nombre_completo || ticket.perfil_asignado?.correo}</span>
               )}
             </div>
           </div>
@@ -152,7 +152,7 @@ export default async function AgentDashboardPage() {
             <h1 className="text-xl font-semibold">Panel de Agente</h1>
           </div>
           <div className="flex items-center gap-4">
-            <span className="text-sm text-muted-foreground">{profile?.full_name || profile?.email}</span>
+            <span className="text-sm text-muted-foreground">{profile?.nombre_completo || profile?.correo}</span>
             <form action="/auth/logout" method="post">
               <Button variant="outline" size="sm">
                 Cerrar Sesión

@@ -26,37 +26,37 @@ export function TicketDetailsUser({ ticket, comments, currentUserId }: TicketDet
   const [newComment, setNewComment] = useState("")
 
   const statusColors = {
-    new: "bg-blue-500/10 text-blue-500 border-blue-500/20",
-    in_progress: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20",
-    resolved: "bg-green-500/10 text-green-500 border-green-500/20",
-    closed: "bg-gray-500/10 text-gray-500 border-gray-500/20",
+    nuevo: "bg-blue-500/10 text-blue-500 border-blue-500/20",
+    en_progreso: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20",
+    resuelto: "bg-green-500/10 text-green-500 border-green-500/20",
+    cerrado: "bg-gray-500/10 text-gray-500 border-gray-500/20",
   }
 
   const priorityColors = {
-    low: "bg-gray-500/10 text-gray-500 border-gray-500/20",
-    medium: "bg-blue-500/10 text-blue-500 border-blue-500/20",
-    high: "bg-orange-500/10 text-orange-500 border-orange-500/20",
-    urgent: "bg-red-500/10 text-red-500 border-red-500/20",
+    baja: "bg-gray-500/10 text-gray-500 border-gray-500/20",
+    media: "bg-blue-500/10 text-blue-500 border-blue-500/20",
+    alta: "bg-orange-500/10 text-orange-500 border-orange-500/20",
+    urgente: "bg-red-500/10 text-red-500 border-red-500/20",
   }
 
   const typeLabels = {
-    technical_support: "Soporte Técnico",
-    internal_request: "Solicitud Interna",
-    general_task: "Tarea General",
+    soporte_tecnico: "Soporte Técnico",
+    solicitud_interna: "Solicitud Interna",
+    tarea_general: "Tarea General",
   }
 
   const statusLabels = {
-    new: "Nuevo",
-    in_progress: "En Progreso",
-    resolved: "Resuelto",
-    closed: "Cerrado",
+    nuevo: "Nuevo",
+    en_progreso: "En Progreso",
+    resuelto: "Resuelto",
+    cerrado: "Cerrado",
   }
 
   const priorityLabels = {
-    low: "Baja",
-    medium: "Media",
-    high: "Alta",
-    urgent: "Urgente",
+    baja: "Baja",
+    media: "Media",
+    alta: "Alta",
+    urgente: "Urgente",
   }
 
   const handleAddComment = async (e: React.FormEvent) => {
@@ -67,11 +67,11 @@ export function TicketDetailsUser({ ticket, comments, currentUserId }: TicketDet
     const supabase = createClient()
 
     try {
-      const { error } = await supabase.from("comments").insert({
+      const { error } = await supabase.from("comentarios").insert({
         ticket_id: ticket.id,
-        user_id: currentUserId,
-        content: newComment,
-        is_internal: false,
+        usuario_id: currentUserId,
+        contenido: newComment,
+        es_interno: false,
       })
 
       if (error) throw error
@@ -85,16 +85,16 @@ export function TicketDetailsUser({ ticket, comments, currentUserId }: TicketDet
     }
   }
 
-  const getInitials = (name: string | null, email: string) => {
-    if (name) {
-      return name
+  const getInitials = (nombre: string | null, correo: string) => {
+    if (nombre) {
+      return nombre
         .split(" ")
         .map((n) => n[0])
         .join("")
         .toUpperCase()
         .slice(0, 2)
     }
-    return email.slice(0, 2).toUpperCase()
+    return correo.slice(0, 2).toUpperCase()
   }
 
   return (
@@ -116,15 +116,15 @@ export function TicketDetailsUser({ ticket, comments, currentUserId }: TicketDet
             <CardHeader>
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <CardTitle className="text-2xl">{ticket.title}</CardTitle>
+                  <CardTitle className="text-2xl">{ticket.titulo}</CardTitle>
                   <CardDescription className="mt-2">Ticket ID: {ticket.id.slice(0, 8)}</CardDescription>
                 </div>
                 <div className="flex flex-col gap-2">
-                  <Badge className={statusColors[ticket.status as keyof typeof statusColors]}>
-                    {statusLabels[ticket.status as keyof typeof statusLabels]}
+                  <Badge className={statusColors[ticket.estado as keyof typeof statusColors]}>
+                    {statusLabels[ticket.estado as keyof typeof statusLabels]}
                   </Badge>
-                  <Badge className={priorityColors[ticket.priority as keyof typeof priorityColors]}>
-                    {priorityLabels[ticket.priority as keyof typeof priorityLabels]}
+                  <Badge className={priorityColors[ticket.prioridad as keyof typeof priorityColors]}>
+                    {priorityLabels[ticket.prioridad as keyof typeof priorityLabels]}
                   </Badge>
                 </div>
               </div>
@@ -132,7 +132,7 @@ export function TicketDetailsUser({ ticket, comments, currentUserId }: TicketDet
             <CardContent className="space-y-6">
               <div>
                 <h3 className="mb-2 font-semibold">Descripción</h3>
-                <p className="text-muted-foreground">{ticket.description}</p>
+                <p className="text-muted-foreground">{ticket.descripcion}</p>
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2">
@@ -140,26 +140,26 @@ export function TicketDetailsUser({ ticket, comments, currentUserId }: TicketDet
                   <User className="h-4 w-4 text-muted-foreground" />
                   <span className="text-muted-foreground">Creado por:</span>
                   <span className="font-medium">
-                    {ticket.created_by_profile?.full_name || ticket.created_by_profile?.email}
+                    {ticket.perfil_creador?.nombre_completo || ticket.perfil_creador?.correo}
                   </span>
                 </div>
 
                 <div className="flex items-center gap-2 text-sm">
                   <Calendar className="h-4 w-4 text-muted-foreground" />
                   <span className="text-muted-foreground">Fecha de creación:</span>
-                  <span className="font-medium">{new Date(ticket.created_at).toLocaleDateString("es-ES")}</span>
+                  <span className="font-medium">{new Date(ticket.creado_en).toLocaleDateString("es-ES")}</span>
                 </div>
 
                 <div className="flex items-center gap-2 text-sm">
                   <span className="text-muted-foreground">Tipo:</span>
-                  <span className="font-medium">{typeLabels[ticket.type as keyof typeof typeLabels]}</span>
+                  <span className="font-medium">{typeLabels[ticket.tipo as keyof typeof typeLabels]}</span>
                 </div>
 
-                {ticket.assigned_to_profile && (
+                {ticket.perfil_asignado && (
                   <div className="flex items-center gap-2 text-sm">
                     <span className="text-muted-foreground">Asignado a:</span>
                     <span className="font-medium">
-                      {ticket.assigned_to_profile?.full_name || ticket.assigned_to_profile?.email}
+                      {ticket.perfil_asignado?.nombre_completo || ticket.perfil_asignado?.correo}
                     </span>
                   </div>
                 )}
@@ -183,21 +183,21 @@ export function TicketDetailsUser({ ticket, comments, currentUserId }: TicketDet
                       <div className="flex gap-3">
                         <Avatar className="h-8 w-8">
                           <AvatarFallback className="text-xs">
-                            {getInitials(comment.user?.full_name, comment.user?.email)}
+                            {getInitials(comment.usuario?.nombre_completo, comment.usuario?.correo)}
                           </AvatarFallback>
                         </Avatar>
                         <div className="flex-1 space-y-1">
                           <div className="flex items-center gap-2">
                             <span className="text-sm font-semibold">
-                              {comment.user?.full_name || comment.user?.email}
+                              {comment.usuario?.nombre_completo || comment.usuario?.correo}
                             </span>
-                            {(comment.user?.role === "agent" || comment.user?.role === "admin") && (
+                            {(comment.usuario?.rol === "agente" || comment.usuario?.rol === "administrador") && (
                               <Badge variant="outline" className="text-xs">
-                                {comment.user?.role === "admin" ? "Admin" : "Agente"}
+                                {comment.usuario?.rol === "administrador" ? "Admin" : "Agente"}
                               </Badge>
                             )}
                             <span className="text-xs text-muted-foreground">
-                              {new Date(comment.created_at).toLocaleDateString("es-ES", {
+                              {new Date(comment.creado_en).toLocaleDateString("es-ES", {
                                 day: "numeric",
                                 month: "short",
                                 hour: "2-digit",
@@ -205,7 +205,7 @@ export function TicketDetailsUser({ ticket, comments, currentUserId }: TicketDet
                               })}
                             </span>
                           </div>
-                          <p className="text-sm text-muted-foreground">{comment.content}</p>
+                          <p className="text-sm text-muted-foreground">{comment.contenido}</p>
                         </div>
                       </div>
                       {index < comments.length - 1 && <Separator className="mt-4" />}

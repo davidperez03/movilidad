@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
-import { UserDetailsAdmin } from "@/components/user-details-admin"
+import { UserDetailsAdmin } from "@/components/detalles-usuario-admin"
 
 export default async function AdminUserDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -14,27 +14,27 @@ export default async function AdminUserDetailsPage({ params }: { params: Promise
     redirect("/auth/login")
   }
 
-  // Get user profile
-  const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single()
+  // Obtener perfil de usuario
+  const { data: profile } = await supabase.from("perfiles").select("*").eq("id", user.id).single()
 
-  // Check if user is admin
-  if (profile?.role !== "admin") {
+  // Verificar si el usuario es administrador
+  if (profile?.rol !== "administrador") {
     redirect("/dashboard")
   }
 
-  // Get user details
-  const { data: userProfile } = await supabase.from("profiles").select("*").eq("id", id).single()
+  // Obtener detalles del usuario
+  const { data: userProfile } = await supabase.from("perfiles").select("*").eq("id", id).single()
 
   if (!userProfile) {
     redirect("/admin")
   }
 
-  // Get user's tickets
+  // Obtener tickets del usuario
   const { data: userTickets } = await supabase
     .from("tickets")
     .select("*")
-    .eq("created_by", id)
-    .order("created_at", { ascending: false })
+    .eq("creado_por", id)
+    .order("creado_en", { ascending: false })
 
   return <UserDetailsAdmin userProfile={userProfile} tickets={userTickets || []} />
 }

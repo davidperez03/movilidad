@@ -17,11 +17,11 @@ export default async function AdminLayout({
     redirect("/auth/login")
   }
 
-  // Get user profile to check role
-  const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single()
+  // Obtener perfil de usuario para verificar rol
+  const { data: profile } = await supabase.from("perfiles").select("rol").eq("id", user.id).single()
 
-  // Only admins can access
-  if (profile?.role !== "admin") {
+  // Solo administradores pueden acceder
+  if (profile?.rol !== "administrador") {
     redirect("/dashboard")
   }
 

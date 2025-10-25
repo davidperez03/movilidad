@@ -17,7 +17,7 @@ export default function SignUpPage() {
   const [password, setPassword] = useState("")
   const [repeatPassword, setRepeatPassword] = useState("")
   const [fullName, setFullName] = useState("")
-  const [role, setRole] = useState("user")
+  const [role, setRole] = useState("usuario")
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
@@ -41,8 +41,8 @@ export default function SignUpPage() {
         options: {
           emailRedirectTo: process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL || `${window.location.origin}/dashboard`,
           data: {
-            full_name: fullName,
-            role: role,
+            nombre_completo: fullName,
+            rol: role,
           },
         },
       })
@@ -95,9 +95,9 @@ export default function SignUpPage() {
                       <SelectValue placeholder="Selecciona un rol" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="user">Usuario</SelectItem>
-                      <SelectItem value="agent">Agente</SelectItem>
-                      <SelectItem value="admin">Administrador</SelectItem>
+                      <SelectItem value="usuario">Usuario</SelectItem>
+                      <SelectItem value="agente">Agente</SelectItem>
+                      <SelectItem value="administrador">Administrador</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

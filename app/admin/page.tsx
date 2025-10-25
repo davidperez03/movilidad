@@ -18,95 +18,95 @@ export default async function AdminDashboardPage() {
     redirect("/auth/login")
   }
 
-  // Get user profile
-  const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single()
+  // Obtener perfil de usuario
+  const { data: profile } = await supabase.from("perfiles").select("*").eq("id", user.id).single()
 
-  // Check if user is admin
-  if (profile?.role !== "admin") {
+  // Verificar si el usuario es administrador
+  if (profile?.rol !== "administrador") {
     redirect("/dashboard")
   }
 
-  // Get all tickets
+  // Obtener todos los tickets
   const { data: allTickets } = await supabase
     .from("tickets")
     .select(
       `
       *,
-      created_by_profile:profiles!tickets_created_by_fkey(full_name, email),
-      assigned_to_profile:profiles!tickets_assigned_to_fkey(full_name, email)
+      perfil_creador:perfiles!tickets_creado_por_fkey(nombre_completo, correo),
+      perfil_asignado:perfiles!tickets_asignado_a_fkey(nombre_completo, correo)
     `,
     )
-    .order("created_at", { ascending: false })
+    .order("creado_en", { ascending: false })
 
-  // Get all users
-  const { data: allUsers } = await supabase.from("profiles").select("*").order("created_at", { ascending: false })
+  // Obtener todos los usuarios
+  const { data: allUsers } = await supabase.from("perfiles").select("*").order("creado_en", { ascending: false })
 
-  // Calculate statistics
+  // Calcular estadísticas
   const stats = {
     totalTickets: allTickets?.length || 0,
     totalUsers: allUsers?.length || 0,
-    newTickets: allTickets?.filter((t) => t.status === "new").length || 0,
-    inProgress: allTickets?.filter((t) => t.status === "in_progress").length || 0,
-    resolved: allTickets?.filter((t) => t.status === "resolved").length || 0,
-    closed: allTickets?.filter((t) => t.status === "closed").length || 0,
-    unassigned: allTickets?.filter((t) => !t.assigned_to).length || 0,
-    urgent: allTickets?.filter((t) => t.priority === "urgent").length || 0,
+    newTickets: allTickets?.filter((t) => t.estado === "nuevo").length || 0,
+    inProgress: allTickets?.filter((t) => t.estado === "en_progreso").length || 0,
+    resolved: allTickets?.filter((t) => t.estado === "resuelto").length || 0,
+    closed: allTickets?.filter((t) => t.estado === "cerrado").length || 0,
+    unassigned: allTickets?.filter((t) => !t.asignado_a).length || 0,
+    urgent: allTickets?.filter((t) => t.prioridad === "urgente").length || 0,
   }
 
-  // Get agent workload
-  const agents = allUsers?.filter((u) => u.role === "agent" || u.role === "admin") || []
+  // Obtener carga de trabajo de agentes
+  const agents = allUsers?.filter((u) => u.rol === "agente" || u.rol === "administrador") || []
   const agentWorkload = agents.map((agent) => ({
     ...agent,
-    assignedTickets: allTickets?.filter((t) => t.assigned_to === agent.id).length || 0,
+    assignedTickets: allTickets?.filter((t) => t.asignado_a === agent.id).length || 0,
     resolvedTickets:
-      allTickets?.filter((t) => t.assigned_to === agent.id && (t.status === "resolved" || t.status === "closed"))
+      allTickets?.filter((t) => t.asignado_a === agent.id && (t.estado === "resuelto" || t.estado === "cerrado"))
         .length || 0,
   }))
 
   const statusColors = {
-    new: "bg-blue-500/10 text-blue-500 border-blue-500/20",
-    in_progress: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20",
-    resolved: "bg-green-500/10 text-green-500 border-green-500/20",
-    closed: "bg-gray-500/10 text-gray-500 border-gray-500/20",
+    nuevo: "bg-blue-500/10 text-blue-500 border-blue-500/20",
+    en_progreso: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20",
+    resuelto: "bg-green-500/10 text-green-500 border-green-500/20",
+    cerrado: "bg-gray-500/10 text-gray-500 border-gray-500/20",
   }
 
   const priorityColors = {
-    low: "bg-gray-500/10 text-gray-500 border-gray-500/20",
-    medium: "bg-blue-500/10 text-blue-500 border-blue-500/20",
-    high: "bg-orange-500/10 text-orange-500 border-orange-500/20",
-    urgent: "bg-red-500/10 text-red-500 border-red-500/20",
+    baja: "bg-gray-500/10 text-gray-500 border-gray-500/20",
+    media: "bg-blue-500/10 text-blue-500 border-blue-500/20",
+    alta: "bg-orange-500/10 text-orange-500 border-orange-500/20",
+    urgente: "bg-red-500/10 text-red-500 border-red-500/20",
   }
 
   const roleColors = {
-    user: "bg-gray-500/10 text-gray-500 border-gray-500/20",
-    agent: "bg-blue-500/10 text-blue-500 border-blue-500/20",
-    admin: "bg-purple-500/10 text-purple-500 border-purple-500/20",
+    usuario: "bg-gray-500/10 text-gray-500 border-gray-500/20",
+    agente: "bg-blue-500/10 text-blue-500 border-blue-500/20",
+    administrador: "bg-purple-500/10 text-purple-500 border-purple-500/20",
   }
 
   const typeLabels = {
-    technical_support: "Soporte Técnico",
-    internal_request: "Solicitud Interna",
-    general_task: "Tarea General",
+    soporte_tecnico: "Soporte Técnico",
+    solicitud_interna: "Solicitud Interna",
+    tarea_general: "Tarea General",
   }
 
   const statusLabels = {
-    new: "Nuevo",
-    in_progress: "En Progreso",
-    resolved: "Resuelto",
-    closed: "Cerrado",
+    nuevo: "Nuevo",
+    en_progreso: "En Progreso",
+    resuelto: "Resuelto",
+    cerrado: "Cerrado",
   }
 
   const priorityLabels = {
-    low: "Baja",
-    medium: "Media",
-    high: "Alta",
-    urgent: "Urgente",
+    baja: "Baja",
+    media: "Media",
+    alta: "Alta",
+    urgente: "Urgente",
   }
 
   const roleLabels = {
-    user: "Usuario",
-    agent: "Agente",
-    admin: "Administrador",
+    usuario: "Usuario",
+    agente: "Agente",
+    administrador: "Administrador",
   }
 
   return (
@@ -118,7 +118,7 @@ export default async function AdminDashboardPage() {
             <h1 className="text-xl font-semibold">Panel de Administración</h1>
           </div>
           <div className="flex items-center gap-4">
-            <span className="text-sm text-muted-foreground">{profile?.full_name || profile?.email}</span>
+            <span className="text-sm text-muted-foreground">{profile?.nombre_completo || profile?.correo}</span>
             <form action="/auth/logout" method="post">
               <Button variant="outline" size="sm">
                 Cerrar Sesión
@@ -195,15 +195,15 @@ export default async function AdminDashboardPage() {
                     <CardHeader>
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
-                          <CardTitle className="text-lg">{ticket.title}</CardTitle>
-                          <CardDescription className="mt-1 line-clamp-2">{ticket.description}</CardDescription>
+                          <CardTitle className="text-lg">{ticket.titulo}</CardTitle>
+                          <CardDescription className="mt-1 line-clamp-2">{ticket.descripcion}</CardDescription>
                         </div>
                         <div className="flex flex-col gap-2">
-                          <Badge className={statusColors[ticket.status as keyof typeof statusColors]}>
-                            {statusLabels[ticket.status as keyof typeof statusLabels]}
+                          <Badge className={statusColors[ticket.estado as keyof typeof statusColors]}>
+                            {statusLabels[ticket.estado as keyof typeof statusLabels]}
                           </Badge>
-                          <Badge className={priorityColors[ticket.priority as keyof typeof priorityColors]}>
-                            {priorityLabels[ticket.priority as keyof typeof priorityLabels]}
+                          <Badge className={priorityColors[ticket.prioridad as keyof typeof priorityColors]}>
+                            {priorityLabels[ticket.prioridad as keyof typeof priorityLabels]}
                           </Badge>
                         </div>
                       </div>
@@ -211,17 +211,17 @@ export default async function AdminDashboardPage() {
                     <CardContent>
                       <div className="flex flex-col gap-2 text-sm text-muted-foreground">
                         <div className="flex items-center justify-between">
-                          <span>{typeLabels[ticket.type as keyof typeof typeLabels]}</span>
-                          <span>Creado: {new Date(ticket.created_at).toLocaleDateString("es-ES")}</span>
+                          <span>{typeLabels[ticket.tipo as keyof typeof typeLabels]}</span>
+                          <span>Creado: {new Date(ticket.creado_en).toLocaleDateString("es-ES")}</span>
                         </div>
                         <div className="flex items-center justify-between">
                           <span>
                             Creado por:{" "}
-                            {ticket.created_by_profile?.full_name || ticket.created_by_profile?.email || "Desconocido"}
+                            {ticket.perfil_creador?.nombre_completo || ticket.perfil_creador?.correo || "Desconocido"}
                           </span>
-                          {ticket.assigned_to_profile ? (
+                          {ticket.perfil_asignado ? (
                             <span>
-                              Asignado a: {ticket.assigned_to_profile?.full_name || ticket.assigned_to_profile?.email}
+                              Asignado a: {ticket.perfil_asignado?.nombre_completo || ticket.perfil_asignado?.correo}
                             </span>
                           ) : (
                             <span className="text-orange-500">Sin asignar</span>
@@ -251,17 +251,17 @@ export default async function AdminDashboardPage() {
                     <CardHeader>
                       <div className="flex items-center justify-between">
                         <div>
-                          <CardTitle className="text-lg">{user.full_name || "Sin nombre"}</CardTitle>
-                          <CardDescription>{user.email}</CardDescription>
+                          <CardTitle className="text-lg">{user.nombre_completo || "Sin nombre"}</CardTitle>
+                          <CardDescription>{user.correo}</CardDescription>
                         </div>
-                        <Badge className={roleColors[user.role as keyof typeof roleColors]}>
-                          {roleLabels[user.role as keyof typeof roleLabels]}
+                        <Badge className={roleColors[user.rol as keyof typeof roleColors]}>
+                          {roleLabels[user.rol as keyof typeof roleLabels]}
                         </Badge>
                       </div>
                     </CardHeader>
                     <CardContent>
                       <div className="text-sm text-muted-foreground">
-                        Registrado: {new Date(user.created_at).toLocaleDateString("es-ES")}
+                        Registrado: {new Date(user.creado_en).toLocaleDateString("es-ES")}
                       </div>
                     </CardContent>
                   </Card>
@@ -285,11 +285,11 @@ export default async function AdminDashboardPage() {
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <div>
-                        <CardTitle className="text-lg">{agent.full_name || "Sin nombre"}</CardTitle>
-                        <CardDescription>{agent.email}</CardDescription>
+                        <CardTitle className="text-lg">{agent.nombre_completo || "Sin nombre"}</CardTitle>
+                        <CardDescription>{agent.correo}</CardDescription>
                       </div>
-                      <Badge className={roleColors[agent.role as keyof typeof roleColors]}>
-                        {roleLabels[agent.role as keyof typeof roleLabels]}
+                      <Badge className={roleColors[agent.rol as keyof typeof roleColors]}>
+                        {roleLabels[agent.rol as keyof typeof roleLabels]}
                       </Badge>
                     </div>
                   </CardHeader>

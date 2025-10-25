@@ -17,11 +17,11 @@ export default async function AgentLayout({
     redirect("/auth/login")
   }
 
-  // Get user profile to check role
-  const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single()
+  // Obtener perfil de usuario para verificar rol
+  const { data: profile } = await supabase.from("perfiles").select("rol").eq("id", user.id).single()
 
-  // Only agents and admins can access
-  if (profile?.role !== "agent" && profile?.role !== "admin") {
+  // Solo agentes y administradores pueden acceder
+  if (profile?.rol !== "agente" && profile?.rol !== "administrador") {
     redirect("/dashboard")
   }
 

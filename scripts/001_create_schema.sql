@@ -1,217 +1,218 @@
--- Create profiles table with roles
-create table if not exists public.profiles (
+-- Crear tabla perfiles con roles
+create table if not exists public.perfiles (
   id uuid primary key references auth.users(id) on delete cascade,
-  email text not null,
-  full_name text,
-  role text not null default 'user' check (role in ('user', 'agent', 'admin')),
-  avatar_url text,
-  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
-  updated_at timestamp with time zone default timezone('utc'::text, now()) not null
+  correo text not null,
+  nombre_completo text,
+  rol text not null default 'usuario' check (rol in ('usuario', 'agente', 'administrador')),
+  url_avatar text,
+  creado_en timestamp with time zone default timezone('utc'::text, now()) not null,
+  actualizado_en timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
--- Create tickets table
+-- Crear tabla tickets
 create table if not exists public.tickets (
   id uuid primary key default gen_random_uuid(),
-  title text not null,
-  description text not null,
-  type text not null check (type in ('technical_support', 'internal_request', 'general_task')),
-  status text not null default 'new' check (status in ('new', 'in_progress', 'resolved', 'closed')),
-  priority text not null default 'medium' check (priority in ('low', 'medium', 'high', 'urgent')),
-  created_by uuid not null references public.profiles(id) on delete cascade,
-  assigned_to uuid references public.profiles(id) on delete set null,
-  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
-  updated_at timestamp with time zone default timezone('utc'::text, now()) not null,
-  resolved_at timestamp with time zone,
-  closed_at timestamp with time zone
+  titulo text not null,
+  descripcion text not null,
+  tipo text not null check (tipo in ('soporte_tecnico', 'solicitud_interna', 'tarea_general')),
+  estado text not null default 'nuevo' check (estado in ('nuevo', 'en_progreso', 'resuelto', 'cerrado')),
+  prioridad text not null default 'media' check (prioridad in ('baja', 'media', 'alta', 'urgente')),
+  creado_por uuid not null references public.perfiles(id) on delete cascade,
+  asignado_a uuid references public.perfiles(id) on delete set null,
+  creado_en timestamp with time zone default timezone('utc'::text, now()) not null,
+  actualizado_en timestamp with time zone default timezone('utc'::text, now()) not null,
+  resuelto_en timestamp with time zone,
+  cerrado_en timestamp with time zone
 );
 
--- Create comments table
-create table if not exists public.comments (
+-- Crear tabla comentarios
+create table if not exists public.comentarios (
   id uuid primary key default gen_random_uuid(),
   ticket_id uuid not null references public.tickets(id) on delete cascade,
-  user_id uuid not null references public.profiles(id) on delete cascade,
-  content text not null,
-  is_internal boolean default false,
-  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
-  updated_at timestamp with time zone default timezone('utc'::text, now()) not null
+  usuario_id uuid not null references public.perfiles(id) on delete cascade,
+  contenido text not null,
+  es_interno boolean default false,
+  creado_en timestamp with time zone default timezone('utc'::text, now()) not null,
+  actualizado_en timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
--- Create attachments table
-create table if not exists public.attachments (
+-- Crear tabla adjuntos
+create table if not exists public.adjuntos (
   id uuid primary key default gen_random_uuid(),
   ticket_id uuid not null references public.tickets(id) on delete cascade,
-  uploaded_by uuid not null references public.profiles(id) on delete cascade,
-  file_name text not null,
-  file_url text not null,
-  file_size integer,
-  file_type text,
-  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+  subido_por uuid not null references public.perfiles(id) on delete cascade,
+  nombre_archivo text not null,
+  url_archivo text not null,
+  tamano_archivo integer,
+  tipo_archivo text,
+  creado_en timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
--- Create indexes for better performance
-create index if not exists idx_tickets_created_by on public.tickets(created_by);
-create index if not exists idx_tickets_assigned_to on public.tickets(assigned_to);
-create index if not exists idx_tickets_status on public.tickets(status);
-create index if not exists idx_tickets_priority on public.tickets(priority);
-create index if not exists idx_tickets_type on public.tickets(type);
-create index if not exists idx_comments_ticket_id on public.comments(ticket_id);
-create index if not exists idx_comments_user_id on public.comments(user_id);
-create index if not exists idx_attachments_ticket_id on public.attachments(ticket_id);
+-- Crear índices para mejor rendimiento
+create index if not exists idx_tickets_creado_por on public.tickets(creado_por);
+create index if not exists idx_tickets_asignado_a on public.tickets(asignado_a);
+create index if not exists idx_tickets_estado on public.tickets(estado);
+create index if not exists idx_tickets_prioridad on public.tickets(prioridad);
+create index if not exists idx_tickets_tipo on public.tickets(tipo);
+create index if not exists idx_comentarios_ticket_id on public.comentarios(ticket_id);
+create index if not exists idx_comentarios_usuario_id on public.comentarios(usuario_id);
+create index if not exists idx_adjuntos_ticket_id on public.adjuntos(ticket_id);
 
--- Enable Row Level Security
-alter table public.profiles enable row level security;
+-- Habilitar Row Level Security
+alter table public.perfiles enable row level security;
 alter table public.tickets enable row level security;
-alter table public.comments enable row level security;
-alter table public.attachments enable row level security;
+alter table public.comentarios enable row level security;
+alter table public.adjuntos enable row level security;
 
--- Profiles policies
-create policy "Users can view all profiles"
-  on public.profiles for select
+-- Políticas de perfiles
+create policy "Los usuarios pueden ver todos los perfiles"
+  on public.perfiles for select
   using (true);
 
-create policy "Users can update own profile"
-  on public.profiles for update
+create policy "Los usuarios pueden actualizar su propio perfil"
+  on public.perfiles for update
   using (auth.uid() = id);
 
-create policy "Users can insert own profile"
-  on public.profiles for insert
+create policy "Los usuarios pueden insertar su propio perfil"
+  on public.perfiles for insert
   with check (auth.uid() = id);
 
--- Tickets policies
-create policy "Users can view their own tickets"
+-- Políticas de tickets
+create policy "Los usuarios pueden ver sus propios tickets"
   on public.tickets for select
   using (
-    auth.uid() = created_by 
-    or auth.uid() = assigned_to
+    auth.uid() = creado_por
+    or auth.uid() = asignado_a
     or exists (
-      select 1 from public.profiles 
-      where id = auth.uid() 
-      and role in ('agent', 'admin')
+      select 1 from public.perfiles
+      where id = auth.uid()
+      and rol in ('agente', 'administrador')
     )
   );
 
-create policy "Users can create tickets"
+create policy "Los usuarios pueden crear tickets"
   on public.tickets for insert
-  with check (auth.uid() = created_by);
+  with check (auth.uid() = creado_por);
 
-create policy "Agents and admins can update tickets"
+create policy "Los agentes y administradores pueden actualizar tickets"
   on public.tickets for update
   using (
     exists (
-      select 1 from public.profiles 
-      where id = auth.uid() 
-      and role in ('agent', 'admin')
+      select 1 from public.perfiles
+      where id = auth.uid()
+      and rol in ('agente', 'administrador')
     )
   );
 
-create policy "Admins can delete tickets"
+create policy "Los administradores pueden eliminar tickets"
   on public.tickets for delete
   using (
     exists (
-      select 1 from public.profiles 
-      where id = auth.uid() 
-      and role = 'admin'
+      select 1 from public.perfiles
+      where id = auth.uid()
+      and rol = 'administrador'
     )
   );
 
--- Comments policies
-create policy "Users can view comments on their tickets"
-  on public.comments for select
+-- Políticas de comentarios
+create policy "Los usuarios pueden ver comentarios en sus tickets"
+  on public.comentarios for select
   using (
     exists (
-      select 1 from public.tickets 
-      where id = ticket_id 
+      select 1 from public.tickets
+      where id = ticket_id
       and (
-        created_by = auth.uid() 
-        or assigned_to = auth.uid()
+        creado_por = auth.uid()
+        or asignado_a = auth.uid()
         or exists (
-          select 1 from public.profiles 
-          where id = auth.uid() 
-          and role in ('agent', 'admin')
+          select 1 from public.perfiles
+          where id = auth.uid()
+          and rol in ('agente', 'administrador')
         )
       )
     )
   );
 
-create policy "Users can create comments on accessible tickets"
-  on public.comments for insert
+create policy "Los usuarios pueden crear comentarios en tickets accesibles"
+  on public.comentarios for insert
   with check (
-    auth.uid() = user_id
+    auth.uid() = usuario_id
     and exists (
-      select 1 from public.tickets 
-      where id = ticket_id 
+      select 1 from public.tickets
+      where id = ticket_id
       and (
-        created_by = auth.uid() 
-        or assigned_to = auth.uid()
+        creado_por = auth.uid()
+        or asignado_a = auth.uid()
         or exists (
-          select 1 from public.profiles 
-          where id = auth.uid() 
-          and role in ('agent', 'admin')
+          select 1 from public.perfiles
+          where id = auth.uid()
+          and rol in ('agente', 'administrador')
         )
       )
     )
   );
 
-create policy "Users can update own comments"
-  on public.comments for update
-  using (auth.uid() = user_id);
+create policy "Los usuarios pueden actualizar sus propios comentarios"
+  on public.comentarios for update
+  using (auth.uid() = usuario_id);
 
-create policy "Users can delete own comments"
-  on public.comments for delete
+create policy "Los usuarios pueden eliminar sus propios comentarios"
+  on public.comentarios for delete
   using (
-    auth.uid() = user_id
+    auth.uid() = usuario_id
     or exists (
-      select 1 from public.profiles 
-      where id = auth.uid() 
-      and role = 'admin'
+      select 1 from public.perfiles
+      where id = auth.uid()
+      and rol = 'administrador'
     )
   );
 
--- Attachments policies
-create policy "Users can view attachments on their tickets"
-  on public.attachments for select
+-- Políticas de adjuntos
+create policy "Los usuarios pueden ver adjuntos en sus tickets"
+  on public.adjuntos for select
   using (
     exists (
-      select 1 from public.tickets 
-      where id = ticket_id 
+      select 1 from public.tickets
+      where id = ticket_id
       and (
-        created_by = auth.uid() 
-        or assigned_to = auth.uid()
+        creado_por = auth.uid()
+        or asignado_a = auth.uid()
         or exists (
-          select 1 from public.profiles 
-          where id = auth.uid() 
-          and role in ('agent', 'admin')
+          select 1 from public.perfiles
+          where id = auth.uid()
+          and rol in ('agente', 'administrador')
         )
       )
     )
   );
 
-create policy "Users can upload attachments to accessible tickets"
-  on public.attachments for insert
+create policy "Los usuarios pueden subir adjuntos a tickets accesibles"
+  on public.adjuntos for insert
   with check (
-    auth.uid() = uploaded_by
+    auth.uid() = subido_por
     and exists (
-      select 1 from public.tickets 
-      where id = ticket_id 
+      select 1 from public.tickets
+      where id = ticket_id
       and (
-        created_by = auth.uid() 
-        or assigned_to = auth.uid()
+        creado_por = auth.uid()
+        or asignado_a = auth.uid()
         or exists (
-          select 1 from public.profiles 
-          where id = auth.uid() 
-          and role in ('agent', 'admin')
+          select 1 from public.perfiles
+          where id = auth.uid()
+          and rol in ('agente', 'administrador')
         )
       )
     )
   );
 
-create policy "Users can delete own attachments"
-  on public.attachments for delete
+create policy "Los usuarios pueden eliminar sus propios adjuntos"
+  on public.adjuntos for delete
   using (
-    auth.uid() = uploaded_by
+    auth.uid() = subido_por
     or exists (
-      select 1 from public.profiles 
-      where id = auth.uid() 
-      and role = 'admin'
+      select 1 from public.perfiles
+      where id = auth.uid()
+      and rol = 'administrador'
+
     )
   );

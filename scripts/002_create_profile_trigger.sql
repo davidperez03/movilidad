@@ -1,17 +1,17 @@
--- Function to handle new user creation
-create or replace function public.handle_new_user()
+-- Función para manejar la creación de nuevos usuarios
+create or replace function public.manejar_nuevo_usuario()
 returns trigger
 language plpgsql
 security definer
 set search_path = public
 as $$
 begin
-  insert into public.profiles (id, email, full_name, role)
+  insert into public.perfiles (id, correo, nombre_completo, rol)
   values (
     new.id,
     new.email,
-    coalesce(new.raw_user_meta_data ->> 'full_name', ''),
-    coalesce(new.raw_user_meta_data ->> 'role', 'user')
+    coalesce(new.raw_user_meta_data ->> 'nombre_completo', ''),
+    coalesce(new.raw_user_meta_data ->> 'rol', 'usuario')
   )
   on conflict (id) do nothing;
 
@@ -19,10 +19,10 @@ begin
 end;
 $$;
 
--- Trigger to automatically create profile on user signup
-drop trigger if exists on_auth_user_created on auth.users;
+-- Trigger para crear automáticamente el perfil al registrarse un usuario
+drop trigger if exists al_crear_usuario_auth on auth.users;
 
-create trigger on_auth_user_created
+create trigger al_crear_usuario_auth
   after insert on auth.users
   for each row
-  execute function public.handle_new_user();
+  execute function public.manejar_nuevo_usuario();

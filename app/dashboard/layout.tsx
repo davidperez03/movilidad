@@ -17,13 +17,13 @@ export default async function DashboardLayout({
     redirect("/auth/login")
   }
 
-  // Get user profile to check role
-  const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single()
+  // Obtener perfil de usuario para verificar rol
+  const { data: profile } = await supabase.from("perfiles").select("rol").eq("id", user.id).single()
 
-  // Redirect based on role
-  if (profile?.role === "admin") {
+  // Redirigir según el rol
+  if (profile?.rol === "administrador") {
     redirect("/admin")
-  } else if (profile?.role === "agent") {
+  } else if (profile?.rol === "agente") {
     redirect("/agent")
   }
 

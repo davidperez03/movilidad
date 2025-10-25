@@ -17,48 +17,48 @@ export default async function UserDashboardPage() {
     redirect("/auth/login")
   }
 
-  // Get user profile
-  const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single()
+  // Obtener perfil del usuario
+  const { data: profile } = await supabase.from("perfiles").select("*").eq("id", user.id).single()
 
-  // Get user's tickets
+  // Obtener tickets del usuario
   const { data: tickets } = await supabase
     .from("tickets")
     .select("*")
-    .eq("created_by", user.id)
-    .order("created_at", { ascending: false })
+    .eq("creado_por", user.id)
+    .order("creado_en", { ascending: false })
 
   const statusColors = {
-    new: "bg-blue-500/10 text-blue-500 border-blue-500/20",
-    in_progress: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20",
-    resolved: "bg-green-500/10 text-green-500 border-green-500/20",
-    closed: "bg-gray-500/10 text-gray-500 border-gray-500/20",
+    nuevo: "bg-blue-500/10 text-blue-500 border-blue-500/20",
+    en_progreso: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20",
+    resuelto: "bg-green-500/10 text-green-500 border-green-500/20",
+    cerrado: "bg-gray-500/10 text-gray-500 border-gray-500/20",
   }
 
   const priorityColors = {
-    low: "bg-gray-500/10 text-gray-500 border-gray-500/20",
-    medium: "bg-blue-500/10 text-blue-500 border-blue-500/20",
-    high: "bg-orange-500/10 text-orange-500 border-orange-500/20",
-    urgent: "bg-red-500/10 text-red-500 border-red-500/20",
+    baja: "bg-gray-500/10 text-gray-500 border-gray-500/20",
+    media: "bg-blue-500/10 text-blue-500 border-blue-500/20",
+    alta: "bg-orange-500/10 text-orange-500 border-orange-500/20",
+    urgente: "bg-red-500/10 text-red-500 border-red-500/20",
   }
 
   const typeLabels = {
-    technical_support: "Soporte Técnico",
-    internal_request: "Solicitud Interna",
-    general_task: "Tarea General",
+    soporte_tecnico: "Soporte Técnico",
+    solicitud_interna: "Solicitud Interna",
+    tarea_general: "Tarea General",
   }
 
   const statusLabels = {
-    new: "Nuevo",
-    in_progress: "En Progreso",
-    resolved: "Resuelto",
-    closed: "Cerrado",
+    nuevo: "Nuevo",
+    en_progreso: "En Progreso",
+    resuelto: "Resuelto",
+    cerrado: "Cerrado",
   }
 
   const priorityLabels = {
-    low: "Baja",
-    medium: "Media",
-    high: "Alta",
-    urgent: "Urgente",
+    baja: "Baja",
+    media: "Media",
+    alta: "Alta",
+    urgente: "Urgente",
   }
 
   return (
@@ -70,7 +70,7 @@ export default async function UserDashboardPage() {
             <h1 className="text-xl font-semibold">Sistema de Tickets</h1>
           </div>
           <div className="flex items-center gap-4">
-            <span className="text-sm text-muted-foreground">{profile?.full_name || profile?.email}</span>
+            <span className="text-sm text-muted-foreground">{profile?.nombre_completo || profile?.correo}</span>
             <form action="/auth/logout" method="post">
               <Button variant="outline" size="sm">
                 Cerrar Sesión
@@ -102,23 +102,23 @@ export default async function UserDashboardPage() {
                   <CardHeader>
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <CardTitle className="text-lg">{ticket.title}</CardTitle>
-                        <CardDescription className="mt-1 line-clamp-2">{ticket.description}</CardDescription>
+                        <CardTitle className="text-lg">{ticket.titulo}</CardTitle>
+                        <CardDescription className="mt-1 line-clamp-2">{ticket.descripcion}</CardDescription>
                       </div>
                       <div className="flex flex-col gap-2">
-                        <Badge className={statusColors[ticket.status as keyof typeof statusColors]}>
-                          {statusLabels[ticket.status as keyof typeof statusLabels]}
+                        <Badge className={statusColors[ticket.estado as keyof typeof statusColors]}>
+                          {statusLabels[ticket.estado as keyof typeof statusLabels]}
                         </Badge>
-                        <Badge className={priorityColors[ticket.priority as keyof typeof priorityColors]}>
-                          {priorityLabels[ticket.priority as keyof typeof priorityLabels]}
+                        <Badge className={priorityColors[ticket.prioridad as keyof typeof priorityColors]}>
+                          {priorityLabels[ticket.prioridad as keyof typeof priorityLabels]}
                         </Badge>
                       </div>
                     </div>
                   </CardHeader>
                   <CardContent>
                     <div className="flex items-center justify-between text-sm text-muted-foreground">
-                      <span>{typeLabels[ticket.type as keyof typeof typeLabels]}</span>
-                      <span>Creado: {new Date(ticket.created_at).toLocaleDateString("es-ES")}</span>
+                      <span>{typeLabels[ticket.tipo as keyof typeof typeLabels]}</span>
+                      <span>Creado: {new Date(ticket.creado_en).toLocaleDateString("es-ES")}</span>
                     </div>
                   </CardContent>
                 </Card>

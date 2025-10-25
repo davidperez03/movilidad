@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
-import { TicketDetailsAdmin } from "@/components/ticket-details-admin"
+import { TicketDetailsAdmin } from "@/components/detalles-ticket-administrador"
 
 export default async function AdminTicketDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -14,22 +14,22 @@ export default async function AdminTicketDetailsPage({ params }: { params: Promi
     redirect("/auth/login")
   }
 
-  // Get user profile
-  const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single()
+  // Obtener perfil de usuario
+  const { data: profile } = await supabase.from("perfiles").select("*").eq("id", user.id).single()
 
-  // Check if user is admin
-  if (profile?.role !== "admin") {
+  // Verificar si el usuario es administrador
+  if (profile?.rol !== "administrador") {
     redirect("/dashboard")
   }
 
-  // Get ticket details
+  // Obtener detalles del ticket
   const { data: ticket } = await supabase
     .from("tickets")
     .select(
       `
       *,
-      created_by_profile:profiles!tickets_created_by_fkey(id, full_name, email),
-      assigned_to_profile:profiles!tickets_assigned_to_fkey(id, full_name, email)
+      perfil_creador:perfiles!tickets_creado_por_fkey(id, nombre_completo, correo),
+      perfil_asignado:perfiles!tickets_asignado_a_fkey(id, nombre_completo, correo)
     `,
     )
     .eq("id", id)
@@ -39,8 +39,8 @@ export default async function AdminTicketDetailsPage({ params }: { params: Promi
     redirect("/admin")
   }
 
-  // Get all agents for assignment
-  const { data: agents } = await supabase.from("profiles").select("id, full_name, email").in("role", ["agent", "admin"])
+  // Obtener todos los agentes para asignación
+  const { data: agents } = await supabase.from("perfiles").select("id, nombre_completo, correo").in("rol", ["agente", "administrador"])
 
   return <TicketDetailsAdmin ticket={ticket} agents={agents || []} />
 }

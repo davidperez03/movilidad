@@ -19,10 +19,10 @@ export default function NewTicketPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    type: "technical_support",
-    priority: "medium",
+    titulo: "",
+    descripcion: "",
+    tipo: "soporte_tecnico",
+    prioridad: "media",
   })
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -42,12 +42,12 @@ export default function NewTicketPage() {
       }
 
       const { error: insertError } = await supabase.from("tickets").insert({
-        title: formData.title,
-        description: formData.description,
-        type: formData.type,
-        priority: formData.priority,
-        created_by: user.id,
-        status: "new",
+        titulo: formData.titulo,
+        descripcion: formData.descripcion,
+        tipo: formData.tipo,
+        prioridad: formData.prioridad,
+        creado_por: user.id,
+        estado: "nuevo",
       })
 
       if (insertError) throw insertError
@@ -88,8 +88,8 @@ export default function NewTicketPage() {
                   id="title"
                   placeholder="Describe brevemente el problema o solicitud"
                   required
-                  value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  value={formData.titulo}
+                  onChange={(e) => setFormData({ ...formData, titulo: e.target.value })}
                 />
               </div>
 
@@ -100,22 +100,22 @@ export default function NewTicketPage() {
                   placeholder="Proporciona detalles adicionales sobre tu solicitud"
                   required
                   rows={6}
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  value={formData.descripcion}
+                  onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
                 />
               </div>
 
               <div className="grid gap-6 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="type">Tipo</Label>
-                  <Select value={formData.type} onValueChange={(value) => setFormData({ ...formData, type: value })}>
+                  <Select value={formData.tipo} onValueChange={(value) => setFormData({ ...formData, tipo: value })}>
                     <SelectTrigger id="type">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="technical_support">Soporte Técnico</SelectItem>
-                      <SelectItem value="internal_request">Solicitud Interna</SelectItem>
-                      <SelectItem value="general_task">Tarea General</SelectItem>
+                      <SelectItem value="soporte_tecnico">Soporte Técnico</SelectItem>
+                      <SelectItem value="solicitud_interna">Solicitud Interna</SelectItem>
+                      <SelectItem value="tarea_general">Tarea General</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -123,17 +123,17 @@ export default function NewTicketPage() {
                 <div className="space-y-2">
                   <Label htmlFor="priority">Prioridad</Label>
                   <Select
-                    value={formData.priority}
-                    onValueChange={(value) => setFormData({ ...formData, priority: value })}
+                    value={formData.prioridad}
+                    onValueChange={(value) => setFormData({ ...formData, prioridad: value })}
                   >
                     <SelectTrigger id="priority">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="low">Baja</SelectItem>
-                      <SelectItem value="medium">Media</SelectItem>
-                      <SelectItem value="high">Alta</SelectItem>
-                      <SelectItem value="urgent">Urgente</SelectItem>
+                      <SelectItem value="baja">Baja</SelectItem>
+                      <SelectItem value="media">Media</SelectItem>
+                      <SelectItem value="alta">Alta</SelectItem>
+                      <SelectItem value="urgente">Urgente</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

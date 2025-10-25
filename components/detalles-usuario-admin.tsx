@@ -19,25 +19,25 @@ interface UserDetailsAdminProps {
 export function UserDetailsAdmin({ userProfile, tickets }: UserDetailsAdminProps) {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
-  const [role, setRole] = useState(userProfile.role)
+  const [role, setRole] = useState(userProfile.rol)
 
   const roleColors = {
-    user: "bg-gray-500/10 text-gray-500 border-gray-500/20",
-    agent: "bg-blue-500/10 text-blue-500 border-blue-500/20",
-    admin: "bg-purple-500/10 text-purple-500 border-purple-500/20",
+    usuario: "bg-gray-500/10 text-gray-500 border-gray-500/20",
+    agente: "bg-blue-500/10 text-blue-500 border-blue-500/20",
+    administrador: "bg-purple-500/10 text-purple-500 border-purple-500/20",
   }
 
   const roleLabels = {
-    user: "Usuario",
-    agent: "Agente",
-    admin: "Administrador",
+    usuario: "Usuario",
+    agente: "Agente",
+    administrador: "Administrador",
   }
 
   const statusLabels = {
-    new: "Nuevo",
-    in_progress: "En Progreso",
-    resolved: "Resuelto",
-    closed: "Cerrado",
+    nuevo: "Nuevo",
+    en_progreso: "En Progreso",
+    resuelto: "Resuelto",
+    cerrado: "Cerrado",
   }
 
   const handleUpdateRole = async () => {
@@ -46,10 +46,10 @@ export function UserDetailsAdmin({ userProfile, tickets }: UserDetailsAdminProps
 
     try {
       const { error } = await supabase
-        .from("profiles")
+        .from("perfiles")
         .update({
-          role,
-          updated_at: new Date().toISOString(),
+          rol: role,
+          actualizado_en: new Date().toISOString(),
         })
         .eq("id", userProfile.id)
 
@@ -82,11 +82,11 @@ export function UserDetailsAdmin({ userProfile, tickets }: UserDetailsAdminProps
             <CardHeader>
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <CardTitle className="text-2xl">{userProfile.full_name || "Sin nombre"}</CardTitle>
+                  <CardTitle className="text-2xl">{userProfile.nombre_completo || "Sin nombre"}</CardTitle>
                   <CardDescription className="mt-2">Usuario ID: {userProfile.id.slice(0, 8)}</CardDescription>
                 </div>
-                <Badge className={roleColors[userProfile.role as keyof typeof roleColors]}>
-                  {roleLabels[userProfile.role as keyof typeof roleLabels]}
+                <Badge className={roleColors[userProfile.rol as keyof typeof roleColors]}>
+                  {roleLabels[userProfile.rol as keyof typeof roleLabels]}
                 </Badge>
               </div>
             </CardHeader>
@@ -95,13 +95,13 @@ export function UserDetailsAdmin({ userProfile, tickets }: UserDetailsAdminProps
                 <div className="flex items-center gap-2 text-sm">
                   <Mail className="h-4 w-4 text-muted-foreground" />
                   <span className="text-muted-foreground">Email:</span>
-                  <span className="font-medium">{userProfile.email}</span>
+                  <span className="font-medium">{userProfile.correo}</span>
                 </div>
 
                 <div className="flex items-center gap-2 text-sm">
                   <Calendar className="h-4 w-4 text-muted-foreground" />
                   <span className="text-muted-foreground">Registrado:</span>
-                  <span className="font-medium">{new Date(userProfile.created_at).toLocaleDateString("es-ES")}</span>
+                  <span className="font-medium">{new Date(userProfile.creado_en).toLocaleDateString("es-ES")}</span>
                 </div>
 
                 <div className="flex items-center gap-2 text-sm">
@@ -126,9 +126,9 @@ export function UserDetailsAdmin({ userProfile, tickets }: UserDetailsAdminProps
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="user">Usuario</SelectItem>
-                    <SelectItem value="agent">Agente</SelectItem>
-                    <SelectItem value="admin">Administrador</SelectItem>
+                    <SelectItem value="usuario">Usuario</SelectItem>
+                    <SelectItem value="agente">Agente</SelectItem>
+                    <SelectItem value="administrador">Administrador</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -151,10 +151,10 @@ export function UserDetailsAdmin({ userProfile, tickets }: UserDetailsAdminProps
                     <Link key={ticket.id} href={`/admin/tickets/${ticket.id}`}>
                       <div className="flex items-center justify-between rounded-lg border p-3 transition-colors hover:bg-muted/50">
                         <div className="flex-1">
-                          <p className="font-medium">{ticket.title}</p>
+                          <p className="font-medium">{ticket.titulo}</p>
                           <p className="text-sm text-muted-foreground">
-                            {statusLabels[ticket.status as keyof typeof statusLabels]} •{" "}
-                            {new Date(ticket.created_at).toLocaleDateString("es-ES")}
+                            {statusLabels[ticket.estado as keyof typeof statusLabels]} •{" "}
+                            {new Date(ticket.creado_en).toLocaleDateString("es-ES")}
                           </p>
                         </div>
                       </div>

@@ -1,2 +1,0 @@
--- This script will be used to seed initial data after users are created
--- For now, it's empty but can be used to add sample tickets or test data
