@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { BotonCerrarSesion } from "@/components/logout-button"
 import Link from "next/link"
-import { Plus, Ticket } from "lucide-react"
+import { Plus, Ticket, Car } from "lucide-react"
 
 export default async function UserDashboardPage() {
   const supabase = await createClient()
@@ -72,6 +72,14 @@ export default async function UserDashboardPage() {
           </div>
           <div className="flex items-center gap-4">
             <span className="text-sm text-muted-foreground">{profile?.nombre_completo || profile?.correo}</span>
+            {profile && ["agente", "administrador"].includes(profile.rol) && (
+              <Button asChild variant="outline" size="sm">
+                <Link href="/movilidad">
+                  <Car className="mr-2 h-4 w-4" />
+                  Módulo de Movilidad
+                </Link>
+              </Button>
+            )}
             <BotonCerrarSesion />
           </div>
         </div>
