@@ -29,7 +29,7 @@ export default async function AgentDashboardPage() {
 
   // Obtener todos los tickets
   const { data: allTickets } = await supabase
-    .from("tickets")
+    .from("tks_tickets")
     .select(
       `
       *,
@@ -41,7 +41,7 @@ export default async function AgentDashboardPage() {
 
   // Obtener tickets asignados a este agente
   const { data: myTickets } = await supabase
-    .from("tickets")
+    .from("tks_tickets")
     .select(
       `
       *,
@@ -53,7 +53,7 @@ export default async function AgentDashboardPage() {
 
   // Obtener tickets sin asignar
   const { data: unassignedTickets } = await supabase
-    .from("tickets")
+    .from("tks_tickets")
     .select(
       `
       *,

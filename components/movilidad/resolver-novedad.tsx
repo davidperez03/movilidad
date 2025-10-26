@@ -49,7 +49,7 @@ export function ResolverNovedad({ novedadId, descripcion }: ResolverNovedadProps
       }
 
       const { error } = await supabase
-        .from("novedades")
+        .from("mov_novedades")
         .update({
           estado: "resuelta",
           solucion: solucion.trim(),

@@ -29,7 +29,7 @@ export default async function AdminDashboardPage() {
 
   // Obtener todos los tickets
   const { data: allTickets } = await supabase
-    .from("tickets")
+    .from("tks_tickets")
     .select(
       `
       *,

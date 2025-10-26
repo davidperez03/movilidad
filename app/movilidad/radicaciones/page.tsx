@@ -11,7 +11,7 @@ export default async function RadicacionesPage() {
 
   // Obtener radicaciones activas
   const { data: radicacionesActivas } = await supabase
-    .from("radicaciones")
+    .from("mov_radicaciones")
     .select(`
       *,
       cuenta:cuenta_id (
@@ -28,7 +28,7 @@ export default async function RadicacionesPage() {
 
   // Obtener radicaciones completadas
   const { data: radicacionesCompletadas } = await supabase
-    .from("radicaciones")
+    .from("mov_radicaciones")
     .select(`
       *,
       cuenta:cuenta_id (

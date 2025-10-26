@@ -18,28 +18,28 @@ export default async function MovilidadDashboard() {
 
   // Obtener estadísticas generales
   const { count: totalCuentas } = await supabase
-    .from("cuentas_vehiculos")
+    .from("mov_cuentas_vehiculos")
     .select("*", { count: "exact", head: true })
 
   const { count: trasladosActivos } = await supabase
-    .from("traslados")
+    .from("mov_traslados")
     .select("*", { count: "exact", head: true })
     .not("estado", "in", '("sin_asignar","trasladado","devuelto")')
 
   const { count: radicacionesActivas } = await supabase
-    .from("radicaciones")
+    .from("mov_radicaciones")
     .select("*", { count: "exact", head: true })
     .not("estado", "in", '("sin_asignar","radicado","devuelto")')
 
   // Procesos por vencer (próximos 7 días)
   const { data: procesosPorVencer } = await supabase
-    .from("vista_procesos_por_vencer")
+    .from("mov_vista_procesos_por_vencer")
     .select("*")
     .limit(5)
 
   // Procesos con novedades pendientes
   const { data: novedadesPendientes } = await supabase
-    .from("novedades")
+    .from("mov_novedades")
     .select(`
       *,
       traslados:proceso_id (

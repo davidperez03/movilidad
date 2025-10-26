@@ -31,7 +31,7 @@ export default async function AdminUserDetailsPage({ params }: { params: Promise
 
   // Obtener tickets del usuario
   const { data: userTickets } = await supabase
-    .from("tickets")
+    .from("tks_tickets")
     .select("*")
     .eq("creado_por", id)
     .order("creado_en", { ascending: false })

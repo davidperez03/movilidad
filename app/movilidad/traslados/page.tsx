@@ -11,7 +11,7 @@ export default async function TrasladosPage() {
 
   // Obtener traslados activos
   const { data: trasladosActivos } = await supabase
-    .from("traslados")
+    .from("mov_traslados")
     .select(`
       *,
       cuenta:cuenta_id (
@@ -28,7 +28,7 @@ export default async function TrasladosPage() {
 
   // Obtener traslados completados
   const { data: trasladosCompletados } = await supabase
-    .from("traslados")
+    .from("mov_traslados")
     .select(`
       *,
       cuenta:cuenta_id (

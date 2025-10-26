@@ -17,7 +17,7 @@ export default async function CuentasPage({
 
   // Construir consulta con búsqueda
   let cuentasQuery = supabase
-    .from("cuentas_vehiculos")
+    .from("mov_cuentas_vehiculos")
     .select(`
       *,
       creador:creado_por (
@@ -42,7 +42,7 @@ export default async function CuentasPage({
   const cuentasConProcesos = await Promise.all(
     (cuentas || []).map(async (cuenta) => {
       const { data: procesoActivo } = await supabase
-        .from("vista_proceso_activo")
+        .from("mov_vista_proceso_activo")
         .select("*")
         .eq("cuenta_id", cuenta.id)
         .single()

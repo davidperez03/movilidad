@@ -49,7 +49,7 @@ export default function NuevaCuentaPage() {
 
       // Verificar si la placa ya existe
       const { data: cuentaExistente } = await supabase
-        .from("cuentas_vehiculos")
+        .from("mov_cuentas_vehiculos")
         .select("placa, numero_cuenta")
         .eq("placa", placaNormalizada)
         .single()
@@ -71,7 +71,7 @@ export default function NuevaCuentaPage() {
 
       // Crear la nueva cuenta
       const { data, error } = await supabase
-        .from("cuentas_vehiculos")
+        .from("mov_cuentas_vehiculos")
         .insert({
           placa: placaNormalizada,
           tipo_servicio: tipoServicio,

@@ -10,7 +10,7 @@ create table if not exists public.perfiles (
 );
 
 -- Crear tabla tickets
-create table if not exists public.tickets (
+create table if not exists public.tks_tickets (
   id uuid primary key default gen_random_uuid(),
   titulo text not null,
   descripcion text not null,
@@ -26,9 +26,9 @@ create table if not exists public.tickets (
 );
 
 -- Crear tabla comentarios
-create table if not exists public.comentarios (
+create table if not exists public.tks_comentarios (
   id uuid primary key default gen_random_uuid(),
-  ticket_id uuid not null references public.tickets(id) on delete cascade,
+  ticket_id uuid not null references public.tks_tickets(id) on delete cascade,
   usuario_id uuid not null references public.perfiles(id) on delete cascade,
   contenido text not null,
   es_interno boolean default false,
@@ -37,9 +37,9 @@ create table if not exists public.comentarios (
 );
 
 -- Crear tabla adjuntos
-create table if not exists public.adjuntos (
+create table if not exists public.tks_adjuntos (
   id uuid primary key default gen_random_uuid(),
-  ticket_id uuid not null references public.tickets(id) on delete cascade,
+  ticket_id uuid not null references public.tks_tickets(id) on delete cascade,
   subido_por uuid not null references public.perfiles(id) on delete cascade,
   nombre_archivo text not null,
   url_archivo text not null,
@@ -49,20 +49,20 @@ create table if not exists public.adjuntos (
 );
 
 -- Crear índices para mejor rendimiento
-create index if not exists idx_tickets_creado_por on public.tickets(creado_por);
-create index if not exists idx_tickets_asignado_a on public.tickets(asignado_a);
-create index if not exists idx_tickets_estado on public.tickets(estado);
-create index if not exists idx_tickets_prioridad on public.tickets(prioridad);
-create index if not exists idx_tickets_tipo on public.tickets(tipo);
-create index if not exists idx_comentarios_ticket_id on public.comentarios(ticket_id);
-create index if not exists idx_comentarios_usuario_id on public.comentarios(usuario_id);
-create index if not exists idx_adjuntos_ticket_id on public.adjuntos(ticket_id);
+create index if not exists idx_tks_tickets_creado_por on public.tks_tickets(creado_por);
+create index if not exists idx_tks_tickets_asignado_a on public.tks_tickets(asignado_a);
+create index if not exists idx_tks_tickets_estado on public.tks_tickets(estado);
+create index if not exists idx_tks_tickets_prioridad on public.tks_tickets(prioridad);
+create index if not exists idx_tks_tickets_tipo on public.tks_tickets(tipo);
+create index if not exists idx_tks_comentarios_ticket_id on public.tks_comentarios(ticket_id);
+create index if not exists idx_tks_comentarios_usuario_id on public.tks_comentarios(usuario_id);
+create index if not exists idx_tks_adjuntos_ticket_id on public.tks_adjuntos(ticket_id);
 
 -- Habilitar Row Level Security
 alter table public.perfiles enable row level security;
-alter table public.tickets enable row level security;
-alter table public.comentarios enable row level security;
-alter table public.adjuntos enable row level security;
+alter table public.tks_tickets enable row level security;
+alter table public.tks_comentarios enable row level security;
+alter table public.tks_adjuntos enable row level security;
 
 -- Políticas de perfiles
 create policy "Los usuarios pueden ver todos los perfiles"
@@ -79,7 +79,7 @@ create policy "Los usuarios pueden insertar su propio perfil"
 
 -- Políticas de tickets
 create policy "Los usuarios pueden ver sus propios tickets"
-  on public.tickets for select
+  on public.tks_tickets for select
   using (
     auth.uid() = creado_por
     or auth.uid() = asignado_a
@@ -91,11 +91,11 @@ create policy "Los usuarios pueden ver sus propios tickets"
   );
 
 create policy "Los usuarios pueden crear tickets"
-  on public.tickets for insert
+  on public.tks_tickets for insert
   with check (auth.uid() = creado_por);
 
 create policy "Los agentes y administradores pueden actualizar tickets"
-  on public.tickets for update
+  on public.tks_tickets for update
   using (
     exists (
       select 1 from public.perfiles
@@ -105,7 +105,7 @@ create policy "Los agentes y administradores pueden actualizar tickets"
   );
 
 create policy "Los administradores pueden eliminar tickets"
-  on public.tickets for delete
+  on public.tks_tickets for delete
   using (
     exists (
       select 1 from public.perfiles
@@ -116,10 +116,10 @@ create policy "Los administradores pueden eliminar tickets"
 
 -- Políticas de comentarios
 create policy "Los usuarios pueden ver comentarios en sus tickets"
-  on public.comentarios for select
+  on public.tks_comentarios for select
   using (
     exists (
-      select 1 from public.tickets
+      select 1 from public.tks_tickets
       where id = ticket_id
       and (
         creado_por = auth.uid()
@@ -134,11 +134,11 @@ create policy "Los usuarios pueden ver comentarios en sus tickets"
   );
 
 create policy "Los usuarios pueden crear comentarios en tickets accesibles"
-  on public.comentarios for insert
+  on public.tks_comentarios for insert
   with check (
     auth.uid() = usuario_id
     and exists (
-      select 1 from public.tickets
+      select 1 from public.tks_tickets
       where id = ticket_id
       and (
         creado_por = auth.uid()
@@ -153,11 +153,11 @@ create policy "Los usuarios pueden crear comentarios en tickets accesibles"
   );
 
 create policy "Los usuarios pueden actualizar sus propios comentarios"
-  on public.comentarios for update
+  on public.tks_comentarios for update
   using (auth.uid() = usuario_id);
 
 create policy "Los usuarios pueden eliminar sus propios comentarios"
-  on public.comentarios for delete
+  on public.tks_comentarios for delete
   using (
     auth.uid() = usuario_id
     or exists (
@@ -169,10 +169,10 @@ create policy "Los usuarios pueden eliminar sus propios comentarios"
 
 -- Políticas de adjuntos
 create policy "Los usuarios pueden ver adjuntos en sus tickets"
-  on public.adjuntos for select
+  on public.tks_adjuntos for select
   using (
     exists (
-      select 1 from public.tickets
+      select 1 from public.tks_tickets
       where id = ticket_id
       and (
         creado_por = auth.uid()
@@ -187,11 +187,11 @@ create policy "Los usuarios pueden ver adjuntos en sus tickets"
   );
 
 create policy "Los usuarios pueden subir adjuntos a tickets accesibles"
-  on public.adjuntos for insert
+  on public.tks_adjuntos for insert
   with check (
     auth.uid() = subido_por
     and exists (
-      select 1 from public.tickets
+      select 1 from public.tks_tickets
       where id = ticket_id
       and (
         creado_por = auth.uid()
@@ -206,7 +206,7 @@ create policy "Los usuarios pueden subir adjuntos a tickets accesibles"
   );
 
 create policy "Los usuarios pueden eliminar sus propios adjuntos"
-  on public.adjuntos for delete
+  on public.tks_adjuntos for delete
   using (
     auth.uid() = subido_por
     or exists (

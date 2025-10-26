@@ -5,7 +5,7 @@
 -- =====================================================
 
 -- Crear tabla de cuentas de vehículos
-create table if not exists public.cuentas_vehiculos (
+create table if not exists public.mov_cuentas_vehiculos (
   id uuid primary key default gen_random_uuid(),
 
   -- Datos del vehículo
@@ -20,10 +20,10 @@ create table if not exists public.cuentas_vehiculos (
 );
 
 -- Crear índices
-create index if not exists idx_cuentas_placa on public.cuentas_vehiculos(placa);
-create index if not exists idx_cuentas_numero on public.cuentas_vehiculos(numero_cuenta);
-create index if not exists idx_cuentas_creado_por on public.cuentas_vehiculos(creado_por);
-create index if not exists idx_cuentas_creado_en on public.cuentas_vehiculos(creado_en desc);
+create index if not exists idx_mov_cuentas_placa on public.mov_cuentas_vehiculos(placa);
+create index if not exists idx_mov_cuentas_numero on public.mov_cuentas_vehiculos(numero_cuenta);
+create index if not exists idx_mov_cuentas_creado_por on public.mov_cuentas_vehiculos(creado_por);
+create index if not exists idx_mov_cuentas_creado_en on public.mov_cuentas_vehiculos(creado_en desc);
 
 -- Crear función para generar número de cuenta automático
 create or replace function generar_numero_cuenta()
@@ -43,7 +43,7 @@ begin
     cast(substring(numero_cuenta from 10) as integer)
   ), 0) + 1
   into consecutivo
-  from public.cuentas_vehiculos
+  from public.mov_cuentas_vehiculos
   where numero_cuenta like fecha_actual || '-%';
 
   -- Generar número con formato YYYYMMDD-XXXXX
@@ -66,10 +66,10 @@ begin
 end;
 $$;
 
-drop trigger if exists before_insert_cuenta on public.cuentas_vehiculos;
+drop trigger if exists before_insert_cuenta on public.mov_cuentas_vehiculos;
 
 create trigger before_insert_cuenta
-  before insert on public.cuentas_vehiculos
+  before insert on public.mov_cuentas_vehiculos
   for each row
   execute function trigger_generar_numero_cuenta();
 
@@ -84,37 +84,31 @@ begin
 end;
 $$;
 
-drop trigger if exists before_update_cuenta on public.cuentas_vehiculos;
+drop trigger if exists before_update_cuenta on public.mov_cuentas_vehiculos;
 
 create trigger before_update_cuenta
-  before update on public.cuentas_vehiculos
+  before update on public.mov_cuentas_vehiculos
   for each row
   execute function trigger_actualizar_fecha();
 
 -- Habilitar Row Level Security
-alter table public.cuentas_vehiculos enable row level security;
+alter table public.mov_cuentas_vehiculos enable row level security;
 
 -- Políticas de seguridad
-create policy "Usuarios pueden ver todas las cuentas"
-  on public.cuentas_vehiculos for select
+create policy "Todos pueden ver cuentas"
+  on public.mov_cuentas_vehiculos for select
   using (true);
 
-create policy "Usuarios pueden crear cuentas"
-  on public.cuentas_vehiculos for insert
+create policy "Los usuarios pueden crear cuentas"
+  on public.mov_cuentas_vehiculos for insert
   with check (auth.uid() = creado_por);
 
-create policy "Administradores pueden actualizar cuentas"
-  on public.cuentas_vehiculos for update
-  using (
-    exists (
-      select 1 from public.perfiles
-      where id = auth.uid()
-      and rol = 'administrador'
-    )
-  );
+create policy "Los creadores pueden actualizar sus cuentas"
+  on public.mov_cuentas_vehiculos for update
+  using (auth.uid() = creado_por);
 
-create policy "Administradores pueden eliminar cuentas"
-  on public.cuentas_vehiculos for delete
+create policy "Los administradores pueden eliminar cuentas"
+  on public.mov_cuentas_vehiculos for delete
   using (
     exists (
       select 1 from public.perfiles
@@ -124,7 +118,7 @@ create policy "Administradores pueden eliminar cuentas"
   );
 
 -- Comentarios para documentación
-comment on table public.cuentas_vehiculos is 'Almacena las cuentas de vehículos para gestión de movilidad';
-comment on column public.cuentas_vehiculos.placa is 'Placa del vehículo (única)';
-comment on column public.cuentas_vehiculos.numero_cuenta is 'Número de cuenta generado automáticamente (YYYYMMDD-XXXXX)';
-comment on column public.cuentas_vehiculos.tipo_servicio is 'Tipo de servicio: particular, publico, otro';
+comment on table public.mov_cuentas_vehiculos is 'Almacena las cuentas de vehículos para gestión de movilidad';
+comment on column public.mov_cuentas_vehiculos.placa is 'Placa del vehículo (única)';
+comment on column public.mov_cuentas_vehiculos.numero_cuenta is 'Número de cuenta generado automáticamente (YYYYMMDD-XXXXX)';
+comment on column public.mov_cuentas_vehiculos.tipo_servicio is 'Tipo de servicio: particular, publico, otro';

@@ -16,7 +16,7 @@ export default async function UserTicketDetailsPage({ params }: { params: Promis
 
   // Obtener detalles del ticket
   const { data: ticket } = await supabase
-    .from("tickets")
+    .from("tks_tickets")
     .select(
       `
       *,
@@ -38,7 +38,7 @@ export default async function UserTicketDetailsPage({ params }: { params: Promis
 
   // Obtener comentarios para este ticket
   const { data: comments } = await supabase
-    .from("comentarios")
+    .from("tks_comentarios")
     .select(
       `
       *,

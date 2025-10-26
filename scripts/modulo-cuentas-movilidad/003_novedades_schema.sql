@@ -5,7 +5,7 @@
 -- =====================================================
 
 -- Crear tabla de novedades
-create table if not exists public.novedades (
+create table if not exists public.mov_novedades (
   id uuid primary key default gen_random_uuid(),
 
   -- Relación con el proceso (puede ser traslado o radicación)
@@ -41,11 +41,11 @@ create table if not exists public.novedades (
 );
 
 -- Crear tabla de adjuntos de novedades
-create table if not exists public.adjuntos_novedades (
+create table if not exists public.mov_adjuntos_novedades (
   id uuid primary key default gen_random_uuid(),
 
   -- Relación con novedad
-  novedad_id uuid not null references public.novedades(id) on delete cascade,
+  novedad_id uuid not null references public.mov_novedades(id) on delete cascade,
 
   -- Datos del archivo
   nombre_archivo text not null,
@@ -59,21 +59,21 @@ create table if not exists public.adjuntos_novedades (
 );
 
 -- Crear índices para novedades
-create index if not exists idx_novedades_proceso on public.novedades(proceso_tipo, proceso_id);
-create index if not exists idx_novedades_estado on public.novedades(estado);
-create index if not exists idx_novedades_prioridad on public.novedades(prioridad);
-create index if not exists idx_novedades_creado_por on public.novedades(creado_por);
-create index if not exists idx_novedades_creado_en on public.novedades(creado_en desc);
+create index if not exists idx_mov_novedades_proceso on public.mov_novedades(proceso_tipo, proceso_id);
+create index if not exists idx_mov_novedades_estado on public.mov_novedades(estado);
+create index if not exists idx_mov_novedades_prioridad on public.mov_novedades(prioridad);
+create index if not exists idx_mov_novedades_creado_por on public.mov_novedades(creado_por);
+create index if not exists idx_mov_novedades_creado_en on public.mov_novedades(creado_en desc);
 
 -- Crear índices para adjuntos
-create index if not exists idx_adjuntos_novedades_novedad on public.adjuntos_novedades(novedad_id);
-create index if not exists idx_adjuntos_novedades_subido_por on public.adjuntos_novedades(subido_por);
+create index if not exists idx_mov_adjuntos_novedades_novedad on public.mov_adjuntos_novedades(novedad_id);
+create index if not exists idx_mov_adjuntos_novedades_subido_por on public.mov_adjuntos_novedades(subido_por);
 
 -- Trigger para actualizar fecha de actualización
-drop trigger if exists before_update_novedad on public.novedades;
+drop trigger if exists before_update_novedad on public.mov_novedades;
 
 create trigger before_update_novedad
-  before update on public.novedades
+  before update on public.mov_novedades
   for each row
   execute function trigger_actualizar_fecha();
 
@@ -93,10 +93,10 @@ begin
 end;
 $$;
 
-drop trigger if exists before_update_estado_novedad on public.novedades;
+drop trigger if exists before_update_estado_novedad on public.mov_novedades;
 
 create trigger before_update_estado_novedad
-  before update on public.novedades
+  before update on public.mov_novedades
   for each row
   execute function trigger_marcar_resolucion();
 
@@ -112,11 +112,11 @@ begin
   if tg_op = 'INSERT' and new.estado != 'resuelta' then
     -- Actualizar estado del proceso a "con_novedades"
     if new.proceso_tipo = 'traslado' then
-      update public.traslados
+      update public.mov_traslados
       set estado = 'con_novedades'
       where id = new.proceso_id and estado not in ('trasladado', 'devuelto');
     elsif new.proceso_tipo = 'radicacion' then
-      update public.radicaciones
+      update public.mov_radicaciones
       set estado = 'con_novedades'
       where id = new.proceso_id and estado not in ('radicado', 'devuelto');
     end if;
@@ -126,7 +126,7 @@ begin
   if tg_op = 'UPDATE' and new.estado = 'resuelta' and old.estado != 'resuelta' then
     -- Verificar si hay más novedades pendientes
     select exists(
-      select 1 from public.novedades
+      select 1 from public.mov_novedades
       where proceso_tipo = new.proceso_tipo
       and proceso_id = new.proceso_id
       and estado != 'resuelta'
@@ -136,11 +136,11 @@ begin
     -- Si no hay más novedades pendientes, cambiar estado a revisado
     if not tiene_pendientes then
       if new.proceso_tipo = 'traslado' then
-        update public.traslados
+        update public.mov_traslados
         set estado = 'revisado'
         where id = new.proceso_id and estado = 'con_novedades';
       elsif new.proceso_tipo = 'radicacion' then
-        update public.radicaciones
+        update public.mov_radicaciones
         set estado = 'revisado'
         where id = new.proceso_id and estado = 'con_novedades';
       end if;
@@ -151,28 +151,28 @@ begin
 end;
 $$;
 
-drop trigger if exists after_insert_update_novedad on public.novedades;
+drop trigger if exists after_insert_update_novedad on public.mov_novedades;
 
 create trigger after_insert_update_novedad
-  after insert or update on public.novedades
+  after insert or update on public.mov_novedades
   for each row
   execute function trigger_actualizar_estado_proceso();
 
 -- Habilitar Row Level Security
-alter table public.novedades enable row level security;
-alter table public.adjuntos_novedades enable row level security;
+alter table public.mov_novedades enable row level security;
+alter table public.mov_adjuntos_novedades enable row level security;
 
 -- Políticas de seguridad para novedades
 create policy "Usuarios pueden ver todas las novedades"
-  on public.novedades for select
+  on public.mov_novedades for select
   using (true);
 
 create policy "Usuarios pueden crear novedades"
-  on public.novedades for insert
+  on public.mov_novedades for insert
   with check (auth.uid() = creado_por);
 
 create policy "Usuarios y agentes pueden actualizar novedades"
-  on public.novedades for update
+  on public.mov_novedades for update
   using (
     auth.uid() = creado_por or
     exists (
@@ -183,7 +183,7 @@ create policy "Usuarios y agentes pueden actualizar novedades"
   );
 
 create policy "Administradores pueden eliminar novedades"
-  on public.novedades for delete
+  on public.mov_novedades for delete
   using (
     exists (
       select 1 from public.perfiles
@@ -194,15 +194,15 @@ create policy "Administradores pueden eliminar novedades"
 
 -- Políticas de seguridad para adjuntos de novedades
 create policy "Usuarios pueden ver adjuntos de novedades"
-  on public.adjuntos_novedades for select
+  on public.mov_adjuntos_novedades for select
   using (true);
 
 create policy "Usuarios pueden subir adjuntos a novedades"
-  on public.adjuntos_novedades for insert
+  on public.mov_adjuntos_novedades for insert
   with check (auth.uid() = subido_por);
 
 create policy "Usuarios pueden eliminar sus propios adjuntos"
-  on public.adjuntos_novedades for delete
+  on public.mov_adjuntos_novedades for delete
   using (
     auth.uid() = subido_por or
     exists (
@@ -213,8 +213,8 @@ create policy "Usuarios pueden eliminar sus propios adjuntos"
   );
 
 -- Comentarios para documentación
-comment on table public.novedades is 'Problemas o incidencias encontradas durante los procesos';
-comment on column public.novedades.proceso_tipo is 'Tipo de proceso: traslado o radicacion';
-comment on column public.novedades.proceso_id is 'ID del proceso (traslado o radicación)';
-comment on column public.novedades.prioridad is 'Nivel de urgencia: baja, media, alta, critica';
-comment on table public.adjuntos_novedades is 'Archivos de soporte para las novedades';
+comment on table public.mov_novedades is 'Problemas o incidencias encontradas durante los procesos';
+comment on column public.mov_novedades.proceso_tipo is 'Tipo de proceso: traslado o radicacion';
+comment on column public.mov_novedades.proceso_id is 'ID del proceso (traslado o radicación)';
+comment on column public.mov_novedades.prioridad is 'Nivel de urgencia: baja, media, alta, critica';
+comment on table public.mov_adjuntos_novedades is 'Archivos de soporte para las novedades';

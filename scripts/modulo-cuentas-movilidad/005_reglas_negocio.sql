@@ -18,14 +18,14 @@ declare
 begin
   -- Verificar si ya tiene un traslado activo (excluyendo sin_asignar)
   select exists(
-    select 1 from public.traslados
+    select 1 from public.mov_traslados
     where cuenta_id = new.cuenta_id
     and estado not in ('sin_asignar', 'trasladado', 'devuelto')
   ) into tiene_traslado_activo;
 
   -- Verificar si ya tiene una radicación activa (excluyendo sin_asignar)
   select exists(
-    select 1 from public.radicaciones
+    select 1 from public.mov_radicaciones
     where cuenta_id = new.cuenta_id
     and estado not in ('sin_asignar', 'radicado', 'devuelto')
   ) into tiene_radicacion_activa;
@@ -44,16 +44,16 @@ begin
 end;
 $$;
 
-drop trigger if exists before_insert_validar_traslado on public.traslados;
-drop trigger if exists before_insert_validar_radicacion on public.radicaciones;
+drop trigger if exists before_insert_validar_traslado on public.mov_traslados;
+drop trigger if exists before_insert_validar_radicacion on public.mov_radicaciones;
 
 create trigger before_insert_validar_traslado
-  before insert on public.traslados
+  before insert on public.mov_traslados
   for each row
   execute function validar_proceso_unico();
 
 create trigger before_insert_validar_radicacion
-  before insert on public.radicaciones
+  before insert on public.mov_radicaciones
   for each row
   execute function validar_proceso_unico();
 
@@ -76,7 +76,7 @@ begin
     estado,
     creado_en
   into ultimo_proceso
-  from public.traslados
+  from public.mov_traslados
   where cuenta_id = new.cuenta_id
     and estado in ('trasladado', 'devuelto')
   order by creado_en desc
@@ -89,7 +89,7 @@ begin
       estado,
       creado_en
     into ultimo_proceso
-    from public.radicaciones
+    from public.mov_radicaciones
     where cuenta_id = new.cuenta_id
       and estado in ('radicado', 'devuelto')
     order by creado_en desc
@@ -125,16 +125,16 @@ begin
 end;
 $$;
 
-drop trigger if exists before_insert_validar_secuencia_traslado on public.traslados;
-drop trigger if exists before_insert_validar_secuencia_radicacion on public.radicaciones;
+drop trigger if exists before_insert_validar_secuencia_traslado on public.mov_traslados;
+drop trigger if exists before_insert_validar_secuencia_radicacion on public.mov_radicaciones;
 
 create trigger before_insert_validar_secuencia_traslado
-  before insert on public.traslados
+  before insert on public.mov_traslados
   for each row
   execute function validar_secuencia_procesos();
 
 create trigger before_insert_validar_secuencia_radicacion
-  before insert on public.radicaciones
+  before insert on public.mov_radicaciones
   for each row
   execute function validar_secuencia_procesos();
 
@@ -197,17 +197,17 @@ begin
 end;
 $$;
 
-drop trigger if exists before_update_validar_estado_traslado on public.traslados;
-drop trigger if exists before_update_validar_estado_radicacion on public.radicaciones;
+drop trigger if exists before_update_validar_estado_traslado on public.mov_traslados;
+drop trigger if exists before_update_validar_estado_radicacion on public.mov_radicaciones;
 
 create trigger before_update_validar_estado_traslado
-  before update on public.traslados
+  before update on public.mov_traslados
   for each row
   when (old.estado is distinct from new.estado)
   execute function validar_transicion_estado();
 
 create trigger before_update_validar_estado_radicacion
-  before update on public.radicaciones
+  before update on public.mov_radicaciones
   for each row
   when (old.estado is distinct from new.estado)
   execute function validar_transicion_estado();
@@ -239,16 +239,16 @@ begin
 end;
 $$;
 
-drop trigger if exists before_update_validar_no_finalizado_traslado on public.traslados;
-drop trigger if exists before_update_validar_no_finalizado_radicacion on public.radicaciones;
+drop trigger if exists before_update_validar_no_finalizado_traslado on public.mov_traslados;
+drop trigger if exists before_update_validar_no_finalizado_radicacion on public.mov_radicaciones;
 
 create trigger before_update_validar_no_finalizado_traslado
-  before update on public.traslados
+  before update on public.mov_traslados
   for each row
   execute function validar_proceso_no_finalizado();
 
 create trigger before_update_validar_no_finalizado_radicacion
-  before update on public.radicaciones
+  before update on public.mov_radicaciones
   for each row
   execute function validar_proceso_no_finalizado();
 
@@ -300,7 +300,7 @@ declare
 begin
   -- Buscar la cuenta
   select id into v_cuenta_id
-  from public.cuentas_vehiculos
+  from public.mov_cuentas_vehiculos
   where placa = p_placa;
 
   if not found then

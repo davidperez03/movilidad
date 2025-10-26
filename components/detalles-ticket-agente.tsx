@@ -37,7 +37,7 @@ export function TicketDetailsAgent({ ticket, agents, currentUserId }: TicketDeta
   const loadComments = async () => {
     const supabase = createClient()
     const { data } = await supabase
-      .from("comentarios")
+      .from("tks_comentarios")
       .select(
         `
         *,
@@ -106,7 +106,7 @@ export function TicketDetailsAgent({ ticket, agents, currentUserId }: TicketDeta
         updateData.cerrado_en = new Date().toISOString()
       }
 
-      const { error } = await supabase.from("tickets").update(updateData).eq("id", ticket.id)
+      const { error } = await supabase.from("tks_tickets").update(updateData).eq("id", ticket.id)
 
       if (error) throw error
 
@@ -124,7 +124,7 @@ export function TicketDetailsAgent({ ticket, agents, currentUserId }: TicketDeta
 
     try {
       const { error } = await supabase
-        .from("tickets")
+        .from("tks_tickets")
         .update({
           asignado_a: currentUserId,
           estado: "en_progreso",
@@ -152,7 +152,7 @@ export function TicketDetailsAgent({ ticket, agents, currentUserId }: TicketDeta
     const supabase = createClient()
 
     try {
-      const { error } = await supabase.from("comentarios").insert({
+      const { error } = await supabase.from("tks_comentarios").insert({
         ticket_id: ticket.id,
         usuario_id: currentUserId,
         contenido: newComment,

@@ -5,11 +5,11 @@
 -- =====================================================
 
 -- Crear tabla de historial de acciones
-create table if not exists public.historial_acciones (
+create table if not exists public.mov_historial_acciones (
   id uuid primary key default gen_random_uuid(),
 
   -- Relación con cuenta
-  cuenta_id uuid not null references public.cuentas_vehiculos(id) on delete cascade,
+  cuenta_id uuid not null references public.mov_cuentas_vehiculos(id) on delete cascade,
 
   -- Relación con proceso (opcional)
   proceso_tipo text check (proceso_tipo in ('traslado', 'radicacion')),
@@ -41,7 +41,7 @@ create table if not exists public.historial_acciones (
 );
 
 -- Crear vista para último proceso activo de cada cuenta
-create or replace view public.vista_proceso_activo as
+create or replace view public.mov_vista_proceso_activo as
 select distinct on (cv.id)
   cv.id as cuenta_id,
   cv.placa,
@@ -63,15 +63,15 @@ select distinct on (cv.id)
     else null
   end as ciudad,
   coalesce(t.creado_en, r.creado_en) as proceso_creado_en
-from public.cuentas_vehiculos cv
-left join public.traslados t on cv.id = t.cuenta_id
+from public.mov_cuentas_vehiculos cv
+left join public.mov_traslados t on cv.id = t.cuenta_id
   and t.estado not in ('sin_asignar', 'trasladado', 'devuelto')
-left join public.radicaciones r on cv.id = r.cuenta_id
+left join public.mov_radicaciones r on cv.id = r.cuenta_id
   and r.estado not in ('sin_asignar', 'radicado', 'devuelto')
 order by cv.id, coalesce(t.creado_en, r.creado_en) desc nulls last;
 
 -- Crear vista para resumen de novedades por proceso
-create or replace view public.vista_resumen_novedades as
+create or replace view public.mov_vista_resumen_novedades as
 select
   n.proceso_tipo,
   n.proceso_id,
@@ -82,11 +82,11 @@ select
   count(*) filter (where n.prioridad = 'critica') as criticas,
   count(*) filter (where n.prioridad = 'alta') as altas,
   max(n.creado_en) as ultima_novedad
-from public.novedades n
+from public.mov_novedades n
 group by n.proceso_tipo, n.proceso_id;
 
 -- Crear vista para procesos próximos a vencer
-create or replace view public.vista_procesos_por_vencer as
+create or replace view public.mov_vista_procesos_por_vencer as
 select
   'traslado' as proceso_tipo,
   t.id as proceso_id,
@@ -98,8 +98,8 @@ select
   t.fecha_vencimiento,
   t.fecha_vencimiento - current_date as dias_restantes,
   p.nombre_completo as responsable
-from public.traslados t
-join public.cuentas_vehiculos cv on t.cuenta_id = cv.id
+from public.mov_traslados t
+join public.mov_cuentas_vehiculos cv on t.cuenta_id = cv.id
 join public.perfiles p on t.creado_por = p.id
 where t.estado not in ('sin_asignar', 'trasladado', 'devuelto')
   and t.fecha_vencimiento <= current_date + interval '7 days'
@@ -117,8 +117,8 @@ select
   r.fecha_vencimiento,
   r.fecha_vencimiento - current_date as dias_restantes,
   p.nombre_completo as responsable
-from public.radicaciones r
-join public.cuentas_vehiculos cv on r.cuenta_id = cv.id
+from public.mov_radicaciones r
+join public.mov_cuentas_vehiculos cv on r.cuenta_id = cv.id
 join public.perfiles p on r.creado_por = p.id
 where r.estado not in ('sin_asignar', 'radicado', 'devuelto')
   and r.fecha_vencimiento <= current_date + interval '7 days'
@@ -126,12 +126,12 @@ where r.estado not in ('sin_asignar', 'radicado', 'devuelto')
 order by dias_restantes asc;
 
 -- Crear índices para historial
-create index if not exists idx_historial_cuenta on public.historial_acciones(cuenta_id);
-create index if not exists idx_historial_proceso on public.historial_acciones(proceso_tipo, proceso_id);
-create index if not exists idx_historial_accion on public.historial_acciones(accion);
-create index if not exists idx_historial_realizado_por on public.historial_acciones(realizado_por);
-create index if not exists idx_historial_creado_en on public.historial_acciones(creado_en desc);
-create index if not exists idx_historial_detalles_gin on public.historial_acciones using gin(detalles);
+create index if not exists idx_mov_historial_cuenta on public.mov_historial_acciones(cuenta_id);
+create index if not exists idx_mov_historial_proceso on public.mov_historial_acciones(proceso_tipo, proceso_id);
+create index if not exists idx_mov_historial_accion on public.mov_historial_acciones(accion);
+create index if not exists idx_mov_historial_realizado_por on public.mov_historial_acciones(realizado_por);
+create index if not exists idx_mov_historial_creado_en on public.mov_historial_acciones(creado_en desc);
+create index if not exists idx_mov_historial_detalles_gin on public.mov_historial_acciones using gin(detalles);
 
 -- Función para registrar acción en historial
 create or replace function registrar_historial(
@@ -150,7 +150,7 @@ as $$
 declare
   nuevo_id uuid;
 begin
-  insert into public.historial_acciones (
+  insert into public.mov_historial_acciones (
     cuenta_id,
     proceso_tipo,
     proceso_id,
@@ -197,10 +197,10 @@ begin
 end;
 $$;
 
-drop trigger if exists after_insert_cuenta_historial on public.cuentas_vehiculos;
+drop trigger if exists after_insert_cuenta_historial on public.mov_cuentas_vehiculos;
 
 create trigger after_insert_cuenta_historial
-  after insert on public.cuentas_vehiculos
+  after insert on public.mov_cuentas_vehiculos
   for each row
   execute function trigger_historial_cuenta_creada();
 
@@ -228,10 +228,10 @@ begin
 end;
 $$;
 
-drop trigger if exists after_insert_traslado_historial on public.traslados;
+drop trigger if exists after_insert_traslado_historial on public.mov_traslados;
 
 create trigger after_insert_traslado_historial
-  after insert on public.traslados
+  after insert on public.mov_traslados
   for each row
   execute function trigger_historial_traslado_iniciado();
 
@@ -259,10 +259,10 @@ begin
 end;
 $$;
 
-drop trigger if exists after_insert_radicacion_historial on public.radicaciones;
+drop trigger if exists after_insert_radicacion_historial on public.mov_radicaciones;
 
 create trigger after_insert_radicacion_historial
-  after insert on public.radicaciones
+  after insert on public.mov_radicaciones
   for each row
   execute function trigger_historial_radicacion_iniciada();
 
@@ -292,10 +292,10 @@ begin
 end;
 $$;
 
-drop trigger if exists after_update_traslado_historial on public.traslados;
+drop trigger if exists after_update_traslado_historial on public.mov_traslados;
 
 create trigger after_update_traslado_historial
-  after update on public.traslados
+  after update on public.mov_traslados
   for each row
   execute function trigger_historial_estado_traslado();
 
@@ -325,28 +325,28 @@ begin
 end;
 $$;
 
-drop trigger if exists after_update_radicacion_historial on public.radicaciones;
+drop trigger if exists after_update_radicacion_historial on public.mov_radicaciones;
 
 create trigger after_update_radicacion_historial
-  after update on public.radicaciones
+  after update on public.mov_radicaciones
   for each row
   execute function trigger_historial_estado_radicacion();
 
 -- Habilitar Row Level Security
-alter table public.historial_acciones enable row level security;
+alter table public.mov_historial_acciones enable row level security;
 
 -- Políticas de seguridad
 create policy "Usuarios pueden ver todo el historial"
-  on public.historial_acciones for select
+  on public.mov_historial_acciones for select
   using (true);
 
 create policy "Solo el sistema puede insertar en historial"
-  on public.historial_acciones for insert
+  on public.mov_historial_acciones for insert
   with check (false); -- Solo triggers pueden insertar
 
 -- Comentarios para documentación
-comment on table public.historial_acciones is 'Registro de auditoría de todas las acciones realizadas';
-comment on column public.historial_acciones.detalles is 'Información adicional en formato JSON';
-comment on view public.vista_proceso_activo is 'Muestra el proceso activo actual de cada cuenta';
-comment on view public.vista_resumen_novedades is 'Resumen estadístico de novedades por proceso';
-comment on view public.vista_procesos_por_vencer is 'Procesos que vencen en los próximos 7 días';
+comment on table public.mov_historial_acciones is 'Registro de auditoría de todas las acciones realizadas';
+comment on column public.mov_historial_acciones.detalles is 'Información adicional en formato JSON';
+comment on view public.mov_vista_proceso_activo is 'Muestra el proceso activo actual de cada cuenta';
+comment on view public.mov_vista_resumen_novedades is 'Resumen estadístico de novedades por proceso';
+comment on view public.mov_vista_procesos_por_vencer is 'Procesos que vencen en los próximos 7 días';

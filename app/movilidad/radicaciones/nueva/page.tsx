@@ -61,7 +61,7 @@ export default function NuevaRadicacionPage() {
 
       // Buscar cuenta
       const { data: cuenta, error: errorCuenta } = await supabase
-        .from("cuentas_vehiculos")
+        .from("mov_cuentas_vehiculos")
         .select("*")
         .eq("placa", placaNormalizada)
         .single()
@@ -135,7 +135,7 @@ export default function NuevaRadicacionPage() {
 
       // Crear la radicación
       const { data, error } = await supabase
-        .from("radicaciones")
+        .from("mov_radicaciones")
         .insert({
           cuenta_id: cuentaId,
           ciudad_origen: ciudadOrigen,

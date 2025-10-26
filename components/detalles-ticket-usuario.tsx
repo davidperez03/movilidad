@@ -67,7 +67,7 @@ export function TicketDetailsUser({ ticket, comments, currentUserId }: TicketDet
     const supabase = createClient()
 
     try {
-      const { error } = await supabase.from("comentarios").insert({
+      const { error } = await supabase.from("tks_comentarios").insert({
         ticket_id: ticket.id,
         usuario_id: currentUserId,
         contenido: newComment,

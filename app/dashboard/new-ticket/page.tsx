@@ -41,7 +41,7 @@ export default function NewTicketPage() {
         throw new Error("No autenticado")
       }
 
-      const { error: insertError } = await supabase.from("tickets").insert({
+      const { error: insertError } = await supabase.from("tks_tickets").insert({
         titulo: formData.titulo,
         descripcion: formData.descripcion,
         tipo: formData.tipo,

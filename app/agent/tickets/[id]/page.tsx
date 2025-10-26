@@ -24,7 +24,7 @@ export default async function AgentTicketDetailsPage({ params }: { params: Promi
 
   // Obtener detalles del ticket
   const { data: ticket } = await supabase
-    .from("tickets")
+    .from("tks_tickets")
     .select(
       `
       *,

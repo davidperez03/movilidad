@@ -30,7 +30,7 @@ export default async function DetalleVehiculoPage({
 
   // Obtener cuenta del vehículo
   const { data: cuenta, error: errorCuenta } = await supabase
-    .from("cuentas_vehiculos")
+    .from("mov_cuentas_vehiculos")
     .select(`
       *,
       creador:creado_por (
@@ -47,7 +47,7 @@ export default async function DetalleVehiculoPage({
 
   // Obtener proceso activo
   const { data: procesoActivoData } = await supabase
-    .from("vista_proceso_activo")
+    .from("mov_vista_proceso_activo")
     .select("*")
     .eq("cuenta_id", cuenta.id)
     .single()
@@ -73,7 +73,7 @@ export default async function DetalleVehiculoPage({
 
   // Obtener historial de traslados
   const { data: traslados } = await supabase
-    .from("traslados")
+    .from("mov_traslados")
     .select(`
       *,
       creador:creado_por (nombre_completo),
@@ -84,7 +84,7 @@ export default async function DetalleVehiculoPage({
 
   // Obtener historial de radicaciones
   const { data: radicaciones } = await supabase
-    .from("radicaciones")
+    .from("mov_radicaciones")
     .select(`
       *,
       creador:creado_por (nombre_completo),
@@ -97,7 +97,7 @@ export default async function DetalleVehiculoPage({
   let novedadesActivas: any[] = []
   if (procesoActivo?.proceso_id) {
     const { data: novedades } = await supabase
-      .from("novedades")
+      .from("mov_novedades")
       .select(`
         *,
         creador:creado_por (nombre_completo),
@@ -112,7 +112,7 @@ export default async function DetalleVehiculoPage({
 
   // Obtener historial de acciones
   const { data: historial } = await supabase
-    .from("historial_acciones")
+    .from("mov_historial_acciones")
     .select(`
       *,
       responsable:realizado_por (nombre_completo)

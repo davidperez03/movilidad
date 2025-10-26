@@ -23,7 +23,7 @@ export default async function UserDashboardPage() {
 
   // Obtener tickets del usuario
   const { data: tickets } = await supabase
-    .from("tickets")
+    .from("tks_tickets")
     .select("*")
     .eq("creado_por", user.id)
     .order("creado_en", { ascending: false })

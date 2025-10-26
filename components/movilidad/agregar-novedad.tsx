@@ -53,7 +53,7 @@ export function AgregarNovedad({ procesoId, procesoTipo }: AgregarNovedadProps) 
       }
 
       const { error } = await supabase
-        .from("novedades")
+        .from("mov_novedades")
         .insert({
           proceso_tipo: procesoTipo,
           proceso_id: procesoId,

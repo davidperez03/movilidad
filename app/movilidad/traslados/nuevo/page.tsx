@@ -61,7 +61,7 @@ export default function NuevoTrasladoPage() {
 
       // Buscar cuenta
       const { data: cuenta, error: errorCuenta } = await supabase
-        .from("cuentas_vehiculos")
+        .from("mov_cuentas_vehiculos")
         .select("*")
         .eq("placa", placaNormalizada)
         .single()
@@ -135,7 +135,7 @@ export default function NuevoTrasladoPage() {
 
       // Crear el traslado
       const { data, error } = await supabase
-        .from("traslados")
+        .from("mov_traslados")
         .insert({
           cuenta_id: cuentaId,
           ciudad_destino: ciudadDestino,
