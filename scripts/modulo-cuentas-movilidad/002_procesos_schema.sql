@@ -163,12 +163,12 @@ language plpgsql
 as $$
 begin
   -- Para traslados
-  if tg_table_name = 'traslados' and new.estado = 'trasladado' and old.estado != 'trasladado' then
+  if tg_table_name = 'mov_traslados' and new.estado = 'trasladado' and old.estado != 'trasladado' then
     new.fecha_completado := timezone('utc'::text, now());
   end if;
 
   -- Para radicaciones
-  if tg_table_name = 'radicaciones' and new.estado = 'radicado' and old.estado != 'radicado' then
+  if tg_table_name = 'mov_radicaciones' and new.estado = 'radicado' and old.estado != 'radicado' then
     new.fecha_completado := timezone('utc'::text, now());
   end if;
 

@@ -31,12 +31,12 @@ begin
   ) into tiene_radicacion_activa;
 
   -- Si es un traslado nuevo y ya tiene radicación activa
-  if tg_table_name = 'traslados' and tiene_radicacion_activa then
+  if tg_table_name = 'mov_traslados' and tiene_radicacion_activa then
     raise exception 'El vehículo ya tiene un proceso de radicación activo. No puede iniciar un traslado.';
   end if;
 
   -- Si es una radicación nueva y ya tiene traslado activo
-  if tg_table_name = 'radicaciones' and tiene_traslado_activo then
+  if tg_table_name = 'mov_radicaciones' and tiene_traslado_activo then
     raise exception 'El vehículo ya tiene un proceso de traslado activo. No puede iniciar una radicación.';
   end if;
 
@@ -104,7 +104,7 @@ begin
     -- Si el último fue una radicación completada
     if ultimo_tipo = 'radicacion' and ultimo_estado = 'radicado' then
       -- Solo puede hacer traslado ahora
-      if tg_table_name = 'radicaciones' then
+      if tg_table_name = 'mov_radicaciones' then
         raise exception 'Este vehículo fue radicado previamente. Debe ser trasladado primero antes de otra radicación.';
       end if;
     end if;
@@ -112,7 +112,7 @@ begin
     -- Si el último fue un traslado completado
     if ultimo_tipo = 'traslado' and ultimo_estado = 'trasladado' then
       -- Solo puede hacer radicación ahora
-      if tg_table_name = 'traslados' then
+      if tg_table_name = 'mov_traslados' then
         raise exception 'Este vehículo fue trasladado previamente. Debe ser radicado primero antes de otro traslado.';
       end if;
     end if;
@@ -152,7 +152,7 @@ begin
   -- Transiciones válidas para traslados
   -- Flujo: sin_asignar -> revisado -> con_novedades <-> revisado -> enviado_organismo -> trasladado
   -- Devuelto solo desde enviado_organismo
-  if tg_table_name = 'traslados' then
+  if tg_table_name = 'mov_traslados' then
     transiciones_validas := array[
       array['sin_asignar', 'revisado'],
       array['revisado', 'con_novedades'],
@@ -166,7 +166,7 @@ begin
   -- Transiciones válidas para radicaciones
   -- Flujo: sin_asignar -> recibido -> revisado -> con_novedades <-> revisado -> pendiente_radicar -> radicado
   -- Devuelto solo desde pendiente_radicar
-  if tg_table_name = 'radicaciones' then
+  if tg_table_name = 'mov_radicaciones' then
     transiciones_validas := array[
       array['sin_asignar', 'recibido'],
       array['recibido', 'revisado'],
@@ -222,14 +222,14 @@ language plpgsql
 as $$
 begin
   -- Para traslados
-  if tg_table_name = 'traslados' and old.estado in ('trasladado', 'devuelto') then
+  if tg_table_name = 'mov_traslados' and old.estado in ('trasladado', 'devuelto') then
     raise exception 'No se puede modificar un traslado que ya fue % el %',
       case when old.estado = 'trasladado' then 'completado' else 'devuelto' end,
       old.fecha_completado::date;
   end if;
 
   -- Para radicaciones
-  if tg_table_name = 'radicaciones' and old.estado in ('radicado', 'devuelto') then
+  if tg_table_name = 'mov_radicaciones' and old.estado in ('radicado', 'devuelto') then
     raise exception 'No se puede modificar una radicación que ya fue % el %',
       case when old.estado = 'radicado' then 'completada' else 'devuelta' end,
       old.fecha_completado::date;
@@ -275,8 +275,8 @@ begin
     vpa.proceso_estado,
     (vpa.fecha_vencimiento - current_date)::integer as dias_restantes,
     coalesce(vrn.pendientes, 0) > 0 as tiene_novedades_pendientes
-  from public.vista_proceso_activo vpa
-  left join public.vista_resumen_novedades vrn
+  from public.mov_vista_proceso_activo vpa
+  left join public.mov_vista_resumen_novedades vrn
     on vpa.proceso_tipo = vrn.proceso_tipo
     and vpa.proceso_id = vrn.proceso_id
   where vpa.cuenta_id = p_cuenta_id;
