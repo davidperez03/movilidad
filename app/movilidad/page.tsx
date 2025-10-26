@@ -24,12 +24,12 @@ export default async function MovilidadDashboard() {
   const { count: trasladosActivos } = await supabase
     .from("mov_traslados")
     .select("*", { count: "exact", head: true })
-    .not("estado", "in", '("sin_asignar","trasladado","devuelto")')
+    .not("estado", "in", "(trasladado,devuelto)")
 
   const { count: radicacionesActivas } = await supabase
     .from("mov_radicaciones")
     .select("*", { count: "exact", head: true })
-    .not("estado", "in", '("sin_asignar","radicado","devuelto")')
+    .not("estado", "in", "(radicado,devuelto)")
 
   // Procesos por vencer (próximos 7 días)
   const { data: procesosPorVencer } = await supabase

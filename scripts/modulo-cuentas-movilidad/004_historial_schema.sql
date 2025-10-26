@@ -65,9 +65,9 @@ select distinct on (cv.id)
   coalesce(t.creado_en, r.creado_en) as proceso_creado_en
 from public.mov_cuentas_vehiculos cv
 left join public.mov_traslados t on cv.id = t.cuenta_id
-  and t.estado not in ('sin_asignar', 'trasladado', 'devuelto')
+  and t.estado not in ('trasladado', 'devuelto')
 left join public.mov_radicaciones r on cv.id = r.cuenta_id
-  and r.estado not in ('sin_asignar', 'radicado', 'devuelto')
+  and r.estado not in ('radicado', 'devuelto')
 order by cv.id, coalesce(t.creado_en, r.creado_en) desc nulls last;
 
 -- Crear vista para resumen de novedades por proceso

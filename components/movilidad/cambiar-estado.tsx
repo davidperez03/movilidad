@@ -58,7 +58,7 @@ export function CambiarEstado({ procesoId, procesoTipo, estadoActual }: CambiarE
   const [observaciones, setObservaciones] = useState("")
 
   const estados = procesoTipo === "traslado" ? ESTADOS_TRASLADO : ESTADOS_RADICACION
-  const tabla = procesoTipo === "traslado" ? "traslados" : "radicaciones"
+  const tabla = procesoTipo === "traslado" ? "mov_traslados" : "mov_radicaciones"
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

@@ -20,7 +20,7 @@ export default async function CuentasPage({
     .from("mov_cuentas_vehiculos")
     .select(`
       *,
-      creador:creado_por (
+      creador:perfiles!creado_por (
         nombre_completo,
         correo
       )

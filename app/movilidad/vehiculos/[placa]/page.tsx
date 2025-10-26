@@ -33,7 +33,7 @@ export default async function DetalleVehiculoPage({
     .from("mov_cuentas_vehiculos")
     .select(`
       *,
-      creador:creado_por (
+      creador:perfiles!creado_por (
         nombre_completo,
         correo
       )
@@ -55,13 +55,13 @@ export default async function DetalleVehiculoPage({
   // Si hay proceso activo, obtener detalles completos con usuarios
   let procesoActivo = procesoActivoData
   if (procesoActivoData?.proceso_id) {
-    const tabla = procesoActivoData.proceso_tipo === "traslado" ? "traslados" : "radicaciones"
+    const tabla = procesoActivoData.proceso_tipo === "traslado" ? "mov_traslados" : "mov_radicaciones"
     const { data: procesoDetalle } = await supabase
       .from(tabla)
       .select(`
         *,
-        creador:creado_por (nombre_completo),
-        actualizador:actualizado_por (nombre_completo)
+        creador:perfiles!creado_por (nombre_completo),
+        actualizador:perfiles!actualizado_por (nombre_completo)
       `)
       .eq("id", procesoActivoData.proceso_id)
       .single()
@@ -76,8 +76,8 @@ export default async function DetalleVehiculoPage({
     .from("mov_traslados")
     .select(`
       *,
-      creador:creado_por (nombre_completo),
-      actualizador:actualizado_por (nombre_completo)
+      creador:perfiles!creado_por (nombre_completo),
+      actualizador:perfiles!actualizado_por (nombre_completo)
     `)
     .eq("cuenta_id", cuenta.id)
     .order("creado_en", { ascending: false })
@@ -87,8 +87,8 @@ export default async function DetalleVehiculoPage({
     .from("mov_radicaciones")
     .select(`
       *,
-      creador:creado_por (nombre_completo),
-      actualizador:actualizado_por (nombre_completo)
+      creador:perfiles!creado_por (nombre_completo),
+      actualizador:perfiles!actualizado_por (nombre_completo)
     `)
     .eq("cuenta_id", cuenta.id)
     .order("creado_en", { ascending: false })
@@ -100,8 +100,8 @@ export default async function DetalleVehiculoPage({
       .from("mov_novedades")
       .select(`
         *,
-        creador:creado_por (nombre_completo),
-        resolutor:resuelta_por (nombre_completo)
+        creador:perfiles!creado_por (nombre_completo),
+        resolutor:perfiles!resuelta_por (nombre_completo)
       `)
       .eq("proceso_tipo", procesoActivo.proceso_tipo)
       .eq("proceso_id", procesoActivo.proceso_id)
@@ -115,7 +115,7 @@ export default async function DetalleVehiculoPage({
     .from("mov_historial_acciones")
     .select(`
       *,
-      responsable:realizado_por (nombre_completo)
+      responsable:perfiles!realizado_por (nombre_completo)
     `)
     .eq("cuenta_id", cuenta.id)
     .order("creado_en", { ascending: false })

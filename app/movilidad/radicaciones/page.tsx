@@ -10,33 +10,37 @@ export default async function RadicacionesPage() {
   const supabase = await createClient()
 
   // Obtener radicaciones activas
-  const { data: radicacionesActivas } = await supabase
+  const { data: radicacionesActivas, error: errorActivas } = await supabase
     .from("mov_radicaciones")
     .select(`
       *,
-      cuenta:cuenta_id (
+      mov_cuentas_vehiculos!cuenta_id (
         placa,
         numero_cuenta,
         tipo_servicio
       ),
-      creador:creado_por (
+      perfiles!creado_por (
         nombre_completo
       )
     `)
-    .not("estado", "in", '("sin_asignar","radicado","devuelto")')
+    .not("estado", "in", "(radicado,devuelto)")
     .order("creado_en", { ascending: false })
+
+  if (errorActivas) {
+    console.error("Error radicaciones activas:", errorActivas)
+  }
 
   // Obtener radicaciones completadas
   const { data: radicacionesCompletadas } = await supabase
     .from("mov_radicaciones")
     .select(`
       *,
-      cuenta:cuenta_id (
+      mov_cuentas_vehiculos!cuenta_id (
         placa,
         numero_cuenta,
         tipo_servicio
       ),
-      creador:creado_por (
+      perfiles!creado_por (
         nombre_completo
       )
     `)
@@ -113,10 +117,10 @@ export default async function RadicacionesPage() {
                       <div className="space-y-1">
                         <CardTitle className="flex items-center gap-2">
                           <ArrowDownToLine className="h-5 w-5" />
-                          {radicacion.cuenta?.placa}
+                          {radicacion.mov_cuentas_vehiculos?.placa}
                         </CardTitle>
                         <CardDescription>
-                          {radicacion.cuenta?.numero_cuenta}
+                          {radicacion.mov_cuentas_vehiculos?.numero_cuenta}
                         </CardDescription>
                       </div>
                       <div className="flex gap-2">
@@ -160,7 +164,7 @@ export default async function RadicacionesPage() {
                       </div>
                       <div>
                         <p className="text-sm text-muted-foreground">Creado por</p>
-                        <p className="font-medium">{radicacion.creador?.nombre_completo || 'Sin información'}</p>
+                        <p className="font-medium">{radicacion.perfiles?.nombre_completo || 'Sin información'}</p>
                       </div>
                     </div>
                     {radicacion.observaciones && (
@@ -171,7 +175,7 @@ export default async function RadicacionesPage() {
                     )}
                     <div className="flex gap-2">
                       <Button asChild variant="outline" size="sm">
-                        <Link href={`/movilidad/vehiculos/${radicacion.cuenta?.placa}`}>
+                        <Link href={`/movilidad/vehiculos/${radicacion.mov_cuentas_vehiculos?.placa}`}>
                           <FileText className="h-4 w-4 mr-2" />
                           Ver Detalle
                         </Link>
@@ -209,10 +213,10 @@ export default async function RadicacionesPage() {
                     <div className="space-y-1">
                       <CardTitle className="flex items-center gap-2">
                         <ArrowDownToLine className="h-5 w-5" />
-                        {radicacion.cuenta?.placa}
+                        {radicacion.mov_cuentas_vehiculos?.placa}
                       </CardTitle>
                       <CardDescription>
-                        {radicacion.cuenta?.numero_cuenta}
+                        {radicacion.mov_cuentas_vehiculos?.numero_cuenta}
                       </CardDescription>
                     </div>
                     <Badge variant={getEstadoBadgeVariant(radicacion.estado)}>
@@ -242,11 +246,11 @@ export default async function RadicacionesPage() {
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Responsable</p>
-                      <p className="font-medium">{radicacion.creador?.nombre_completo}</p>
+                      <p className="font-medium">{radicacion.perfiles?.nombre_completo}</p>
                     </div>
                   </div>
                   <Button asChild variant="outline" size="sm">
-                    <Link href={`/movilidad/vehiculos/${radicacion.cuenta?.placa}`}>
+                    <Link href={`/movilidad/vehiculos/${radicacion.mov_cuentas_vehiculos?.placa}`}>
                       <FileText className="h-4 w-4 mr-2" />
                       Ver Detalle
                     </Link>

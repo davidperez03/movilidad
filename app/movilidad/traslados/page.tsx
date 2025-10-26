@@ -10,33 +10,37 @@ export default async function TrasladosPage() {
   const supabase = await createClient()
 
   // Obtener traslados activos
-  const { data: trasladosActivos } = await supabase
+  const { data: trasladosActivos, error: errorActivos } = await supabase
     .from("mov_traslados")
     .select(`
       *,
-      cuenta:cuenta_id (
+      mov_cuentas_vehiculos!cuenta_id (
         placa,
         numero_cuenta,
         tipo_servicio
       ),
-      creador:creado_por (
+      perfiles!creado_por (
         nombre_completo
       )
     `)
-    .not("estado", "in", '("sin_asignar","trasladado","devuelto")')
+    .not("estado", "in", "(trasladado,devuelto)")
     .order("creado_en", { ascending: false })
+
+  if (errorActivos) {
+    console.error("Error traslados activos:", errorActivos)
+  }
 
   // Obtener traslados completados
   const { data: trasladosCompletados } = await supabase
     .from("mov_traslados")
     .select(`
       *,
-      cuenta:cuenta_id (
+      cuenta:mov_cuentas_vehiculos!cuenta_id (
         placa,
         numero_cuenta,
         tipo_servicio
       ),
-      creador:creado_por (
+      creador:perfiles!creado_por (
         nombre_completo
       )
     `)
@@ -112,10 +116,10 @@ export default async function TrasladosPage() {
                       <div className="space-y-1">
                         <CardTitle className="flex items-center gap-2">
                           <ArrowRightLeft className="h-5 w-5" />
-                          {traslado.cuenta?.placa}
+                          {traslado.mov_cuentas_vehiculos?.placa}
                         </CardTitle>
                         <CardDescription>
-                          {traslado.cuenta?.numero_cuenta}
+                          {traslado.mov_cuentas_vehiculos?.numero_cuenta}
                         </CardDescription>
                       </div>
                       <div className="flex gap-2">
@@ -159,7 +163,7 @@ export default async function TrasladosPage() {
                       </div>
                       <div>
                         <p className="text-sm text-muted-foreground">Creado por</p>
-                        <p className="font-medium">{traslado.creador?.nombre_completo || 'Sin información'}</p>
+                        <p className="font-medium">{traslado.perfiles?.nombre_completo || 'Sin información'}</p>
                       </div>
                     </div>
                     {traslado.observaciones && (
@@ -170,7 +174,7 @@ export default async function TrasladosPage() {
                     )}
                     <div className="flex gap-2">
                       <Button asChild variant="outline" size="sm">
-                        <Link href={`/movilidad/vehiculos/${traslado.cuenta?.placa}`}>
+                        <Link href={`/movilidad/vehiculos/${traslado.mov_cuentas_vehiculos?.placa}`}>
                           <FileText className="h-4 w-4 mr-2" />
                           Ver Detalle
                         </Link>
@@ -208,10 +212,10 @@ export default async function TrasladosPage() {
                     <div className="space-y-1">
                       <CardTitle className="flex items-center gap-2">
                         <ArrowRightLeft className="h-5 w-5" />
-                        {traslado.cuenta?.placa}
+                        {traslado.mov_cuentas_vehiculos?.placa}
                       </CardTitle>
                       <CardDescription>
-                        {traslado.cuenta?.numero_cuenta}
+                        {traslado.mov_cuentas_vehiculos?.numero_cuenta}
                       </CardDescription>
                     </div>
                     <Badge variant={getEstadoBadgeVariant(traslado.estado)}>
@@ -241,11 +245,11 @@ export default async function TrasladosPage() {
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Responsable</p>
-                      <p className="font-medium">{traslado.creador?.nombre_completo}</p>
+                      <p className="font-medium">{traslado.perfiles?.nombre_completo}</p>
                     </div>
                   </div>
                   <Button asChild variant="outline" size="sm">
-                    <Link href={`/movilidad/vehiculos/${traslado.cuenta?.placa}`}>
+                    <Link href={`/movilidad/vehiculos/${traslado.mov_cuentas_vehiculos?.placa}`}>
                       <FileText className="h-4 w-4 mr-2" />
                       Ver Detalle
                     </Link>
