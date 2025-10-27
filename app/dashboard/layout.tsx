@@ -20,11 +20,9 @@ export default async function DashboardLayout({
   // Obtener perfil de usuario para verificar rol
   const { data: profile } = await supabase.from("perfiles").select("rol").eq("id", user.id).single()
 
-  // Redirigir según el rol
-  if (profile?.rol === "administrador") {
-    redirect("/admin")
-  } else if (profile?.rol === "agente") {
-    redirect("/agent")
+  // Redirigir según el rol - MOVILIDAD ES EL PRINCIPAL
+  if (profile?.rol === "administrador" || profile?.rol === "agente") {
+    redirect("/movilidad")
   }
 
   return <>{children}</>

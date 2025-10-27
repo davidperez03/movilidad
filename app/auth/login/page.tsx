@@ -7,16 +7,27 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { useState } from "react"
-import { Car, Loader2 } from "lucide-react"
+import { useRouter, useSearchParams } from "next/navigation"
+import { useState, useEffect } from "react"
+import { Car, Loader2, AlertCircle } from "lucide-react"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const [timeoutMessage, setTimeoutMessage] = useState(false)
   const router = useRouter()
+  const searchParams = useSearchParams()
+
+  // Detectar si viene de timeout
+  useEffect(() => {
+    if (searchParams?.get("timeout") === "true") {
+      setTimeoutMessage(true)
+      // Ocultar mensaje después de 5 segundos
+      setTimeout(() => setTimeoutMessage(false), 5000)
+    }
+  }, [searchParams])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -25,13 +36,28 @@ export default function LoginPage() {
     setError(null)
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { error, data } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
       if (error) throw error
-      router.push("/dashboard")
-      router.refresh()
+
+      // Verificar rol del usuario para redirección
+      if (data.user) {
+        const { data: profile } = await supabase
+          .from("perfiles")
+          .select("rol")
+          .eq("id", data.user.id)
+          .single()
+
+        // Redirigir según rol - MOVILIDAD ES EL PRINCIPAL
+        if (profile?.rol === "administrador" || profile?.rol === "agente") {
+          router.push("/movilidad")
+        } else {
+          router.push("/dashboard")
+        }
+        router.refresh()
+      }
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "Error al iniciar sesión")
     } finally {
@@ -52,10 +78,18 @@ export default function LoginPage() {
             <h2 className="mt-6 text-3xl font-bold tracking-tight">
               Movilidad
             </h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Gestión de Trámites Vehiculares
-            </p>
           </div>
+
+          {/* Mensaje de timeout */}
+          {timeoutMessage && (
+            <div className="rounded-lg bg-yellow-50 border border-yellow-200 p-4 flex items-start gap-3">
+              <AlertCircle className="h-5 w-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+              <div className="text-sm text-yellow-800">
+                <p className="font-medium">Sesión cerrada por inactividad</p>
+                <p className="mt-1">Tu sesión se cerró después de 10 minutos de inactividad. Por favor, inicia sesión nuevamente.</p>
+              </div>
+            </div>
+          )}
 
           {/* Login Form */}
           <form onSubmit={handleLogin} className="mt-8 space-y-6">
@@ -114,12 +148,6 @@ export default function LoginPage() {
             </div>
 
             <div className="text-center">
-              <p className="text-sm text-muted-foreground">
-                ¿No tienes una cuenta?{" "}
-                <Link href="/auth/sign-up" className="font-medium text-primary hover:underline">
-                  Regístrate aquí
-                </Link>
-              </p>
               <p className="mt-4 text-sm text-muted-foreground">
                 ¿Usuario externo?{" "}
                 <Link href="/consulta" className="font-medium text-primary hover:underline">
