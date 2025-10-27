@@ -3,6 +3,7 @@ import { redirect } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Car, FileText, ArrowRightLeft, ArrowDownToLine, Home } from "lucide-react"
+import { BotonCerrarSesion } from "@/components/logout-button"
 
 export default async function MovilidadLayout({
   children,
@@ -46,12 +47,7 @@ export default async function MovilidadLayout({
               <span className="text-sm text-muted-foreground">
                 {perfil.nombre_completo} ({perfil.rol})
               </span>
-              <Button asChild variant="outline" size="sm">
-                <Link href="/dashboard">
-                  <Home className="h-4 w-4 mr-2" />
-                  Volver al Dashboard
-                </Link>
-              </Button>
+              <BotonCerrarSesion />
             </div>
           </div>
 
