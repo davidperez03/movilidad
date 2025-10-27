@@ -147,17 +147,26 @@ returns trigger
 language plpgsql
 as $$
 declare
+  transicion_valida boolean := false;
+  i integer;
   transiciones_validas text[][];
+  estados_permitidos text := '';
 begin
   -- Transiciones válidas para traslados
   -- Flujo: sin_asignar -> revisado -> con_novedades <-> revisado -> enviado_organismo -> trasladado
-  -- Devuelto solo desde enviado_organismo
+  -- Devuelto puede ser desde revisado, con_novedades o enviado_organismo
+  -- Se permite avanzar desde cualquier estado hacia estados posteriores
   if tg_table_name = 'mov_traslados' then
     transiciones_validas := array[
       array['sin_asignar', 'revisado'],
+      array['sin_asignar', 'con_novedades'],
+      array['sin_asignar', 'enviado_organismo'],
       array['revisado', 'con_novedades'],
       array['revisado', 'enviado_organismo'],
+      array['revisado', 'devuelto'],
       array['con_novedades', 'revisado'],
+      array['con_novedades', 'enviado_organismo'],
+      array['con_novedades', 'devuelto'],
       array['enviado_organismo', 'trasladado'],
       array['enviado_organismo', 'devuelto']
     ];
@@ -165,14 +174,21 @@ begin
 
   -- Transiciones válidas para radicaciones
   -- Flujo: sin_asignar -> recibido -> revisado -> con_novedades <-> revisado -> pendiente_radicar -> radicado
-  -- Devuelto solo desde pendiente_radicar
+  -- Devuelto puede ser desde revisado, con_novedades o pendiente_radicar
+  -- Se permite avanzar desde cualquier estado hacia estados posteriores
   if tg_table_name = 'mov_radicaciones' then
     transiciones_validas := array[
       array['sin_asignar', 'recibido'],
+      array['sin_asignar', 'revisado'],
+      array['sin_asignar', 'pendiente_radicar'],
       array['recibido', 'revisado'],
+      array['recibido', 'con_novedades'],
       array['revisado', 'con_novedades'],
       array['revisado', 'pendiente_radicar'],
+      array['revisado', 'devuelto'],
       array['con_novedades', 'revisado'],
+      array['con_novedades', 'pendiente_radicar'],
+      array['con_novedades', 'devuelto'],
       array['pendiente_radicar', 'radicado'],
       array['pendiente_radicar', 'devuelto']
     ];
@@ -180,16 +196,34 @@ begin
 
   -- Verificar si la transición es válida
   if old.estado != new.estado then
-    if not array[old.estado, new.estado] = any(transiciones_validas) then
-      raise exception 'Transición de estado inválida: % -> %. Transiciones válidas desde %: %',
+    -- Recorrer todas las transiciones válidas
+    for i in 1..array_length(transiciones_validas, 1) loop
+      if transiciones_validas[i][1] = old.estado and transiciones_validas[i][2] = new.estado then
+        transicion_valida := true;
+        exit;
+      end if;
+
+      -- Construir lista de estados permitidos desde el estado actual
+      if transiciones_validas[i][1] = old.estado then
+        if estados_permitidos = '' then
+          estados_permitidos := transiciones_validas[i][2];
+        else
+          estados_permitidos := estados_permitidos || ', ' || transiciones_validas[i][2];
+        end if;
+      end if;
+    end loop;
+
+    -- Si la transición no es válida, lanzar error
+    if not transicion_valida then
+      if estados_permitidos = '' then
+        estados_permitidos := 'ninguno (estado final)';
+      end if;
+
+      raise exception 'Transición de estado inválida: "%" -> "%". Estados permitidos desde "%": %',
         old.estado,
         new.estado,
         old.estado,
-        (
-          select string_agg(t[2], ', ')
-          from unnest(transiciones_validas) t
-          where t[1] = old.estado
-        );
+        estados_permitidos;
     end if;
   end if;
 

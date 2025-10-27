@@ -103,9 +103,18 @@ create policy "Los usuarios pueden crear cuentas"
   on public.mov_cuentas_vehiculos for insert
   with check (auth.uid() = creado_por);
 
-create policy "Los creadores pueden actualizar sus cuentas"
+create policy "Usuarios autenticados pueden actualizar cuentas"
   on public.mov_cuentas_vehiculos for update
-  using (auth.uid() = creado_por);
+  using (
+    auth.uid() is not null and (
+      auth.uid() = creado_por or
+      exists (
+        select 1 from public.perfiles
+        where id = auth.uid()
+        and rol in ('agente', 'administrador')
+      )
+    )
+  );
 
 create policy "Los administradores pueden eliminar cuentas"
   on public.mov_cuentas_vehiculos for delete

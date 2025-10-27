@@ -140,8 +140,28 @@ create trigger before_insert_radicacion
   for each row
   execute function trigger_vencimiento_radicacion();
 
+-- Trigger para auto-asignar actualizado_por
+create or replace function trigger_auto_actualizado_por()
+returns trigger
+language plpgsql
+as $$
+begin
+  -- Auto-asignar actualizado_por si no viene en el request
+  if new.actualizado_por is null then
+    new.actualizado_por := auth.uid();
+  end if;
+  return new;
+end;
+$$;
+
 -- Trigger para actualizar fecha de actualización en traslados
 drop trigger if exists before_update_traslado on public.mov_traslados;
+drop trigger if exists before_update_auto_actualizado_traslado on public.mov_traslados;
+
+create trigger before_update_auto_actualizado_traslado
+  before update on public.mov_traslados
+  for each row
+  execute function trigger_auto_actualizado_por();
 
 create trigger before_update_traslado
   before update on public.mov_traslados
@@ -150,6 +170,12 @@ create trigger before_update_traslado
 
 -- Trigger para actualizar fecha de actualización en radicaciones
 drop trigger if exists before_update_radicacion on public.mov_radicaciones;
+drop trigger if exists before_update_auto_actualizado_radicacion on public.mov_radicaciones;
+
+create trigger before_update_auto_actualizado_radicacion
+  before update on public.mov_radicaciones
+  for each row
+  execute function trigger_auto_actualizado_por();
 
 create trigger before_update_radicacion
   before update on public.mov_radicaciones
@@ -202,15 +228,20 @@ create policy "Usuarios pueden crear traslados"
   on public.mov_traslados for insert
   with check (auth.uid() = creado_por);
 
-create policy "Usuarios pueden actualizar sus traslados"
+create policy "Usuarios pueden actualizar traslados"
   on public.mov_traslados for update
   using (
-    auth.uid() = creado_por or
-    exists (
-      select 1 from public.perfiles
-      where id = auth.uid()
-      and rol in ('agente', 'administrador')
+    auth.uid() is not null and (
+      auth.uid() = creado_por or
+      exists (
+        select 1 from public.perfiles
+        where id = auth.uid()
+        and rol in ('agente', 'administrador')
+      )
     )
+  )
+  with check (
+    actualizado_por is null or auth.uid() = actualizado_por
   );
 
 create policy "Administradores pueden eliminar traslados"
@@ -232,15 +263,20 @@ create policy "Usuarios pueden crear radicaciones"
   on public.mov_radicaciones for insert
   with check (auth.uid() = creado_por);
 
-create policy "Usuarios pueden actualizar sus radicaciones"
+create policy "Usuarios pueden actualizar radicaciones"
   on public.mov_radicaciones for update
   using (
-    auth.uid() = creado_por or
-    exists (
-      select 1 from public.perfiles
-      where id = auth.uid()
-      and rol in ('agente', 'administrador')
+    auth.uid() is not null and (
+      auth.uid() = creado_por or
+      exists (
+        select 1 from public.perfiles
+        where id = auth.uid()
+        and rol in ('agente', 'administrador')
+      )
     )
+  )
+  with check (
+    actualizado_por is null or auth.uid() = actualizado_por
   );
 
 create policy "Administradores pueden eliminar radicaciones"

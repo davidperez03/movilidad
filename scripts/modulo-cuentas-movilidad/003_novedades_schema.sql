@@ -174,11 +174,13 @@ create policy "Usuarios pueden crear novedades"
 create policy "Usuarios y agentes pueden actualizar novedades"
   on public.mov_novedades for update
   using (
-    auth.uid() = creado_por or
-    exists (
-      select 1 from public.perfiles
-      where id = auth.uid()
-      and rol in ('agente', 'administrador')
+    auth.uid() is not null and (
+      auth.uid() = creado_por or
+      exists (
+        select 1 from public.perfiles
+        where id = auth.uid()
+        and rol in ('agente', 'administrador')
+      )
     )
   );
 
