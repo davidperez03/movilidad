@@ -15,9 +15,8 @@ export function BotonCerrarSesion() {
 
     await supabase.auth.signOut()
 
-    // Redirigir al login
-    router.push("/auth/login")
-    router.refresh()
+    // Usar window.location para forzar una recarga completa
+    window.location.href = "/auth/login"
   }
 
   return (
