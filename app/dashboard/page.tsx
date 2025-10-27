@@ -66,20 +66,30 @@ export default async function UserDashboardPage() {
     <div className="min-h-screen bg-muted/30">
       <header className="border-b bg-background">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
-          <div className="flex items-center gap-2">
-            <Ticket className="h-6 w-6" />
-            <h1 className="text-xl font-semibold">Sistema de Tickets</h1>
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-2">
+              <Car className="h-6 w-6 text-primary" />
+              <h1 className="text-xl font-semibold">Movilidad</h1>
+            </div>
+            <nav className="flex items-center gap-2">
+              {profile && ["agente", "administrador"].includes(profile.rol) && (
+                <Button asChild variant="default" size="sm">
+                  <Link href="/movilidad">
+                    <Car className="mr-2 h-4 w-4" />
+                    Movilidad
+                  </Link>
+                </Button>
+              )}
+              <Button asChild variant="ghost" size="sm">
+                <Link href="/dashboard">
+                  <Ticket className="mr-2 h-4 w-4" />
+                  Tickets
+                </Link>
+              </Button>
+            </nav>
           </div>
           <div className="flex items-center gap-4">
             <span className="text-sm text-muted-foreground">{profile?.nombre_completo || profile?.correo}</span>
-            {profile && ["agente", "administrador"].includes(profile.rol) && (
-              <Button asChild variant="outline" size="sm">
-                <Link href="/movilidad">
-                  <Car className="mr-2 h-4 w-4" />
-                  Módulo de Movilidad
-                </Link>
-              </Button>
-            )}
             <BotonCerrarSesion />
           </div>
         </div>

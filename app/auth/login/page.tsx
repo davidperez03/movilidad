@@ -4,12 +4,12 @@ import type React from "react"
 
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
+import { Car, Loader2 } from "lucide-react"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
@@ -40,51 +40,120 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
-      <div className="w-full max-w-sm">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-2xl">Iniciar Sesión</CardTitle>
-            <CardDescription>Ingresa tu correo electrónico para acceder al sistema de tickets</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleLogin}>
-              <div className="flex flex-col gap-6">
-                <div className="grid gap-2">
-                  <Label htmlFor="email">Correo Electrónico</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="tu@ejemplo.com"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                </div>
-                <div className="grid gap-2">
+    <div className="min-h-screen w-full lg:grid lg:grid-cols-2">
+      {/* Left side - Login Form */}
+      <div className="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto w-full max-w-md space-y-8">
+          {/* Logo and Title */}
+          <div className="text-center">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-primary">
+              <Car className="h-8 w-8 text-primary-foreground" />
+            </div>
+            <h2 className="mt-6 text-3xl font-bold tracking-tight">
+              Movilidad
+            </h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Gestión de Trámites Vehiculares
+            </p>
+          </div>
+
+          {/* Login Form */}
+          <form onSubmit={handleLogin} className="mt-8 space-y-6">
+            <div className="space-y-4 rounded-xl border bg-card p-8 shadow-sm">
+              <div className="space-y-2">
+                <Label htmlFor="email">Correo Electrónico</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="usuario@ejemplo.com"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled={isLoading}
+                  className="h-11"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
                   <Label htmlFor="password">Contraseña</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
+                  <Link
+                    href="/auth/forgot-password"
+                    className="text-sm text-primary hover:underline"
+                  >
+                    ¿Olvidaste tu contraseña?
+                  </Link>
                 </div>
-                {error && <p className="text-sm text-destructive">{error}</p>}
-                <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? "Iniciando sesión..." : "Iniciar Sesión"}
-                </Button>
+                <Input
+                  id="password"
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  disabled={isLoading}
+                  className="h-11"
+                />
               </div>
-              <div className="mt-4 text-center text-sm">
+
+              {error && (
+                <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
+                  {error}
+                </div>
+              )}
+
+              <Button type="submit" className="w-full h-11" disabled={isLoading}>
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Iniciando sesión...
+                  </>
+                ) : (
+                  "Iniciar Sesión"
+                )}
+              </Button>
+            </div>
+
+            <div className="text-center">
+              <p className="text-sm text-muted-foreground">
                 ¿No tienes una cuenta?{" "}
-                <Link href="/auth/sign-up" className="underline underline-offset-4">
-                  Regístrate
+                <Link href="/auth/sign-up" className="font-medium text-primary hover:underline">
+                  Regístrate aquí
                 </Link>
+              </p>
+              <p className="mt-4 text-sm text-muted-foreground">
+                ¿Usuario externo?{" "}
+                <Link href="/consulta" className="font-medium text-primary hover:underline">
+                  Consulta tu trámite
+                </Link>
+              </p>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      {/* Right side - Branding */}
+      <div className="hidden lg:block relative bg-gradient-to-br from-primary to-primary/80">
+        <div className="absolute inset-0 bg-grid-white/10" />
+        <div className="relative flex h-full flex-col items-center justify-center p-12 text-white">
+          <div className="space-y-6 text-center">
+            <h1 className="text-5xl font-bold tracking-tight">
+              Bienvenido a Movilidad
+            </h1>
+            <p className="text-xl text-white/90 max-w-md">
+              Gestiona traslados y radicaciones de vehículos de manera eficiente y segura
+            </p>
+            <div className="grid grid-cols-2 gap-6 pt-8 max-w-md mx-auto">
+              <div className="rounded-lg bg-white/10 backdrop-blur-sm p-4 text-center">
+                <div className="text-3xl font-bold">24/7</div>
+                <div className="text-sm text-white/80">Disponibilidad</div>
               </div>
-            </form>
-          </CardContent>
-        </Card>
+              <div className="rounded-lg bg-white/10 backdrop-blur-sm p-4 text-center">
+                <div className="text-3xl font-bold">100%</div>
+                <div className="text-sm text-white/80">Seguro</div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   )
