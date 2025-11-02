@@ -155,11 +155,11 @@ export default async function CuentasPage({
                       <div>
                         <p className="text-sm text-muted-foreground">
                           {cuenta.procesoActivo.proceso_tipo === "traslado"
-                            ? "Ciudad destino"
-                            : "Ciudad origen"}
+                            ? "Organismo destino"
+                            : "Organismo origen"}
                         </p>
-                        <p className="font-medium capitalize">
-                          {cuenta.procesoActivo.ciudad?.replace(/_/g, " ")}
+                        <p className="font-medium">
+                          {cuenta.procesoActivo.ciudad}
                         </p>
                       </div>
                       <div>

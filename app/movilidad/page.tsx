@@ -57,7 +57,7 @@ export default async function MovilidadDashboard() {
     return {
       id: proceso.proceso_id,
       title: `${proceso.placa} - ${proceso.proceso_tipo === "traslado" ? "Traslado" : "Radicación"}`,
-      description: `${proceso.proceso_tipo === "traslado" ? "Destino" : "Origen"}: ${proceso.ciudad.replace(/_/g, " ")} | Estado: ${proceso.estado.replace(/_/g, " ")}`,
+      description: `${proceso.proceso_tipo === "traslado" ? "Destino" : "Origen"}: ${proceso.ciudad} | Estado: ${proceso.estado.replace(/_/g, " ")}`,
       severity,
       link: `/movilidad/vehiculos/${proceso.placa}`,
       daysRemaining: Math.max(0, daysRemaining),
@@ -133,7 +133,6 @@ export default async function MovilidadDashboard() {
         metadata: {
           placa: item.cuenta?.placa,
           estado: item.estado_nuevo,
-          ciudad: item.detalles?.ciudad_destino || item.detalles?.ciudad_origen,
         },
       }
     }) || []

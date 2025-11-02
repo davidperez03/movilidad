@@ -52,11 +52,10 @@ function LoginForm() {
 
         // Redirigir según rol - MOVILIDAD ES EL PRINCIPAL
         if (profile?.rol === "administrador" || profile?.rol === "agente") {
-          router.push("/movilidad")
+          window.location.href = "/movilidad"
         } else {
-          router.push("/dashboard")
+          window.location.href = "/dashboard"
         }
-        router.refresh()
       }
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "Error al iniciar sesión")

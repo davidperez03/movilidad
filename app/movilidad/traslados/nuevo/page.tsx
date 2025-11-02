@@ -21,14 +21,12 @@ import Link from "next/link"
 import { getTodayForInput, formatDateForDB } from "@/lib/utils/dates"
 import { ModalProcesoActivo } from "@/components/movilidad/modal-proceso-activo"
 
-const CIUDADES = [
-  { value: "sogamoso", label: "Sogamoso" },
-  { value: "medellin", label: "Medellín" },
-  { value: "bogota_dc", label: "Bogotá D.C." },
-  { value: "funza", label: "Funza" },
-  { value: "el_zulia", label: "El Zulia" },
-  { value: "nobsa", label: "Nobsa" },
-]
+interface Organismo {
+  id: string
+  nombre: string
+  municipio: string
+  departamento: string
+}
 
 export default function NuevoTrasladoPage() {
   const router = useRouter()
@@ -40,11 +38,41 @@ export default function NuevoTrasladoPage() {
   const [placa, setPlaca] = useState(searchParams.get("placa") || "")
   const [cuentaId, setCuentaId] = useState<string | null>(null)
   const [numeroCuenta, setNumeroCuenta] = useState("")
-  const [ciudadDestino, setCiudadDestino] = useState("")
+  const [organismoDestinoId, setOrganismoDestinoId] = useState("")
+  const [organismos, setOrganismos] = useState<Organismo[]>([])
+  const [cargandoOrganismos, setCargandoOrganismos] = useState(true)
   const [fechaTramite, setFechaTramite] = useState(getTodayForInput())
   const [observaciones, setObservaciones] = useState("")
   const [modalProcesoActivo, setModalProcesoActivo] = useState(false)
   const [razonRechazo, setRazonRechazo] = useState("")
+
+  // Cargar organismos de tránsito
+  useEffect(() => {
+    const cargarOrganismos = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("mov_organismos_transito")
+          .select("id, nombre, municipio, departamento")
+          .eq("activo", true)
+          .order("nombre")
+
+        if (error) {
+          console.error("Error al cargar organismos:", error)
+          toast.error("Error al cargar organismos de tránsito")
+          return
+        }
+
+        setOrganismos(data || [])
+      } catch (error) {
+        console.error("Error:", error)
+        toast.error("Error al cargar organismos")
+      } finally {
+        setCargandoOrganismos(false)
+      }
+    }
+
+    cargarOrganismos()
+  }, [])
 
   // Buscar cuenta al cargar si viene placa en params
   useEffect(() => {
@@ -124,8 +152,8 @@ export default function NuevoTrasladoPage() {
         return
       }
 
-      if (!ciudadDestino) {
-        toast.error("Debe seleccionar la ciudad destino")
+      if (!organismoDestinoId) {
+        toast.error("Debe seleccionar el organismo destino")
         setLoading(false)
         return
       }
@@ -143,7 +171,7 @@ export default function NuevoTrasladoPage() {
         .from("mov_traslados")
         .insert({
           cuenta_id: cuentaId,
-          ciudad_destino: ciudadDestino,
+          organismo_destino_id: organismoDestinoId,
           fecha_tramite: formatDateForDB(fechaTramite),
           observaciones: observaciones.trim() || null,
           creado_por: user.id,
@@ -248,22 +276,22 @@ export default function NuevoTrasladoPage() {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="ciudad_destino">
-                  Ciudad Destino <span className="text-red-500">*</span>
+                <Label htmlFor="organismo_destino">
+                  Organismo Destino <span className="text-red-500">*</span>
                 </Label>
                 <Select
-                  value={ciudadDestino}
-                  onValueChange={setCiudadDestino}
-                  disabled={loading}
+                  value={organismoDestinoId}
+                  onValueChange={setOrganismoDestinoId}
+                  disabled={loading || cargandoOrganismos}
                   required
                 >
-                  <SelectTrigger id="ciudad_destino">
-                    <SelectValue placeholder="Seleccione la ciudad destino" />
+                  <SelectTrigger id="organismo_destino">
+                    <SelectValue placeholder={cargandoOrganismos ? "Cargando organismos..." : "Seleccione el organismo destino"} />
                   </SelectTrigger>
                   <SelectContent>
-                    {CIUDADES.map((ciudad) => (
-                      <SelectItem key={ciudad.value} value={ciudad.value}>
-                        {ciudad.label}
+                    {organismos.map((organismo) => (
+                      <SelectItem key={organismo.id} value={organismo.id}>
+                        {organismo.nombre} - {organismo.municipio}, {organismo.departamento}
                       </SelectItem>
                     ))}
                   </SelectContent>

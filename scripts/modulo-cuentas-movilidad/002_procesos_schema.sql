@@ -12,9 +12,7 @@ create table if not exists public.mov_traslados (
   cuenta_id uuid not null references public.mov_cuentas_vehiculos(id) on delete cascade,
 
   -- Datos del proceso
-  ciudad_destino text not null check (ciudad_destino in (
-    'sogamoso', 'medellin', 'bogota_dc', 'funza', 'el_zulia', 'nobsa'
-  )),
+  organismo_destino_id uuid not null references public.mov_organismos_transito(id) on delete restrict,
   estado text not null default 'sin_asignar' check (estado in (
     'sin_asignar',
     'enviado_organismo',
@@ -47,9 +45,7 @@ create table if not exists public.mov_radicaciones (
   cuenta_id uuid not null references public.mov_cuentas_vehiculos(id) on delete cascade,
 
   -- Datos del proceso
-  ciudad_origen text not null check (ciudad_origen in (
-    'sogamoso', 'medellin', 'bogota_dc', 'funza', 'el_zulia', 'nobsa'
-  )),
+  organismo_origen_id uuid not null references public.mov_organismos_transito(id) on delete restrict,
   estado text not null default 'sin_asignar' check (estado in (
     'sin_asignar',
     'pendiente_radicar',
@@ -77,6 +73,7 @@ create table if not exists public.mov_radicaciones (
 
 -- Crear índices para traslados
 create index if not exists idx_mov_traslados_cuenta on public.mov_traslados(cuenta_id);
+create index if not exists idx_mov_traslados_organismo_destino on public.mov_traslados(organismo_destino_id);
 create index if not exists idx_mov_traslados_estado on public.mov_traslados(estado);
 create index if not exists idx_mov_traslados_fecha_tramite on public.mov_traslados(fecha_tramite desc);
 create index if not exists idx_mov_traslados_fecha_vencimiento on public.mov_traslados(fecha_vencimiento);
@@ -84,6 +81,7 @@ create index if not exists idx_mov_traslados_creado_por on public.mov_traslados(
 
 -- Crear índices para radicaciones
 create index if not exists idx_mov_radicaciones_cuenta on public.mov_radicaciones(cuenta_id);
+create index if not exists idx_mov_radicaciones_organismo_origen on public.mov_radicaciones(organismo_origen_id);
 create index if not exists idx_mov_radicaciones_estado on public.mov_radicaciones(estado);
 create index if not exists idx_mov_radicaciones_fecha_tramite on public.mov_radicaciones(fecha_tramite desc);
 create index if not exists idx_mov_radicaciones_fecha_vencimiento on public.mov_radicaciones(fecha_vencimiento);

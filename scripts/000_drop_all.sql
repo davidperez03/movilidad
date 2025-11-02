@@ -15,6 +15,8 @@ alter table if exists public.mov_radicaciones disable row level security;
 alter table if exists public.mov_novedades disable row level security;
 alter table if exists public.mov_adjuntos_novedades disable row level security;
 alter table if exists public.mov_historial_acciones disable row level security;
+alter table if exists public.mov_festivos_colombia disable row level security;
+alter table if exists public.mov_organismos_transito disable row level security;
 
 -- =====================================================
 -- 1. ELIMINAR POLÍTICAS RLS
@@ -77,6 +79,13 @@ drop policy if exists "Usuarios pueden eliminar sus propios adjuntos" on public.
 drop policy if exists "Usuarios pueden ver todo el historial" on public.mov_historial_acciones;
 drop policy if exists "Solo el sistema puede insertar en historial" on public.mov_historial_acciones;
 
+-- Políticas de festivos
+drop policy if exists "Todos pueden ver festivos" on public.mov_festivos_colombia;
+
+-- Políticas de organismos
+drop policy if exists "Todos pueden ver organismos activos" on public.mov_organismos_transito;
+drop policy if exists "Solo administradores pueden modificar organismos" on public.mov_organismos_transito;
+
 -- =====================================================
 -- 2. ELIMINAR TRIGGERS
 -- =====================================================
@@ -118,6 +127,10 @@ drop trigger if exists before_update_novedad on public.mov_novedades;
 drop trigger if exists before_update_estado_novedad on public.mov_novedades;
 drop trigger if exists after_insert_update_novedad on public.mov_novedades;
 
+-- Triggers de organismos
+drop trigger if exists trigger_update_organismo_search on public.mov_organismos_transito;
+drop trigger if exists before_update_organismo on public.mov_organismos_transito;
+
 -- =====================================================
 -- 3. ELIMINAR ÍNDICES
 -- =====================================================
@@ -140,6 +153,7 @@ drop index if exists public.idx_mov_cuentas_creado_en;
 
 -- Índices de traslados
 drop index if exists public.idx_mov_traslados_cuenta;
+drop index if exists public.idx_mov_traslados_organismo_destino;
 drop index if exists public.idx_mov_traslados_estado;
 drop index if exists public.idx_mov_traslados_fecha_tramite;
 drop index if exists public.idx_mov_traslados_fecha_vencimiento;
@@ -147,6 +161,7 @@ drop index if exists public.idx_mov_traslados_creado_por;
 
 -- Índices de radicaciones
 drop index if exists public.idx_mov_radicaciones_cuenta;
+drop index if exists public.idx_mov_radicaciones_organismo_origen;
 drop index if exists public.idx_mov_radicaciones_estado;
 drop index if exists public.idx_mov_radicaciones_fecha_tramite;
 drop index if exists public.idx_mov_radicaciones_fecha_vencimiento;
@@ -171,6 +186,17 @@ drop index if exists public.idx_mov_historial_realizado_por;
 drop index if exists public.idx_mov_historial_creado_en;
 drop index if exists public.idx_mov_historial_detalles_gin;
 
+-- Índices de festivos
+drop index if exists public.idx_mov_festivos_fecha;
+drop index if exists public.idx_mov_festivos_anio;
+
+-- Índices de organismos
+drop index if exists public.idx_mov_organismos_nombre;
+drop index if exists public.idx_mov_organismos_departamento;
+drop index if exists public.idx_mov_organismos_municipio;
+drop index if exists public.idx_mov_organismos_activo;
+drop index if exists public.idx_mov_organismos_search;
+
 -- =====================================================
 -- 4. ELIMINAR TABLAS (en orden inverso por dependencias)
 -- =====================================================
@@ -187,6 +213,8 @@ drop table if exists public.mov_novedades cascade;
 drop table if exists public.mov_traslados cascade;
 drop table if exists public.mov_radicaciones cascade;
 drop table if exists public.mov_cuentas_vehiculos cascade;
+drop table if exists public.mov_organismos_transito cascade;
+drop table if exists public.mov_festivos_colombia cascade;
 
 -- Tabla de perfiles (última, porque otras dependen de ella)
 drop table if exists public.perfiles cascade;
@@ -241,6 +269,14 @@ drop function if exists public.puede_iniciar_proceso(text, text) cascade;
 
 -- Funciones de consultas públicas
 drop function if exists public.consultar_vehiculo_por_placa(text) cascade;
+
+-- Funciones de días hábiles
+drop function if exists public.es_dia_habil(date) cascade;
+drop function if exists public.sumar_dias_habiles(date, integer) cascade;
+drop function if exists public.contar_dias_habiles(date, date) cascade;
+
+-- Funciones de organismos
+drop function if exists public.update_organismo_search_vector() cascade;
 
 -- =====================================================
 -- 7. ELIMINAR TIPOS PERSONALIZADOS (si existen)

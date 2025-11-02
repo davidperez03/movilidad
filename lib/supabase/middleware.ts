@@ -33,9 +33,17 @@ export async function updateSession(request: NextRequest) {
 
   // IMPORTANT: If you remove getUser() and you use server-side rendering
   // with the Supabase client, your users may be randomly logged out.
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  let user = null
+  try {
+    const { data, error } = await supabase.auth.getUser()
+    if (error) {
+      console.error("Error en middleware al obtener usuario:", error)
+    }
+    user = data?.user || null
+  } catch (error) {
+    console.error("Error crítico en middleware:", error)
+    // Si hay error de conexión, dejamos que el usuario continúe sin autenticar
+  }
 
   // Rutas públicas que no requieren autenticación
   const publicRoutes = ["/", "/consulta"]

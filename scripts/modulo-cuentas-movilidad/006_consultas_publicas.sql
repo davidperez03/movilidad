@@ -26,12 +26,13 @@ select distinct on (cv.id)
   coalesce(t.fecha_completado, r.fecha_completado) as fecha_completado,
   case
     when coalesce(t.fecha_completado, r.fecha_completado) is null
-    then coalesce(t.fecha_vencimiento, r.fecha_vencimiento) - current_date
+      and coalesce(t.fecha_vencimiento, r.fecha_vencimiento) is not null
+    then contar_dias_habiles(current_date, coalesce(t.fecha_vencimiento, r.fecha_vencimiento)::date)
     else null
   end as dias_restantes,
   case
-    when t.id is not null then t.ciudad_destino
-    when r.id is not null then r.ciudad_origen
+    when t.id is not null then ot.nombre
+    when r.id is not null then or_org.nombre
     else null
   end as ciudad,
   coalesce(t.observaciones, r.observaciones) as observaciones,
@@ -39,6 +40,8 @@ select distinct on (cv.id)
 from public.mov_cuentas_vehiculos cv
 left join public.mov_traslados t on cv.id = t.cuenta_id
 left join public.mov_radicaciones r on cv.id = r.cuenta_id
+left join public.mov_organismos_transito ot on t.organismo_destino_id = ot.id
+left join public.mov_organismos_transito or_org on r.organismo_origen_id = or_org.id
 where t.id is not null or r.id is not null
 order by cv.id, coalesce(t.creado_en, r.creado_en) desc;
 

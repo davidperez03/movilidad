@@ -21,6 +21,11 @@ export default async function TrasladosPage() {
       ),
       perfiles!creado_por (
         nombre_completo
+      ),
+      organismo:mov_organismos_transito!organismo_destino_id (
+        nombre,
+        municipio,
+        departamento
       )
     `)
     .not("estado", "in", "(trasladado,devuelto)")
@@ -42,6 +47,11 @@ export default async function TrasladosPage() {
       ),
       creador:perfiles!creado_por (
         nombre_completo
+      ),
+      organismo:mov_organismos_transito!organismo_destino_id (
+        nombre,
+        municipio,
+        departamento
       )
     `)
     .in("estado", ["trasladado", "devuelto"])
@@ -65,10 +75,6 @@ export default async function TrasladosPage() {
 
   const formatearEstado = (estado: string) => {
     return estado.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())
-  }
-
-  const formatearCiudad = (ciudad: string) => {
-    return ciudad.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())
   }
 
   const calcularDiasRestantes = (fechaVencimiento: string) => {
@@ -140,7 +146,7 @@ export default async function TrasladosPage() {
                         <MapPin className="h-4 w-4 text-muted-foreground" />
                         <div>
                           <p className="text-sm text-muted-foreground">Destino</p>
-                          <p className="font-medium">{formatearCiudad(traslado.ciudad_destino)}</p>
+                          <p className="font-medium">{traslado.organismo?.nombre || 'Sin información'}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
@@ -227,7 +233,7 @@ export default async function TrasladosPage() {
                   <div className="grid gap-4 md:grid-cols-4 mb-4">
                     <div>
                       <p className="text-sm text-muted-foreground">Destino</p>
-                      <p className="font-medium">{formatearCiudad(traslado.ciudad_destino)}</p>
+                      <p className="font-medium">{traslado.organismo?.nombre || 'Sin información'}</p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Fecha trámite</p>

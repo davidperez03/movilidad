@@ -21,6 +21,11 @@ export default async function RadicacionesPage() {
       ),
       perfiles!creado_por (
         nombre_completo
+      ),
+      organismo:mov_organismos_transito!organismo_origen_id (
+        nombre,
+        municipio,
+        departamento
       )
     `)
     .not("estado", "in", "(radicado,devuelto)")
@@ -42,10 +47,15 @@ export default async function RadicacionesPage() {
       ),
       perfiles!creado_por (
         nombre_completo
+      ),
+      organismo:mov_organismos_transito!organismo_origen_id (
+        nombre,
+        municipio,
+        departamento
       )
     `)
     .in("estado", ["radicado", "devuelto"])
-    .order("fecha_completado", { ascending: false })
+    .order("fecha_completado", { ascending: false})
     .limit(20)
 
   const getEstadoBadgeVariant = (estado: string) => {
@@ -66,10 +76,6 @@ export default async function RadicacionesPage() {
 
   const formatearEstado = (estado: string) => {
     return estado.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())
-  }
-
-  const formatearCiudad = (ciudad: string) => {
-    return ciudad.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())
   }
 
   const calcularDiasRestantes = (fechaVencimiento: string) => {
@@ -141,7 +147,7 @@ export default async function RadicacionesPage() {
                         <MapPin className="h-4 w-4 text-muted-foreground" />
                         <div>
                           <p className="text-sm text-muted-foreground">Origen</p>
-                          <p className="font-medium">{formatearCiudad(radicacion.ciudad_origen)}</p>
+                          <p className="font-medium">{radicacion.organismo?.nombre || 'Sin información'}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">

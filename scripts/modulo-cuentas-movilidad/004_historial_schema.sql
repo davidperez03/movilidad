@@ -64,17 +64,26 @@ select distinct on (cv.id)
     then contar_dias_habiles(current_date, coalesce(t.fecha_vencimiento, r.fecha_vencimiento)::date)
     else null
   end as dias_restantes,
+  -- Nombre del organismo
   case
-    when t.id is not null then t.ciudad_destino
-    when r.id is not null then r.ciudad_origen
+    when t.id is not null then ot.nombre
+    when r.id is not null then or_org.nombre
     else null
   end as ciudad,
+  -- ID del organismo
+  case
+    when t.id is not null then t.organismo_destino_id
+    when r.id is not null then r.organismo_origen_id
+    else null
+  end as organismo_id,
   coalesce(t.creado_en, r.creado_en) as proceso_creado_en
 from public.mov_cuentas_vehiculos cv
 left join public.mov_traslados t on cv.id = t.cuenta_id
   and t.estado not in ('trasladado', 'devuelto')
 left join public.mov_radicaciones r on cv.id = r.cuenta_id
   and r.estado not in ('radicado', 'devuelto')
+left join public.mov_organismos_transito ot on t.organismo_destino_id = ot.id
+left join public.mov_organismos_transito or_org on r.organismo_origen_id = or_org.id
 order by cv.id, coalesce(t.creado_en, r.creado_en) desc nulls last;
 
 -- Crear vista para resumen de novedades por proceso
@@ -100,7 +109,7 @@ select
   t.cuenta_id,
   cv.placa,
   cv.numero_cuenta,
-  t.ciudad_destino as ciudad,
+  ot.nombre as ciudad,
   t.estado,
   t.fecha_vencimiento,
   contar_dias_habiles(current_date, t.fecha_vencimiento::date) as dias_restantes,
@@ -108,6 +117,7 @@ select
 from public.mov_traslados t
 join public.mov_cuentas_vehiculos cv on t.cuenta_id = cv.id
 join public.perfiles p on t.creado_por = p.id
+join public.mov_organismos_transito ot on t.organismo_destino_id = ot.id
 where t.estado not in ('sin_asignar', 'trasladado', 'devuelto')
   and contar_dias_habiles(current_date, t.fecha_vencimiento::date) <= 7
 
@@ -119,7 +129,7 @@ select
   r.cuenta_id,
   cv.placa,
   cv.numero_cuenta,
-  r.ciudad_origen as ciudad,
+  or_org.nombre as ciudad,
   r.estado,
   r.fecha_vencimiento,
   contar_dias_habiles(current_date, r.fecha_vencimiento::date) as dias_restantes,
@@ -127,6 +137,7 @@ select
 from public.mov_radicaciones r
 join public.mov_cuentas_vehiculos cv on r.cuenta_id = cv.id
 join public.perfiles p on r.creado_por = p.id
+join public.mov_organismos_transito or_org on r.organismo_origen_id = or_org.id
 where r.estado not in ('sin_asignar', 'radicado', 'devuelto')
   and contar_dias_habiles(current_date, r.fecha_vencimiento::date) <= 7
 
@@ -224,7 +235,7 @@ begin
     new.id,
     'traslado_iniciado',
     jsonb_build_object(
-      'ciudad_destino', new.ciudad_destino,
+      'organismo_destino_id', new.organismo_destino_id,
       'fecha_tramite', new.fecha_tramite,
       'fecha_vencimiento', new.fecha_vencimiento
     ),
@@ -255,7 +266,7 @@ begin
     new.id,
     'radicacion_iniciada',
     jsonb_build_object(
-      'ciudad_origen', new.ciudad_origen,
+      'organismo_origen_id', new.organismo_origen_id,
       'fecha_tramite', new.fecha_tramite,
       'fecha_vencimiento', new.fecha_vencimiento
     ),

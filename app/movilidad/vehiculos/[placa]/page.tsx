@@ -78,7 +78,8 @@ export default async function DetalleVehiculoPage({
     .select(`
       *,
       creador:perfiles!creado_por (nombre_completo),
-      actualizador:perfiles!actualizado_por (nombre_completo)
+      actualizador:perfiles!actualizado_por (nombre_completo),
+      organismo:mov_organismos_transito!organismo_destino_id (nombre, municipio, departamento)
     `)
     .eq("cuenta_id", cuenta.id)
     .order("creado_en", { ascending: false })
@@ -89,7 +90,8 @@ export default async function DetalleVehiculoPage({
     .select(`
       *,
       creador:perfiles!creado_por (nombre_completo),
-      actualizador:perfiles!actualizado_por (nombre_completo)
+      actualizador:perfiles!actualizado_por (nombre_completo),
+      organismo:mov_organismos_transito!organismo_origen_id (nombre, municipio, departamento)
     `)
     .eq("cuenta_id", cuenta.id)
     .order("creado_en", { ascending: false })
@@ -124,10 +126,6 @@ export default async function DetalleVehiculoPage({
 
   const formatearEstado = (estado: string) => {
     return estado.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())
-  }
-
-  const formatearCiudad = (ciudad: string) => {
-    return ciudad.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())
   }
 
   const formatearAccion = (accion: string) => {
@@ -225,7 +223,7 @@ export default async function DetalleVehiculoPage({
                 <p className="text-sm text-muted-foreground">
                   {procesoActivo.proceso_tipo === "traslado" ? "Destino" : "Origen"}
                 </p>
-                <p className="font-medium">{formatearCiudad(procesoActivo.ciudad)}</p>
+                <p className="font-medium">{procesoActivo.ciudad}</p>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Fecha trámite</p>
@@ -413,7 +411,7 @@ export default async function DetalleVehiculoPage({
                       </span>
                     </div>
                     <div className="text-sm space-y-1">
-                      <p><strong>Destino:</strong> {formatearCiudad(traslado.ciudad_destino)}</p>
+                      <p><strong>Destino:</strong> {traslado.organismo?.nombre || 'Sin información'}</p>
                       <p><strong>Creado por:</strong> {traslado.creador?.nombre_completo || 'Sin información'}</p>
                       <p><strong>Fecha trámite:</strong> {formatDateForDisplay(traslado.fecha_tramite)}</p>
                       <p><strong>Vencimiento:</strong> {formatDateForDisplay(traslado.fecha_vencimiento)}</p>
@@ -459,7 +457,7 @@ export default async function DetalleVehiculoPage({
                       </span>
                     </div>
                     <div className="text-sm space-y-1">
-                      <p><strong>Origen:</strong> {formatearCiudad(radicacion.ciudad_origen)}</p>
+                      <p><strong>Origen:</strong> {radicacion.organismo?.nombre || 'Sin información'}</p>
                       <p><strong>Creado por:</strong> {radicacion.creador?.nombre_completo || 'Sin información'}</p>
                       <p><strong>Fecha trámite:</strong> {formatDateForDisplay(radicacion.fecha_tramite)}</p>
                       <p><strong>Vencimiento:</strong> {formatDateForDisplay(radicacion.fecha_vencimiento)}</p>
