@@ -19,6 +19,7 @@ import { notFound } from "next/navigation"
 import { AgregarNovedad } from "@/components/movilidad/agregar-novedad"
 import { CambiarEstado } from "@/components/movilidad/cambiar-estado"
 import { ResolverNovedad } from "@/components/movilidad/resolver-novedad"
+import { formatDateForDisplay } from "@/lib/utils/dates"
 
 export default async function DetalleVehiculoPage({
   params,
@@ -232,7 +233,7 @@ export default async function DetalleVehiculoPage({
               <div>
                 <p className="text-sm text-muted-foreground">Fecha trámite</p>
                 <p className="font-medium">
-                  {new Date(procesoActivo.fecha_tramite).toLocaleDateString("es-CO")}
+                  {formatDateForDisplay(procesoActivo.fecha_tramite)}
                 </p>
               </div>
               <div>
@@ -240,7 +241,7 @@ export default async function DetalleVehiculoPage({
                 <p className={`font-medium ${
                   calcularDiasRestantes(procesoActivo.fecha_vencimiento) < 7 ? "text-orange-600" : ""
                 }`}>
-                  {new Date(procesoActivo.fecha_vencimiento).toLocaleDateString("es-CO")}
+                  {formatDateForDisplay(procesoActivo.fecha_vencimiento)}
                 </p>
               </div>
               <div>
@@ -417,10 +418,10 @@ export default async function DetalleVehiculoPage({
                     <div className="text-sm space-y-1">
                       <p><strong>Destino:</strong> {formatearCiudad(traslado.ciudad_destino)}</p>
                       <p><strong>Creado por:</strong> {traslado.creador?.nombre_completo || 'Sin información'}</p>
-                      <p><strong>Fecha trámite:</strong> {new Date(traslado.fecha_tramite).toLocaleDateString("es-CO")}</p>
-                      <p><strong>Vencimiento:</strong> {new Date(traslado.fecha_vencimiento).toLocaleDateString("es-CO")}</p>
+                      <p><strong>Fecha trámite:</strong> {formatDateForDisplay(traslado.fecha_tramite)}</p>
+                      <p><strong>Vencimiento:</strong> {formatDateForDisplay(traslado.fecha_vencimiento)}</p>
                       {traslado.fecha_completado && (
-                        <p><strong>Completado:</strong> {new Date(traslado.fecha_completado).toLocaleDateString("es-CO")}</p>
+                        <p><strong>Completado:</strong> {formatDateForDisplay(traslado.fecha_completado)}</p>
                       )}
                       {traslado.observaciones && (
                         <p className="text-xs text-muted-foreground italic">
@@ -463,10 +464,10 @@ export default async function DetalleVehiculoPage({
                     <div className="text-sm space-y-1">
                       <p><strong>Origen:</strong> {formatearCiudad(radicacion.ciudad_origen)}</p>
                       <p><strong>Creado por:</strong> {radicacion.creador?.nombre_completo || 'Sin información'}</p>
-                      <p><strong>Fecha trámite:</strong> {new Date(radicacion.fecha_tramite).toLocaleDateString("es-CO")}</p>
-                      <p><strong>Vencimiento:</strong> {new Date(radicacion.fecha_vencimiento).toLocaleDateString("es-CO")}</p>
+                      <p><strong>Fecha trámite:</strong> {formatDateForDisplay(radicacion.fecha_tramite)}</p>
+                      <p><strong>Vencimiento:</strong> {formatDateForDisplay(radicacion.fecha_vencimiento)}</p>
                       {radicacion.fecha_completado && (
-                        <p><strong>Completado:</strong> {new Date(radicacion.fecha_completado).toLocaleDateString("es-CO")}</p>
+                        <p><strong>Completado:</strong> {formatDateForDisplay(radicacion.fecha_completado)}</p>
                       )}
                       {radicacion.observaciones && (
                         <p className="text-xs text-muted-foreground italic">

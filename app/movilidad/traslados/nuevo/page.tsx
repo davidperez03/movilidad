@@ -18,6 +18,7 @@ import {
 import { toast } from "sonner"
 import { ArrowLeft, ArrowRightLeft, Loader2, Search } from "lucide-react"
 import Link from "next/link"
+import { getTodayForInput, formatDateForDB } from "@/lib/utils/dates"
 
 const CIUDADES = [
   { value: "sogamoso", label: "Sogamoso" },
@@ -39,7 +40,7 @@ export default function NuevoTrasladoPage() {
   const [cuentaId, setCuentaId] = useState<string | null>(null)
   const [numeroCuenta, setNumeroCuenta] = useState("")
   const [ciudadDestino, setCiudadDestino] = useState("")
-  const [fechaTramite, setFechaTramite] = useState(new Date().toISOString().split("T")[0])
+  const [fechaTramite, setFechaTramite] = useState(getTodayForInput())
   const [observaciones, setObservaciones] = useState("")
 
   // Buscar cuenta al cargar si viene placa en params
@@ -139,7 +140,7 @@ export default function NuevoTrasladoPage() {
         .insert({
           cuenta_id: cuentaId,
           ciudad_destino: ciudadDestino,
-          fecha_tramite: fechaTramite,
+          fecha_tramite: formatDateForDB(fechaTramite),
           observaciones: observaciones.trim() || null,
           creado_por: user.id,
           actualizado_por: user.id,
