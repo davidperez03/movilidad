@@ -197,16 +197,6 @@ export default function NuevaCuentaPage() {
         </CardContent>
       </Card>
 
-      <Card className="bg-muted/50">
-        <CardHeader>
-          <CardTitle className="text-sm">Información importante</CardTitle>
-        </CardHeader>
-        <CardContent className="text-sm space-y-2">
-          <p>• El número de cuenta se genera automáticamente con el formato: YYYYMMDD-XXXXX</p>
-          <p>• La placa debe ser única y no puede estar duplicada en el sistema</p>
-          <p>• Una vez creada la cuenta, podrá iniciar procesos de traslado o radicación</p>
-        </CardContent>
-      </Card>
     </div>
   )
 }

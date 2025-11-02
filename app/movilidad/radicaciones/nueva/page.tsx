@@ -19,6 +19,7 @@ import { toast } from "sonner"
 import { ArrowLeft, ArrowDownToLine, Loader2, Search } from "lucide-react"
 import Link from "next/link"
 import { getTodayForInput, formatDateForDB } from "@/lib/utils/dates"
+import { ModalProcesoActivo } from "@/components/movilidad/modal-proceso-activo"
 
 const CIUDADES = [
   { value: "sogamoso", label: "Sogamoso" },
@@ -42,6 +43,8 @@ export default function NuevaRadicacionPage() {
   const [ciudadOrigen, setCiudadOrigen] = useState("")
   const [fechaTramite, setFechaTramite] = useState(getTodayForInput())
   const [observaciones, setObservaciones] = useState("")
+  const [modalProcesoActivo, setModalProcesoActivo] = useState(false)
+  const [razonRechazo, setRazonRechazo] = useState("")
 
   // Buscar cuenta al cargar si viene placa en params
   useEffect(() => {
@@ -90,7 +93,8 @@ export default function NuevaRadicacionPage() {
       }
 
       if (validacion && validacion.length > 0 && !validacion[0].puede_iniciar) {
-        toast.error(validacion[0].razon)
+        setRazonRechazo(validacion[0].razon)
+        setModalProcesoActivo(true)
         setCuentaId(null)
         setNumeroCuenta("")
         setBuscando(false)
@@ -279,7 +283,7 @@ export default function NuevaRadicacionPage() {
                   required
                 />
                 <p className="text-xs text-muted-foreground">
-                  El proceso vencerá 60 días hábiles después de esta fecha (sin contar sábados, domingos ni festivos)
+                  El proceso vencerá 60 días hábiles después de esta fecha
                 </p>
               </div>
 
@@ -327,17 +331,12 @@ export default function NuevaRadicacionPage() {
         </Card>
       )}
 
-      <Card className="bg-muted/50">
-        <CardHeader>
-          <CardTitle className="text-sm">Información importante</CardTitle>
-        </CardHeader>
-        <CardContent className="text-sm space-y-2">
-          <p>• El vehículo no debe tener procesos activos</p>
-          <p>• El proceso iniciará en estado "Pendiente radicar"</p>
-          <p>• El plazo de vencimiento es de 60 días hábiles (sin contar sábados, domingos ni festivos)</p>
-          <p>• Si el último proceso fue traslado completado, puede iniciar radicación</p>
-        </CardContent>
-      </Card>
+      <ModalProcesoActivo
+        open={modalProcesoActivo}
+        onOpenChange={setModalProcesoActivo}
+        placa={placa}
+        razon={razonRechazo}
+      />
     </div>
   )
 }
