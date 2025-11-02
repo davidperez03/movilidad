@@ -57,6 +57,13 @@ select distinct on (cv.id)
   coalesce(t.fecha_tramite, r.fecha_tramite) as fecha_tramite,
   coalesce(t.fecha_vencimiento, r.fecha_vencimiento) as fecha_vencimiento,
   coalesce(t.fecha_completado, r.fecha_completado) as fecha_completado,
+  -- Calcular días restantes solo si hay proceso activo y no está completado
+  case
+    when coalesce(t.fecha_completado, r.fecha_completado) is null
+      and coalesce(t.fecha_vencimiento, r.fecha_vencimiento) is not null
+    then (coalesce(t.fecha_vencimiento, r.fecha_vencimiento)::date - current_date)
+    else null
+  end as dias_restantes,
   case
     when t.id is not null then t.ciudad_destino
     when r.id is not null then r.ciudad_origen
