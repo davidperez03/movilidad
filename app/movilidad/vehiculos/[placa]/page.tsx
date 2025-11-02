@@ -134,12 +134,9 @@ export default async function DetalleVehiculoPage({
     return accion.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())
   }
 
-  const calcularDiasRestantes = (fechaVencimiento: string) => {
-    const hoy = new Date()
-    const vencimiento = new Date(fechaVencimiento)
-    const diferencia = Math.ceil((vencimiento.getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24))
-    return diferencia
-  }
+  // Nota: dias_restantes ya viene calculado desde la base de datos
+  // usando la función contar_dias_habiles que considera días hábiles
+  // (sin sábados, domingos ni festivos)
 
   return (
     <div className="space-y-6">
@@ -239,19 +236,19 @@ export default async function DetalleVehiculoPage({
               <div>
                 <p className="text-sm text-muted-foreground">Vencimiento</p>
                 <p className={`font-medium ${
-                  calcularDiasRestantes(procesoActivo.fecha_vencimiento) < 7 ? "text-orange-600" : ""
+                  (procesoActivo.dias_restantes ?? 0) < 7 ? "text-orange-600" : ""
                 }`}>
                   {formatDateForDisplay(procesoActivo.fecha_vencimiento)}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Días restantes</p>
+                <p className="text-sm text-muted-foreground">Días hábiles restantes</p>
                 <p className={`font-medium ${
-                  calcularDiasRestantes(procesoActivo.fecha_vencimiento) < 7
+                  (procesoActivo.dias_restantes ?? 0) < 7
                     ? "text-orange-600"
                     : "text-green-600"
                 }`}>
-                  {calcularDiasRestantes(procesoActivo.fecha_vencimiento)} días
+                  {procesoActivo.dias_restantes ?? 0} días
                 </p>
               </div>
             </div>

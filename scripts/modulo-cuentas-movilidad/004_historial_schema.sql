@@ -57,11 +57,11 @@ select distinct on (cv.id)
   coalesce(t.fecha_tramite, r.fecha_tramite) as fecha_tramite,
   coalesce(t.fecha_vencimiento, r.fecha_vencimiento) as fecha_vencimiento,
   coalesce(t.fecha_completado, r.fecha_completado) as fecha_completado,
-  -- Calcular días restantes solo si hay proceso activo y no está completado
+  -- Calcular días hábiles restantes solo si hay proceso activo y no está completado
   case
     when coalesce(t.fecha_completado, r.fecha_completado) is null
       and coalesce(t.fecha_vencimiento, r.fecha_vencimiento) is not null
-    then (coalesce(t.fecha_vencimiento, r.fecha_vencimiento)::date - current_date)
+    then contar_dias_habiles(current_date, coalesce(t.fecha_vencimiento, r.fecha_vencimiento)::date)
     else null
   end as dias_restantes,
   case
@@ -92,7 +92,7 @@ select
 from public.mov_novedades n
 group by n.proceso_tipo, n.proceso_id;
 
--- Crear vista para procesos próximos a vencer
+-- Crear vista para procesos próximos a vencer (usando días hábiles)
 create or replace view public.mov_vista_procesos_por_vencer as
 select
   'traslado' as proceso_tipo,
@@ -103,13 +103,13 @@ select
   t.ciudad_destino as ciudad,
   t.estado,
   t.fecha_vencimiento,
-  t.fecha_vencimiento - current_date as dias_restantes,
+  contar_dias_habiles(current_date, t.fecha_vencimiento::date) as dias_restantes,
   p.nombre_completo as responsable
 from public.mov_traslados t
 join public.mov_cuentas_vehiculos cv on t.cuenta_id = cv.id
 join public.perfiles p on t.creado_por = p.id
 where t.estado not in ('sin_asignar', 'trasladado', 'devuelto')
-  and t.fecha_vencimiento <= current_date + interval '7 days'
+  and contar_dias_habiles(current_date, t.fecha_vencimiento::date) <= 7
 
 union all
 
@@ -122,13 +122,13 @@ select
   r.ciudad_origen as ciudad,
   r.estado,
   r.fecha_vencimiento,
-  r.fecha_vencimiento - current_date as dias_restantes,
+  contar_dias_habiles(current_date, r.fecha_vencimiento::date) as dias_restantes,
   p.nombre_completo as responsable
 from public.mov_radicaciones r
 join public.mov_cuentas_vehiculos cv on r.cuenta_id = cv.id
 join public.perfiles p on r.creado_por = p.id
 where r.estado not in ('sin_asignar', 'radicado', 'devuelto')
-  and r.fecha_vencimiento <= current_date + interval '7 days'
+  and contar_dias_habiles(current_date, r.fecha_vencimiento::date) <= 7
 
 order by dias_restantes asc;
 

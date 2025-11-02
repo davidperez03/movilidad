@@ -279,7 +279,7 @@ export default function NuevoTrasladoPage() {
                   required
                 />
                 <p className="text-xs text-muted-foreground">
-                  El proceso vencerá 60 días después de esta fecha
+                  El proceso vencerá 60 días hábiles después de esta fecha (sin contar sábados, domingos ni festivos)
                 </p>
               </div>
 
@@ -334,7 +334,7 @@ export default function NuevoTrasladoPage() {
         <CardContent className="text-sm space-y-2">
           <p>• El vehículo no debe tener procesos activos</p>
           <p>• El proceso iniciará en estado "Enviado a organismo destino"</p>
-          <p>• El plazo de vencimiento es de 60 días calendario</p>
+          <p>• El plazo de vencimiento es de 60 días hábiles (sin contar sábados, domingos ni festivos)</p>
           <p>• Si el último proceso fue radicación completada, puede iniciar traslado</p>
         </CardContent>
       </Card>

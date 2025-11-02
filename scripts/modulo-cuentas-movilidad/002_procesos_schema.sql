@@ -89,26 +89,14 @@ create index if not exists idx_mov_radicaciones_fecha_tramite on public.mov_radi
 create index if not exists idx_mov_radicaciones_fecha_vencimiento on public.mov_radicaciones(fecha_vencimiento);
 create index if not exists idx_mov_radicaciones_creado_por on public.mov_radicaciones(creado_por);
 
--- Crear función para calcular fecha de vencimiento (60 días)
-create or replace function calcular_fecha_vencimiento(fecha_inicio date)
-returns date
-language plpgsql
-immutable
-as $$
-begin
-  return fecha_inicio + interval '60 days';
-end;
-$$;
-
--- Trigger para auto-calcular fecha de vencimiento en traslados
+-- Trigger para auto-calcular fecha de vencimiento en traslados (60 días hábiles)
 create or replace function trigger_vencimiento_traslado()
 returns trigger
 language plpgsql
 as $$
 begin
-  if new.fecha_vencimiento is null then
-    new.fecha_vencimiento := calcular_fecha_vencimiento(new.fecha_tramite);
-  end if;
+  -- Calcular fecha de vencimiento sumando 60 días hábiles
+  new.fecha_vencimiento := sumar_dias_habiles(new.fecha_tramite::date, 60);
   return new;
 end;
 $$;
@@ -120,15 +108,14 @@ create trigger before_insert_traslado
   for each row
   execute function trigger_vencimiento_traslado();
 
--- Trigger para auto-calcular fecha de vencimiento en radicaciones
+-- Trigger para auto-calcular fecha de vencimiento en radicaciones (60 días hábiles)
 create or replace function trigger_vencimiento_radicacion()
 returns trigger
 language plpgsql
 as $$
 begin
-  if new.fecha_vencimiento is null then
-    new.fecha_vencimiento := calcular_fecha_vencimiento(new.fecha_tramite);
-  end if;
+  -- Calcular fecha de vencimiento sumando 60 días hábiles
+  new.fecha_vencimiento := sumar_dias_habiles(new.fecha_tramite::date, 60);
   return new;
 end;
 $$;
@@ -292,5 +279,5 @@ create policy "Administradores pueden eliminar radicaciones"
 -- Comentarios para documentación
 comment on table public.mov_traslados is 'Procesos de envío de vehículos a otras ciudades';
 comment on table public.mov_radicaciones is 'Procesos de recepción de vehículos desde otras ciudades';
-comment on column public.mov_traslados.fecha_vencimiento is 'Fecha límite del trámite (60 días desde fecha_tramite)';
-comment on column public.mov_radicaciones.fecha_vencimiento is 'Fecha límite del trámite (60 días desde fecha_tramite)';
+comment on column public.mov_traslados.fecha_vencimiento is 'Fecha límite del trámite (60 días hábiles desde fecha_tramite, sin contar sábados, domingos ni festivos)';
+comment on column public.mov_radicaciones.fecha_vencimiento is 'Fecha límite del trámite (60 días hábiles desde fecha_tramite, sin contar sábados, domingos ni festivos)';
