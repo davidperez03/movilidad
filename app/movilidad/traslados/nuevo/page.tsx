@@ -13,6 +13,7 @@ import { ArrowLeft, ArrowRightLeft, Loader2, Search } from "lucide-react"
 import Link from "next/link"
 import { getTodayForInput, formatDateForDB } from "@/lib/utils/dates"
 import { ModalProcesoActivo } from "@/components/movilidad/modal-proceso-activo"
+import { ModalErrorSecuencia } from "@/components/movilidad/modal-error-secuencia"
 import { ComboboxOrganismos } from "@/components/movilidad/combobox-organismos"
 
 interface Organismo {
@@ -39,6 +40,8 @@ export default function NuevoTrasladoPage() {
   const [observaciones, setObservaciones] = useState("")
   const [modalProcesoActivo, setModalProcesoActivo] = useState(false)
   const [razonRechazo, setRazonRechazo] = useState("")
+  const [modalErrorSecuencia, setModalErrorSecuencia] = useState(false)
+  const [errorSecuenciaMsg, setErrorSecuenciaMsg] = useState("")
 
   // Cargar organismos de tránsito
   useEffect(() => {
@@ -175,8 +178,15 @@ export default function NuevoTrasladoPage() {
         .single()
 
       if (error) {
-        console.error("Error al crear traslado:", error)
-        toast.error("Error al crear el traslado: " + error.message)
+        // Verificar si es un error de secuencia de procesos (código P0001)
+        if (error.code === "P0001" && error.message) {
+          setErrorSecuenciaMsg(error.message)
+          setModalErrorSecuencia(true)
+        } else {
+          console.error("Error al crear traslado:", error)
+          toast.error("Error al crear el traslado: " + error.message)
+        }
+
         setLoading(false)
         return
       }
@@ -350,6 +360,14 @@ export default function NuevoTrasladoPage() {
         onOpenChange={setModalProcesoActivo}
         placa={placa}
         razon={razonRechazo}
+      />
+
+      <ModalErrorSecuencia
+        open={modalErrorSecuencia}
+        onOpenChange={setModalErrorSecuencia}
+        placa={placa}
+        errorMessage={errorSecuenciaMsg}
+        procesoIntentado="traslado"
       />
     </div>
   )

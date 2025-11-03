@@ -116,7 +116,7 @@ export default async function CuentasPage({
                       {cuenta.tipo_servicio === "publico" && "Público"}
                       {cuenta.tipo_servicio === "otro" && "Otro"}
                     </Badge>
-                    {cuenta.procesoActivo && (
+                    {cuenta.procesoActivo?.proceso_tipo && (
                       <Badge
                         variant={
                           cuenta.procesoActivo.proceso_estado === "con_novedades"
@@ -150,7 +150,7 @@ export default async function CuentasPage({
                       })}
                     </p>
                   </div>
-                  {cuenta.procesoActivo && (
+                  {cuenta.procesoActivo?.proceso_tipo && (
                     <>
                       <div>
                         <p className="text-sm text-muted-foreground">
@@ -178,7 +178,7 @@ export default async function CuentasPage({
                       Ver Detalles
                     </Link>
                   </Button>
-                  {!cuenta.procesoActivo && (
+                  {!cuenta.procesoActivo?.proceso_tipo && (
                     <>
                       <Button asChild variant="outline" size="sm">
                         <Link href={`/movilidad/traslados/nuevo?placa=${cuenta.placa}`}>

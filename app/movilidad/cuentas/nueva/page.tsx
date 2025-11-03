@@ -17,6 +17,7 @@ import {
 import { toast } from "sonner"
 import { ArrowLeft, Car, Loader2 } from "lucide-react"
 import Link from "next/link"
+import { ModalCuentaExistente } from "@/components/movilidad/modal-cuenta-existente"
 
 export default function NuevaCuentaPage() {
   const router = useRouter()
@@ -24,6 +25,8 @@ export default function NuevaCuentaPage() {
   const [loading, setLoading] = useState(false)
   const [placa, setPlaca] = useState("")
   const [tipoServicio, setTipoServicio] = useState("")
+  const [modalCuentaExistente, setModalCuentaExistente] = useState(false)
+  const [cuentaExistenteData, setCuentaExistenteData] = useState({ placa: "", numeroCuenta: "" })
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -55,7 +58,11 @@ export default function NuevaCuentaPage() {
         .single()
 
       if (cuentaExistente) {
-        toast.error(`La placa ${placaNormalizada} ya está registrada con el número de cuenta ${cuentaExistente.numero_cuenta}`)
+        setCuentaExistenteData({
+          placa: placaNormalizada,
+          numeroCuenta: cuentaExistente.numero_cuenta
+        })
+        setModalCuentaExistente(true)
         setLoading(false)
         return
       }
@@ -197,6 +204,12 @@ export default function NuevaCuentaPage() {
         </CardContent>
       </Card>
 
+      <ModalCuentaExistente
+        open={modalCuentaExistente}
+        onOpenChange={setModalCuentaExistente}
+        placa={cuentaExistenteData.placa}
+        numeroCuenta={cuentaExistenteData.numeroCuenta}
+      />
     </div>
   )
 }
