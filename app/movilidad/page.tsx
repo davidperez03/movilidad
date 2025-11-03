@@ -238,7 +238,7 @@ export default async function MovilidadDashboard() {
         />
       </div>
 
-      {/* Resumen de estado por ciudad */}
+      {/* Vista General */}
       <Card>
         <CardHeader>
           <CardTitle>Vista General</CardTitle>

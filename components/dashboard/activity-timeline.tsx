@@ -13,7 +13,6 @@ interface TimelineItem {
   metadata?: {
     placa?: string
     estado?: string
-    ciudad?: string
   }
 }
 
@@ -94,11 +93,6 @@ export function ActivityTimeline({
                             {activity.metadata.placa && (
                               <span className="text-xs bg-muted px-2 py-1 rounded">
                                 {activity.metadata.placa}
-                              </span>
-                            )}
-                            {activity.metadata.ciudad && (
-                              <span className="text-xs bg-muted px-2 py-1 rounded capitalize">
-                                {activity.metadata.ciudad.replace(/_/g, " ")}
                               </span>
                             )}
                             {activity.metadata.estado && (

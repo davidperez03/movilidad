@@ -226,10 +226,10 @@ export default function ConsultaPublicaPage() {
                         <MapPin className="h-5 w-5 text-muted-foreground" />
                         <div>
                           <Label className="text-xs text-muted-foreground">
-                            {resultado.proceso_tipo === "traslado" ? "Ciudad Destino" : "Ciudad Origen"}
+                            {resultado.proceso_tipo === "traslado" ? "Organismo Destino" : "Organismo Origen"}
                           </Label>
-                          <p className="font-medium capitalize">
-                            {resultado.ciudad.replace(/_/g, " ")}
+                          <p className="font-medium">
+                            {resultado.ciudad}
                           </p>
                         </div>
                       </div>

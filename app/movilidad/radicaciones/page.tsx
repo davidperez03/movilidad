@@ -234,7 +234,7 @@ export default async function RadicacionesPage() {
                   <div className="grid gap-4 md:grid-cols-4 mb-4">
                     <div>
                       <p className="text-sm text-muted-foreground">Origen</p>
-                      <p className="font-medium">{formatearCiudad(radicacion.ciudad_origen)}</p>
+                      <p className="font-medium">{radicacion.organismo?.nombre || 'Sin información'}</p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Fecha trámite</p>

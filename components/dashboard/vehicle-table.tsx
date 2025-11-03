@@ -97,7 +97,7 @@ export function VehicleTable({ vehicles }: VehicleTableProps) {
                 <th className="text-left py-3 px-4 font-medium text-sm">Tipo Servicio</th>
                 <th className="text-left py-3 px-4 font-medium text-sm">Proceso Activo</th>
                 <th className="text-left py-3 px-4 font-medium text-sm">Estado</th>
-                <th className="text-left py-3 px-4 font-medium text-sm">Ciudad</th>
+                <th className="text-left py-3 px-4 font-medium text-sm">Organismo</th>
                 <th className="text-left py-3 px-4 font-medium text-sm">Días Restantes</th>
                 <th className="text-right py-3 px-4 font-medium text-sm">Acciones</th>
               </tr>
@@ -141,8 +141,8 @@ export function VehicleTable({ vehicles }: VehicleTableProps) {
                         <span className="text-sm text-muted-foreground">-</span>
                       )}
                     </td>
-                    <td className="py-3 px-4 capitalize text-sm">
-                      {vehicle.ciudad?.replace(/_/g, " ") || "-"}
+                    <td className="py-3 px-4 text-sm">
+                      {vehicle.ciudad || "-"}
                     </td>
                     <td className="py-3 px-4">
                       {vehicle.dias_restantes !== null && vehicle.dias_restantes !== undefined ? (
