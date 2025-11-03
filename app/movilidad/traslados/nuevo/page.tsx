@@ -8,18 +8,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { toast } from "sonner"
 import { ArrowLeft, ArrowRightLeft, Loader2, Search } from "lucide-react"
 import Link from "next/link"
 import { getTodayForInput, formatDateForDB } from "@/lib/utils/dates"
 import { ModalProcesoActivo } from "@/components/movilidad/modal-proceso-activo"
+import { ComboboxOrganismos } from "@/components/movilidad/combobox-organismos"
 
 interface Organismo {
   id: string
@@ -279,23 +273,15 @@ export default function NuevoTrasladoPage() {
                 <Label htmlFor="organismo_destino">
                   Organismo Destino <span className="text-red-500">*</span>
                 </Label>
-                <Select
+                <ComboboxOrganismos
+                  organismos={organismos}
                   value={organismoDestinoId}
                   onValueChange={setOrganismoDestinoId}
                   disabled={loading || cargandoOrganismos}
-                  required
-                >
-                  <SelectTrigger id="organismo_destino">
-                    <SelectValue placeholder={cargandoOrganismos ? "Cargando organismos..." : "Seleccione el organismo destino"} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {organismos.map((organismo) => (
-                      <SelectItem key={organismo.id} value={organismo.id}>
-                        {organismo.nombre} - {organismo.municipio}, {organismo.departamento}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  placeholder={cargandoOrganismos ? "Cargando organismos..." : "Seleccione el organismo destino"}
+                  searchPlaceholder="Buscar por nombre, municipio o departamento..."
+                  emptyMessage="No se encontró el organismo."
+                />
               </div>
 
               <div className="space-y-2">
