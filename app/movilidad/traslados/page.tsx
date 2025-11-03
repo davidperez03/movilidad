@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
 import { ArrowRightLeft, Plus, Calendar, MapPin, FileText, AlertTriangle } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { BotonDescargarRemision } from "@/components/movilidad/boton-descargar-remision"
 
 export default async function TrasladosPage() {
   const supabase = await createClient()
@@ -185,6 +186,12 @@ export default async function TrasladosPage() {
                           Ver Detalle
                         </Link>
                       </Button>
+                      {(traslado.estado === "enviado_organismo" || traslado.estado === "trasladado") && (
+                        <BotonDescargarRemision
+                          trasladoId={traslado.id}
+                          placa={traslado.mov_cuentas_vehiculos?.placa || ""}
+                        />
+                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -254,12 +261,20 @@ export default async function TrasladosPage() {
                       <p className="font-medium">{traslado.perfiles?.nombre_completo}</p>
                     </div>
                   </div>
-                  <Button asChild variant="outline" size="sm">
-                    <Link href={`/movilidad/vehiculos/${traslado.mov_cuentas_vehiculos?.placa}`}>
-                      <FileText className="h-4 w-4 mr-2" />
-                      Ver Detalle
-                    </Link>
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button asChild variant="outline" size="sm">
+                      <Link href={`/movilidad/vehiculos/${traslado.mov_cuentas_vehiculos?.placa}`}>
+                        <FileText className="h-4 w-4 mr-2" />
+                        Ver Detalle
+                      </Link>
+                    </Button>
+                    {(traslado.estado === "enviado_organismo" || traslado.estado === "trasladado") && (
+                      <BotonDescargarRemision
+                        trasladoId={traslado.id}
+                        placa={traslado.mov_cuentas_vehiculos?.placa || ""}
+                      />
+                    )}
+                  </div>
                 </CardContent>
               </Card>
             ))

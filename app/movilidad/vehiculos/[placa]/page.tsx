@@ -19,6 +19,7 @@ import { notFound } from "next/navigation"
 import { AgregarNovedad } from "@/components/movilidad/agregar-novedad"
 import { CambiarEstado } from "@/components/movilidad/cambiar-estado"
 import { ResolverNovedad } from "@/components/movilidad/resolver-novedad"
+import { BotonDescargarRemision } from "@/components/movilidad/boton-descargar-remision"
 import { formatDateForDisplay } from "@/lib/utils/dates"
 
 export default async function DetalleVehiculoPage({
@@ -424,6 +425,16 @@ export default async function DetalleVehiculoPage({
                         </p>
                       )}
                     </div>
+                    {(traslado.estado === "enviado_organismo" || traslado.estado === "trasladado") && (
+                      <div className="mt-2">
+                        <BotonDescargarRemision
+                          trasladoId={traslado.id}
+                          placa={placa}
+                          size="sm"
+                          variant="outline"
+                        />
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
