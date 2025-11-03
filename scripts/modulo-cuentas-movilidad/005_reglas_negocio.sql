@@ -362,8 +362,71 @@ begin
 end;
 $$;
 
+-- Función para obtener las transiciones válidas desde un estado actual
+create or replace function obtener_transiciones_validas(
+  p_estado_actual text,
+  p_tipo_proceso text -- 'traslado' o 'radicacion'
+)
+returns table (
+  estado_siguiente text
+)
+language plpgsql
+as $$
+declare
+  transiciones_validas text[][];
+  i integer;
+begin
+  -- Transiciones válidas para traslados
+  if p_tipo_proceso = 'traslado' then
+    transiciones_validas := array[
+      array['sin_asignar', 'revisado'],
+      array['sin_asignar', 'con_novedades'],
+      array['sin_asignar', 'enviado_organismo'],
+      array['revisado', 'con_novedades'],
+      array['revisado', 'enviado_organismo'],
+      array['revisado', 'devuelto'],
+      array['con_novedades', 'revisado'],
+      array['con_novedades', 'enviado_organismo'],
+      array['con_novedades', 'devuelto'],
+      array['enviado_organismo', 'trasladado'],
+      array['enviado_organismo', 'devuelto']
+    ];
+  end if;
+
+  -- Transiciones válidas para radicaciones
+  if p_tipo_proceso = 'radicacion' then
+    transiciones_validas := array[
+      array['sin_asignar', 'recibido'],
+      array['sin_asignar', 'revisado'],
+      array['sin_asignar', 'pendiente_radicar'],
+      array['recibido', 'revisado'],
+      array['recibido', 'con_novedades'],
+      array['revisado', 'con_novedades'],
+      array['revisado', 'pendiente_radicar'],
+      array['revisado', 'devuelto'],
+      array['con_novedades', 'revisado'],
+      array['con_novedades', 'pendiente_radicar'],
+      array['con_novedades', 'devuelto'],
+      array['pendiente_radicar', 'radicado'],
+      array['pendiente_radicar', 'devuelto']
+    ];
+  end if;
+
+  -- Retornar todos los estados permitidos desde el estado actual
+  for i in 1..array_length(transiciones_validas, 1) loop
+    if transiciones_validas[i][1] = p_estado_actual then
+      estado_siguiente := transiciones_validas[i][2];
+      return next;
+    end if;
+  end loop;
+
+  return;
+end;
+$$;
+
 -- Comentarios
 comment on function validar_proceso_unico is 'Valida que un vehículo no tenga dos procesos activos simultáneamente';
 comment on function validar_secuencia_procesos is 'Valida la lógica de origen y destino entre traslados y radicaciones';
 comment on function validar_transicion_estado is 'Valida que los cambios de estado sean correctos';
 comment on function puede_iniciar_proceso is 'Verifica si un vehículo puede iniciar un nuevo proceso';
+comment on function obtener_transiciones_validas is 'Retorna los estados válidos a los que se puede transicionar desde un estado actual';

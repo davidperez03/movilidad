@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import {
@@ -54,19 +54,73 @@ export function CambiarEstado({ procesoId, procesoTipo, estadoActual }: CambiarE
   const supabase = createClient()
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [nuevoEstado, setNuevoEstado] = useState(estadoActual)
+  const [nuevoEstado, setNuevoEstado] = useState("")
   const [observaciones, setObservaciones] = useState("")
+  const [estadosPermitidos, setEstadosPermitidos] = useState<string[]>([])
+  const [cargandoTransiciones, setCargandoTransiciones] = useState(true)
 
   const estados = procesoTipo === "traslado" ? ESTADOS_TRASLADO : ESTADOS_RADICACION
   const tabla = procesoTipo === "traslado" ? "mov_traslados" : "mov_radicaciones"
+
+  // Cargar transiciones válidas cuando se abre el modal
+  useEffect(() => {
+    if (open) {
+      cargarTransicionesValidas()
+      setNuevoEstado("") // Reset selection when opening
+    } else {
+      // Reset when closing
+      setNuevoEstado("")
+      setObservaciones("")
+    }
+  }, [open, estadoActual, procesoTipo])
+
+  const cargarTransicionesValidas = async () => {
+    setCargandoTransiciones(true)
+    try {
+      const { data, error } = await supabase
+        .rpc("obtener_transiciones_validas", {
+          p_estado_actual: estadoActual,
+          p_tipo_proceso: procesoTipo,
+        })
+
+      if (error) {
+        console.error("Error al cargar transiciones:", error)
+        toast.error("Error al cargar los estados disponibles")
+        setEstadosPermitidos([])
+        return
+      }
+
+      // Extraer solo los valores de estado_siguiente
+      const permitidos = data?.map((row: any) => row.estado_siguiente) || []
+      setEstadosPermitidos(permitidos)
+
+      // Si no hay transiciones válidas, significa que es un estado final
+      if (permitidos.length === 0) {
+        toast.info("Este proceso está en un estado final")
+      }
+    } catch (error) {
+      console.error("Error:", error)
+      toast.error("Error al cargar transiciones válidas")
+      setEstadosPermitidos([])
+    } finally {
+      setCargandoTransiciones(false)
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
 
     try {
-      if (nuevoEstado === estadoActual) {
-        toast.error("Debe seleccionar un estado diferente al actual")
+      if (!nuevoEstado || nuevoEstado === estadoActual) {
+        toast.error("Debe seleccionar un nuevo estado")
+        setLoading(false)
+        return
+      }
+
+      // Validar que el nuevo estado esté en los permitidos
+      if (!estadosPermitidos.includes(nuevoEstado)) {
+        toast.error("La transición seleccionada no es válida")
         setLoading(false)
         return
       }
@@ -102,7 +156,6 @@ export function CambiarEstado({ procesoId, procesoTipo, estadoActual }: CambiarE
 
       toast.success("Estado actualizado exitosamente")
       setOpen(false)
-      setObservaciones("")
       router.refresh()
     } catch (error) {
       console.error("Error:", error)
@@ -144,24 +197,37 @@ export function CambiarEstado({ procesoId, procesoTipo, estadoActual }: CambiarE
             <Select
               value={nuevoEstado}
               onValueChange={setNuevoEstado}
-              disabled={loading}
+              disabled={loading || cargandoTransiciones}
               required
             >
               <SelectTrigger id="nuevo_estado">
-                <SelectValue />
+                <SelectValue placeholder={cargandoTransiciones ? "Cargando estados..." : "Seleccione un estado"} />
               </SelectTrigger>
               <SelectContent>
-                {estados.map((estado) => (
-                  <SelectItem
-                    key={estado.value}
-                    value={estado.value}
-                    disabled={estado.value === estadoActual}
-                  >
-                    {estado.label}
-                  </SelectItem>
-                ))}
+                {cargandoTransiciones ? (
+                  <div className="p-4 text-center text-sm text-muted-foreground">
+                    Cargando estados disponibles...
+                  </div>
+                ) : estadosPermitidos.length === 0 ? (
+                  <div className="p-4 text-center text-sm text-muted-foreground">
+                    No hay transiciones disponibles desde este estado
+                  </div>
+                ) : (
+                  estados
+                    .filter((estado) => estadosPermitidos.includes(estado.value))
+                    .map((estado) => (
+                      <SelectItem key={estado.value} value={estado.value}>
+                        {estado.label}
+                      </SelectItem>
+                    ))
+                )}
               </SelectContent>
             </Select>
+            {!cargandoTransiciones && estadosPermitidos.length > 0 && (
+              <p className="text-xs text-muted-foreground">
+                {estadosPermitidos.length} {estadosPermitidos.length === 1 ? "transición disponible" : "transiciones disponibles"}
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -194,7 +260,10 @@ export function CambiarEstado({ procesoId, procesoTipo, estadoActual }: CambiarE
             >
               Cancelar
             </Button>
-            <Button type="submit" disabled={loading}>
+            <Button
+              type="submit"
+              disabled={loading || cargandoTransiciones || estadosPermitidos.length === 0}
+            >
               {loading ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
