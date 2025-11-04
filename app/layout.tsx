@@ -3,6 +3,7 @@ import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { SessionProvider } from "@/components/session-provider"
+import { Toaster } from "sonner"
 import "./globals.css"
 
 const _geist = Geist({ subsets: ["latin"] })
@@ -25,6 +26,7 @@ export default function RootLayout({
         <SessionProvider autoRefreshInterval={20} inactivityTimeout={10}>
           {children}
         </SessionProvider>
+        <Toaster position="top-right" richColors closeButton />
         <Analytics />
       </body>
     </html>

@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
-import { TicketDetailsUser } from "@/components/detalles-ticket-usuario"
-import { TicketDetailsAgent } from "@/components/detalles-ticket-agente"
-import { TicketDetailsAdmin } from "@/components/detalles-ticket-administrador"
+import { TicketDetailsUser } from "@/components/tickets/detalles-ticket-usuario"
+import { TicketDetailsAgent } from "@/components/tickets/detalles-ticket-agente"
+import { TicketDetailsAdmin } from "@/components/tickets/detalles-ticket-administrador"
 
 export default async function DetalleTicketPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params

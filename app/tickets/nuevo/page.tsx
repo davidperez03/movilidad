@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
+import { toast } from "sonner"
 
 export default function NuevoTicketPage() {
   const router = useRouter()
@@ -52,10 +53,20 @@ export default function NuevoTicketPage() {
 
       if (insertError) throw insertError
 
+      toast.success("¡Ticket creado exitosamente!", {
+        description: "Tu ticket ha sido registrado y será atendido pronto.",
+        duration: 4000,
+      })
+
       router.push("/tickets")
       router.refresh()
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al crear el ticket")
+      const errorMessage = err instanceof Error ? err.message : "Error al crear el ticket"
+      setError(errorMessage)
+      toast.error("Error al crear el ticket", {
+        description: errorMessage,
+        duration: 5000,
+      })
     } finally {
       setIsLoading(false)
     }
@@ -83,18 +94,24 @@ export default function NuevoTicketPage() {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="title">Título</Label>
+                <Label htmlFor="title">
+                  Título <span className="text-destructive">*</span>
+                </Label>
                 <Input
                   id="title"
                   placeholder="Describe brevemente el problema o solicitud"
                   required
                   value={formData.titulo}
                   onChange={(e) => setFormData({ ...formData, titulo: e.target.value })}
+                  className="transition-all focus:ring-2 focus:ring-primary/20"
                 />
+                <p className="text-xs text-muted-foreground">Máximo 100 caracteres</p>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="description">Descripción</Label>
+                <Label htmlFor="description">
+                  Descripción <span className="text-destructive">*</span>
+                </Label>
                 <Textarea
                   id="description"
                   placeholder="Proporciona detalles adicionales sobre tu solicitud"
@@ -102,20 +119,37 @@ export default function NuevoTicketPage() {
                   rows={6}
                   value={formData.descripcion}
                   onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
+                  className="transition-all focus:ring-2 focus:ring-primary/20"
                 />
+                <p className="text-xs text-muted-foreground">Sé lo más específico posible para recibir una mejor ayuda</p>
               </div>
 
               <div className="grid gap-6 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="type">Tipo</Label>
                   <Select value={formData.tipo} onValueChange={(value) => setFormData({ ...formData, tipo: value })}>
-                    <SelectTrigger id="type">
+                    <SelectTrigger id="type" className="transition-all focus:ring-2 focus:ring-primary/20">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="soporte_tecnico">Soporte Técnico</SelectItem>
-                      <SelectItem value="solicitud_interna">Solicitud Interna</SelectItem>
-                      <SelectItem value="tarea_general">Tarea General</SelectItem>
+                      <SelectItem value="soporte_tecnico">
+                        <div className="flex flex-col">
+                          <span className="font-medium">Soporte Técnico</span>
+                          <span className="text-xs text-muted-foreground">Problemas técnicos o errores</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="solicitud_interna">
+                        <div className="flex flex-col">
+                          <span className="font-medium">Solicitud Interna</span>
+                          <span className="text-xs text-muted-foreground">Peticiones del equipo</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="tarea_general">
+                        <div className="flex flex-col">
+                          <span className="font-medium">Tarea General</span>
+                          <span className="text-xs text-muted-foreground">Otras tareas o consultas</span>
+                        </div>
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -126,26 +160,58 @@ export default function NuevoTicketPage() {
                     value={formData.prioridad}
                     onValueChange={(value) => setFormData({ ...formData, prioridad: value })}
                   >
-                    <SelectTrigger id="priority">
+                    <SelectTrigger id="priority" className="transition-all focus:ring-2 focus:ring-primary/20">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="baja">Baja</SelectItem>
-                      <SelectItem value="media">Media</SelectItem>
-                      <SelectItem value="alta">Alta</SelectItem>
-                      <SelectItem value="urgente">Urgente</SelectItem>
+                      <SelectItem value="baja">
+                        <div className="flex items-center gap-2">
+                          <div className="h-2 w-2 rounded-full bg-gray-500" />
+                          <span>Baja - Puede esperar</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="media">
+                        <div className="flex items-center gap-2">
+                          <div className="h-2 w-2 rounded-full bg-blue-500" />
+                          <span>Media - Atención normal</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="alta">
+                        <div className="flex items-center gap-2">
+                          <div className="h-2 w-2 rounded-full bg-orange-500" />
+                          <span>Alta - Requiere pronta atención</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="urgente">
+                        <div className="flex items-center gap-2">
+                          <div className="h-2 w-2 rounded-full bg-red-500" />
+                          <span>Urgente - Crítico</span>
+                        </div>
+                      </SelectItem>
                     </SelectContent>
                   </Select>
+                  <p className="text-xs text-muted-foreground">Selecciona según la urgencia del problema</p>
                 </div>
               </div>
 
-              {error && <p className="text-sm text-destructive">{error}</p>}
+              {error && (
+                <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-4">
+                  <p className="text-sm font-medium text-destructive">{error}</p>
+                </div>
+              )}
 
               <div className="flex gap-4">
-                <Button type="submit" disabled={isLoading} className="flex-1">
-                  {isLoading ? "Creando..." : "Crear Ticket"}
+                <Button type="submit" disabled={isLoading} className="flex-1 transition-all hover:shadow-md">
+                  {isLoading ? (
+                    <span className="flex items-center gap-2">
+                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                      Creando...
+                    </span>
+                  ) : (
+                    "Crear Ticket"
+                  )}
                 </Button>
-                <Button type="button" variant="outline" asChild>
+                <Button type="button" variant="outline" asChild className="transition-all hover:shadow-md">
                   <Link href="/tickets">Cancelar</Link>
                 </Button>
               </div>

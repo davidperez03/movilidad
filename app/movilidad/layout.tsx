@@ -67,7 +67,7 @@ export default async function MovilidadLayout({
                   <Car className="h-5 w-5 text-primary" />
                 </div>
                 <div>
-                  <h1 className="text-lg font-bold leading-none">Gestión de Movilidad</h1>
+                  <h1 className="text-lg font-bold leading-none">Movilidad</h1>
                   <p className="text-xs text-muted-foreground">Sistema de traslados y radicaciones</p>
                 </div>
               </div>

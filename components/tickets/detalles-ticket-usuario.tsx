@@ -9,10 +9,13 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Textarea } from "@/components/ui/textarea"
+import { StatusBadge } from "@/components/tickets/status-badge"
+import { PriorityBadge } from "@/components/tickets/priority-badge"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
 import { ArrowLeft, User, Calendar, MessageSquare, Send } from "lucide-react"
 import Link from "next/link"
+import { toast } from "sonner"
 
 interface TicketDetailsUserProps {
   ticket: any
@@ -76,10 +79,19 @@ export function TicketDetailsUser({ ticket, comments, currentUserId }: TicketDet
 
       if (error) throw error
 
+      toast.success("Comentario agregado", {
+        description: "Tu comentario se ha enviado correctamente.",
+        duration: 3000,
+      })
+
       setNewComment("")
       router.refresh()
     } catch (error) {
       console.error("Error adding comment:", error)
+      toast.error("Error al enviar comentario", {
+        description: "No se pudo enviar tu comentario. Inténtalo de nuevo.",
+        duration: 4000,
+      })
     } finally {
       setIsLoading(false)
     }
@@ -120,12 +132,8 @@ export function TicketDetailsUser({ ticket, comments, currentUserId }: TicketDet
                   <CardDescription className="mt-2">Ticket ID: {ticket.id.slice(0, 8)}</CardDescription>
                 </div>
                 <div className="flex flex-col gap-2">
-                  <Badge className={statusColors[ticket.estado as keyof typeof statusColors]}>
-                    {statusLabels[ticket.estado as keyof typeof statusLabels]}
-                  </Badge>
-                  <Badge className={priorityColors[ticket.prioridad as keyof typeof priorityColors]}>
-                    {priorityLabels[ticket.prioridad as keyof typeof priorityLabels]}
-                  </Badge>
+                  <StatusBadge status={ticket.estado as "nuevo" | "en_progreso" | "resuelto" | "cerrado"} />
+                  <PriorityBadge priority={ticket.prioridad as "baja" | "media" | "alta" | "urgente"} />
                 </div>
               </div>
             </CardHeader>
@@ -228,9 +236,18 @@ export function TicketDetailsUser({ ticket, comments, currentUserId }: TicketDet
                   rows={3}
                   disabled={isLoading}
                 />
-                <Button type="submit" disabled={isLoading || !newComment.trim()} className="w-full">
-                  <Send className="mr-2 h-4 w-4" />
-                  {isLoading ? "Enviando..." : "Enviar Comentario"}
+                <Button type="submit" disabled={isLoading || !newComment.trim()} className="w-full transition-all hover:shadow-md">
+                  {isLoading ? (
+                    <span className="flex items-center gap-2">
+                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                      Enviando...
+                    </span>
+                  ) : (
+                    <>
+                      <Send className="mr-2 h-4 w-4" />
+                      Enviar Comentario
+                    </>
+                  )}
                 </Button>
               </form>
             </CardContent>

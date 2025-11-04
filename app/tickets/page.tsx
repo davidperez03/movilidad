@@ -7,6 +7,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { BotonCerrarSesion } from "@/components/logout-button"
 import Link from "next/link"
 import { Plus, Ticket, Car, Users, ClipboardList, TrendingUp, Shield, CheckCircle2, Clock } from "lucide-react"
+import { StatusBadge } from "@/components/tickets/status-badge"
+import { PriorityBadge } from "@/components/tickets/priority-badge"
 
 export default async function TicketsPage() {
   const supabase = await createClient()
@@ -163,20 +165,16 @@ export default async function TicketsPage() {
 
   const TicketCard = ({ ticket }: { ticket: any }) => (
     <Link href={`/tickets/${ticket.id}`}>
-      <Card className="transition-colors hover:bg-muted/50">
+      <Card className="group cursor-pointer transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 hover:border-primary/20 hover:-translate-y-0.5">
         <CardHeader>
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <CardTitle className="text-lg">{ticket.titulo}</CardTitle>
+              <CardTitle className="text-lg group-hover:text-primary transition-colors">{ticket.titulo}</CardTitle>
               <CardDescription className="mt-1 line-clamp-2">{ticket.descripcion}</CardDescription>
             </div>
             <div className="flex flex-col gap-2">
-              <Badge className={statusColors[ticket.estado as keyof typeof statusColors]}>
-                {statusLabels[ticket.estado as keyof typeof statusLabels]}
-              </Badge>
-              <Badge className={priorityColors[ticket.prioridad as keyof typeof priorityColors]}>
-                {priorityLabels[ticket.prioridad as keyof typeof priorityLabels]}
-              </Badge>
+              <StatusBadge status={ticket.estado as "nuevo" | "en_progreso" | "resuelto" | "cerrado"} />
+              <PriorityBadge priority={ticket.prioridad as "baja" | "media" | "alta" | "urgente"} />
             </div>
           </div>
         </CardHeader>
@@ -194,7 +192,7 @@ export default async function TicketsPage() {
                 {ticket.perfil_asignado ? (
                   <span>Asignado a: {ticket.perfil_asignado?.nombre_completo || ticket.perfil_asignado?.correo}</span>
                 ) : (
-                  <span className="text-orange-500">Sin asignar</span>
+                  <span className="text-orange-500 font-medium">Sin asignar</span>
                 )}
               </div>
             )}
@@ -244,10 +242,10 @@ export default async function TicketsPage() {
           </div>
 
           <div className="mb-8 grid gap-4 md:grid-cols-4">
-            <Card>
+            <Card className="transition-all duration-300 hover:shadow-md hover:border-blue-500/30">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Total Tickets</CardTitle>
-                <ClipboardList className="h-4 w-4 text-muted-foreground" />
+                <ClipboardList className="h-4 w-4 text-blue-500" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{stats.totalTickets}</div>
@@ -255,10 +253,10 @@ export default async function TicketsPage() {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="transition-all duration-300 hover:shadow-md hover:border-purple-500/30">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Usuarios</CardTitle>
-                <Users className="h-4 w-4 text-muted-foreground" />
+                <Users className="h-4 w-4 text-purple-500" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{stats.totalUsers}</div>
@@ -266,10 +264,10 @@ export default async function TicketsPage() {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="transition-all duration-300 hover:shadow-md hover:border-yellow-500/30">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">En Progreso</CardTitle>
-                <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                <TrendingUp className="h-4 w-4 text-yellow-500" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{stats.inProgress}</div>
@@ -277,10 +275,10 @@ export default async function TicketsPage() {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="transition-all duration-300 hover:shadow-md hover:border-red-500/30">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Urgentes</CardTitle>
-                <Ticket className="h-4 w-4 text-muted-foreground" />
+                <Ticket className="h-4 w-4 text-red-500" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{stats.urgent}</div>
@@ -314,11 +312,11 @@ export default async function TicketsPage() {
               {allUsers && allUsers.length > 0 ? (
                 allUsers.map((userItem) => (
                   <Link key={userItem.id} href={`/tickets/usuarios/${userItem.id}`}>
-                    <Card className="transition-colors hover:bg-muted/50">
+                    <Card className="group cursor-pointer transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 hover:border-primary/20 hover:-translate-y-0.5">
                       <CardHeader>
                         <div className="flex items-center justify-between">
                           <div>
-                            <CardTitle className="text-lg">{userItem.nombre_completo || "Sin nombre"}</CardTitle>
+                            <CardTitle className="text-lg group-hover:text-primary transition-colors">{userItem.nombre_completo || "Sin nombre"}</CardTitle>
                             <CardDescription>{userItem.correo}</CardDescription>
                           </div>
                           <Badge className={roleColors[userItem.rol as keyof typeof roleColors]}>
@@ -348,7 +346,7 @@ export default async function TicketsPage() {
             <TabsContent value="agents" className="space-y-4">
               {agentWorkload.length > 0 ? (
                 agentWorkload.map((agent) => (
-                  <Card key={agent.id}>
+                  <Card key={agent.id} className="transition-all duration-300 hover:shadow-md hover:border-primary/20">
                     <CardHeader>
                       <div className="flex items-center justify-between">
                         <div>
@@ -362,13 +360,13 @@ export default async function TicketsPage() {
                     </CardHeader>
                     <CardContent>
                       <div className="grid gap-4 sm:grid-cols-2">
-                        <div>
+                        <div className="rounded-lg bg-muted/50 p-3">
                           <p className="text-sm text-muted-foreground">Tickets Asignados</p>
-                          <p className="text-2xl font-bold">{agent.assignedTickets}</p>
+                          <p className="text-2xl font-bold text-blue-600">{agent.assignedTickets}</p>
                         </div>
-                        <div>
+                        <div className="rounded-lg bg-muted/50 p-3">
                           <p className="text-sm text-muted-foreground">Tickets Resueltos</p>
-                          <p className="text-2xl font-bold">{agent.resolvedTickets}</p>
+                          <p className="text-2xl font-bold text-green-600">{agent.resolvedTickets}</p>
                         </div>
                       </div>
                     </CardContent>
@@ -430,40 +428,40 @@ export default async function TicketsPage() {
           </div>
 
           <div className="mb-8 grid gap-4 md:grid-cols-4">
-            <Card>
+            <Card className="transition-all duration-300 hover:shadow-md hover:border-blue-500/30">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Total de Tickets</CardTitle>
-                <ClipboardList className="h-4 w-4 text-muted-foreground" />
+                <ClipboardList className="h-4 w-4 text-blue-500" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{stats.total}</div>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="transition-all duration-300 hover:shadow-md hover:border-purple-500/30">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Mis Tickets</CardTitle>
-                <Ticket className="h-4 w-4 text-muted-foreground" />
+                <Ticket className="h-4 w-4 text-purple-500" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{stats.assigned}</div>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="transition-all duration-300 hover:shadow-md hover:border-orange-500/30">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Sin Asignar</CardTitle>
-                <Clock className="h-4 w-4 text-muted-foreground" />
+                <Clock className="h-4 w-4 text-orange-500" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{stats.unassigned}</div>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="transition-all duration-300 hover:shadow-md hover:border-green-500/30">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Resueltos</CardTitle>
-                <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
+                <CheckCircle2 className="h-4 w-4 text-green-500" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{stats.resolved}</div>

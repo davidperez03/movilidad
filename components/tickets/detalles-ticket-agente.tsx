@@ -9,12 +9,15 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { StatusBadge } from "@/components/tickets/status-badge"
+import { PriorityBadge } from "@/components/tickets/priority-badge"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
 import { ArrowLeft, User, Calendar, MessageSquare, Send } from "lucide-react"
 import Link from "next/link"
+import { toast } from "sonner"
 
 interface TicketDetailsAgentProps {
   ticket: any
@@ -110,9 +113,18 @@ export function TicketDetailsAgent({ ticket, agents, currentUserId }: TicketDeta
 
       if (error) throw error
 
+      toast.success("Ticket actualizado", {
+        description: "Los cambios se han guardado correctamente.",
+        duration: 3000,
+      })
+
       router.refresh()
     } catch (error) {
       console.error("Error updating ticket:", error)
+      toast.error("Error al actualizar", {
+        description: "No se pudieron guardar los cambios. Inténtalo de nuevo.",
+        duration: 4000,
+      })
     } finally {
       setIsLoading(false)
     }
@@ -134,11 +146,20 @@ export function TicketDetailsAgent({ ticket, agents, currentUserId }: TicketDeta
 
       if (error) throw error
 
+      toast.success("Ticket asignado", {
+        description: "El ticket ha sido asignado a ti y está ahora en progreso.",
+        duration: 3000,
+      })
+
       setAssignedTo(currentUserId)
       setStatus("en_progreso")
       router.refresh()
     } catch (error) {
       console.error("Error assigning ticket:", error)
+      toast.error("Error al asignar", {
+        description: "No se pudo asignar el ticket. Inténtalo de nuevo.",
+        duration: 4000,
+      })
     } finally {
       setIsLoading(false)
     }
@@ -161,10 +182,19 @@ export function TicketDetailsAgent({ ticket, agents, currentUserId }: TicketDeta
 
       if (error) throw error
 
+      toast.success("Comentario agregado", {
+        description: "Tu comentario se ha publicado correctamente.",
+        duration: 3000,
+      })
+
       setNewComment("")
       await loadComments()
     } catch (error) {
       console.error("Error adding comment:", error)
+      toast.error("Error al comentar", {
+        description: "No se pudo publicar el comentario. Inténtalo de nuevo.",
+        duration: 4000,
+      })
     } finally {
       setIsLoading(false)
     }
@@ -205,12 +235,8 @@ export function TicketDetailsAgent({ ticket, agents, currentUserId }: TicketDeta
                   <CardDescription className="mt-2">Ticket ID: {ticket.id.slice(0, 8)}</CardDescription>
                 </div>
                 <div className="flex flex-col gap-2">
-                  <Badge className={statusColors[ticket.estado as keyof typeof statusColors]}>
-                    {statusLabels[ticket.estado as keyof typeof statusLabels]}
-                  </Badge>
-                  <Badge className={priorityColors[ticket.prioridad as keyof typeof priorityColors]}>
-                    {priorityLabels[ticket.prioridad as keyof typeof priorityLabels]}
-                  </Badge>
+                  <StatusBadge status={ticket.estado as "nuevo" | "en_progreso" | "resuelto" | "cerrado"} />
+                  <PriorityBadge priority={ticket.prioridad as "baja" | "media" | "alta" | "urgente"} />
                 </div>
               </div>
             </CardHeader>
@@ -259,8 +285,15 @@ export function TicketDetailsAgent({ ticket, agents, currentUserId }: TicketDeta
             </CardHeader>
             <CardContent className="space-y-6">
               {!ticket.asignado_a && (
-                <Button onClick={handleAssignToMe} disabled={isLoading} className="w-full">
-                  Asignarme este ticket
+                <Button onClick={handleAssignToMe} disabled={isLoading} className="w-full transition-all hover:shadow-md">
+                  {isLoading ? (
+                    <span className="flex items-center gap-2">
+                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                      Asignando...
+                    </span>
+                  ) : (
+                    "Asignarme este ticket"
+                  )}
                 </Button>
               )}
 
@@ -298,8 +331,15 @@ export function TicketDetailsAgent({ ticket, agents, currentUserId }: TicketDeta
                 </div>
               </div>
 
-              <Button onClick={handleUpdate} disabled={isLoading} className="w-full">
-                {isLoading ? "Actualizando..." : "Actualizar Ticket"}
+              <Button onClick={handleUpdate} disabled={isLoading} className="w-full transition-all hover:shadow-md">
+                {isLoading ? (
+                  <span className="flex items-center gap-2">
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                    Actualizando...
+                  </span>
+                ) : (
+                  "Actualizar Ticket"
+                )}
               </Button>
             </CardContent>
           </Card>
@@ -364,9 +404,18 @@ export function TicketDetailsAgent({ ticket, agents, currentUserId }: TicketDeta
                   rows={3}
                   disabled={isLoading}
                 />
-                <Button type="submit" disabled={isLoading || !newComment.trim()} className="w-full">
-                  <Send className="mr-2 h-4 w-4" />
-                  {isLoading ? "Enviando..." : "Enviar Comentario"}
+                <Button type="submit" disabled={isLoading || !newComment.trim()} className="w-full transition-all hover:shadow-md">
+                  {isLoading ? (
+                    <span className="flex items-center gap-2">
+                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                      Enviando...
+                    </span>
+                  ) : (
+                    <>
+                      <Send className="mr-2 h-4 w-4" />
+                      Enviar Comentario
+                    </>
+                  )}
                 </Button>
               </form>
             </CardContent>

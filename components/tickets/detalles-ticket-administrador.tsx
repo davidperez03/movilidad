@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { StatusBadge } from "@/components/tickets/status-badge"
+import { PriorityBadge } from "@/components/tickets/priority-badge"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -26,6 +28,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { ArrowLeft, User, Calendar, Trash2, MessageSquare, Send } from "lucide-react"
 import Link from "next/link"
+import { toast } from "sonner"
 
 interface TicketDetailsAdminProps {
   ticket: any
@@ -134,9 +137,18 @@ export function TicketDetailsAdmin({ ticket, agents }: TicketDetailsAdminProps) 
 
       if (error) throw error
 
+      toast.success("Ticket actualizado", {
+        description: "Los cambios se han guardado correctamente.",
+        duration: 3000,
+      })
+
       router.refresh()
     } catch (error) {
       console.error("Error updating ticket:", error)
+      toast.error("Error al actualizar", {
+        description: "No se pudieron guardar los cambios. Inténtalo de nuevo.",
+        duration: 4000,
+      })
     } finally {
       setIsLoading(false)
     }
@@ -151,10 +163,19 @@ export function TicketDetailsAdmin({ ticket, agents }: TicketDetailsAdminProps) 
 
       if (error) throw error
 
+      toast.success("Ticket eliminado", {
+        description: "El ticket ha sido eliminado permanentemente.",
+        duration: 3000,
+      })
+
       router.push("/tickets")
       router.refresh()
     } catch (error) {
       console.error("Error deleting ticket:", error)
+      toast.error("Error al eliminar", {
+        description: "No se pudo eliminar el ticket. Inténtalo de nuevo.",
+        duration: 4000,
+      })
       setIsLoading(false)
     }
   }
@@ -176,10 +197,19 @@ export function TicketDetailsAdmin({ ticket, agents }: TicketDetailsAdminProps) 
 
       if (error) throw error
 
+      toast.success("Comentario agregado", {
+        description: "Tu comentario se ha publicado correctamente.",
+        duration: 3000,
+      })
+
       setNewComment("")
       await loadComments()
     } catch (error) {
       console.error("Error adding comment:", error)
+      toast.error("Error al comentar", {
+        description: "No se pudo publicar el comentario. Inténtalo de nuevo.",
+        duration: 4000,
+      })
     } finally {
       setIsLoading(false)
     }
@@ -220,12 +250,8 @@ export function TicketDetailsAdmin({ ticket, agents }: TicketDetailsAdminProps) 
                   <CardDescription className="mt-2">Ticket ID: {ticket.id.slice(0, 8)}</CardDescription>
                 </div>
                 <div className="flex flex-col gap-2">
-                  <Badge className={statusColors[ticket.estado as keyof typeof statusColors]}>
-                    {statusLabels[ticket.estado as keyof typeof statusLabels]}
-                  </Badge>
-                  <Badge className={priorityColors[ticket.prioridad as keyof typeof priorityColors]}>
-                    {priorityLabels[ticket.prioridad as keyof typeof priorityLabels]}
-                  </Badge>
+                  <StatusBadge status={ticket.estado as "nuevo" | "en_progreso" | "resuelto" | "cerrado"} />
+                  <PriorityBadge priority={ticket.prioridad as "baja" | "media" | "alta" | "urgente"} />
                 </div>
               </div>
             </CardHeader>
@@ -308,13 +334,20 @@ export function TicketDetailsAdmin({ ticket, agents }: TicketDetailsAdminProps) 
               </div>
 
               <div className="flex gap-4">
-                <Button onClick={handleUpdate} disabled={isLoading} className="flex-1">
-                  {isLoading ? "Actualizando..." : "Actualizar Ticket"}
+                <Button onClick={handleUpdate} disabled={isLoading} className="flex-1 transition-all hover:shadow-md">
+                  {isLoading ? (
+                    <span className="flex items-center gap-2">
+                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                      Actualizando...
+                    </span>
+                  ) : (
+                    "Actualizar Ticket"
+                  )}
                 </Button>
 
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
-                    <Button variant="destructive" disabled={isLoading}>
+                    <Button variant="destructive" disabled={isLoading} className="transition-all hover:shadow-md">
                       <Trash2 className="mr-2 h-4 w-4" />
                       Eliminar
                     </Button>
@@ -396,9 +429,18 @@ export function TicketDetailsAdmin({ ticket, agents }: TicketDetailsAdminProps) 
                   rows={3}
                   disabled={isLoading}
                 />
-                <Button type="submit" disabled={isLoading || !newComment.trim()} className="w-full">
-                  <Send className="mr-2 h-4 w-4" />
-                  {isLoading ? "Enviando..." : "Enviar Comentario"}
+                <Button type="submit" disabled={isLoading || !newComment.trim()} className="w-full transition-all hover:shadow-md">
+                  {isLoading ? (
+                    <span className="flex items-center gap-2">
+                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                      Enviando...
+                    </span>
+                  ) : (
+                    <>
+                      <Send className="mr-2 h-4 w-4" />
+                      Enviar Comentario
+                    </>
+                  )}
                 </Button>
               </form>
             </CardContent>

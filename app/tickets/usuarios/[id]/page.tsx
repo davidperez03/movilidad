@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
-import { UserDetailsAdmin } from "@/components/detalles-usuario-admin"
+import { UserDetailsAdmin } from "@/components/tickets/detalles-usuario-admin"
 
 export default async function DetalleUsuarioPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
