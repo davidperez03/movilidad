@@ -68,7 +68,7 @@ export function UserDetailsAdmin({ userProfile, tickets }: UserDetailsAdminProps
       <header className="border-b bg-background">
         <div className="container mx-auto flex h-16 items-center px-4">
           <Button variant="ghost" size="sm" asChild>
-            <Link href="/admin">
+            <Link href="/tickets">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Volver al Panel
             </Link>
@@ -148,7 +148,7 @@ export function UserDetailsAdmin({ userProfile, tickets }: UserDetailsAdminProps
               {tickets.length > 0 ? (
                 <div className="space-y-2">
                   {tickets.map((ticket) => (
-                    <Link key={ticket.id} href={`/admin/tickets/${ticket.id}`}>
+                    <Link key={ticket.id} href={`/tickets/${ticket.id}`}>
                       <div className="flex items-center justify-between rounded-lg border p-3 transition-colors hover:bg-muted/50">
                         <div className="flex-1">
                           <p className="font-medium">{ticket.titulo}</p>

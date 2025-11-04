@@ -41,7 +41,7 @@ export function TicketDetailsAgent({ ticket, agents, currentUserId }: TicketDeta
       .select(
         `
         *,
-        usuario:perfiles!comentarios_usuario_id_fkey(id, nombre_completo, correo, rol)
+        usuario:perfiles!tks_comentarios_usuario_id_fkey(id, nombre_completo, correo, rol)
       `,
       )
       .eq("ticket_id", ticket.id)
@@ -187,7 +187,7 @@ export function TicketDetailsAgent({ ticket, agents, currentUserId }: TicketDeta
       <header className="border-b bg-background">
         <div className="container mx-auto flex h-16 items-center px-4">
           <Button variant="ghost" size="sm" asChild>
-            <Link href="/agent">
+            <Link href="/tickets">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Volver al Dashboard
             </Link>

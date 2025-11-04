@@ -14,7 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
 
-export default function NewTicketPage() {
+export default function NuevoTicketPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -52,7 +52,7 @@ export default function NewTicketPage() {
 
       if (insertError) throw insertError
 
-      router.push("/dashboard")
+      router.push("/tickets")
       router.refresh()
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al crear el ticket")
@@ -66,7 +66,7 @@ export default function NewTicketPage() {
       <header className="border-b bg-background">
         <div className="container mx-auto flex h-16 items-center px-4">
           <Button variant="ghost" size="sm" asChild>
-            <Link href="/dashboard">
+            <Link href="/tickets">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Volver
             </Link>
@@ -146,7 +146,7 @@ export default function NewTicketPage() {
                   {isLoading ? "Creando..." : "Crear Ticket"}
                 </Button>
                 <Button type="button" variant="outline" asChild>
-                  <Link href="/dashboard">Cancelar</Link>
+                  <Link href="/tickets">Cancelar</Link>
                 </Button>
               </div>
             </form>

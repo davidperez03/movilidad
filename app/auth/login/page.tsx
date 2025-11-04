@@ -54,7 +54,7 @@ function LoginForm() {
         if (profile?.rol === "administrador" || profile?.rol === "agente") {
           window.location.href = "/movilidad"
         } else {
-          window.location.href = "/dashboard"
+          window.location.href = "/tickets"
         }
       }
     } catch (error: unknown) {

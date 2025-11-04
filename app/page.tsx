@@ -25,6 +25,6 @@ export default async function HomePage() {
   if (profile?.rol === "administrador" || profile?.rol === "agente") {
     redirect("/movilidad")
   } else {
-    redirect("/dashboard")
+    redirect("/tickets")
   }
 }

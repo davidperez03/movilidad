@@ -102,7 +102,7 @@ export function TicketDetailsUser({ ticket, comments, currentUserId }: TicketDet
       <header className="border-b bg-background">
         <div className="container mx-auto flex h-16 items-center px-4">
           <Button variant="ghost" size="sm" asChild>
-            <Link href="/dashboard">
+            <Link href="/tickets">
               <ArrowLeft className="mr-2 h-4 w-4" />
               Volver a Mis Tickets
             </Link>

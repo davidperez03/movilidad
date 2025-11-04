@@ -2,7 +2,7 @@ import type React from "react"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 
-export default async function AdminLayout({
+export default async function TicketsLayout({
   children,
 }: {
   children: React.ReactNode
@@ -17,13 +17,7 @@ export default async function AdminLayout({
     redirect("/auth/login")
   }
 
-  // Obtener perfil de usuario para verificar rol
-  const { data: profile } = await supabase.from("perfiles").select("rol").eq("id", user.id).single()
-
-  // Solo administradores pueden acceder
-  if (profile?.rol !== "administrador") {
-    redirect("/dashboard")
-  }
-
+  // Los tickets ahora son accesibles para todos los roles
+  // La vista se adapta según el rol en page.tsx
   return <>{children}</>
 }

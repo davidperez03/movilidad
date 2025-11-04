@@ -29,7 +29,7 @@ export default async function MovilidadLayout({
 
   // Solo agentes y administradores pueden acceder al módulo de movilidad
   if (!perfil || !["agente", "administrador"].includes(perfil.rol)) {
-    redirect("/dashboard")
+    redirect("/tickets")
   }
 
   // Obtener estadísticas para badges en el navbar

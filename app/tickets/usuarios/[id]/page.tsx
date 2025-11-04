@@ -2,7 +2,7 @@ import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { UserDetailsAdmin } from "@/components/detalles-usuario-admin"
 
-export default async function AdminUserDetailsPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function DetalleUsuarioPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const supabase = await createClient()
 
@@ -19,14 +19,14 @@ export default async function AdminUserDetailsPage({ params }: { params: Promise
 
   // Verificar si el usuario es administrador
   if (profile?.rol !== "administrador") {
-    redirect("/dashboard")
+    redirect("/tickets")
   }
 
   // Obtener detalles del usuario
   const { data: userProfile } = await supabase.from("perfiles").select("*").eq("id", id).single()
 
   if (!userProfile) {
-    redirect("/admin")
+    redirect("/tickets")
   }
 
   // Obtener tickets del usuario
