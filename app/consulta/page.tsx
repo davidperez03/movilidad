@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { formatDateShort, formatDateLong } from "@/lib/utils"
+import { formatDateLong, formatDateForDisplay } from "@/lib/utils"
 import { Car, Search, Loader2, AlertCircle, Calendar, MapPin, Clock } from "lucide-react"
 import Link from "next/link"
 
@@ -243,7 +243,7 @@ export default function ConsultaPublicaPage() {
                           <div>
                             <Label className="text-xs text-muted-foreground">Fecha de Trámite</Label>
                             <p className="font-medium">
-                              {formatDateShort(resultado.fecha_tramite)}
+                              {formatDateForDisplay(resultado.fecha_tramite)}
                             </p>
                           </div>
                         </div>
@@ -255,7 +255,7 @@ export default function ConsultaPublicaPage() {
                           <div>
                             <Label className="text-xs text-muted-foreground">Fecha de Vencimiento</Label>
                             <p className="font-medium">
-                              {formatDateShort(resultado.fecha_vencimiento)}
+                              {formatDateForDisplay(resultado.fecha_vencimiento)}
                             </p>
                           </div>
                         </div>

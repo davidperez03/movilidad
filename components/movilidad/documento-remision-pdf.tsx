@@ -115,13 +115,37 @@ export function DocumentoRemisionPDF({
   organismoDestino,
   vehiculo,
 }: DocumentoRemisionPDFProps) {
-  const formatearFecha = (fecha: string) => {
-    const date = new Date(fecha)
-    return date.toLocaleDateString("es-CO", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    })
+  // Funciones de formateo simples que solo manipulan strings
+  const formatearFechaCorta = (fecha: string): string => {
+    if (!fecha) return '-'
+    // Tomar solo YYYY-MM-DD y convertir a dd/MM/yyyy
+    const fechaSolo = fecha.substring(0, 10)
+    const [year, month, day] = fechaSolo.split('-')
+    return `${day}/${month}/${year}`
+  }
+
+  const formatearFechaHora = (fechaISO: string): string => {
+    if (!fechaISO) return '-'
+    // Para timestamp: extraer fecha y hora sin conversión de timezone
+    const fecha = new Date(fechaISO)
+    const dia = String(fecha.getDate()).padStart(2, '0')
+    const mes = String(fecha.getMonth() + 1).padStart(2, '0')
+    const año = fecha.getFullYear()
+    const horas = String(fecha.getHours()).padStart(2, '0')
+    const minutos = String(fecha.getMinutes()).padStart(2, '0')
+
+    return `${dia}/${mes}/${año} ${horas}:${minutos}`
+  }
+
+  const formatearFechaHoraActual = (): string => {
+    const ahora = new Date()
+    const dia = String(ahora.getDate()).padStart(2, '0')
+    const mes = String(ahora.getMonth() + 1).padStart(2, '0')
+    const año = ahora.getFullYear()
+    const horas = String(ahora.getHours()).padStart(2, '0')
+    const minutos = String(ahora.getMinutes()).padStart(2, '0')
+
+    return `${dia}/${mes}/${año} ${horas}:${minutos}`
   }
 
   const consecutivo = traslado.id.split("-")[0].toUpperCase()
@@ -226,11 +250,11 @@ export function DocumentoRemisionPDF({
           <Text style={styles.sectionTitle}>Información del Trámite</Text>
           <View style={styles.row}>
             <Text style={styles.label}>Fecha de Trámite:</Text>
-            <Text style={styles.value}>{formatearFecha(traslado.fecha_tramite)}</Text>
+            <Text style={styles.value}>{formatearFechaCorta(traslado.fecha_tramite)}</Text>
           </View>
           <View style={styles.row}>
-            <Text style={styles.label}>Fecha de Expedición:</Text>
-            <Text style={styles.value}>{formatearFecha(traslado.creado_en)}</Text>
+            <Text style={styles.label}>Registrado en sistema:</Text>
+            <Text style={styles.value}>{formatearFechaHora(traslado.creado_en)}</Text>
           </View>
         </View>
 
@@ -247,14 +271,7 @@ export function DocumentoRemisionPDF({
         {/* Footer */}
         <View style={styles.footer}>
           <Text>
-            Documento generado electrónicamente el{" "}
-            {new Date().toLocaleDateString("es-CO", {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
+            Documento generado electrónicamente el {formatearFechaHoraActual()}
           </Text>
         </View>
       </Page>

@@ -6,7 +6,7 @@ import Link from "next/link"
 import { ArrowRightLeft, Plus, Calendar, MapPin, FileText, AlertTriangle } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { BotonDescargarRemision } from "@/components/movilidad/boton-descargar-remision"
-import { formatDateShort } from "@/lib/utils"
+import { formatDateShort, formatDateForDisplay } from "@/lib/utils"
 
 export default async function TrasladosPage() {
   const supabase = await createClient()
@@ -156,7 +156,7 @@ export default async function TrasladosPage() {
                         <div>
                           <p className="text-sm text-muted-foreground">Fecha trámite</p>
                           <p className="font-medium">
-                            {formatDateShort(traslado.fecha_tramite)}
+                            {formatDateForDisplay(traslado.fecha_tramite)}
                           </p>
                         </div>
                       </div>
@@ -165,7 +165,7 @@ export default async function TrasladosPage() {
                         <div>
                           <p className="text-sm text-muted-foreground">Vencimiento</p>
                           <p className={`font-medium ${diasRestantes < 7 ? "text-orange-600" : ""}`}>
-                            {formatDateShort(traslado.fecha_vencimiento)}
+                            {formatDateForDisplay(traslado.fecha_vencimiento)}
                           </p>
                         </div>
                       </div>
@@ -246,7 +246,7 @@ export default async function TrasladosPage() {
                     <div>
                       <p className="text-sm text-muted-foreground">Fecha trámite</p>
                       <p className="font-medium">
-                        {formatDateShort(traslado.fecha_tramite)}
+                        {formatDateForDisplay(traslado.fecha_tramite)}
                       </p>
                     </div>
                     <div>

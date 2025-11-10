@@ -18,10 +18,9 @@ import {
 import { notFound } from "next/navigation"
 import { AgregarNovedad } from "@/components/movilidad/agregar-novedad"
 import { CambiarEstado } from "@/components/movilidad/cambiar-estado"
-import { formatDateShort, formatDateTime, formatDateLong } from "@/lib/utils"
+import { formatDateShort, formatDateTime, formatDateLong, formatDateForDisplay } from "@/lib/utils"
 import { ResolverNovedad } from "@/components/movilidad/resolver-novedad"
 import { BotonDescargarRemision } from "@/components/movilidad/boton-descargar-remision"
-import { formatDateForDisplay } from "@/lib/utils/dates"
 
 export default async function DetalleVehiculoPage({
   params,

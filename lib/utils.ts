@@ -7,6 +7,7 @@ export function cn(...inputs: ClassValue[]) {
 
 // Exportar utilidades de fecha
 export {
+  // Funciones de visualización con timezone
   formatDateShort,
   formatDateLong,
   formatDateTime,
@@ -14,4 +15,9 @@ export {
   formatRelativeTime,
   formatTime,
   toColombiaTime,
+  // Funciones para formularios e inputs
+  formatDateForDB,
+  getTodayForInput,
+  formatDateForInput,
+  formatDateForDisplay,
 } from './utils/date';
