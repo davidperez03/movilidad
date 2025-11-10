@@ -12,7 +12,7 @@ create table if not exists public.mov_festivos_colombia (
   fecha date primary key,
   nombre text not null,
   tipo text check (tipo in ('religioso', 'civil', 'puente')) not null,
-  creado_en timestamp with time zone default timezone('utc'::text, now()) not null
+  creado_en timestamp with time zone default now() not null
 );
 
 -- Insertar festivos fijos de Colombia (que no cambian de fecha)
@@ -207,11 +207,8 @@ create policy "Todos pueden ver festivos"
 create policy "Solo admins pueden modificar festivos"
   on public.mov_festivos_colombia for all
   using (
-    exists (
-      select 1 from public.perfiles
-      where perfiles.id = auth.uid()
-      and perfiles.rol = 'admin'
-    )
+    es_superadmin(auth.uid())
+    or tiene_permiso(auth.uid(), 'movilidad', 'configurar')
   );
 
 -- Comentarios

@@ -17,11 +17,33 @@ export default async function DetalleTicketPage({ params }: { params: Promise<{ 
   }
 
   // Obtener perfil de usuario
-  const { data: profile } = await supabase.from("perfiles").select("*").eq("id", user.id).single()
+  const { data: profile } = await supabase.from("perfiles").select("rol_global").eq("id", user.id).single()
 
-  const rol = profile?.rol || "usuario"
-  const isAdmin = rol === "administrador"
-  const isAgent = rol === "agente" || isAdmin
+  // Verificar si es superadmin
+  const isSuperAdmin = profile?.rol_global === "superadmin"
+
+  // Obtener rol en módulo tickets
+  const { data: rolTicketsData } = await supabase
+    .from("usuarios_roles")
+    .select(`
+      roles_modulo (
+        codigo,
+        permisos
+      )
+    `)
+    .eq("usuario_id", user.id)
+    .eq("modulo_id", "tickets")
+    .single()
+
+  const rolTickets = rolTicketsData?.roles_modulo as any
+  const codigoRol = isSuperAdmin ? "tks_administrador" : rolTickets?.codigo || "tks_usuario"
+  const permisos = isSuperAdmin
+    ? { ver_todos: true, editar_todos: true }
+    : (rolTickets?.permisos || {})
+
+  const isAdmin = isSuperAdmin || codigoRol === "tks_administrador"
+  const isAgent = isSuperAdmin || codigoRol === "tks_agente" || isAdmin
+  const canViewAll = isSuperAdmin || permisos.ver_todos === true
 
   // Obtener detalles del ticket
   const { data: ticket } = await supabase
@@ -51,16 +73,33 @@ export default async function DetalleTicketPage({ params }: { params: Promise<{ 
     .select(
       `
       *,
-      usuario:perfiles!tks_comentarios_usuario_id_fkey(id, nombre_completo, correo, rol)
+      usuario:perfiles!tks_comentarios_usuario_id_fkey(id, nombre_completo, correo)
     `,
     )
     .eq("ticket_id", id)
     .order("creado_en", { ascending: true })
 
   // Para agentes y admins: obtener lista de agentes para asignación
-  const { data: agents } = isAgent
-    ? await supabase.from("perfiles").select("id, nombre_completo, correo").in("rol", ["agente", "administrador"])
+  const { data: agentsData } = isAgent
+    ? await supabase
+        .from("usuarios_roles")
+        .select(`
+          perfiles (
+            id,
+            nombre_completo,
+            correo
+          ),
+          roles_modulo (
+            codigo
+          )
+        `)
+        .eq("modulo_id", "tickets")
+        .in("roles_modulo.codigo", ["tks_agente", "tks_administrador"])
     : { data: null }
+
+  const agents = isAgent
+    ? (agentsData?.map((a: any) => a.perfiles) || [])
+    : null
 
   // Renderizar componente según rol
   if (isAdmin) {

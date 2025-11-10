@@ -1,13 +1,8 @@
--- Crear tabla perfiles con roles
-create table if not exists public.perfiles (
-  id uuid primary key references auth.users(id) on delete cascade,
-  correo text not null,
-  nombre_completo text,
-  rol text not null default 'usuario' check (rol in ('usuario', 'agente', 'administrador')),
-  url_avatar text,
-  creado_en timestamp with time zone default timezone('utc'::text, now()) not null,
-  actualizado_en timestamp with time zone default timezone('utc'::text, now()) not null
-);
+-- ============================================================================
+-- MÓDULO DE TICKETS
+-- NOTA: La tabla perfiles debe existir antes de ejecutar este script
+-- Se encuentra en: /scripts/sistema-usuarios/001_perfiles_base.sql
+-- ============================================================================
 
 -- Crear tabla tickets
 create table if not exists public.tks_tickets (
@@ -19,8 +14,8 @@ create table if not exists public.tks_tickets (
   prioridad text not null default 'media' check (prioridad in ('baja', 'media', 'alta', 'urgente')),
   creado_por uuid not null references public.perfiles(id) on delete cascade,
   asignado_a uuid references public.perfiles(id) on delete set null,
-  creado_en timestamp with time zone default timezone('utc'::text, now()) not null,
-  actualizado_en timestamp with time zone default timezone('utc'::text, now()) not null,
+  creado_en timestamp with time zone default now() not null,
+  actualizado_en timestamp with time zone default now() not null,
   resuelto_en timestamp with time zone,
   cerrado_en timestamp with time zone
 );
@@ -32,8 +27,8 @@ create table if not exists public.tks_comentarios (
   usuario_id uuid not null references public.perfiles(id) on delete cascade,
   contenido text not null,
   es_interno boolean default false,
-  creado_en timestamp with time zone default timezone('utc'::text, now()) not null,
-  actualizado_en timestamp with time zone default timezone('utc'::text, now()) not null
+  creado_en timestamp with time zone default now() not null,
+  actualizado_en timestamp with time zone default now() not null
 );
 
 -- Crear tabla adjuntos
@@ -45,7 +40,7 @@ create table if not exists public.tks_adjuntos (
   url_archivo text not null,
   tamano_archivo integer,
   tipo_archivo text,
-  creado_en timestamp with time zone default timezone('utc'::text, now()) not null
+  creado_en timestamp with time zone default now() not null
 );
 
 -- Crear índices para mejor rendimiento
@@ -59,160 +54,150 @@ create index if not exists idx_tks_comentarios_usuario_id on public.tks_comentar
 create index if not exists idx_tks_adjuntos_ticket_id on public.tks_adjuntos(ticket_id);
 
 -- Habilitar Row Level Security
-alter table public.perfiles enable row level security;
 alter table public.tks_tickets enable row level security;
 alter table public.tks_comentarios enable row level security;
 alter table public.tks_adjuntos enable row level security;
 
--- Políticas de perfiles
-create policy "Los usuarios pueden ver todos los perfiles"
-  on public.perfiles for select
-  using (true);
-
-create policy "Los usuarios pueden actualizar su propio perfil"
-  on public.perfiles for update
-  using (auth.uid() = id);
-
-create policy "Los usuarios pueden insertar su propio perfil"
-  on public.perfiles for insert
-  with check (auth.uid() = id);
+-- ============================================================================
+-- POLÍTICAS RLS PARA TICKETS (Sistema Modular)
+-- Usan funciones del sistema de roles modulares
+-- ============================================================================
 
 -- Políticas de tickets
-create policy "Los usuarios pueden ver sus propios tickets"
+create policy "Ver tickets según permisos modulares"
   on public.tks_tickets for select
   using (
-    auth.uid() = creado_por
-    or auth.uid() = asignado_a
-    or exists (
-      select 1 from public.perfiles
-      where id = auth.uid()
-      and rol in ('agente', 'administrador')
+    es_superadmin(auth.uid())
+    or tiene_permiso(auth.uid(), 'tickets', 'ver_todos')
+    or (
+      tiene_permiso(auth.uid(), 'tickets', 'ver_propios')
+      and (creado_por = auth.uid() or asignado_a = auth.uid())
     )
   );
 
-create policy "Los usuarios pueden crear tickets"
+create policy "Crear tickets según permisos modulares"
   on public.tks_tickets for insert
-  with check (auth.uid() = creado_por);
+  with check (
+    es_superadmin(auth.uid())
+    or (
+      tiene_permiso(auth.uid(), 'tickets', 'crear')
+      and auth.uid() = creado_por
+    )
+  );
 
-create policy "Los agentes y administradores pueden actualizar tickets"
+create policy "Actualizar tickets según permisos modulares"
   on public.tks_tickets for update
   using (
-    exists (
-      select 1 from public.perfiles
-      where id = auth.uid()
-      and rol in ('agente', 'administrador')
+    es_superadmin(auth.uid())
+    or tiene_permiso(auth.uid(), 'tickets', 'editar_todos')
+    or (
+      tiene_permiso(auth.uid(), 'tickets', 'editar_asignados')
+      and asignado_a = auth.uid()
+    )
+    or (
+      tiene_permiso(auth.uid(), 'tickets', 'editar_propios')
+      and creado_por = auth.uid()
     )
   );
 
-create policy "Los administradores pueden eliminar tickets"
+create policy "Eliminar tickets según permisos modulares"
   on public.tks_tickets for delete
   using (
-    exists (
-      select 1 from public.perfiles
-      where id = auth.uid()
-      and rol = 'administrador'
-    )
+    es_superadmin(auth.uid())
+    or tiene_permiso(auth.uid(), 'tickets', 'eliminar')
   );
 
 -- Políticas de comentarios
-create policy "Los usuarios pueden ver comentarios en sus tickets"
+create policy "Ver comentarios según permisos modulares"
   on public.tks_comentarios for select
   using (
-    exists (
-      select 1 from public.tks_tickets
-      where id = ticket_id
+    es_superadmin(auth.uid())
+    or exists (
+      select 1 from public.tks_tickets t
+      where t.id = ticket_id
       and (
-        creado_por = auth.uid()
-        or asignado_a = auth.uid()
-        or exists (
-          select 1 from public.perfiles
-          where id = auth.uid()
-          and rol in ('agente', 'administrador')
+        tiene_permiso(auth.uid(), 'tickets', 'ver_todos')
+        or (
+          tiene_permiso(auth.uid(), 'tickets', 'ver_propios')
+          and (t.creado_por = auth.uid() or t.asignado_a = auth.uid())
         )
       )
     )
   );
 
-create policy "Los usuarios pueden crear comentarios en tickets accesibles"
+create policy "Crear comentarios según permisos modulares"
   on public.tks_comentarios for insert
   with check (
-    auth.uid() = usuario_id
-    and exists (
-      select 1 from public.tks_tickets
-      where id = ticket_id
-      and (
-        creado_por = auth.uid()
-        or asignado_a = auth.uid()
-        or exists (
-          select 1 from public.perfiles
-          where id = auth.uid()
-          and rol in ('agente', 'administrador')
+    es_superadmin(auth.uid())
+    or (
+      tiene_permiso(auth.uid(), 'tickets', 'comentar')
+      and auth.uid() = usuario_id
+      and exists (
+        select 1 from public.tks_tickets t
+        where t.id = ticket_id
+        and (
+          tiene_permiso(auth.uid(), 'tickets', 'ver_todos')
+          or (t.creado_por = auth.uid() or t.asignado_a = auth.uid())
         )
       )
     )
   );
 
-create policy "Los usuarios pueden actualizar sus propios comentarios"
+create policy "Actualizar comentarios según permisos modulares"
   on public.tks_comentarios for update
-  using (auth.uid() = usuario_id);
+  using (
+    es_superadmin(auth.uid())
+    or (auth.uid() = usuario_id and tiene_permiso(auth.uid(), 'tickets', 'comentar'))
+  );
 
-create policy "Los usuarios pueden eliminar sus propios comentarios"
+create policy "Eliminar comentarios según permisos modulares"
   on public.tks_comentarios for delete
   using (
-    auth.uid() = usuario_id
-    or exists (
-      select 1 from public.perfiles
-      where id = auth.uid()
-      and rol = 'administrador'
-    )
+    es_superadmin(auth.uid())
+    or auth.uid() = usuario_id
+    or tiene_permiso(auth.uid(), 'tickets', 'eliminar')
   );
 
 -- Políticas de adjuntos
-create policy "Los usuarios pueden ver adjuntos en sus tickets"
+create policy "Ver adjuntos según permisos modulares"
   on public.tks_adjuntos for select
   using (
-    exists (
-      select 1 from public.tks_tickets
-      where id = ticket_id
+    es_superadmin(auth.uid())
+    or exists (
+      select 1 from public.tks_tickets t
+      where t.id = ticket_id
       and (
-        creado_por = auth.uid()
-        or asignado_a = auth.uid()
-        or exists (
-          select 1 from public.perfiles
-          where id = auth.uid()
-          and rol in ('agente', 'administrador')
+        tiene_permiso(auth.uid(), 'tickets', 'ver_todos')
+        or (
+          tiene_permiso(auth.uid(), 'tickets', 'ver_propios')
+          and (t.creado_por = auth.uid() or t.asignado_a = auth.uid())
         )
       )
     )
   );
 
-create policy "Los usuarios pueden subir adjuntos a tickets accesibles"
+create policy "Subir adjuntos según permisos modulares"
   on public.tks_adjuntos for insert
   with check (
-    auth.uid() = subido_por
-    and exists (
-      select 1 from public.tks_tickets
-      where id = ticket_id
-      and (
-        creado_por = auth.uid()
-        or asignado_a = auth.uid()
-        or exists (
-          select 1 from public.perfiles
-          where id = auth.uid()
-          and rol in ('agente', 'administrador')
+    es_superadmin(auth.uid())
+    or (
+      tiene_permiso(auth.uid(), 'tickets', 'adjuntar')
+      and auth.uid() = subido_por
+      and exists (
+        select 1 from public.tks_tickets t
+        where t.id = ticket_id
+        and (
+          tiene_permiso(auth.uid(), 'tickets', 'ver_todos')
+          or (t.creado_por = auth.uid() or t.asignado_a = auth.uid())
         )
       )
     )
   );
 
-create policy "Los usuarios pueden eliminar sus propios adjuntos"
+create policy "Eliminar adjuntos según permisos modulares"
   on public.tks_adjuntos for delete
   using (
-    auth.uid() = subido_por
-    or exists (
-      select 1 from public.perfiles
-      where id = auth.uid()
-      and rol = 'administrador'
-
-    )
+    es_superadmin(auth.uid())
+    or auth.uid() = subido_por
+    or tiene_permiso(auth.uid(), 'tickets', 'eliminar')
   );

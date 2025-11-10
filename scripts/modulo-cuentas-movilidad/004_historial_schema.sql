@@ -37,7 +37,7 @@ create table if not exists public.mov_historial_acciones (
 
   -- Metadatos
   realizado_por uuid not null references public.perfiles(id) on delete restrict,
-  creado_en timestamp with time zone default timezone('utc'::text, now()) not null
+  creado_en timestamp with time zone default now() not null
 );
 
 -- Crear vista para último proceso activo de cada cuenta

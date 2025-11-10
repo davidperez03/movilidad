@@ -25,8 +25,8 @@ create table if not exists public.mov_organismos_transito (
   activo boolean not null default true,
 
   -- Metadatos
-  creado_en timestamp with time zone default timezone('utc'::text, now()) not null,
-  actualizado_en timestamp with time zone default timezone('utc'::text, now()) not null
+  creado_en timestamp with time zone default now() not null,
+  actualizado_en timestamp with time zone default now() not null
 );
 
 -- Crear índices para búsquedas
@@ -75,11 +75,8 @@ create policy "Todos pueden ver organismos activos"
 create policy "Solo administradores pueden modificar organismos"
   on public.mov_organismos_transito for all
   using (
-    exists (
-      select 1 from public.perfiles
-      where id = auth.uid()
-      and rol = 'administrador'
-    )
+    es_superadmin(auth.uid())
+    or tiene_permiso(auth.uid(), 'movilidad', 'configurar')
   );
 
 -- Comentarios para documentación

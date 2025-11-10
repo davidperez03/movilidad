@@ -27,9 +27,22 @@ export default async function MovilidadLayout({
     .eq("id", user.id)
     .single()
 
-  // Solo agentes y administradores pueden acceder al módulo de movilidad
-  if (!perfil || !["agente", "administrador"].includes(perfil.rol)) {
-    redirect("/tickets")
+  // Verificar acceso al módulo de movilidad
+  // Debe ser superadmin O tener rol asignado en el módulo movilidad
+  const esSuperAdmin = perfil?.rol_global === 'superadmin'
+
+  if (!esSuperAdmin) {
+    // Verificar si tiene rol en movilidad
+    const { data: rolMovilidad } = await supabase
+      .from('usuarios_roles')
+      .select('id')
+      .eq('usuario_id', user.id)
+      .eq('modulo_id', 'movilidad')
+      .single()
+
+    if (!rolMovilidad) {
+      redirect("/tickets")
+    }
   }
 
   // Obtener estadísticas para badges en el navbar
@@ -48,10 +61,30 @@ export default async function MovilidadLayout({
     .select("*", { count: "exact", head: true })
     .neq("estado", "resuelta")
 
+  // Obtener rol en módulo movilidad
+  const { data: rolModuloData } = await supabase
+    .from('usuarios_roles')
+    .select(`
+      roles_modulo (
+        codigo,
+        nombre
+      )
+    `)
+    .eq('usuario_id', user.id)
+    .eq('modulo_id', 'movilidad')
+    .single()
+
+  const rolModuloRaw = rolModuloData?.roles_modulo as any
+  const rolModulo = esSuperAdmin
+    ? { codigo: 'superadmin', nombre: 'SuperAdmin' }
+    : (rolModuloRaw ? { codigo: rolModuloRaw.codigo, nombre: rolModuloRaw.nombre } : { codigo: 'sin_rol', nombre: 'Sin rol' })
+
   const rolColors: Record<string, string> = {
-    administrador: "bg-purple-100 text-purple-700 border-purple-300",
-    agente: "bg-blue-100 text-blue-700 border-blue-300",
-    usuario: "bg-gray-100 text-gray-700 border-gray-300",
+    superadmin: "bg-red-100 text-red-700 border-red-300",
+    mov_administrador: "bg-purple-100 text-purple-700 border-purple-300",
+    mov_operador: "bg-blue-100 text-blue-700 border-blue-300",
+    mov_usuario: "bg-gray-100 text-gray-700 border-gray-300",
+    sin_rol: "bg-gray-100 text-gray-500 border-gray-300",
   }
 
   return (
@@ -80,9 +113,9 @@ export default async function MovilidadLayout({
                   <p className="text-sm font-medium leading-none">{perfil.nombre_completo || perfil.correo}</p>
                   <Badge
                     variant="outline"
-                    className={`mt-1 text-xs ${rolColors[perfil.rol as keyof typeof rolColors]}`}
+                    className={`mt-1 text-xs ${rolColors[rolModulo.codigo as keyof typeof rolColors]}`}
                   >
-                    {perfil.rol}
+                    {rolModulo.nombre}
                   </Badge>
                 </div>
               </div>

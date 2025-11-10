@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input"
 import Link from "next/link"
 import { Car, Plus, Search, FileText } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
+import { formatDateLong } from "@/lib/utils"
 
 export default async function CuentasPage({
   searchParams,
@@ -143,11 +144,7 @@ export default async function CuentasPage({
                   <div>
                     <p className="text-sm text-muted-foreground">Fecha de creación</p>
                     <p className="font-medium">
-                      {new Date(cuenta.creado_en).toLocaleDateString("es-CO", {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      })}
+                      {formatDateLong(cuenta.creado_en)}
                     </p>
                   </div>
                   {cuenta.procesoActivo?.proceso_tipo && (
