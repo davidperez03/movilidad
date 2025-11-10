@@ -1,5 +1,6 @@
 -- ============================================================================
--- CAMBIAR ZONA HORARIA DE UTC A COLOMBIA (America/Bogota)
+-- CONFIGURAR ZONA HORARIA DE COLOMBIA (America/Bogota)
+-- ⚠️ IMPORTANTE: Este script DEBE ejecutarse PRIMERO antes que cualquier otro
 -- ============================================================================
 
 -- 1. Cambiar zona horaria por defecto de la base de datos
@@ -9,20 +10,24 @@ ALTER DATABASE postgres SET timezone TO 'America/Bogota';
 SET timezone TO 'America/Bogota';
 
 -- 3. Verificar el cambio
-SHOW timezone;
+DO $$
+BEGIN
+  RAISE NOTICE 'Zona horaria configurada correctamente';
+  RAISE NOTICE 'Timezone actual: %', current_setting('timezone');
+END $$;
 
--- ============================================================================
--- NOTA: Después de ejecutar esto, reinicia la conexión de Supabase
--- para que los cambios surtan efecto en todas las sesiones nuevas.
--- ============================================================================
-
--- 4. Si ya tienes datos con timestamps, NO necesitas convertirlos.
--- PostgreSQL automáticamente los mostrará en la nueva zona horaria.
--- Los timestamps WITH TIME ZONE se almacenan internamente en UTC
--- y se convierten automáticamente según la zona horaria de la sesión.
-
--- 5. OPCIONAL: Para verificar que funciona correctamente:
+-- 4. Verificar que now() devuelve hora de Colombia
 SELECT
+  'Verificación de zona horaria' as descripcion,
   now() as hora_actual_colombia,
-  now() AT TIME ZONE 'UTC' as hora_utc,
-  now() AT TIME ZONE 'America/Bogota' as hora_colombia;
+  current_setting('timezone') as timezone_configurado;
+
+-- ============================================================================
+-- RESULTADO ESPERADO:
+-- - timezone_configurado debe ser: America/Bogota
+-- - hora_actual_colombia debe mostrar la hora de Colombia (UTC-5)
+--
+-- SIGUIENTE PASO:
+-- Ahora puedes ejecutar los demás scripts de creación de tablas.
+-- Todas las columnas con "default now()" usarán automáticamente la hora de Colombia.
+-- ============================================================================
