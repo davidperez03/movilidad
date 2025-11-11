@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
+import { formatDateLong, formatDateForDisplay } from "@/lib/utils"
 import { Car, Search, Loader2, AlertCircle, Calendar, MapPin, Clock } from "lucide-react"
 import Link from "next/link"
 
@@ -242,7 +243,7 @@ export default function ConsultaPublicaPage() {
                           <div>
                             <Label className="text-xs text-muted-foreground">Fecha de Trámite</Label>
                             <p className="font-medium">
-                              {new Date(resultado.fecha_tramite).toLocaleDateString("es-CO")}
+                              {formatDateForDisplay(resultado.fecha_tramite)}
                             </p>
                           </div>
                         </div>
@@ -254,7 +255,7 @@ export default function ConsultaPublicaPage() {
                           <div>
                             <Label className="text-xs text-muted-foreground">Fecha de Vencimiento</Label>
                             <p className="font-medium">
-                              {new Date(resultado.fecha_vencimiento).toLocaleDateString("es-CO")}
+                              {formatDateForDisplay(resultado.fecha_vencimiento)}
                             </p>
                           </div>
                         </div>
@@ -268,11 +269,7 @@ export default function ConsultaPublicaPage() {
                             Proceso Completado
                           </div>
                           <div className="text-sm text-green-600 dark:text-green-400">
-                            {new Date(resultado.fecha_completado).toLocaleDateString("es-CO", {
-                              year: "numeric",
-                              month: "long",
-                              day: "numeric",
-                            })}
+                            {formatDateLong(resultado.fecha_completado)}
                           </div>
                         </div>
                       </div>

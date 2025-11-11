@@ -9,6 +9,7 @@ import Link from "next/link"
 import { Plus, Ticket, Car, Users, ClipboardList, TrendingUp, Shield, CheckCircle2, Clock } from "lucide-react"
 import { StatusBadge } from "@/components/tickets/status-badge"
 import { PriorityBadge } from "@/components/tickets/priority-badge"
+import { formatDateTime } from "@/lib/utils"
 
 export default async function TicketsPage() {
   const supabase = await createClient()
@@ -22,13 +23,34 @@ export default async function TicketsPage() {
   }
 
   // Obtener perfil del usuario
-  const { data: profile } = await supabase.from("perfiles").select("*").eq("id", user.id).single()
+  const { data: profile } = await supabase.from("perfiles").select("rol_global").eq("id", user.id).single()
 
-  const rol = profile?.rol || "usuario"
+  // Verificar si es superadmin
+  const isSuperAdmin = profile?.rol_global === "superadmin"
+
+  // Obtener rol en módulo tickets
+  const { data: rolTicketsData } = await supabase
+    .from("usuarios_roles")
+    .select(`
+      roles_modulo (
+        codigo,
+        permisos
+      )
+    `)
+    .eq("usuario_id", user.id)
+    .eq("modulo_id", "tickets")
+    .single()
+
+  const rolTickets = rolTicketsData?.roles_modulo as any
+  const codigoRol = isSuperAdmin ? "tks_administrador" : rolTickets?.codigo || "tks_usuario"
+  const permisos = isSuperAdmin
+    ? { ver_todos: true, asignar: true, eliminar: true }
+    : (rolTickets?.permisos || {})
 
   // Obtener datos según el rol
-  const isAdmin = rol === "administrador"
-  const isAgent = rol === "agente" || isAdmin
+  const isAdmin = isSuperAdmin || codigoRol === "tks_administrador"
+  const isAgent = isSuperAdmin || codigoRol === "tks_agente" || isAdmin
+  const canViewAll = isSuperAdmin || permisos.ver_todos === true
 
   // Para usuarios normales: solo sus tickets
   const { data: myTickets } = await supabase
@@ -79,10 +101,37 @@ export default async function TicketsPage() {
         .order("creado_en", { ascending: false })
     : { data: null }
 
-  // Para admins: todos los usuarios
+  // Para admins: todos los usuarios con sus roles en tickets
   const { data: allUsers } = isAdmin
-    ? await supabase.from("perfiles").select("*").order("creado_en", { ascending: false })
+    ? await supabase.from("perfiles").select("id, correo, nombre_completo, creado_en, rol_global").order("creado_en", { ascending: false })
     : { data: null }
+
+  // Obtener agentes (usuarios con rol tks_agente o tks_administrador)
+  const { data: agentsData } = isAdmin
+    ? await supabase
+        .from("usuarios_roles")
+        .select(`
+          usuario_id,
+          perfiles (
+            id,
+            correo,
+            nombre_completo
+          ),
+          roles_modulo (
+            codigo
+          )
+        `)
+        .eq("modulo_id", "tickets")
+        .in("roles_modulo.codigo", ["tks_agente", "tks_administrador"])
+    : { data: null }
+
+  const agents = isAdmin
+    ? (agentsData?.map((a: any) => ({
+        id: a.perfiles.id,
+        correo: a.perfiles.correo,
+        nombre_completo: a.perfiles.nombre_completo,
+      })) || [])
+    : []
 
   // Calcular estadísticas
   const stats = isAdmin
@@ -104,9 +153,6 @@ export default async function TicketsPage() {
           resolved: allTickets?.filter((t) => t.estado === "resuelto" || t.estado === "cerrado").length || 0,
         }
       : {}
-
-  // Obtener carga de trabajo de agentes (solo para admin)
-  const agents = isAdmin ? allUsers?.filter((u) => u.rol === "agente" || u.rol === "administrador") || [] : []
   const agentWorkload = isAdmin
     ? agents.map((agent) => ({
         ...agent,
@@ -182,7 +228,7 @@ export default async function TicketsPage() {
           <div className="flex flex-col gap-2 text-sm text-muted-foreground">
             <div className="flex items-center justify-between">
               <span>{typeLabels[ticket.tipo as keyof typeof typeLabels]}</span>
-              <span>Creado: {new Date(ticket.creado_en).toLocaleDateString("es-ES")}</span>
+              <span>Creado: {formatDateTime(ticket.creado_en)}</span>
             </div>
             {isAgent && (
               <div className="flex items-center justify-between">
@@ -319,14 +365,14 @@ export default async function TicketsPage() {
                             <CardTitle className="text-lg group-hover:text-primary transition-colors">{userItem.nombre_completo || "Sin nombre"}</CardTitle>
                             <CardDescription>{userItem.correo}</CardDescription>
                           </div>
-                          <Badge className={roleColors[userItem.rol as keyof typeof roleColors]}>
-                            {roleLabels[userItem.rol as keyof typeof roleLabels]}
+                          <Badge className={roleColors[userItem.rol_global as keyof typeof roleColors]}>
+                            {roleLabels[userItem.rol_global as keyof typeof roleLabels] || 'Usuario'}
                           </Badge>
                         </div>
                       </CardHeader>
                       <CardContent>
                         <div className="text-sm text-muted-foreground">
-                          Registrado: {new Date(userItem.creado_en).toLocaleDateString("es-ES")}
+                          Registrado: {formatDateTime(userItem.creado_en)}
                         </div>
                       </CardContent>
                     </Card>

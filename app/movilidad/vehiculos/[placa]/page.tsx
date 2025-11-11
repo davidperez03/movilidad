@@ -18,9 +18,9 @@ import {
 import { notFound } from "next/navigation"
 import { AgregarNovedad } from "@/components/movilidad/agregar-novedad"
 import { CambiarEstado } from "@/components/movilidad/cambiar-estado"
+import { formatDateShort, formatDateTime, formatDateLong, formatDateForDisplay } from "@/lib/utils"
 import { ResolverNovedad } from "@/components/movilidad/resolver-novedad"
 import { BotonDescargarRemision } from "@/components/movilidad/boton-descargar-remision"
-import { formatDateForDisplay } from "@/lib/utils/dates"
 
 export default async function DetalleVehiculoPage({
   params,
@@ -178,11 +178,7 @@ export default async function DetalleVehiculoPage({
             <div>
               <p className="text-sm text-muted-foreground">Fecha de creación</p>
               <p className="font-medium">
-                {new Date(cuenta.creado_en).toLocaleDateString("es-CO", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}
+                {formatDateLong(cuenta.creado_en)}
               </p>
             </div>
             <div>
@@ -267,7 +263,7 @@ export default async function DetalleVehiculoPage({
               <div>
                 <p className="text-xs text-muted-foreground">Actualizado</p>
                 <p className="font-medium">
-                  {new Date(procesoActivo.actualizado_en).toLocaleDateString("es-CO")}
+                  {formatDateShort(procesoActivo.actualizado_en)}
                 </p>
               </div>
             </div>
@@ -339,7 +335,7 @@ export default async function DetalleVehiculoPage({
                         <div className="flex items-center gap-4 text-xs text-muted-foreground">
                           <span>Creado por: {novedad.creador?.nombre_completo}</span>
                           <span>
-                            {new Date(novedad.creado_en).toLocaleDateString("es-CO")}
+                            {formatDateShort(novedad.creado_en)}
                           </span>
                           {novedad.estado === "resuelta" && (
                             <>
@@ -408,7 +404,7 @@ export default async function DetalleVehiculoPage({
                         {formatearEstado(traslado.estado)}
                       </Badge>
                       <span className="text-xs text-muted-foreground">
-                        {new Date(traslado.creado_en).toLocaleDateString("es-CO")}
+                        {formatDateShort(traslado.creado_en)}
                       </span>
                     </div>
                     <div className="text-sm space-y-1">
@@ -464,7 +460,7 @@ export default async function DetalleVehiculoPage({
                         {formatearEstado(radicacion.estado)}
                       </Badge>
                       <span className="text-xs text-muted-foreground">
-                        {new Date(radicacion.creado_en).toLocaleDateString("es-CO")}
+                        {formatDateShort(radicacion.creado_en)}
                       </span>
                     </div>
                     <div className="text-sm space-y-1">
@@ -524,7 +520,7 @@ export default async function DetalleVehiculoPage({
                       <span className="text-xs text-muted-foreground">•</span>
                       <Calendar className="h-3 w-3 text-muted-foreground" />
                       <span className="text-xs text-muted-foreground">
-                        {new Date(accion.creado_en).toLocaleString("es-CO")}
+                        {formatDateTime(accion.creado_en)}
                       </span>
                     </div>
                   </div>

@@ -33,8 +33,8 @@ create table if not exists public.mov_traslados (
   -- Metadatos
   creado_por uuid not null references public.perfiles(id) on delete restrict,
   actualizado_por uuid references public.perfiles(id) on delete restrict,
-  creado_en timestamp with time zone default timezone('utc'::text, now()) not null,
-  actualizado_en timestamp with time zone default timezone('utc'::text, now()) not null
+  creado_en timestamp with time zone default now() not null,
+  actualizado_en timestamp with time zone default now() not null
 );
 
 -- Crear tabla de radicaciones (recibir vehículo)
@@ -67,8 +67,8 @@ create table if not exists public.mov_radicaciones (
   -- Metadatos
   creado_por uuid not null references public.perfiles(id) on delete restrict,
   actualizado_por uuid references public.perfiles(id) on delete restrict,
-  creado_en timestamp with time zone default timezone('utc'::text, now()) not null,
-  actualizado_en timestamp with time zone default timezone('utc'::text, now()) not null
+  creado_en timestamp with time zone default now() not null,
+  actualizado_en timestamp with time zone default now() not null
 );
 
 -- Crear índices para traslados
@@ -175,12 +175,12 @@ as $$
 begin
   -- Para traslados
   if tg_table_name = 'mov_traslados' and new.estado = 'trasladado' and old.estado != 'trasladado' then
-    new.fecha_completado := timezone('utc'::text, now());
+    new.fecha_completado := now();
   end if;
 
   -- Para radicaciones
   if tg_table_name = 'mov_radicaciones' and new.estado = 'radicado' and old.estado != 'radicado' then
-    new.fecha_completado := timezone('utc'::text, now());
+    new.fecha_completado := now();
   end if;
 
   return new;
@@ -213,30 +213,22 @@ create policy "Usuarios pueden crear traslados"
   on public.mov_traslados for insert
   with check (auth.uid() = creado_por);
 
-create policy "Usuarios pueden actualizar traslados"
+create policy "Actualizar traslados según permisos modulares"
   on public.mov_traslados for update
   using (
-    auth.uid() is not null and (
-      auth.uid() = creado_por or
-      exists (
-        select 1 from public.perfiles
-        where id = auth.uid()
-        and rol in ('agente', 'administrador')
-      )
-    )
+    es_superadmin(auth.uid())
+    or tiene_permiso(auth.uid(), 'movilidad', 'editar_traslados')
+    or (auth.uid() = creado_por and tiene_permiso(auth.uid(), 'movilidad', 'ver'))
   )
   with check (
     actualizado_por is null or auth.uid() = actualizado_por
   );
 
-create policy "Administradores pueden eliminar traslados"
+create policy "Eliminar traslados según permisos modulares"
   on public.mov_traslados for delete
   using (
-    exists (
-      select 1 from public.perfiles
-      where id = auth.uid()
-      and rol = 'administrador'
-    )
+    es_superadmin(auth.uid())
+    or tiene_permiso(auth.uid(), 'movilidad', 'eliminar_traslados')
   );
 
 -- Políticas de seguridad para radicaciones
@@ -248,30 +240,22 @@ create policy "Usuarios pueden crear radicaciones"
   on public.mov_radicaciones for insert
   with check (auth.uid() = creado_por);
 
-create policy "Usuarios pueden actualizar radicaciones"
+create policy "Actualizar radicaciones según permisos modulares"
   on public.mov_radicaciones for update
   using (
-    auth.uid() is not null and (
-      auth.uid() = creado_por or
-      exists (
-        select 1 from public.perfiles
-        where id = auth.uid()
-        and rol in ('agente', 'administrador')
-      )
-    )
+    es_superadmin(auth.uid())
+    or tiene_permiso(auth.uid(), 'movilidad', 'editar_radicaciones')
+    or (auth.uid() = creado_por and tiene_permiso(auth.uid(), 'movilidad', 'ver'))
   )
   with check (
     actualizado_por is null or auth.uid() = actualizado_por
   );
 
-create policy "Administradores pueden eliminar radicaciones"
+create policy "Eliminar radicaciones según permisos modulares"
   on public.mov_radicaciones for delete
   using (
-    exists (
-      select 1 from public.perfiles
-      where id = auth.uid()
-      and rol = 'administrador'
-    )
+    es_superadmin(auth.uid())
+    or tiene_permiso(auth.uid(), 'movilidad', 'eliminar_radicaciones')
   );
 
 -- Comentarios para documentación

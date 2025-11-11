@@ -15,8 +15,8 @@ create table if not exists public.mov_cuentas_vehiculos (
 
   -- Metadatos
   creado_por uuid not null references public.perfiles(id) on delete restrict,
-  creado_en timestamp with time zone default timezone('utc'::text, now()) not null,
-  actualizado_en timestamp with time zone default timezone('utc'::text, now()) not null
+  creado_en timestamp with time zone default now() not null,
+  actualizado_en timestamp with time zone default now() not null
 );
 
 -- Crear índices
@@ -79,7 +79,7 @@ returns trigger
 language plpgsql
 as $$
 begin
-  new.actualizado_en := timezone('utc'::text, now());
+  new.actualizado_en := now();
   return new;
 end;
 $$;
@@ -103,27 +103,19 @@ create policy "Los usuarios pueden crear cuentas"
   on public.mov_cuentas_vehiculos for insert
   with check (auth.uid() = creado_por);
 
-create policy "Usuarios autenticados pueden actualizar cuentas"
+create policy "Actualizar cuentas según permisos modulares"
   on public.mov_cuentas_vehiculos for update
   using (
-    auth.uid() is not null and (
-      auth.uid() = creado_por or
-      exists (
-        select 1 from public.perfiles
-        where id = auth.uid()
-        and rol in ('agente', 'administrador')
-      )
-    )
+    es_superadmin(auth.uid())
+    or tiene_permiso(auth.uid(), 'movilidad', 'editar_cuentas')
+    or (auth.uid() = creado_por and tiene_permiso(auth.uid(), 'movilidad', 'ver'))
   );
 
-create policy "Los administradores pueden eliminar cuentas"
+create policy "Eliminar cuentas según permisos modulares"
   on public.mov_cuentas_vehiculos for delete
   using (
-    exists (
-      select 1 from public.perfiles
-      where id = auth.uid()
-      and rol = 'administrador'
-    )
+    es_superadmin(auth.uid())
+    or tiene_permiso(auth.uid(), 'movilidad', 'eliminar_cuentas')
   );
 
 -- Comentarios para documentación

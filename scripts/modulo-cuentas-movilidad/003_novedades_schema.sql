@@ -36,8 +36,8 @@ create table if not exists public.mov_novedades (
 
   -- Metadatos
   creado_por uuid not null references public.perfiles(id) on delete restrict,
-  creado_en timestamp with time zone default timezone('utc'::text, now()) not null,
-  actualizado_en timestamp with time zone default timezone('utc'::text, now()) not null
+  creado_en timestamp with time zone default now() not null,
+  actualizado_en timestamp with time zone default now() not null
 );
 
 -- Crear tabla de adjuntos de novedades
@@ -55,7 +55,7 @@ create table if not exists public.mov_adjuntos_novedades (
 
   -- Metadatos
   subido_por uuid not null references public.perfiles(id) on delete restrict,
-  creado_en timestamp with time zone default timezone('utc'::text, now()) not null
+  creado_en timestamp with time zone default now() not null
 );
 
 -- Crear índices para novedades
@@ -84,7 +84,7 @@ language plpgsql
 as $$
 begin
   if new.estado = 'resuelta' and old.estado != 'resuelta' then
-    new.resuelta_en := timezone('utc'::text, now());
+    new.resuelta_en := now();
     if new.resuelta_por is null then
       new.resuelta_por := auth.uid();
     end if;
@@ -171,27 +171,19 @@ create policy "Usuarios pueden crear novedades"
   on public.mov_novedades for insert
   with check (auth.uid() = creado_por);
 
-create policy "Usuarios y agentes pueden actualizar novedades"
+create policy "Actualizar novedades según permisos modulares"
   on public.mov_novedades for update
   using (
-    auth.uid() is not null and (
-      auth.uid() = creado_por or
-      exists (
-        select 1 from public.perfiles
-        where id = auth.uid()
-        and rol in ('agente', 'administrador')
-      )
-    )
+    es_superadmin(auth.uid())
+    or tiene_permiso(auth.uid(), 'movilidad', 'gestionar_novedades')
+    or (auth.uid() = creado_por and tiene_permiso(auth.uid(), 'movilidad', 'ver'))
   );
 
-create policy "Administradores pueden eliminar novedades"
+create policy "Eliminar novedades según permisos modulares"
   on public.mov_novedades for delete
   using (
-    exists (
-      select 1 from public.perfiles
-      where id = auth.uid()
-      and rol = 'administrador'
-    )
+    es_superadmin(auth.uid())
+    or tiene_permiso(auth.uid(), 'movilidad', 'eliminar_novedades')
   );
 
 -- Políticas de seguridad para adjuntos de novedades
@@ -203,15 +195,12 @@ create policy "Usuarios pueden subir adjuntos a novedades"
   on public.mov_adjuntos_novedades for insert
   with check (auth.uid() = subido_por);
 
-create policy "Usuarios pueden eliminar sus propios adjuntos"
+create policy "Eliminar adjuntos según permisos modulares"
   on public.mov_adjuntos_novedades for delete
   using (
-    auth.uid() = subido_por or
-    exists (
-      select 1 from public.perfiles
-      where id = auth.uid()
-      and rol = 'administrador'
-    )
+    es_superadmin(auth.uid())
+    or auth.uid() = subido_por
+    or tiene_permiso(auth.uid(), 'movilidad', 'gestionar_novedades')
   );
 
 -- Comentarios para documentación

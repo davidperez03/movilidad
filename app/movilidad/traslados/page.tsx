@@ -6,6 +6,7 @@ import Link from "next/link"
 import { ArrowRightLeft, Plus, Calendar, MapPin, FileText, AlertTriangle } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { BotonDescargarRemision } from "@/components/movilidad/boton-descargar-remision"
+import { formatDateShort, formatDateForDisplay } from "@/lib/utils"
 
 export default async function TrasladosPage() {
   const supabase = await createClient()
@@ -155,7 +156,7 @@ export default async function TrasladosPage() {
                         <div>
                           <p className="text-sm text-muted-foreground">Fecha trámite</p>
                           <p className="font-medium">
-                            {new Date(traslado.fecha_tramite).toLocaleDateString("es-CO")}
+                            {formatDateForDisplay(traslado.fecha_tramite)}
                           </p>
                         </div>
                       </div>
@@ -164,7 +165,7 @@ export default async function TrasladosPage() {
                         <div>
                           <p className="text-sm text-muted-foreground">Vencimiento</p>
                           <p className={`font-medium ${diasRestantes < 7 ? "text-orange-600" : ""}`}>
-                            {new Date(traslado.fecha_vencimiento).toLocaleDateString("es-CO")}
+                            {formatDateForDisplay(traslado.fecha_vencimiento)}
                           </p>
                         </div>
                       </div>
@@ -245,14 +246,14 @@ export default async function TrasladosPage() {
                     <div>
                       <p className="text-sm text-muted-foreground">Fecha trámite</p>
                       <p className="font-medium">
-                        {new Date(traslado.fecha_tramite).toLocaleDateString("es-CO")}
+                        {formatDateForDisplay(traslado.fecha_tramite)}
                       </p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Completado</p>
                       <p className="font-medium">
                         {traslado.fecha_completado
-                          ? new Date(traslado.fecha_completado).toLocaleDateString("es-CO")
+                          ? formatDateShort(traslado.fecha_completado)
                           : "N/A"}
                       </p>
                     </div>

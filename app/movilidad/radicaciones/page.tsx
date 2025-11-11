@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
 import { ArrowDownToLine, Plus, Calendar, MapPin, FileText, AlertTriangle } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { formatDateShort, formatDateForDisplay } from "@/lib/utils"
 
 export default async function RadicacionesPage() {
   const supabase = await createClient()
@@ -155,7 +156,7 @@ export default async function RadicacionesPage() {
                         <div>
                           <p className="text-sm text-muted-foreground">Fecha trámite</p>
                           <p className="font-medium">
-                            {new Date(radicacion.fecha_tramite).toLocaleDateString("es-CO")}
+                            {formatDateForDisplay(radicacion.fecha_tramite)}
                           </p>
                         </div>
                       </div>
@@ -164,7 +165,7 @@ export default async function RadicacionesPage() {
                         <div>
                           <p className="text-sm text-muted-foreground">Vencimiento</p>
                           <p className={`font-medium ${diasRestantes < 7 ? "text-orange-600" : ""}`}>
-                            {new Date(radicacion.fecha_vencimiento).toLocaleDateString("es-CO")}
+                            {formatDateForDisplay(radicacion.fecha_vencimiento)}
                           </p>
                         </div>
                       </div>
@@ -239,14 +240,14 @@ export default async function RadicacionesPage() {
                     <div>
                       <p className="text-sm text-muted-foreground">Fecha trámite</p>
                       <p className="font-medium">
-                        {new Date(radicacion.fecha_tramite).toLocaleDateString("es-CO")}
+                        {formatDateForDisplay(radicacion.fecha_tramite)}
                       </p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Completado</p>
                       <p className="font-medium">
                         {radicacion.fecha_completado
-                          ? new Date(radicacion.fecha_completado).toLocaleDateString("es-CO")
+                          ? formatDateShort(radicacion.fecha_completado)
                           : "N/A"}
                       </p>
                     </div>

@@ -46,16 +46,31 @@ function LoginForm() {
       if (data.user) {
         const { data: profile } = await supabase
           .from("perfiles")
-          .select("rol")
+          .select("rol_global")
           .eq("id", data.user.id)
           .single()
 
-        // Redirigir según rol - MOVILIDAD ES EL PRINCIPAL
-        if (profile?.rol === "administrador" || profile?.rol === "agente") {
-          window.location.href = "/movilidad"
-        } else {
-          window.location.href = "/tickets"
+        // Si es superadmin, redirigir al panel de administración
+        if (profile?.rol_global === "superadmin") {
+          window.location.href = "/superadmin/roles"
+          return
         }
+
+        // Verificar si tiene acceso a movilidad
+        const { data: rolMovilidad } = await supabase
+          .from("usuarios_roles")
+          .select("id")
+          .eq("usuario_id", data.user.id)
+          .eq("modulo_id", "movilidad")
+          .single()
+
+        if (rolMovilidad) {
+          window.location.href = "/movilidad"
+          return
+        }
+
+        // Por defecto, redirigir a tickets
+        window.location.href = "/tickets"
       }
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "Error al iniciar sesión")
