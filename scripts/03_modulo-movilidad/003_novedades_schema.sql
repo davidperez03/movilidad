@@ -167,9 +167,15 @@ create policy "Usuarios pueden ver todas las novedades"
   on public.mov_novedades for select
   using (true);
 
-create policy "Usuarios pueden crear novedades"
+create policy "Crear novedades según permisos modulares"
   on public.mov_novedades for insert
-  with check (auth.uid() = creado_por);
+  with check (
+    auth.uid() = creado_por
+    and (
+      es_superadmin(auth.uid())
+      or tiene_permiso(auth.uid(), 'movilidad', 'gestionar_novedades')
+    )
+  );
 
 create policy "Actualizar novedades según permisos modulares"
   on public.mov_novedades for update
@@ -191,9 +197,15 @@ create policy "Usuarios pueden ver adjuntos de novedades"
   on public.mov_adjuntos_novedades for select
   using (true);
 
-create policy "Usuarios pueden subir adjuntos a novedades"
+create policy "Subir adjuntos según permisos modulares"
   on public.mov_adjuntos_novedades for insert
-  with check (auth.uid() = subido_por);
+  with check (
+    auth.uid() = subido_por
+    and (
+      es_superadmin(auth.uid())
+      or tiene_permiso(auth.uid(), 'movilidad', 'gestionar_novedades')
+    )
+  );
 
 create policy "Eliminar adjuntos según permisos modulares"
   on public.mov_adjuntos_novedades for delete

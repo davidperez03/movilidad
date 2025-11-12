@@ -99,9 +99,15 @@ create policy "Todos pueden ver cuentas"
   on public.mov_cuentas_vehiculos for select
   using (true);
 
-create policy "Los usuarios pueden crear cuentas"
+create policy "Crear cuentas según permisos modulares"
   on public.mov_cuentas_vehiculos for insert
-  with check (auth.uid() = creado_por);
+  with check (
+    auth.uid() = creado_por
+    and (
+      es_superadmin(auth.uid())
+      or tiene_permiso(auth.uid(), 'movilidad', 'crear_cuentas')
+    )
+  );
 
 create policy "Actualizar cuentas según permisos modulares"
   on public.mov_cuentas_vehiculos for update

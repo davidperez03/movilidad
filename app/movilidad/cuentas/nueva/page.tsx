@@ -18,6 +18,7 @@ import { toast } from "sonner"
 import { ArrowLeft, Car, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { ModalCuentaExistente } from "@/components/movilidad/modal-cuenta-existente"
+import { manejarErrorSupabase } from "@/lib/utils/rls-errors"
 
 export default function NuevaCuentaPage() {
   const router = useRouter()
@@ -90,7 +91,8 @@ export default function NuevaCuentaPage() {
 
       if (error) {
         console.error("Error al crear cuenta:", error)
-        toast.error("Error al crear la cuenta: " + error.message)
+        const mensajeError = manejarErrorSupabase(error, 'crear', 'la cuenta de vehículo')
+        toast.error(mensajeError)
         setLoading(false)
         return
       }
