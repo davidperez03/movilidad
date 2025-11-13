@@ -51,10 +51,18 @@ export function usePermisos(): PermisosUsuario {
   })
 
   useEffect(() => {
-    async function cargarPermisos() {
+    const supabase = createClient()
+
+    async function cargarPermisos(userId?: string) {
       try {
-        const supabase = createClient()
-        const { data: { user } } = await supabase.auth.getUser()
+        // Si no se pasa userId, obtenerlo
+        let user = null
+        if (userId) {
+          user = { id: userId }
+        } else {
+          const { data: { user: currentUser } } = await supabase.auth.getUser()
+          user = currentUser
+        }
 
         if (!user) {
           setPermisos({
@@ -116,7 +124,7 @@ export function usePermisos(): PermisosUsuario {
 
         // Extraer permisos de movilidad
         const rolMovilidad = rolesUsuario?.find(r => r.modulo_id === 'movilidad')
-        const permisosMovilidad = rolMovilidad?.roles_modulo?.permisos as PermisosModulo | null
+        const permisosMovilidad = (rolMovilidad?.roles_modulo as any)?.permisos as PermisosModulo | null
 
         setPermisos({
           esSuperadmin: false,
@@ -138,7 +146,30 @@ export function usePermisos(): PermisosUsuario {
       }
     }
 
+    // Cargar permisos inicial
     cargarPermisos()
+
+    // Escuchar cambios de autenticación
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        // Usuario logueado o sesión refrescada
+        cargarPermisos(session.user.id)
+      } else {
+        // Usuario deslogueado
+        setPermisos({
+          esSuperadmin: false,
+          rolGlobal: null,
+          movilidad: null,
+          tickets: null,
+          cargando: false,
+        })
+      }
+    })
+
+    // Cleanup: desuscribirse al desmontar
+    return () => {
+      subscription.unsubscribe()
+    }
   }, [])
 
   return permisos

@@ -73,7 +73,7 @@ export async function obtenerPermisosUsuario() {
 
     // Extraer permisos de movilidad
     const rolMovilidad = rolesUsuario?.find(r => r.modulo_id === 'movilidad')
-    const permisosMovilidad = rolMovilidad?.roles_modulo?.permisos as PermisosModulo | null
+    const permisosMovilidad = (rolMovilidad?.roles_modulo as any)?.permisos as PermisosModulo | null
 
     return {
       esSuperadmin: false,

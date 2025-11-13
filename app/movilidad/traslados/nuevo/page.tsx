@@ -15,6 +15,7 @@ import { getTodayForInput, formatDateForDB } from "@/lib/utils"
 import { ModalProcesoActivo } from "@/components/movilidad/modal-proceso-activo"
 import { ModalErrorSecuencia } from "@/components/movilidad/modal-error-secuencia"
 import { ComboboxOrganismos } from "@/components/movilidad/combobox-organismos"
+import { RequierePermiso } from "@/components/movilidad/requiere-permiso"
 
 interface Organismo {
   id: string
@@ -23,7 +24,7 @@ interface Organismo {
   departamento: string
 }
 
-export default function NuevoTrasladoPage() {
+function NuevoTrasladoForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const supabase = createClient()
@@ -370,5 +371,13 @@ export default function NuevoTrasladoPage() {
         procesoIntentado="traslado"
       />
     </div>
+  )
+}
+
+export default function NuevoTrasladoPage() {
+  return (
+    <RequierePermiso permiso="crear_traslados">
+      <NuevoTrasladoForm />
+    </RequierePermiso>
   )
 }

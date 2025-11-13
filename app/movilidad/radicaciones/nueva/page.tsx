@@ -15,6 +15,7 @@ import { getTodayForInput, formatDateForDB } from "@/lib/utils"
 import { ModalProcesoActivo } from "@/components/movilidad/modal-proceso-activo"
 import { ModalErrorSecuencia } from "@/components/movilidad/modal-error-secuencia"
 import { ComboboxOrganismos } from "@/components/movilidad/combobox-organismos"
+import { RequierePermiso } from "@/components/movilidad/requiere-permiso"
 
 interface Organismo {
   id: string
@@ -23,7 +24,7 @@ interface Organismo {
   departamento: string
 }
 
-export default function NuevaRadicacionPage() {
+function NuevaRadicacionForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const supabase = createClient()
@@ -370,5 +371,13 @@ export default function NuevaRadicacionPage() {
         procesoIntentado="radicacion"
       />
     </div>
+  )
+}
+
+export default function NuevaRadicacionPage() {
+  return (
+    <RequierePermiso permiso="crear_radicaciones">
+      <NuevaRadicacionForm />
+    </RequierePermiso>
   )
 }
