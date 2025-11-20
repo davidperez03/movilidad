@@ -1,10 +1,11 @@
 import { createClient } from "@/lib/supabase/server"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
 import { ArrowDownToLine, Plus, Calendar, MapPin, FileText, AlertTriangle } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { BadgeEstadoProceso } from "@/components/movilidad/badge-estado-proceso"
+import { BadgeVencimiento } from "@/components/movilidad/badge-vencimiento"
 import { formatDateShort, formatDateForDisplay } from "@/lib/utils"
 
 export default async function RadicacionesPage() {
@@ -59,33 +60,6 @@ export default async function RadicacionesPage() {
     .order("fecha_completado", { ascending: false})
     .limit(20)
 
-  const getEstadoBadgeVariant = (estado: string) => {
-    switch (estado) {
-      case "radicado":
-        return "default"
-      case "con_novedades":
-        return "destructive"
-      case "revisado":
-      case "recibido":
-        return "secondary"
-      case "devuelto":
-        return "outline"
-      default:
-        return "secondary"
-    }
-  }
-
-  const formatearEstado = (estado: string) => {
-    return estado.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())
-  }
-
-  const calcularDiasRestantes = (fechaVencimiento: string) => {
-    const hoy = new Date()
-    const vencimiento = new Date(fechaVencimiento)
-    const diferencia = Math.ceil((vencimiento.getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24))
-    return diferencia
-  }
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -131,14 +105,8 @@ export default async function RadicacionesPage() {
                         </CardDescription>
                       </div>
                       <div className="flex gap-2">
-                        <Badge variant={getEstadoBadgeVariant(radicacion.estado)}>
-                          {formatearEstado(radicacion.estado)}
-                        </Badge>
-                        {diasRestantes < 7 && (
-                          <Badge variant={diasRestantes < 3 ? "destructive" : "outline"}>
-                            {diasRestantes > 0 ? `${diasRestantes} días` : "Vencido"}
-                          </Badge>
-                        )}
+                        <BadgeEstadoProceso estado={radicacion.estado} tipoProceso="radicacion" />
+                        <BadgeVencimiento fechaVencimiento={radicacion.fecha_vencimiento} />
                       </div>
                     </div>
                   </CardHeader>
@@ -226,9 +194,7 @@ export default async function RadicacionesPage() {
                         {radicacion.mov_cuentas_vehiculos?.numero_cuenta}
                       </CardDescription>
                     </div>
-                    <Badge variant={getEstadoBadgeVariant(radicacion.estado)}>
-                      {formatearEstado(radicacion.estado)}
-                    </Badge>
+                    <BadgeEstadoProceso estado={radicacion.estado} tipoProceso="radicacion" />
                   </div>
                 </CardHeader>
                 <CardContent>
