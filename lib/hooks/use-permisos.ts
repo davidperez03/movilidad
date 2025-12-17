@@ -22,7 +22,6 @@ export interface PermisosUsuario {
   esSuperadmin: boolean
   rolGlobal: string | null
   movilidad: PermisosModulo | null
-  tickets: any | null
   cargando: boolean
 }
 
@@ -46,7 +45,6 @@ export function usePermisos(): PermisosUsuario {
     esSuperadmin: false,
     rolGlobal: null,
     movilidad: null,
-    tickets: null,
     cargando: true,
   })
 
@@ -69,7 +67,6 @@ export function usePermisos(): PermisosUsuario {
             esSuperadmin: false,
             rolGlobal: null,
             movilidad: null,
-            tickets: null,
             cargando: false,
           })
           return
@@ -103,7 +100,6 @@ export function usePermisos(): PermisosUsuario {
               gestionar_novedades: true,
               configurar: true,
             },
-            tickets: null, // TODO: agregar permisos de tickets
             cargando: false,
           })
           return
@@ -130,7 +126,6 @@ export function usePermisos(): PermisosUsuario {
           esSuperadmin: false,
           rolGlobal: perfil?.rol_global || null,
           movilidad: permisosMovilidad || PERMISOS_VACIOS,
-          tickets: null,
           cargando: false,
         })
 
@@ -140,7 +135,6 @@ export function usePermisos(): PermisosUsuario {
           esSuperadmin: false,
           rolGlobal: null,
           movilidad: PERMISOS_VACIOS,
-          tickets: null,
           cargando: false,
         })
       }
@@ -160,7 +154,6 @@ export function usePermisos(): PermisosUsuario {
           esSuperadmin: false,
           rolGlobal: null,
           movilidad: null,
-          tickets: null,
           cargando: false,
         })
       }
@@ -178,7 +171,7 @@ export function usePermisos(): PermisosUsuario {
 // Helper para verificar permisos específicos
 export function tienePermiso(
   permisos: PermisosUsuario,
-  modulo: 'movilidad' | 'tickets',
+  modulo: 'movilidad',
   permiso: keyof PermisosModulo
 ): boolean {
   if (permisos.esSuperadmin) return true

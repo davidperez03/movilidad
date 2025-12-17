@@ -39,19 +39,6 @@ export default async function HomePage() {
     redirect("/movilidad")
   }
 
-  // Verificar si tiene acceso al módulo de tickets
-  const { data: rolTickets } = await supabase
-    .from("usuarios_roles")
-    .select("id")
-    .eq("usuario_id", user.id)
-    .eq("modulo_id", "tickets")
-    .single()
-
-  // Si tiene acceso a tickets, redirigir allí
-  if (rolTickets) {
-    redirect("/tickets")
-  }
-
   // Si no tiene acceso a ningún módulo, redirigir a página de sin acceso
   redirect("/sin-acceso")
 }

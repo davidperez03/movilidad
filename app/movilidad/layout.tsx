@@ -41,7 +41,7 @@ export default async function MovilidadLayout({
       .single()
 
     if (!rolMovilidad) {
-      redirect("/tickets")
+      redirect("/sin-acceso")
     }
   }
 

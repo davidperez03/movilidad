@@ -24,7 +24,6 @@ function SuperAdminNav() {
 
   const navItems = [
     { href: '/superadmin/roles', label: 'Gestión de Roles' },
-    { href: '/tickets', label: 'Ir a Tickets' },
     { href: '/movilidad', label: 'Ir a Movilidad' },
   ];
 

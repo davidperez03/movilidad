@@ -262,9 +262,6 @@ function GestionRolesContent() {
                 Rol Global
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Tickets
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Movilidad
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -274,7 +271,6 @@ function GestionRolesContent() {
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {usuarios.map((usuario) => {
-              const rolTickets = usuario.roles.find((r) => r.modulo_id === 'tickets');
               const rolMovilidad = usuario.roles.find((r) => r.modulo_id === 'movilidad');
 
               return (
@@ -299,40 +295,6 @@ function GestionRolesContent() {
                       <option value="usuario">Usuario</option>
                       <option value="superadmin">SuperAdmin</option>
                     </select>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {usuario.rol_global === 'superadmin' ? (
-                      <span className="text-sm font-semibold text-green-600">Acceso Total</span>
-                    ) : rolTickets ? (
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm">{rolTickets.rol_nombre}</span>
-                        <button
-                          onClick={() => eliminarRol(usuario.id, 'tickets')}
-                          className="text-red-600 text-xs"
-                        >
-                          ✕
-                        </button>
-                      </div>
-                    ) : (
-                      <select
-                        onChange={(e) => {
-                          if (e.target.value) {
-                            asignarRol(usuario.id, 'tickets', e.target.value);
-                          }
-                        }}
-                        className="text-sm border rounded px-2 py-1"
-                        defaultValue=""
-                      >
-                        <option value="">Asignar rol...</option>
-                        {rolesDisponibles
-                          .filter((r) => r.modulo_id === 'tickets')
-                          .map((rol) => (
-                            <option key={rol.id} value={rol.id}>
-                              {rol.nombre}
-                            </option>
-                          ))}
-                      </select>
-                    )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     {usuario.rol_global === 'superadmin' ? (
@@ -384,22 +346,7 @@ function GestionRolesContent() {
       </div>
 
       {/* Información de roles */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white shadow rounded-lg p-6">
-          <h2 className="text-xl font-semibold mb-4">Roles de Tickets</h2>
-          <div className="space-y-3">
-            {rolesDisponibles
-              .filter((r) => r.modulo_id === 'tickets')
-              .map((rol) => (
-                <div key={rol.id} className="border-l-4 border-blue-500 pl-3">
-                  <div className="font-medium">{rol.nombre}</div>
-                  <div className="text-sm text-gray-600">{rol.descripcion}</div>
-                  <div className="text-xs text-gray-400 mt-1">Código: {rol.codigo}</div>
-                </div>
-              ))}
-          </div>
-        </div>
-
+      <div className="grid grid-cols-1 gap-6">
         <div className="bg-white shadow rounded-lg p-6">
           <h2 className="text-xl font-semibold mb-4">Roles de Movilidad</h2>
           <div className="space-y-3">
@@ -619,10 +566,10 @@ function ModalDetallesUsuario({
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
                             <span className="text-lg">
-                              {rol.modulo_id === 'tickets' ? '🎫' : '🚗'}
+                              🚗
                             </span>
                             <span className="font-semibold text-gray-900">
-                              {rol.modulo_id === 'tickets' ? 'Tickets' : 'Movilidad'}
+                              Movilidad
                             </span>
                           </div>
                           <div className="ml-7">

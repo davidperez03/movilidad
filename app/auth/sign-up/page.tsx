@@ -37,7 +37,7 @@ export default function SignUpPage() {
         email,
         password,
         options: {
-          emailRedirectTo: process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL || `${window.location.origin}/tickets`,
+          emailRedirectTo: process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL || `${window.location.origin}/movilidad`,
           data: {
             nombre_completo: fullName,
             rol_global: "usuario",
@@ -59,7 +59,7 @@ export default function SignUpPage() {
         <Card>
           <CardHeader>
             <CardTitle className="text-2xl">Crear Cuenta</CardTitle>
-            <CardDescription>Regístrate en el sistema de tickets</CardDescription>
+            <CardDescription>Regístrate en el sistema</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSignUp}>

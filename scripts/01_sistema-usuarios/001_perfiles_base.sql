@@ -1,6 +1,6 @@
 -- ============================================================================
 -- SISTEMA DE USUARIOS - PERFILES BASE
--- Tabla de perfiles de usuario (separada del módulo de tickets)
+-- Tabla de perfiles de usuario
 -- ============================================================================
 
 -- Crear tabla perfiles

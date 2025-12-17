@@ -8,11 +8,11 @@
 -- ============================================================================
 
 CREATE TABLE IF NOT EXISTS public.modulos (
-  id TEXT PRIMARY KEY,  -- 'tickets', 'movilidad', 'reportes', etc.
+  id TEXT PRIMARY KEY,  -- 'movilidad', 'reportes', etc.
   nombre TEXT NOT NULL,
   descripcion TEXT,
   icono TEXT,  -- Nombre del icono para el UI
-  ruta TEXT,   -- Ruta base del módulo (/dashboard, /movilidad, etc.)
+  ruta TEXT,   -- Ruta base del módulo (/movilidad, etc.)
   activo BOOLEAN DEFAULT true,
   orden INTEGER DEFAULT 0,  -- Para ordenar en el UI
   creado_en TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
@@ -29,8 +29,8 @@ CREATE INDEX IF NOT EXISTS idx_modulos_activo ON public.modulos(activo);
 CREATE TABLE IF NOT EXISTS public.roles_modulo (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   modulo_id TEXT NOT NULL REFERENCES modulos(id) ON DELETE CASCADE,
-  codigo TEXT NOT NULL,  -- 'tks_usuario', 'mov_operador', etc.
-  nombre TEXT NOT NULL,  -- 'Usuario de Tickets', 'Operador de Movilidad'
+  codigo TEXT NOT NULL,  -- 'mov_operador', 'mov_usuario', etc.
+  nombre TEXT NOT NULL,  -- 'Operador de Movilidad', 'Usuario de Movilidad'
   descripcion TEXT,
   permisos JSONB NOT NULL DEFAULT '{}',  -- { "ver": true, "crear": true, ... }
   nivel INTEGER DEFAULT 0,  -- 0=básico, 1=intermedio, 2=administrador

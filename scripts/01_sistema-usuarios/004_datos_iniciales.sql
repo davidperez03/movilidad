@@ -9,8 +9,7 @@
 
 INSERT INTO public.modulos (id, nombre, descripcion, icono, ruta, activo, orden)
 VALUES
-  ('tickets', 'Sistema de Tickets', 'Gestión de tickets de soporte y tareas', 'ticket', '/tickets', true, 1),
-  ('movilidad', 'Gestión de Movilidad', 'Gestión de cuentas, traslados y radicaciones de vehículos', 'car', '/movilidad', true, 2)
+  ('movilidad', 'Gestión de Movilidad', 'Gestión de cuentas, traslados y radicaciones de vehículos', 'car', '/movilidad', true, 1)
 ON CONFLICT (id) DO UPDATE SET
   nombre = EXCLUDED.nombre,
   descripcion = EXCLUDED.descripcion,
@@ -20,77 +19,7 @@ ON CONFLICT (id) DO UPDATE SET
   orden = EXCLUDED.orden;
 
 -- ============================================================================
--- 2. INSERTAR ROLES PARA MÓDULO TICKETS
--- ============================================================================
-
-INSERT INTO public.roles_modulo (modulo_id, codigo, nombre, descripcion, permisos, nivel)
-VALUES
-  (
-    'tickets',
-    'tks_usuario',
-    'Usuario de Tickets',
-    'Puede crear y ver sus propios tickets',
-    '{
-      "ver_propios": true,
-      "ver_todos": false,
-      "crear": true,
-      "editar_propios": true,
-      "editar_asignados": false,
-      "editar_todos": false,
-      "eliminar": false,
-      "asignar": false,
-      "comentar": true,
-      "adjuntar": true
-    }'::jsonb,
-    0
-  ),
-  (
-    'tickets',
-    'tks_agente',
-    'Agente de Soporte',
-    'Gestiona tickets asignados y puede ver todos los tickets',
-    '{
-      "ver_propios": true,
-      "ver_todos": true,
-      "crear": true,
-      "editar_propios": true,
-      "editar_asignados": true,
-      "editar_todos": false,
-      "eliminar": false,
-      "asignar": true,
-      "comentar": true,
-      "adjuntar": true
-    }'::jsonb,
-    1
-  ),
-  (
-    'tickets',
-    'tks_administrador',
-    'Administrador de Tickets',
-    'Control total sobre el módulo de tickets',
-    '{
-      "ver_propios": true,
-      "ver_todos": true,
-      "crear": true,
-      "editar_propios": true,
-      "editar_asignados": true,
-      "editar_todos": true,
-      "eliminar": true,
-      "asignar": true,
-      "comentar": true,
-      "adjuntar": true,
-      "configurar": true
-    }'::jsonb,
-    2
-  )
-ON CONFLICT (modulo_id, codigo) DO UPDATE SET
-  nombre = EXCLUDED.nombre,
-  descripcion = EXCLUDED.descripcion,
-  permisos = EXCLUDED.permisos,
-  nivel = EXCLUDED.nivel;
-
--- ============================================================================
--- 3. INSERTAR ROLES PARA MÓDULO MOVILIDAD
+-- 2. INSERTAR ROLES PARA MÓDULO MOVILIDAD
 -- ============================================================================
 
 INSERT INTO public.roles_modulo (modulo_id, codigo, nombre, descripcion, permisos, nivel)

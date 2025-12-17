@@ -69,8 +69,8 @@ function LoginForm() {
           return
         }
 
-        // Por defecto, redirigir a tickets
-        window.location.href = "/tickets"
+        // Si no tiene acceso a ningún módulo, redirigir a sin-acceso
+        window.location.href = "/sin-acceso"
       }
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "Error al iniciar sesión")
