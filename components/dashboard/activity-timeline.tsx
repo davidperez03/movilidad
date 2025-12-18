@@ -103,7 +103,7 @@ export function ActivityTimeline({
                           </div>
                         )}
                       </div>
-                      <span className="text-xs text-muted-foreground whitespace-nowrap">
+                      <span className="text-xs text-muted-foreground whitespace-nowrap" suppressHydrationWarning>
                         {formatTimestamp(activity.timestamp)}
                       </span>
                     </div>

@@ -42,17 +42,62 @@ function LoginForm() {
       })
       if (error) throw error
 
-      // Verificar rol del usuario para redirección
+      // Verificar estado del usuario
       if (data.user) {
-        const { data: profile } = await supabase
+        const { data: profile, error: profileError } = await supabase
           .from("perfiles")
-          .select("rol_global")
+          .select("rol_global, activo, suspendido_hasta, razon_suspension")
           .eq("id", data.user.id)
           .single()
 
-        // Si es superadmin, redirigir al panel de administración
+        if (profileError) {
+          throw new Error("Error al verificar perfil de usuario")
+        }
+
+        // Verificar si el usuario está activo
+        if (!profile.activo) {
+          // Cerrar sesión inmediatamente
+          await supabase.auth.signOut()
+          throw new Error(
+            profile.razon_suspension
+              ? `Cuenta desactivada: ${profile.razon_suspension}`
+              : "Tu cuenta ha sido desactivada. Contacta al administrador."
+          )
+        }
+
+        // Verificar si está suspendido temporalmente
+        if (profile.suspendido_hasta) {
+          const suspendidoHasta = new Date(profile.suspendido_hasta)
+          if (suspendidoHasta > new Date()) {
+            await supabase.auth.signOut()
+            throw new Error(
+              `Cuenta suspendida hasta ${suspendidoHasta.toLocaleDateString('es-CO')}. ${profile.razon_suspension || ''}`
+            )
+          }
+        }
+
+        // Actualizar última conexión
+        await supabase
+          .from("perfiles")
+          .update({ ultima_conexion: new Date().toISOString() })
+          .eq("id", data.user.id)
+
+        // Registrar sesión (intentar, pero no fallar si la tabla no existe)
+        try {
+          await supabase.rpc('registrar_inicio_sesion', {
+            p_usuario_id: data.user.id,
+            p_ip_address: null, // Se podría obtener del cliente
+            p_user_agent: navigator.userAgent,
+            p_dispositivo: 'web'
+          })
+        } catch (sessionError) {
+          // Si la función no existe aún, continuar sin error
+          console.warn('No se pudo registrar sesión:', sessionError)
+        }
+
+        // Si es superadmin, redirigir al dashboard
         if (profile?.rol_global === "superadmin") {
-          window.location.href = "/superadmin/roles"
+          window.location.href = "/superadmin/dashboard"
           return
         }
 

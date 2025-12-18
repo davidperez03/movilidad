@@ -39,11 +39,16 @@ CREATE POLICY "Los usuarios pueden insertar su propio perfil"
   ON public.perfiles FOR INSERT
   WITH CHECK (auth.uid() = id);
 
--- NOTA: La política de superadmin fue removida porque causaba recursión infinita en RLS
--- Los superadmins deben modificar perfiles desde:
--- 1. Dashboard de Supabase directamente
--- 2. Funciones SECURITY DEFINER específicas
+-- Superadmins pueden modificar cualquier perfil
 DROP POLICY IF EXISTS "Los superadmins pueden modificar perfiles" ON public.perfiles;
+CREATE POLICY "Los superadmins pueden modificar perfiles"
+  ON public.perfiles FOR UPDATE
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.perfiles
+      WHERE id = auth.uid() AND rol_global = 'superadmin'
+    )
+  );
 
 -- Función para actualizar timestamp
 CREATE OR REPLACE FUNCTION actualizar_timestamp_perfiles()
@@ -60,6 +65,37 @@ CREATE TRIGGER trigger_actualizar_perfiles
   BEFORE UPDATE ON public.perfiles
   FOR EACH ROW
   EXECUTE FUNCTION actualizar_timestamp_perfiles();
+
+-- ============================================================================
+-- COMENTARIOS Y DOCUMENTACIÓN
+-- ============================================================================
+
+COMMENT ON TABLE public.perfiles IS
+  'Perfiles de usuarios del sistema. Extiende auth.users de Supabase con información adicional. Cada usuario tiene un rol global (usuario o superadmin) que determina su nivel de acceso base.';
+
+COMMENT ON COLUMN public.perfiles.id IS
+  'Identificador único del perfil (UUID). Referencia a auth.users(id) de Supabase';
+
+COMMENT ON COLUMN public.perfiles.correo IS
+  'Correo electrónico del usuario (único)';
+
+COMMENT ON COLUMN public.perfiles.nombre_completo IS
+  'Nombre completo del usuario para mostrar en la interfaz';
+
+COMMENT ON COLUMN public.perfiles.rol_global IS
+  'Rol global del usuario: "usuario" (acceso regular) o "superadmin" (acceso administrativo completo)';
+
+COMMENT ON COLUMN public.perfiles.url_avatar IS
+  'URL de la imagen de perfil del usuario (opcional)';
+
+COMMENT ON COLUMN public.perfiles.creado_en IS
+  'Fecha y hora de creación del perfil';
+
+COMMENT ON COLUMN public.perfiles.actualizado_en IS
+  'Fecha y hora de la última actualización del perfil (actualizado automáticamente)';
+
+COMMENT ON FUNCTION actualizar_timestamp_perfiles() IS
+  'Trigger function que actualiza automáticamente el campo actualizado_en al modificar un perfil';
 
 -- ============================================================================
 -- FIN DEL SCRIPT

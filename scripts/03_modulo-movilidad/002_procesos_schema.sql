@@ -270,8 +270,99 @@ create policy "Eliminar radicaciones según permisos modulares"
     or tiene_permiso(auth.uid(), 'movilidad', 'eliminar_radicaciones')
   );
 
--- Comentarios para documentación
-comment on table public.mov_traslados is 'Procesos de envío de vehículos a otras ciudades';
-comment on table public.mov_radicaciones is 'Procesos de recepción de vehículos desde otras ciudades';
-comment on column public.mov_traslados.fecha_vencimiento is 'Fecha límite del trámite (60 días hábiles desde fecha_tramite, sin contar sábados, domingos ni festivos)';
-comment on column public.mov_radicaciones.fecha_vencimiento is 'Fecha límite del trámite (60 días hábiles desde fecha_tramite, sin contar sábados, domingos ni festivos)';
+-- =====================================================
+-- COMENTARIOS Y DOCUMENTACIÓN
+-- =====================================================
+
+-- Tabla: mov_traslados
+COMMENT ON TABLE public.mov_traslados IS
+  'Procesos de envío (traslado) de vehículos a otras ciudades. Registra el flujo completo desde la solicitud hasta la finalización del traslado, con estados intermedios y fechas de vencimiento basadas en días hábiles.';
+
+COMMENT ON COLUMN public.mov_traslados.id IS
+  'Identificador único del traslado (UUID)';
+
+COMMENT ON COLUMN public.mov_traslados.cuenta_id IS
+  'ID de la cuenta de vehículo asociada al traslado (referencia a mov_cuentas_vehiculos.id)';
+
+COMMENT ON COLUMN public.mov_traslados.organismo_destino_id IS
+  'ID del organismo de tránsito destino al que se envía el vehículo (referencia a mov_organismos_transito.id)';
+
+COMMENT ON COLUMN public.mov_traslados.estado IS
+  'Estado actual del proceso: sin_asignar, enviado_organismo, revisado, con_novedades, trasladado (final), devuelto (final)';
+
+COMMENT ON COLUMN public.mov_traslados.fecha_tramite IS
+  'Fecha de inicio del trámite de traslado';
+
+COMMENT ON COLUMN public.mov_traslados.fecha_vencimiento IS
+  'Fecha límite del trámite (60 días hábiles desde fecha_tramite, calculado automáticamente sin contar sábados, domingos ni festivos)';
+
+COMMENT ON COLUMN public.mov_traslados.fecha_completado IS
+  'Fecha y hora en que se completó el traslado (cuando estado cambia a "trasladado")';
+
+COMMENT ON COLUMN public.mov_traslados.observaciones IS
+  'Notas u observaciones adicionales sobre el proceso de traslado';
+
+COMMENT ON COLUMN public.mov_traslados.creado_por IS
+  'ID del usuario que creó el traslado (referencia a perfiles.id)';
+
+COMMENT ON COLUMN public.mov_traslados.actualizado_por IS
+  'ID del usuario que realizó la última actualización (referencia a perfiles.id)';
+
+COMMENT ON COLUMN public.mov_traslados.creado_en IS
+  'Fecha y hora de creación del registro';
+
+COMMENT ON COLUMN public.mov_traslados.actualizado_en IS
+  'Fecha y hora de la última actualización (actualizado automáticamente)';
+
+-- Tabla: mov_radicaciones
+COMMENT ON TABLE public.mov_radicaciones IS
+  'Procesos de recepción (radicación) de vehículos desde otras ciudades. Registra el flujo completo desde la solicitud hasta la finalización de la radicación, con estados intermedios y fechas de vencimiento basadas en días hábiles.';
+
+COMMENT ON COLUMN public.mov_radicaciones.id IS
+  'Identificador único de la radicación (UUID)';
+
+COMMENT ON COLUMN public.mov_radicaciones.cuenta_id IS
+  'ID de la cuenta de vehículo asociada a la radicación (referencia a mov_cuentas_vehiculos.id)';
+
+COMMENT ON COLUMN public.mov_radicaciones.organismo_origen_id IS
+  'ID del organismo de tránsito origen desde donde se recibe el vehículo (referencia a mov_organismos_transito.id)';
+
+COMMENT ON COLUMN public.mov_radicaciones.estado IS
+  'Estado actual del proceso: sin_asignar, pendiente_radicar, recibido, revisado, con_novedades, radicado (final), devuelto (final)';
+
+COMMENT ON COLUMN public.mov_radicaciones.fecha_tramite IS
+  'Fecha de inicio del trámite de radicación';
+
+COMMENT ON COLUMN public.mov_radicaciones.fecha_vencimiento IS
+  'Fecha límite del trámite (60 días hábiles desde fecha_tramite, calculado automáticamente sin contar sábados, domingos ni festivos)';
+
+COMMENT ON COLUMN public.mov_radicaciones.fecha_completado IS
+  'Fecha y hora en que se completó la radicación (cuando estado cambia a "radicado")';
+
+COMMENT ON COLUMN public.mov_radicaciones.observaciones IS
+  'Notas u observaciones adicionales sobre el proceso de radicación';
+
+COMMENT ON COLUMN public.mov_radicaciones.creado_por IS
+  'ID del usuario que creó la radicación (referencia a perfiles.id)';
+
+COMMENT ON COLUMN public.mov_radicaciones.actualizado_por IS
+  'ID del usuario que realizó la última actualización (referencia a perfiles.id)';
+
+COMMENT ON COLUMN public.mov_radicaciones.creado_en IS
+  'Fecha y hora de creación del registro';
+
+COMMENT ON COLUMN public.mov_radicaciones.actualizado_en IS
+  'Fecha y hora de la última actualización (actualizado automáticamente)';
+
+-- Funciones
+COMMENT ON FUNCTION trigger_vencimiento_traslado() IS
+  'Trigger function que calcula automáticamente la fecha de vencimiento sumando 60 días hábiles a la fecha de trámite al crear un traslado';
+
+COMMENT ON FUNCTION trigger_vencimiento_radicacion() IS
+  'Trigger function que calcula automáticamente la fecha de vencimiento sumando 60 días hábiles a la fecha de trámite al crear una radicación';
+
+COMMENT ON FUNCTION trigger_auto_actualizado_por() IS
+  'Trigger function que asigna automáticamente el usuario actual al campo actualizado_por si no viene especificado';
+
+COMMENT ON FUNCTION trigger_marcar_completado() IS
+  'Trigger function que registra automáticamente la fecha de completado cuando el estado cambia a "trasladado" o "radicado"';
