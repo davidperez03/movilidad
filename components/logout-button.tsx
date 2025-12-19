@@ -2,11 +2,13 @@
 
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
-import { useRouter } from "next/navigation"
 import { useState } from "react"
 
-export function BotonCerrarSesion() {
-  const router = useRouter()
+interface BotonCerrarSesionProps {
+  className?: string
+}
+
+export function BotonCerrarSesion({ className }: BotonCerrarSesionProps) {
   const [estaCargando, setEstaCargando] = useState(false)
 
   const manejarCerrarSesion = async () => {
@@ -20,7 +22,13 @@ export function BotonCerrarSesion() {
   }
 
   return (
-    <Button variant="outline" size="sm" onClick={manejarCerrarSesion} disabled={estaCargando}>
+    <Button
+      variant="outline"
+      size="sm"
+      onClick={manejarCerrarSesion}
+      disabled={estaCargando}
+      className={className}
+    >
       {estaCargando ? "Saliendo..." : "Cerrar Sesión"}
     </Button>
   )

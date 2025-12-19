@@ -3,83 +3,99 @@
 import { useEffect, useRef } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
+import { SESSION_CONFIG } from "@/lib/config/session"
+import { toast } from "sonner"
 
 interface SessionProviderProps {
   children: React.ReactNode
-  autoRefreshInterval?: number // en segundos, default 20
-  inactivityTimeout?: number // en minutos, default 10
 }
 
-export function SessionProvider({
-  children,
-  autoRefreshInterval = 20,
-  inactivityTimeout = 1
-}: SessionProviderProps) {
+/**
+ * Proveedor de Sesión Centralizado
+ *
+ * Funcionalidades:
+ * - Detecta inactividad del usuario y cierra sesión automáticamente
+ * - Refresca el token de Supabase mientras hay actividad
+ * - Muestra advertencias antes del cierre de sesión
+ * - Verifica el estado de la sesión
+ *
+ * Configuración: /lib/config/session.ts
+ */
+export function SessionProvider({ children }: SessionProviderProps) {
   const router = useRouter()
   const pathname = usePathname()
   const supabase = createClient()
   const lastActivityRef = useRef<number>(Date.now())
-  const autoRefreshTimerRef = useRef<NodeJS.Timeout | null>(null)
+  const lastUpdateRef = useRef<number>(0) // 0 para permitir primera ejecución
+  const tokenRefreshTimerRef = useRef<NodeJS.Timeout | null>(null)
   const inactivityTimerRef = useRef<NodeJS.Timeout | null>(null)
+  const warningTimerRef = useRef<NodeJS.Timeout | null>(null)
 
-  // Rutas públicas que no necesitan auto-refresh ni timeout
+  // Rutas públicas que no necesitan gestión de sesión
   const publicRoutes = ["/auth/login", "/auth/sign-up", "/consulta", "/auth/error"]
   const isPublicRoute = publicRoutes.some(route => pathname?.startsWith(route))
 
-  // Actualizar última actividad
+  // Refrescar token de Supabase
+  const refreshToken = async () => {
+    try {
+      await supabase.auth.refreshSession()
+    } catch (error) {
+      console.error("Error al refrescar token:", error)
+    }
+  }
+
+  // Actualizar última actividad y resetear timers
   const updateActivity = () => {
-    lastActivityRef.current = Date.now()
-  }
-
-  // Verificar inactividad
-  const checkInactivity = async () => {
     const now = Date.now()
-    const inactivityMs = inactivityTimeout * 60 * 1000 // convertir minutos a ms
-    const timeSinceLastActivity = now - lastActivityRef.current
+    const timeSinceLastUpdate = now - lastUpdateRef.current
 
-    if (timeSinceLastActivity > inactivityMs) {
-      // Limpiar timers
-      if (autoRefreshTimerRef.current) {
-        clearInterval(autoRefreshTimerRef.current)
-      }
-      if (inactivityTimerRef.current) {
-        clearInterval(inactivityTimerRef.current)
-      }
-
-      // Cerrar sesión
-      await supabase.auth.signOut()
-
-      // Redirigir al login
-      router.push("/auth/login?timeout=true")
-      router.refresh()
-    }
-  }
-
-  // Auto-refresh de la página
-  const setupAutoRefresh = () => {
-    if (autoRefreshTimerRef.current) {
-      clearInterval(autoRefreshTimerRef.current)
+    // Throttle: solo actualizar si han pasado al menos N ms
+    if (timeSinceLastUpdate < SESSION_CONFIG.ACTIVITY_THROTTLE) {
+      return
     }
 
-    autoRefreshTimerRef.current = setInterval(() => {
-      if (!isPublicRoute) {
-        router.refresh()
-      }
-    }, autoRefreshInterval * 1000)
-  }
+    lastActivityRef.current = now
+    lastUpdateRef.current = now
 
-  // Configurar timer de inactividad
-  const setupInactivityTimer = () => {
+    // Limpiar timers anteriores
     if (inactivityTimerRef.current) {
-      clearInterval(inactivityTimerRef.current)
+      clearTimeout(inactivityTimerRef.current)
+    }
+    if (warningTimerRef.current) {
+      clearTimeout(warningTimerRef.current)
     }
 
-    // Verificar inactividad cada 10 segundos (más frecuente para ser más preciso)
-    inactivityTimerRef.current = setInterval(() => {
+    // Configurar timer de advertencia (si está habilitado)
+    if (SESSION_CONFIG.WARNING_BEFORE_TIMEOUT) {
+      const warningTime = SESSION_CONFIG.INACTIVITY_TIMEOUT - SESSION_CONFIG.WARNING_BEFORE_TIMEOUT
+
+      warningTimerRef.current = setTimeout(() => {
+        toast.warning(
+          `Tu sesión se cerrará en ${SESSION_CONFIG.WARNING_BEFORE_TIMEOUT / 1000} segundos por inactividad. Mueve el mouse para continuar.`,
+          { duration: SESSION_CONFIG.WARNING_BEFORE_TIMEOUT }
+        )
+      }, warningTime)
+    }
+
+    // Configurar timer de inactividad
+    inactivityTimerRef.current = setTimeout(async () => {
+      toast.error(SESSION_CONFIG.TIMEOUT_MESSAGE)
+      await supabase.auth.signOut()
+      router.push("/auth/login?reason=inactivity")
+    }, SESSION_CONFIG.INACTIVITY_TIMEOUT)
+  }
+
+  // Configurar refresh automático del token
+  const setupTokenRefresh = () => {
+    if (tokenRefreshTimerRef.current) {
+      clearInterval(tokenRefreshTimerRef.current)
+    }
+
+    tokenRefreshTimerRef.current = setInterval(() => {
       if (!isPublicRoute) {
-        checkInactivity()
+        refreshToken()
       }
-    }, 10000) // 10 segundos
+    }, SESSION_CONFIG.TOKEN_REFRESH_INTERVAL)
   }
 
   useEffect(() => {
@@ -88,26 +104,19 @@ export function SessionProvider({
       return
     }
 
-    // Eventos para detectar actividad del usuario
-    const events = [
-      "mousedown",
-      "mousemove",
-      "keypress",
-      "scroll",
-      "touchstart",
-      "click",
-    ]
+    // No hacer nada si está deshabilitado
+    if (!SESSION_CONFIG.ENABLE_INACTIVITY_TIMEOUT) {
+      return
+    }
 
-    // Agregar listeners
-    events.forEach((event) => {
-      document.addEventListener(event, updateActivity, true)
+    // Agregar listeners de actividad
+    SESSION_CONFIG.ACTIVITY_EVENTS.forEach((event) => {
+      document.addEventListener(event, updateActivity, { passive: true })
     })
 
-    // Configurar auto-refresh
-    setupAutoRefresh()
-
-    // Configurar timer de inactividad
-    setupInactivityTimer()
+    // Iniciar timers
+    updateActivity()
+    setupTokenRefresh()
 
     // Verificar sesión al montar
     const checkSession = async () => {
@@ -120,23 +129,25 @@ export function SessionProvider({
 
     // Cleanup
     return () => {
-      events.forEach((event) => {
-        document.removeEventListener(event, updateActivity, true)
+      SESSION_CONFIG.ACTIVITY_EVENTS.forEach((event) => {
+        document.removeEventListener(event, updateActivity)
       })
 
-      if (autoRefreshTimerRef.current) {
-        clearInterval(autoRefreshTimerRef.current)
+      if (tokenRefreshTimerRef.current) {
+        clearInterval(tokenRefreshTimerRef.current)
       }
-
       if (inactivityTimerRef.current) {
-        clearInterval(inactivityTimerRef.current)
+        clearTimeout(inactivityTimerRef.current)
+      }
+      if (warningTimerRef.current) {
+        clearTimeout(warningTimerRef.current)
       }
     }
   }, [pathname, isPublicRoute])
 
   // Escuchar cambios de estado de autenticación
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === "SIGNED_OUT" && !isPublicRoute) {
         router.push("/auth/login")
       }
@@ -145,7 +156,6 @@ export function SessionProvider({
         updateActivity()
       }
 
-      // Refrescar la página cuando hay cambios
       if (event === "TOKEN_REFRESHED") {
         updateActivity()
       }

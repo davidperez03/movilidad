@@ -19,6 +19,7 @@ import { notFound } from "next/navigation"
 import { AgregarNovedad } from "@/components/movilidad/agregar-novedad"
 import { CambiarEstado } from "@/components/movilidad/cambiar-estado"
 import { formatDateShort, formatDateTime, formatDateLong, formatDateForDisplay } from "@/lib/utils"
+import { formatearEstadoProceso } from "@/lib/movilidad/formatters"
 import { ResolverNovedad } from "@/components/movilidad/resolver-novedad"
 import { BotonDescargarRemision } from "@/components/movilidad/boton-descargar-remision"
 
@@ -125,10 +126,6 @@ export default async function DetalleVehiculoPage({
     .order("creado_en", { ascending: false })
     .limit(20)
 
-  const formatearEstado = (estado: string) => {
-    return estado.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())
-  }
-
   const formatearAccion = (accion: string) => {
     return accion.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())
   }
@@ -210,7 +207,7 @@ export default async function DetalleVehiculoPage({
               <Badge
                 variant={procesoActivo.proceso_estado === "con_novedades" ? "destructive" : "default"}
               >
-                {formatearEstado(procesoActivo.proceso_estado)}
+                {formatearEstadoProceso(procesoActivo.proceso_estado)}
               </Badge>
             </div>
           </CardHeader>
@@ -317,11 +314,11 @@ export default async function DetalleVehiculoPage({
                             {novedad.prioridad}
                           </Badge>
                           <Badge variant="outline">
-                            {formatearEstado(novedad.tipo_novedad)}
+                            {formatearEstadoProceso(novedad.tipo_novedad)}
                           </Badge>
                         </div>
                         <Badge variant={novedad.estado === "resuelta" ? "default" : "secondary"}>
-                          {formatearEstado(novedad.estado)}
+                          {formatearEstadoProceso(novedad.estado)}
                         </Badge>
                       </div>
                       <p className="text-sm mb-2">{novedad.descripcion}</p>
@@ -401,7 +398,7 @@ export default async function DetalleVehiculoPage({
                   <div key={traslado.id} className="border rounded-md p-3 space-y-2">
                     <div className="flex items-center justify-between">
                       <Badge variant="outline">
-                        {formatearEstado(traslado.estado)}
+                        {formatearEstadoProceso(traslado.estado)}
                       </Badge>
                       <span className="text-xs text-muted-foreground">
                         {formatDateShort(traslado.creado_en)}
@@ -457,7 +454,7 @@ export default async function DetalleVehiculoPage({
                   <div key={radicacion.id} className="border rounded-md p-3 space-y-2">
                     <div className="flex items-center justify-between">
                       <Badge variant="outline">
-                        {formatearEstado(radicacion.estado)}
+                        {formatearEstadoProceso(radicacion.estado)}
                       </Badge>
                       <span className="text-xs text-muted-foreground">
                         {formatDateShort(radicacion.creado_en)}
@@ -509,7 +506,7 @@ export default async function DetalleVehiculoPage({
                     <p className="text-sm font-medium">{formatearAccion(accion.accion)}</p>
                     {accion.estado_anterior && accion.estado_nuevo && (
                       <p className="text-xs text-muted-foreground">
-                        {formatearEstado(accion.estado_anterior)} → {formatearEstado(accion.estado_nuevo)}
+                        {formatearEstadoProceso(accion.estado_anterior)} → {formatearEstadoProceso(accion.estado_nuevo)}
                       </p>
                     )}
                     <div className="flex items-center gap-2 mt-1">

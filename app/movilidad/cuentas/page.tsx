@@ -3,9 +3,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import Link from "next/link"
-import { Car, Plus, Search, FileText } from "lucide-react"
+import { Car, Search, FileText } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { formatDateLong } from "@/lib/utils"
+import { BotonNuevaCuenta, BotonesIniciarProceso } from "@/components/movilidad/cuentas-acciones"
+import { obtenerPermisosUsuario } from "@/lib/server/permisos"
 
 export default async function CuentasPage({
   searchParams,
@@ -15,6 +17,9 @@ export default async function CuentasPage({
   const supabase = await createClient()
   const params = await searchParams
   const query = params.q || ""
+
+  // Obtener permisos del usuario en el servidor
+  const { movilidad: permisos } = await obtenerPermisosUsuario()
 
   // Construir consulta con búsqueda
   let cuentasQuery = supabase
@@ -64,12 +69,7 @@ export default async function CuentasPage({
             Gestiona todas las cuentas de vehículos registradas
           </p>
         </div>
-        <Button asChild>
-          <Link href="/movilidad/cuentas/nueva">
-            <Plus className="h-4 w-4 mr-2" />
-            Nueva Cuenta
-          </Link>
-        </Button>
+        <BotonNuevaCuenta permisos={permisos} />
       </div>
 
       {/* Búsqueda */}
@@ -176,18 +176,7 @@ export default async function CuentasPage({
                     </Link>
                   </Button>
                   {!cuenta.procesoActivo?.proceso_tipo && (
-                    <>
-                      <Button asChild variant="outline" size="sm">
-                        <Link href={`/movilidad/traslados/nuevo?placa=${cuenta.placa}`}>
-                          Iniciar Traslado
-                        </Link>
-                      </Button>
-                      <Button asChild variant="outline" size="sm">
-                        <Link href={`/movilidad/radicaciones/nueva?placa=${cuenta.placa}`}>
-                          Iniciar Radicación
-                        </Link>
-                      </Button>
-                    </>
+                    <BotonesIniciarProceso placa={cuenta.placa} permisos={permisos} />
                   )}
                 </div>
               </CardContent>
@@ -203,12 +192,7 @@ export default async function CuentasPage({
                   ? "No hay cuentas que coincidan con tu búsqueda"
                   : "Aún no hay cuentas registradas en el sistema"}
               </p>
-              <Button asChild>
-                <Link href="/movilidad/cuentas/nueva">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Crear Primera Cuenta
-                </Link>
-              </Button>
+              {!query && <BotonNuevaCuenta permisos={permisos} />}
             </CardContent>
           </Card>
         )}

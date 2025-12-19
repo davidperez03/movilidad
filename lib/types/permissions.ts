@@ -3,29 +3,14 @@
 // ============================================================================
 
 // Módulos disponibles en la aplicación
-export type Modulo = 'tickets' | 'movilidad';
+export type Modulo = 'movilidad';
 
 // Rol global del usuario
 export type RolGlobal = 'usuario' | 'superadmin';
 
 // Códigos de roles por módulo
-export type RolTickets = 'tks_usuario' | 'tks_agente' | 'tks_administrador';
 export type RolMovilidad = 'mov_usuario' | 'mov_operador' | 'mov_administrador';
-export type CodigoRol = RolTickets | RolMovilidad | 'superadmin';
-
-// Permisos del módulo Tickets
-export type PermisoTickets =
-  | 'ver_propios'
-  | 'ver_todos'
-  | 'crear'
-  | 'editar_propios'
-  | 'editar_asignados'
-  | 'editar_todos'
-  | 'eliminar'
-  | 'asignar'
-  | 'comentar'
-  | 'adjuntar'
-  | 'configurar';
+export type CodigoRol = RolMovilidad | 'superadmin';
 
 // Permisos del módulo Movilidad
 export type PermisoMovilidad =
@@ -43,7 +28,7 @@ export type PermisoMovilidad =
   | 'configurar';
 
 // Tipo unión de todos los permisos
-export type Permiso = PermisoTickets | PermisoMovilidad;
+export type Permiso = PermisoMovilidad;
 
 // ============================================================================
 // INTERFACES DE BASE DE DATOS
@@ -116,15 +101,11 @@ export interface PermisosUsuario {
 // ============================================================================
 
 // Mapeo de módulo a sus permisos
-export type PermisoPorModulo<M extends Modulo> = M extends 'tickets'
-  ? PermisoTickets
-  : M extends 'movilidad'
+export type PermisoPorModulo<M extends Modulo> = M extends 'movilidad'
   ? PermisoMovilidad
   : never;
 
 // Mapeo de módulo a sus roles
-export type RolPorModulo<M extends Modulo> = M extends 'tickets'
-  ? RolTickets
-  : M extends 'movilidad'
+export type RolPorModulo<M extends Modulo> = M extends 'movilidad'
   ? RolMovilidad
   : never;

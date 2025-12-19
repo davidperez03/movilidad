@@ -23,7 +23,7 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body className="font-sans antialiased">
-        <SessionProvider autoRefreshInterval={20} inactivityTimeout={10}>
+        <SessionProvider>
           {children}
         </SessionProvider>
         <Toaster position="top-right" richColors closeButton />

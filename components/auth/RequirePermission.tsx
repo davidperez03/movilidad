@@ -23,8 +23,8 @@ interface RequirePermissionProps {
  *
  * @example
  * ```tsx
- * <RequirePermission modulo="tickets" permiso="eliminar">
- *   <button onClick={eliminarTicket}>Eliminar</button>
+ * <RequirePermission modulo="movilidad" permiso="eliminar_cuentas">
+ *   <button onClick={eliminarCuenta}>Eliminar</button>
  * </RequirePermission>
  * ```
  */
@@ -103,8 +103,8 @@ interface RequireRoleProps {
  *
  * @example
  * ```tsx
- * <RequireRole modulo="tickets" roles={['tks_agente', 'tks_administrador']}>
- *   <PanelAgente />
+ * <RequireRole modulo="movilidad" roles={['mov_operador', 'mov_administrador']}>
+ *   <PanelOperador />
  * </RequireRole>
  * ```
  */

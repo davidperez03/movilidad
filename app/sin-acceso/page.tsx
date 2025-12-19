@@ -83,7 +83,6 @@ export default async function SinAccesoPage() {
               Módulos del Sistema
             </h2>
             <ul className="text-sm text-blue-700 space-y-1">
-              <li>• Sistema de Tickets</li>
               <li>• Gestión de Movilidad</li>
             </ul>
             <p className="text-xs text-blue-600 mt-2">

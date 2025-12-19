@@ -17,9 +17,13 @@ import { StatCard } from "@/components/dashboard/stat-card"
 import { AlertCard } from "@/components/dashboard/alert-card"
 import { ActivityTimeline } from "@/components/dashboard/activity-timeline"
 import { SearchBar } from "@/components/dashboard/search-bar"
+import { obtenerPermisosUsuario } from "@/lib/server/permisos"
 
 export default async function MovilidadDashboard() {
   const supabase = await createClient()
+
+  // Obtener permisos del usuario
+  const { movilidad: permisos } = await obtenerPermisosUsuario()
 
   // Estadísticas generales
   const { count: totalCuentas } = await supabase
@@ -190,37 +194,65 @@ export default async function MovilidadDashboard() {
           </CardTitle>
           <CardDescription>Accede a las funciones principales del módulo</CardDescription>
         </CardHeader>
-        <CardContent className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-          <Button asChild className="h-auto py-6 flex-col gap-2" variant="default">
-            <Link href="/movilidad/cuentas/nueva">
-              <FileText className="h-6 w-6" />
-              <span className="font-medium">Nueva Cuenta</span>
-            </Link>
-          </Button>
-          <Button asChild className="h-auto py-6 flex-col gap-2" variant="outline">
-            <Link href="/movilidad/traslados/nuevo">
-              <ArrowRightLeft className="h-6 w-6" />
-              <span className="font-medium">Nuevo Traslado</span>
-            </Link>
-          </Button>
-          <Button asChild className="h-auto py-6 flex-col gap-2" variant="outline">
-            <Link href="/movilidad/radicaciones/nueva">
-              <ArrowDownToLine className="h-6 w-6" />
-              <span className="font-medium">Nueva Radicación</span>
-            </Link>
-          </Button>
-          <Button asChild className="h-auto py-6 flex-col gap-2" variant="outline">
-            <Link href="/movilidad/cuentas">
-              <Car className="h-6 w-6" />
-              <span className="font-medium">Ver Cuentas</span>
-            </Link>
-          </Button>
-          <Button asChild className="h-auto py-6 flex-col gap-2" variant="outline">
-            <Link href="/movilidad/estado">
-              <Activity className="h-6 w-6" />
-              <span className="font-medium">Estado General</span>
-            </Link>
-          </Button>
+        <CardContent>
+          {!permisos.ver && !permisos.crear_cuentas && !permisos.crear_traslados && !permisos.crear_radicaciones ? (
+            <div className="py-8 text-center text-muted-foreground">
+              <p className="mb-2">No tienes permisos asignados para este módulo</p>
+              <p className="text-sm">Contacta a tu administrador para solicitar acceso</p>
+            </div>
+          ) : (
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+              {/* Nueva Cuenta - Solo si tiene permiso */}
+              {permisos.crear_cuentas && (
+                <Button asChild className="h-auto py-6 flex-col gap-2" variant="default">
+                  <Link href="/movilidad/cuentas/nueva">
+                    <FileText className="h-6 w-6" />
+                    <span className="font-medium">Nueva Cuenta</span>
+                  </Link>
+                </Button>
+              )}
+
+              {/* Nuevo Traslado - Solo si tiene permiso */}
+              {permisos.crear_traslados && (
+                <Button asChild className="h-auto py-6 flex-col gap-2" variant="outline">
+                  <Link href="/movilidad/traslados/nuevo">
+                    <ArrowRightLeft className="h-6 w-6" />
+                    <span className="font-medium">Nuevo Traslado</span>
+                  </Link>
+                </Button>
+              )}
+
+              {/* Nueva Radicación - Solo si tiene permiso */}
+              {permisos.crear_radicaciones && (
+                <Button asChild className="h-auto py-6 flex-col gap-2" variant="outline">
+                  <Link href="/movilidad/radicaciones/nueva">
+                    <ArrowDownToLine className="h-6 w-6" />
+                    <span className="font-medium">Nueva Radicación</span>
+                  </Link>
+                </Button>
+              )}
+
+              {/* Ver Cuentas - Siempre visible si tiene permiso 'ver' */}
+              {permisos.ver && (
+                <Button asChild className="h-auto py-6 flex-col gap-2" variant="outline">
+                  <Link href="/movilidad/cuentas">
+                    <Car className="h-6 w-6" />
+                    <span className="font-medium">Ver Cuentas</span>
+                  </Link>
+                </Button>
+              )}
+
+              {/* Estado General - Siempre visible si tiene permiso 'ver' */}
+              {permisos.ver && (
+                <Button asChild className="h-auto py-6 flex-col gap-2" variant="outline">
+                  <Link href="/movilidad/estado">
+                    <Activity className="h-6 w-6" />
+                    <span className="font-medium">Estado General</span>
+                  </Link>
+                </Button>
+              )}
+            </div>
+          )}
         </CardContent>
       </Card>
 

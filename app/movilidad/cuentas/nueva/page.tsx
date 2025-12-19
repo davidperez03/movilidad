@@ -18,8 +18,10 @@ import { toast } from "sonner"
 import { ArrowLeft, Car, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { ModalCuentaExistente } from "@/components/movilidad/modal-cuenta-existente"
+import { manejarErrorSupabase } from "@/lib/utils/rls-errors"
+import { RequierePermiso } from "@/components/movilidad/requiere-permiso"
 
-export default function NuevaCuentaPage() {
+function NuevaCuentaForm() {
   const router = useRouter()
   const supabase = createClient()
   const [loading, setLoading] = useState(false)
@@ -90,7 +92,8 @@ export default function NuevaCuentaPage() {
 
       if (error) {
         console.error("Error al crear cuenta:", error)
-        toast.error("Error al crear la cuenta: " + error.message)
+        const mensajeError = manejarErrorSupabase(error, 'crear', 'la cuenta de vehículo')
+        toast.error(mensajeError)
         setLoading(false)
         return
       }
@@ -211,5 +214,13 @@ export default function NuevaCuentaPage() {
         numeroCuenta={cuentaExistenteData.numeroCuenta}
       />
     </div>
+  )
+}
+
+export default function NuevaCuentaPage() {
+  return (
+    <RequierePermiso permiso="crear_cuentas">
+      <NuevaCuentaForm />
+    </RequierePermiso>
   )
 }
