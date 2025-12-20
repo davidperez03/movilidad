@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
+import { SessionManager } from "@/lib/session-manager"
 import { SESSION_CONFIG } from "@/lib/config/session"
 import { toast } from "sonner"
 
@@ -28,6 +29,7 @@ export function SessionProvider({ children }: SessionProviderProps) {
   const lastActivityRef = useRef<number>(Date.now())
   const lastUpdateRef = useRef<number>(0) // 0 para permitir primera ejecución
   const lastTokenRefreshRef = useRef<number>(0) // Para tracking de refresh del token
+  const lastDbActivityUpdateRef = useRef<number>(0) // Para tracking de actualización en BD
   const inactivityTimerRef = useRef<NodeJS.Timeout | null>(null)
   const warningTimerRef = useRef<NodeJS.Timeout | null>(null)
 
@@ -61,6 +63,13 @@ export function SessionProvider({ children }: SessionProviderProps) {
     // Refrescar token si es necesario cuando hay actividad
     refreshTokenIfNeeded()
 
+    // Actualizar última actividad en BD cada 1 minuto
+    const timeSinceLastDbUpdate = now - lastDbActivityUpdateRef.current
+    if (timeSinceLastDbUpdate >= 60000) { // 1 minuto
+      SessionManager.actualizarActividad()
+      lastDbActivityUpdateRef.current = now
+    }
+
     // Limpiar timers anteriores
     if (inactivityTimerRef.current) {
       clearTimeout(inactivityTimerRef.current)
@@ -84,6 +93,11 @@ export function SessionProvider({ children }: SessionProviderProps) {
     // Configurar timer de inactividad
     inactivityTimerRef.current = setTimeout(async () => {
       toast.error(SESSION_CONFIG.TIMEOUT_MESSAGE)
+
+      // Registrar cierre de sesión en BD como "expirada"
+      await SessionManager.registrarFin('expirada')
+
+      // Cerrar sesión de Supabase
       await supabase.auth.signOut()
       router.push("/auth/login?reason=inactivity")
     }, SESSION_CONFIG.INACTIVITY_TIMEOUT)
@@ -152,6 +166,8 @@ export function SessionProvider({ children }: SessionProviderProps) {
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === "SIGNED_OUT" && !isPublicRoute) {
+        // Registrar cierre de sesión en BD
+        SessionManager.registrarFin('cerrada')
         router.push("/auth/login")
       }
 

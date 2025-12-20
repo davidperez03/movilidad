@@ -40,11 +40,9 @@ CREATE TABLE IF NOT EXISTS public.sys_sesiones (
   ip_address INET,  -- Dirección IP del cliente
   user_agent TEXT,  -- Navegador/cliente utilizado
   dispositivo TEXT,  -- Tipo de dispositivo (web, mobile, tablet)
-  ubicacion JSONB,  -- Información de geolocalización (opcional)
 
   -- Actividad de la sesión
   ultima_actividad TIMESTAMP WITH TIME ZONE DEFAULT now(),
-  paginas_visitadas INTEGER DEFAULT 0,
   acciones_realizadas INTEGER DEFAULT 0,
 
   -- Metadatos
@@ -119,7 +117,8 @@ CREATE OR REPLACE FUNCTION registrar_inicio_sesion(
   p_usuario_id UUID,
   p_ip_address INET DEFAULT NULL,
   p_user_agent TEXT DEFAULT NULL,
-  p_dispositivo TEXT DEFAULT 'web'
+  p_dispositivo TEXT DEFAULT 'web',
+  p_token_sesion TEXT DEFAULT NULL
 )
 RETURNS UUID
 LANGUAGE plpgsql
@@ -135,6 +134,7 @@ BEGIN
     ip_address,
     user_agent,
     dispositivo,
+    token_sesion,
     ultima_actividad
   ) VALUES (
     p_usuario_id,
@@ -143,6 +143,7 @@ BEGIN
     p_ip_address,
     p_user_agent,
     p_dispositivo,
+    p_token_sesion,
     now()
   )
   RETURNING id INTO nueva_sesion_id;
@@ -362,14 +363,8 @@ COMMENT ON COLUMN public.sys_sesiones.user_agent IS
 COMMENT ON COLUMN public.sys_sesiones.dispositivo IS
   'Tipo de dispositivo (web, mobile, tablet)';
 
-COMMENT ON COLUMN public.sys_sesiones.ubicacion IS
-  'Información de geolocalización en formato JSON (opcional)';
-
 COMMENT ON COLUMN public.sys_sesiones.ultima_actividad IS
   'Fecha y hora de la última actividad registrada en esta sesión';
-
-COMMENT ON COLUMN public.sys_sesiones.paginas_visitadas IS
-  'Contador de páginas visitadas durante la sesión';
 
 COMMENT ON COLUMN public.sys_sesiones.acciones_realizadas IS
   'Contador de acciones realizadas durante la sesión';
