@@ -27,7 +27,7 @@ export function SessionProvider({ children }: SessionProviderProps) {
   const supabase = createClient()
   const lastActivityRef = useRef<number>(Date.now())
   const lastUpdateRef = useRef<number>(0) // 0 para permitir primera ejecución
-  const tokenRefreshTimerRef = useRef<NodeJS.Timeout | null>(null)
+  const lastTokenRefreshRef = useRef<number>(0) // Para tracking de refresh del token
   const inactivityTimerRef = useRef<NodeJS.Timeout | null>(null)
   const warningTimerRef = useRef<NodeJS.Timeout | null>(null)
 
@@ -45,7 +45,7 @@ export function SessionProvider({ children }: SessionProviderProps) {
   }
 
   // Actualizar última actividad y resetear timers
-  const updateActivity = () => {
+  const updateActivity = (event?: Event) => {
     const now = Date.now()
     const timeSinceLastUpdate = now - lastUpdateRef.current
 
@@ -54,8 +54,12 @@ export function SessionProvider({ children }: SessionProviderProps) {
       return
     }
 
+
     lastActivityRef.current = now
     lastUpdateRef.current = now
+
+    // Refrescar token si es necesario cuando hay actividad
+    refreshTokenIfNeeded()
 
     // Limpiar timers anteriores
     if (inactivityTimerRef.current) {
@@ -71,7 +75,7 @@ export function SessionProvider({ children }: SessionProviderProps) {
 
       warningTimerRef.current = setTimeout(() => {
         toast.warning(
-          `Tu sesión se cerrará en ${SESSION_CONFIG.WARNING_BEFORE_TIMEOUT / 1000} segundos por inactividad. Mueve el mouse para continuar.`,
+          `Tu sesión se cerrará en ${SESSION_CONFIG.WARNING_BEFORE_TIMEOUT / 1000} segundos por inactividad. Haz click en cualquier lugar para continuar.`,
           { duration: SESSION_CONFIG.WARNING_BEFORE_TIMEOUT }
         )
       }, warningTime)
@@ -85,17 +89,16 @@ export function SessionProvider({ children }: SessionProviderProps) {
     }, SESSION_CONFIG.INACTIVITY_TIMEOUT)
   }
 
-  // Configurar refresh automático del token
-  const setupTokenRefresh = () => {
-    if (tokenRefreshTimerRef.current) {
-      clearInterval(tokenRefreshTimerRef.current)
-    }
+  // Refrescar token cuando hay actividad (no automáticamente)
+  const refreshTokenIfNeeded = async () => {
+    const now = Date.now()
+    const timeSinceLastRefresh = now - lastTokenRefreshRef.current
 
-    tokenRefreshTimerRef.current = setInterval(() => {
-      if (!isPublicRoute) {
-        refreshToken()
-      }
-    }, SESSION_CONFIG.TOKEN_REFRESH_INTERVAL)
+    // Solo refrescar si han pasado más de 30 segundos desde el último refresh
+    if (timeSinceLastRefresh >= SESSION_CONFIG.TOKEN_REFRESH_INTERVAL) {
+      await refreshToken()
+      lastTokenRefreshRef.current = now
+    }
   }
 
   useEffect(() => {
@@ -110,13 +113,16 @@ export function SessionProvider({ children }: SessionProviderProps) {
     }
 
     // Agregar listeners de actividad
-    SESSION_CONFIG.ACTIVITY_EVENTS.forEach((event) => {
-      document.addEventListener(event, updateActivity, { passive: true })
+    const activityHandler = (event: Event) => {
+      updateActivity(event)
+    }
+
+    SESSION_CONFIG.ACTIVITY_EVENTS.forEach((eventName) => {
+      document.addEventListener(eventName, activityHandler, { passive: true })
     })
 
     // Iniciar timers
     updateActivity()
-    setupTokenRefresh()
 
     // Verificar sesión al montar
     const checkSession = async () => {
@@ -129,13 +135,10 @@ export function SessionProvider({ children }: SessionProviderProps) {
 
     // Cleanup
     return () => {
-      SESSION_CONFIG.ACTIVITY_EVENTS.forEach((event) => {
-        document.removeEventListener(event, updateActivity)
+      SESSION_CONFIG.ACTIVITY_EVENTS.forEach((eventName) => {
+        document.removeEventListener(eventName, activityHandler)
       })
 
-      if (tokenRefreshTimerRef.current) {
-        clearInterval(tokenRefreshTimerRef.current)
-      }
       if (inactivityTimerRef.current) {
         clearTimeout(inactivityTimerRef.current)
       }
@@ -152,13 +155,13 @@ export function SessionProvider({ children }: SessionProviderProps) {
         router.push("/auth/login")
       }
 
+      // Solo resetear timer cuando el usuario inicia sesión manualmente
       if (event === "SIGNED_IN") {
         updateActivity()
       }
 
-      if (event === "TOKEN_REFRESHED") {
-        updateActivity()
-      }
+      // NO resetear timer cuando se refresca el token automáticamente
+      // El refresh mantiene la sesión válida pero NO cuenta como actividad del usuario
     })
 
     return () => {

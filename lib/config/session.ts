@@ -37,19 +37,18 @@ export const SESSION_CONFIG = {
   /**
    * Throttle para actualización de actividad
    * Solo resetea los timers si han pasado al menos N ms desde la última vez
-   * Esto evita que mousemove resetee el timer constantemente
+   * Esto evita reseteos demasiado frecuentes del timer
    */
-  ACTIVITY_THROTTLE: 5000, // 5 segundos
+  ACTIVITY_THROTTLE: 2000, // 2 segundos
 
   /**
    * Eventos que se consideran "actividad del usuario"
    * y resetean el timer de inactividad
+   * Solo eventos INTENCIONALES (no pasivos como mousemove o scroll)
    */
   ACTIVITY_EVENTS: [
     'mousedown',
-    'mousemove',
-    'keypress',
-    'scroll',
+    'keydown',
     'touchstart',
     'click',
   ] as const,
