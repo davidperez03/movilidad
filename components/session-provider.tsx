@@ -42,7 +42,6 @@ export function SessionProvider({ children }: SessionProviderProps) {
     try {
       await supabase.auth.refreshSession()
     } catch (error) {
-      console.error("Error al refrescar token:", error)
     }
   }
 

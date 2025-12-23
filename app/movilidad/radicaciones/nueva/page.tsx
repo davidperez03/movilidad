@@ -15,7 +15,7 @@ import { getTodayForInput, formatDateForDB } from "@/lib/utils"
 import { ModalProcesoActivo } from "@/components/movilidad/modal-proceso-activo"
 import { ModalErrorSecuencia } from "@/components/movilidad/modal-error-secuencia"
 import { ComboboxOrganismos } from "@/components/movilidad/combobox-organismos"
-import { RequierePermiso } from "@/components/movilidad/requiere-permiso"
+import { RequirePermission } from "@/components/auth/RequirePermission"
 
 interface Organismo {
   id: string
@@ -55,14 +55,12 @@ function NuevaRadicacionForm() {
           .order("nombre")
 
         if (error) {
-          console.error("Error al cargar organismos:", error)
           toast.error("Error al cargar organismos de tránsito")
           return
         }
 
         setOrganismos(data || [])
       } catch (error) {
-        console.error("Error:", error)
         toast.error("Error al cargar organismos")
       } finally {
         setCargandoOrganismos(false)
@@ -112,7 +110,6 @@ function NuevaRadicacionForm() {
         })
 
       if (errorValidacion) {
-        console.error("Error al validar:", errorValidacion)
         toast.error("Error al validar el vehículo")
         setBuscando(false)
         return
@@ -132,7 +129,6 @@ function NuevaRadicacionForm() {
       setNumeroCuenta(cuenta.numero_cuenta)
       toast.success(`Vehículo encontrado: ${cuenta.placa} - ${cuenta.numero_cuenta}`)
     } catch (error) {
-      console.error("Error:", error)
       toast.error("Error al buscar la cuenta")
     } finally {
       setBuscando(false)
@@ -184,7 +180,6 @@ function NuevaRadicacionForm() {
           setErrorSecuenciaMsg(error.message)
           setModalErrorSecuencia(true)
         } else {
-          console.error("Error al crear radicación:", error)
           toast.error("Error al crear la radicación: " + error.message)
         }
 
@@ -195,7 +190,6 @@ function NuevaRadicacionForm() {
       toast.success("Radicación iniciada exitosamente")
       router.push(`/movilidad/vehiculos/${placa}`)
     } catch (error) {
-      console.error("Error:", error)
       toast.error("Error inesperado al crear la radicación")
       setLoading(false)
     }
@@ -376,8 +370,8 @@ function NuevaRadicacionForm() {
 
 export default function NuevaRadicacionPage() {
   return (
-    <RequierePermiso permiso="crear_radicaciones">
+    <RequirePermission modulo="movilidad" permiso="crear_radicaciones">
       <NuevaRadicacionForm />
-    </RequierePermiso>
+    </RequirePermission>
   )
 }

@@ -35,13 +35,9 @@ export async function updateSession(request: NextRequest) {
   // with the Supabase client, your users may be randomly logged out.
   let user = null
   try {
-    const { data, error } = await supabase.auth.getUser()
-    if (error) {
-      console.error("Error en middleware al obtener usuario:", error)
-    }
+    const { data } = await supabase.auth.getUser()
     user = data?.user || null
-  } catch (error) {
-    console.error("Error crítico en middleware:", error)
+  } catch {
     // Si hay error de conexión, dejamos que el usuario continúe sin autenticar
   }
 

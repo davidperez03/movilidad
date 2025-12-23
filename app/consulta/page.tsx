@@ -61,7 +61,6 @@ export default function ConsultaPublicaPage() {
       setResultado(data as ProcesoInfo)
     } catch (err) {
       setError("Error inesperado al realizar la consulta")
-      console.error(err)
     } finally {
       setLoading(false)
     }

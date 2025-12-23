@@ -20,7 +20,6 @@ export class SessionManager {
       const data = await response.json()
       return data.ip || null
     } catch (error) {
-      console.error('Error al obtener IP del cliente:', error)
       return null
     }
   }
@@ -51,7 +50,6 @@ export class SessionManager {
       })
 
       if (error) {
-        console.error('Error al registrar inicio de sesión:', error)
         return null
       }
 
@@ -63,11 +61,9 @@ export class SessionManager {
         sessionStorage.setItem('current_session_id', data)
       }
 
-      console.log('✅ Sesión registrada en BD:', data)
       return data
 
     } catch (error) {
-      console.error('Error al registrar sesión:', error)
       return null
     }
   }
@@ -87,14 +83,12 @@ export class SessionManager {
       })
 
       if (error) {
-        console.error('Error al actualizar actividad:', error)
         return false
       }
 
       return true
 
     } catch (error) {
-      console.error('Error al actualizar actividad de sesión:', error)
       return false
     }
   }
@@ -115,7 +109,6 @@ export class SessionManager {
       })
 
       if (error) {
-        console.error('Error al registrar fin de sesión:', error)
         return false
       }
 
@@ -125,11 +118,9 @@ export class SessionManager {
         sessionStorage.removeItem('current_session_id')
       }
 
-      console.log('✅ Sesión cerrada en BD:', sessionId, 'Estado:', estado)
       return true
 
     } catch (error) {
-      console.error('Error al cerrar sesión:', error)
       return false
     }
   }

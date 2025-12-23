@@ -86,7 +86,6 @@ SELECT
   EXTRACT(EPOCH FROM (now() - s.ultima_actividad)) / 60 AS minutos_inactivo,
   s.ip_address,
   s.dispositivo,
-  s.paginas_visitadas,
   s.acciones_realizadas
 FROM public.sys_sesiones s
 JOIN public.perfiles p ON s.usuario_id = p.id
@@ -179,6 +178,7 @@ SECURITY DEFINER
 AS $$
 DECLARE
   v_usuario_id UUID;
+  v_usuario_info RECORD;
 BEGIN
   UPDATE public.sys_sesiones
   SET
@@ -189,7 +189,12 @@ BEGIN
   RETURNING usuario_id INTO v_usuario_id;
 
   IF FOUND THEN
-    -- Registrar en auditoría
+    -- Obtener información del usuario
+    SELECT correo, nombre_completo INTO v_usuario_info
+    FROM public.perfiles
+    WHERE id = v_usuario_id;
+
+    -- Registrar en auditoría con información completa del usuario
     PERFORM registrar_auditoria_sistema(
       CASE p_estado
         WHEN 'cerrada' THEN 'logout'
@@ -198,7 +203,11 @@ BEGIN
       END,
       'sesion',
       p_sesion_id,
-      jsonb_build_object('usuario_id', v_usuario_id)
+      jsonb_build_object(
+        'usuario_id', v_usuario_id,
+        'usuario_correo', v_usuario_info.correo,
+        'usuario_nombre', v_usuario_info.nombre_completo
+      )
     );
 
     RETURN TRUE;

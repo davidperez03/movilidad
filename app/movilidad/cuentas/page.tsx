@@ -41,7 +41,6 @@ export default async function CuentasPage({
   const { data: cuentas, error } = await cuentasQuery
 
   if (error) {
-    console.error("Error al obtener cuentas:", error)
   }
 
   // Obtener procesos activos para cada cuenta

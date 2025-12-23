@@ -64,7 +64,6 @@ export function AgregarNovedad({ procesoId, procesoTipo }: AgregarNovedadProps) 
         })
 
       if (error) {
-        console.error("Error al crear novedad:", error)
         toast.error("Error al crear la novedad: " + error.message)
         setLoading(false)
         return
@@ -77,7 +76,6 @@ export function AgregarNovedad({ procesoId, procesoTipo }: AgregarNovedadProps) 
       setPrioridad("media")
       router.refresh()
     } catch (error) {
-      console.error("Error:", error)
       toast.error("Error inesperado al crear la novedad")
     } finally {
       setLoading(false)

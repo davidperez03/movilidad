@@ -34,7 +34,6 @@ export default async function RadicacionesPage() {
     .order("creado_en", { ascending: false })
 
   if (errorActivas) {
-    console.error("Error radicaciones activas:", errorActivas)
   }
 
   // Obtener radicaciones completadas

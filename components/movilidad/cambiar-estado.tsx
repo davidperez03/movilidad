@@ -84,7 +84,6 @@ export function CambiarEstado({ procesoId, procesoTipo, estadoActual }: CambiarE
         })
 
       if (error) {
-        console.error("Error al cargar transiciones:", error)
         toast.error("Error al cargar los estados disponibles")
         setEstadosPermitidos([])
         return
@@ -99,7 +98,6 @@ export function CambiarEstado({ procesoId, procesoTipo, estadoActual }: CambiarE
         toast.info("Este proceso está en un estado final")
       }
     } catch (error) {
-      console.error("Error:", error)
       toast.error("Error al cargar transiciones válidas")
       setEstadosPermitidos([])
     } finally {
@@ -148,7 +146,6 @@ export function CambiarEstado({ procesoId, procesoTipo, estadoActual }: CambiarE
         .eq("id", procesoId)
 
       if (error) {
-        console.error("Error al cambiar estado:", error)
         toast.error("Error al cambiar el estado: " + error.message)
         setLoading(false)
         return
@@ -158,7 +155,6 @@ export function CambiarEstado({ procesoId, procesoTipo, estadoActual }: CambiarE
       setOpen(false)
       router.refresh()
     } catch (error) {
-      console.error("Error:", error)
       toast.error("Error inesperado al cambiar el estado")
     } finally {
       setLoading(false)

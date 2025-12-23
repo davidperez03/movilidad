@@ -19,7 +19,7 @@ import { ArrowLeft, Car, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { ModalCuentaExistente } from "@/components/movilidad/modal-cuenta-existente"
 import { manejarErrorSupabase } from "@/lib/utils/rls-errors"
-import { RequierePermiso } from "@/components/movilidad/requiere-permiso"
+import { RequirePermission } from "@/components/auth/RequirePermission"
 
 function NuevaCuentaForm() {
   const router = useRouter()
@@ -91,7 +91,6 @@ function NuevaCuentaForm() {
         .single()
 
       if (error) {
-        console.error("Error al crear cuenta:", error)
         const mensajeError = manejarErrorSupabase(error, 'crear', 'la cuenta de vehículo')
         toast.error(mensajeError)
         setLoading(false)
@@ -101,7 +100,6 @@ function NuevaCuentaForm() {
       toast.success(`Cuenta creada exitosamente: ${data.numero_cuenta}`)
       router.push(`/movilidad/vehiculos/${data.placa}`)
     } catch (error) {
-      console.error("Error:", error)
       toast.error("Error inesperado al crear la cuenta")
       setLoading(false)
     }
@@ -219,8 +217,8 @@ function NuevaCuentaForm() {
 
 export default function NuevaCuentaPage() {
   return (
-    <RequierePermiso permiso="crear_cuentas">
+    <RequirePermission modulo="movilidad" permiso="crear_cuentas">
       <NuevaCuentaForm />
-    </RequierePermiso>
+    </RequirePermission>
   )
 }

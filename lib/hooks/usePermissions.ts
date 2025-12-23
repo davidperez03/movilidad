@@ -106,7 +106,6 @@ export function usePermissions(): UsePermissionsReturn {
         setRoles(rolesFormateados);
       }
     } catch (err: any) {
-      console.error('Error cargando permisos:', err);
       setError(err.message || 'Error desconocido');
     } finally {
       setLoading(false);

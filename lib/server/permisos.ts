@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
-import type { PermisosModulo } from '@/lib/hooks/use-permisos'
+import type { PermisosModulo } from '@/lib/types/permissions'
 
 const PERMISOS_COMPLETOS: PermisosModulo = {
   ver: true,
@@ -81,7 +81,6 @@ export async function obtenerPermisosUsuario() {
     }
 
   } catch (error) {
-    console.error('Error al cargar permisos:', error)
     return {
       esSuperadmin: false,
       movilidad: PERMISOS_VACIOS,

@@ -58,7 +58,6 @@ export function ResolverNovedad({ novedadId, descripcion }: ResolverNovedadProps
         .eq("id", novedadId)
 
       if (error) {
-        console.error("Error al resolver novedad:", error)
         toast.error("Error al resolver la novedad: " + error.message)
         setLoading(false)
         return
@@ -69,7 +68,6 @@ export function ResolverNovedad({ novedadId, descripcion }: ResolverNovedadProps
       setSolucion("")
       router.refresh()
     } catch (error) {
-      console.error("Error:", error)
       toast.error("Error inesperado al resolver la novedad")
     } finally {
       setLoading(false)

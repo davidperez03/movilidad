@@ -51,7 +51,6 @@ export function useBuscarVehiculo(tipoProceso: TipoProceso) {
         })
 
       if (errorValidacion) {
-        console.error("Error al validar:", errorValidacion)
         toast.error("Error al validar el vehículo")
         return
       }
@@ -69,7 +68,6 @@ export function useBuscarVehiculo(tipoProceso: TipoProceso) {
       setPlacaActual(cuenta.placa)
       toast.success(`Vehículo encontrado: ${cuenta.placa} - ${cuenta.numero_cuenta}`)
     } catch (error) {
-      console.error("Error:", error)
       toast.error("Error al buscar la cuenta")
     } finally {
       setBuscando(false)

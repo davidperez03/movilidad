@@ -30,6 +30,9 @@ export type PermisoMovilidad =
 // Tipo unión de todos los permisos
 export type Permiso = PermisoMovilidad;
 
+// Tipo Record de permisos de movilidad (para compatibilidad)
+export type PermisosModulo = Record<PermisoMovilidad, boolean>;
+
 // ============================================================================
 // INTERFACES DE BASE DE DATOS
 // ============================================================================

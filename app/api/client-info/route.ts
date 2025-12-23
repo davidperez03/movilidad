@@ -25,7 +25,6 @@ export async function GET(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error al obtener información del cliente:', error)
     return NextResponse.json(
       { error: 'Error al obtener información' },
       { status: 500 }

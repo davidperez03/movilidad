@@ -36,7 +36,6 @@ export default async function TrasladosPage() {
     .order("creado_en", { ascending: false })
 
   if (errorActivos) {
-    console.error("Error traslados activos:", errorActivos)
   }
 
   // Obtener traslados completados
