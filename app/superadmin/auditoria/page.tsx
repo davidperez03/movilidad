@@ -41,25 +41,10 @@ export default function AuditoriaPage() {
       setLoading(true);
       const supabase = createClient();
 
-      // Cargar directamente desde sys_auditoria con JOIN a perfiles
+      // Cargar desde vista unificada que incluye sistema y movilidad
       let query = supabase
-        .from('sys_auditoria')
-        .select(`
-          id,
-          accion,
-          detalles,
-          entidad_tipo,
-          entidad_id,
-          valor_anterior,
-          valor_nuevo,
-          ip_address,
-          creado_en,
-          realizado_por,
-          perfiles!sys_auditoria_realizado_por_fkey (
-            correo,
-            nombre_completo
-          )
-        `)
+        .from('sys_vista_auditoria_completa')
+        .select('*')
         .order('creado_en', { ascending: false })
         .limit(100);
 
@@ -75,25 +60,25 @@ export default function AuditoriaPage() {
         return;
       }
 
-      // Formatear datos
+      // Formatear datos (la vista ya trae usuario_correo y usuario_nombre)
       const registrosFormateados = (data || []).map((item: any) => {
         const detalles = item.detalles || {};
 
-        // Si no hay perfil (realizado_por es NULL), intentar obtener del campo detalles
-        // Esto es común en logout/sesion_expirada ejecutados por funciones SECURITY DEFINER
-        const usuarioCorreo = item.perfiles?.correo || detalles.usuario_correo || 'Sistema';
-        const usuarioNombre = item.perfiles?.nombre_completo || detalles.usuario_nombre || 'Sistema';
+        // La vista unificada ya trae usuario_correo y usuario_nombre directamente
+        // Si no hay usuario, intentar obtener del campo detalles (para logout/sesion_expirada)
+        const usuarioCorreo = item.usuario_correo || detalles.usuario_correo || 'Sistema';
+        const usuarioNombre = item.usuario_nombre || detalles.usuario_nombre || 'Sistema';
 
         return {
           id: item.id,
-          modulo: 'sistema', // Por ahora todo es sistema
+          modulo: item.modulo || 'sistema',
           accion: item.accion,
           entidad_tipo: item.entidad_tipo,
           entidad_id: item.entidad_id,
           detalles,
           valor_anterior: item.valor_anterior,
           valor_nuevo: item.valor_nuevo,
-          usuario_id: item.realizado_por,
+          usuario_id: item.usuario_id,
           usuario_correo: usuarioCorreo,
           usuario_nombre: usuarioNombre,
           ip_address: item.ip_address,

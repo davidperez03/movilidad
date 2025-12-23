@@ -89,22 +89,11 @@ export default function DashboardPage() {
         });
       }
 
-      // Actualizar actividad reciente
+      // Actualizar actividad reciente (desde vista unificada)
       try {
         const { data: actividad, error: errorActividad } = await supabase
-          .from('sys_auditoria')
-          .select(`
-            id,
-            accion,
-            detalles,
-            entidad_tipo,
-            creado_en,
-            realizado_por,
-            perfiles!sys_auditoria_realizado_por_fkey (
-              correo,
-              nombre_completo
-            )
-          `)
+          .from('sys_vista_auditoria_completa')
+          .select('*')
           .order('creado_en', { ascending: false })
           .limit(10);
 
@@ -112,10 +101,10 @@ export default function DashboardPage() {
           const actividadFormateada = actividad.map((item: any) => {
             const detalles = item.detalles || {};
 
-            // Si no hay perfil (realizado_por es NULL), intentar obtener del campo detalles
-            // Esto es común en logout/sesion_expirada ejecutados por funciones SECURITY DEFINER
-            const usuarioCorreo = item.perfiles?.correo || detalles.usuario_correo || 'Sistema';
-            const usuarioNombre = item.perfiles?.nombre_completo || detalles.usuario_nombre || 'Sistema';
+            // La vista unificada ya trae usuario_correo y usuario_nombre directamente
+            // Si no hay usuario, intentar obtener del campo detalles (para logout/sesion_expirada)
+            const usuarioCorreo = item.usuario_correo || detalles.usuario_correo || 'Sistema';
+            const usuarioNombre = item.usuario_nombre || detalles.usuario_nombre || 'Sistema';
 
             return {
               id: item.id,
@@ -196,22 +185,11 @@ export default function DashboardPage() {
         totalAccionesHoy,
       });
 
-      // Obtener actividad reciente
+      // Obtener actividad reciente (desde vista unificada)
       try {
         const { data: actividad, error: errorActividad } = await supabase
-          .from('sys_auditoria')
-          .select(`
-            id,
-            accion,
-            detalles,
-            entidad_tipo,
-            creado_en,
-            realizado_por,
-            perfiles!sys_auditoria_realizado_por_fkey (
-              correo,
-              nombre_completo
-            )
-          `)
+          .from('sys_vista_auditoria_completa')
+          .select('*')
           .order('creado_en', { ascending: false })
           .limit(10);
 
@@ -219,10 +197,10 @@ export default function DashboardPage() {
           const actividadFormateada = actividad.map((item: any) => {
             const detalles = item.detalles || {};
 
-            // Si no hay perfil (realizado_por es NULL), intentar obtener del campo detalles
-            // Esto es común en logout/sesion_expirada ejecutados por funciones SECURITY DEFINER
-            const usuarioCorreo = item.perfiles?.correo || detalles.usuario_correo || 'Sistema';
-            const usuarioNombre = item.perfiles?.nombre_completo || detalles.usuario_nombre || 'Sistema';
+            // La vista unificada ya trae usuario_correo y usuario_nombre directamente
+            // Si no hay usuario, intentar obtener del campo detalles (para logout/sesion_expirada)
+            const usuarioCorreo = item.usuario_correo || detalles.usuario_correo || 'Sistema';
+            const usuarioNombre = item.usuario_nombre || detalles.usuario_nombre || 'Sistema';
 
             return {
               id: item.id,
