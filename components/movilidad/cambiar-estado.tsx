@@ -23,31 +23,13 @@ import {
 import { toast } from "sonner"
 import { Edit, Loader2 } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { ESTADOS_TRASLADO, ESTADOS_RADICACION } from "@/lib/movilidad/config"
 
 interface CambiarEstadoProps {
   procesoId: string
   procesoTipo: "traslado" | "radicacion"
   estadoActual: string
 }
-
-const ESTADOS_TRASLADO = [
-  { value: "sin_asignar", label: "Sin asignar" },
-  { value: "revisado", label: "Revisado" },
-  { value: "con_novedades", label: "Con novedades" },
-  { value: "enviado_organismo", label: "Enviado a organismo" },
-  { value: "trasladado", label: "Trasladado" },
-  { value: "devuelto", label: "Devuelto" },
-]
-
-const ESTADOS_RADICACION = [
-  { value: "sin_asignar", label: "Sin asignar" },
-  { value: "recibido", label: "Recibido" },
-  { value: "revisado", label: "Revisado" },
-  { value: "con_novedades", label: "Con novedades" },
-  { value: "pendiente_radicar", label: "Pendiente radicar" },
-  { value: "radicado", label: "Radicado" },
-  { value: "devuelto", label: "Devuelto" },
-]
 
 export function CambiarEstado({ procesoId, procesoTipo, estadoActual }: CambiarEstadoProps) {
   const router = useRouter()

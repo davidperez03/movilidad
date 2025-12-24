@@ -2,6 +2,38 @@ import { ArrowRightLeft, ArrowDownToLine, type LucideIcon } from 'lucide-react'
 
 export type TipoProceso = 'traslado' | 'radicacion'
 
+// ============================================================================
+// ESTADOS DE PROCESOS
+// ============================================================================
+
+export interface OpcionEstado {
+  value: string
+  label: string
+}
+
+export const ESTADOS_TRASLADO: OpcionEstado[] = [
+  { value: "sin_asignar", label: "Sin asignar" },
+  { value: "revisado", label: "Revisado" },
+  { value: "con_novedades", label: "Con novedades" },
+  { value: "enviado_organismo", label: "Enviado a organismo" },
+  { value: "trasladado", label: "Trasladado" },
+  { value: "devuelto", label: "Devuelto" },
+]
+
+export const ESTADOS_RADICACION: OpcionEstado[] = [
+  { value: "sin_asignar", label: "Sin asignar" },
+  { value: "recibido", label: "Recibido" },
+  { value: "revisado", label: "Revisado" },
+  { value: "con_novedades", label: "Con novedades" },
+  { value: "pendiente_radicar", label: "Pendiente radicar" },
+  { value: "radicado", label: "Radicado" },
+  { value: "devuelto", label: "Devuelto" },
+]
+
+// ============================================================================
+// CONFIGURACIÓN DE PROCESOS
+// ============================================================================
+
 export interface ConfigProceso {
   tabla: string
   icono: LucideIcon
