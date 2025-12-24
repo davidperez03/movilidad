@@ -16,124 +16,47 @@ import { ModalProcesoActivo } from "@/components/movilidad/modal-proceso-activo"
 import { ModalErrorSecuencia } from "@/components/movilidad/modal-error-secuencia"
 import { ComboboxOrganismos } from "@/components/movilidad/combobox-organismos"
 import { RequirePermission } from "@/components/auth/RequirePermission"
-
-interface Organismo {
-  id: string
-  nombre: string
-  municipio: string
-  departamento: string
-}
+import { useOrganismos } from "@/lib/hooks/use-organismos"
+import { useBuscarVehiculo } from "@/lib/hooks/use-buscar-vehiculo"
 
 function NuevoTrasladoForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const supabase = createClient()
+  const { organismos, cargando: cargandoOrganismos, error: errorOrganismos } = useOrganismos()
+  const {
+    cuentaId,
+    numeroCuenta,
+    placaActual,
+    buscando,
+    modalProcesoActivo,
+    razonRechazo,
+    buscarCuenta,
+    cerrarModalProcesoActivo,
+  } = useBuscarVehiculo('traslado')
 
   const [loading, setLoading] = useState(false)
-  const [buscando, setBuscando] = useState(false)
   const [placa, setPlaca] = useState(searchParams.get("placa") || "")
-  const [cuentaId, setCuentaId] = useState<string | null>(null)
-  const [numeroCuenta, setNumeroCuenta] = useState("")
   const [organismoDestinoId, setOrganismoDestinoId] = useState("")
-  const [organismos, setOrganismos] = useState<Organismo[]>([])
-  const [cargandoOrganismos, setCargandoOrganismos] = useState(true)
   const [fechaTramite, setFechaTramite] = useState(getTodayForInput())
   const [observaciones, setObservaciones] = useState("")
-  const [modalProcesoActivo, setModalProcesoActivo] = useState(false)
-  const [razonRechazo, setRazonRechazo] = useState("")
   const [modalErrorSecuencia, setModalErrorSecuencia] = useState(false)
   const [errorSecuenciaMsg, setErrorSecuenciaMsg] = useState("")
 
-  // Cargar organismos de tránsito
+  // Mostrar error de carga de organismos si existe
   useEffect(() => {
-    const cargarOrganismos = async () => {
-      try {
-        const { data, error } = await supabase
-          .from("mov_organismos_transito")
-          .select("id, nombre, municipio, departamento")
-          .eq("activo", true)
-          .order("nombre")
-
-        if (error) {
-          toast.error("Error al cargar organismos de tránsito")
-          return
-        }
-
-        setOrganismos(data || [])
-      } catch (error) {
-        toast.error("Error al cargar organismos")
-      } finally {
-        setCargandoOrganismos(false)
-      }
+    if (errorOrganismos) {
+      toast.error(errorOrganismos)
     }
-
-    cargarOrganismos()
-  }, [])
+  }, [errorOrganismos])
 
   // Buscar cuenta al cargar si viene placa en params
   useEffect(() => {
-    if (searchParams.get("placa")) {
-      buscarCuenta(searchParams.get("placa")!)
+    const placaParam = searchParams.get("placa")
+    if (placaParam) {
+      buscarCuenta(placaParam)
     }
-  }, [])
-
-  const buscarCuenta = async (placaBuscar: string) => {
-    if (!placaBuscar.trim()) {
-      toast.error("Ingrese una placa para buscar")
-      return
-    }
-
-    setBuscando(true)
-    try {
-      const placaNormalizada = placaBuscar.trim().toUpperCase()
-
-      // Buscar cuenta
-      const { data: cuenta, error: errorCuenta } = await supabase
-        .from("mov_cuentas_vehiculos")
-        .select("*")
-        .eq("placa", placaNormalizada)
-        .single()
-
-      if (errorCuenta || !cuenta) {
-        toast.error(`No se encontró una cuenta con la placa ${placaNormalizada}`)
-        setCuentaId(null)
-        setNumeroCuenta("")
-        setBuscando(false)
-        return
-      }
-
-      // Verificar si puede iniciar traslado usando la función de la BD
-      const { data: validacion, error: errorValidacion } = await supabase
-        .rpc("puede_iniciar_proceso", {
-          p_placa: placaNormalizada,
-          p_tipo_proceso: "traslado"
-        })
-
-      if (errorValidacion) {
-        toast.error("Error al validar el vehículo")
-        setBuscando(false)
-        return
-      }
-
-      if (validacion && validacion.length > 0 && !validacion[0].puede_iniciar) {
-        setRazonRechazo(validacion[0].razon)
-        setModalProcesoActivo(true)
-        setCuentaId(null)
-        setNumeroCuenta("")
-        setBuscando(false)
-        return
-      }
-
-      // Todo OK, asignar cuenta
-      setCuentaId(cuenta.id)
-      setNumeroCuenta(cuenta.numero_cuenta)
-      toast.success(`Vehículo encontrado: ${cuenta.placa} - ${cuenta.numero_cuenta}`)
-    } catch (error) {
-      toast.error("Error al buscar la cuenta")
-    } finally {
-      setBuscando(false)
-    }
-  }
+  }, [searchParams, buscarCuenta])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -188,7 +111,7 @@ function NuevoTrasladoForm() {
       }
 
       toast.success("Traslado iniciado exitosamente")
-      router.push(`/movilidad/vehiculos/${placa}`)
+      router.push(`/movilidad/vehiculos/${placaActual}`)
     } catch (error) {
       toast.error("Error inesperado al crear el traslado")
       setLoading(false)
@@ -253,7 +176,7 @@ function NuevoTrasladoForm() {
           {cuentaId && (
             <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-md">
               <p className="text-sm font-medium text-green-900">
-                Vehículo encontrado: {placa}
+                Vehículo encontrado: {placaActual}
               </p>
               <p className="text-sm text-green-700">
                 Número de cuenta: {numeroCuenta}
@@ -352,15 +275,15 @@ function NuevoTrasladoForm() {
 
       <ModalProcesoActivo
         open={modalProcesoActivo}
-        onOpenChange={setModalProcesoActivo}
-        placa={placa}
+        onOpenChange={cerrarModalProcesoActivo}
+        placa={placa || placaActual}
         razon={razonRechazo}
       />
 
       <ModalErrorSecuencia
         open={modalErrorSecuencia}
         onOpenChange={setModalErrorSecuencia}
-        placa={placa}
+        placa={placaActual || placa}
         errorMessage={errorSecuenciaMsg}
         procesoIntentado="traslado"
       />

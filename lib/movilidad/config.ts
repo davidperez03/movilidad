@@ -47,7 +47,3 @@ export const CONFIG_PROCESO: Record<TipoProceso, ConfigProceso> = {
     rpcTipo: 'radicacion',
   },
 }
-
-export function getConfigProceso(tipo: TipoProceso): ConfigProceso {
-  return CONFIG_PROCESO[tipo]
-}

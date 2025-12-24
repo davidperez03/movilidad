@@ -11,13 +11,9 @@ export {
   formatDateShort,
   formatDateLong,
   formatDateTime,
-  formatDateTimeLong,
-  formatRelativeTime,
-  formatTime,
   toColombiaTime,
   // Funciones para formularios e inputs
   formatDateForDB,
   getTodayForInput,
-  formatDateForInput,
   formatDateForDisplay,
 } from './utils/date';
