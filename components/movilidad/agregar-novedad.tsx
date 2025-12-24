@@ -11,7 +11,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import {
@@ -23,7 +22,7 @@ import {
 } from "@/components/ui/select"
 import { toast } from "sonner"
 import { Plus, Loader2 } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { useDialogForm } from "@/lib/hooks/use-dialog-form"
 
 interface AgregarNovedadProps {
   procesoId: string
@@ -31,25 +30,28 @@ interface AgregarNovedadProps {
 }
 
 export function AgregarNovedad({ procesoId, procesoTipo }: AgregarNovedadProps) {
-  const router = useRouter()
   const supabase = createClient()
-  const [open, setOpen] = useState(false)
-  const [loading, setLoading] = useState(false)
+  const { open, setOpen, loading, handleSubmit } = useDialogForm({
+    successMessage: "Novedad agregada exitosamente",
+    onSuccess: () => {
+      setTipoNovedad("")
+      setDescripcion("")
+      setPrioridad("media")
+    },
+  })
+
   const [tipoNovedad, setTipoNovedad] = useState("")
   const [descripcion, setDescripcion] = useState("")
   const [prioridad, setPrioridad] = useState("media")
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setLoading(true)
 
-    try {
+    await handleSubmit(async () => {
       const { data: { user } } = await supabase.auth.getUser()
 
       if (!user) {
-        toast.error("No hay sesión activa")
-        setLoading(false)
-        return
+        throw new Error("No hay sesión activa")
       }
 
       const { error } = await supabase
@@ -64,22 +66,11 @@ export function AgregarNovedad({ procesoId, procesoTipo }: AgregarNovedadProps) 
         })
 
       if (error) {
-        toast.error("Error al crear la novedad: " + error.message)
-        setLoading(false)
-        return
+        throw error
       }
-
-      toast.success("Novedad agregada exitosamente")
-      setOpen(false)
-      setTipoNovedad("")
-      setDescripcion("")
-      setPrioridad("media")
-      router.refresh()
-    } catch (error) {
-      toast.error("Error inesperado al crear la novedad")
-    } finally {
-      setLoading(false)
-    }
+    }, {
+      errorMessage: "Error al crear la novedad"
+    })
   }
 
   return (
@@ -97,7 +88,7 @@ export function AgregarNovedad({ procesoId, procesoTipo }: AgregarNovedadProps) 
             Registra un problema o incidencia en el proceso
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={onSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="tipo_novedad">
               Tipo de Novedad <span className="text-red-500">*</span>

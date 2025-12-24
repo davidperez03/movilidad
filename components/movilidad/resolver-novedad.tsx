@@ -13,9 +13,8 @@ import {
 } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { toast } from "sonner"
 import { CheckCircle2, Loader2 } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { useDialogForm } from "@/lib/hooks/use-dialog-form"
 
 interface ResolverNovedadProps {
   novedadId: string
@@ -23,29 +22,26 @@ interface ResolverNovedadProps {
 }
 
 export function ResolverNovedad({ novedadId, descripcion }: ResolverNovedadProps) {
-  const router = useRouter()
   const supabase = createClient()
-  const [open, setOpen] = useState(false)
-  const [loading, setLoading] = useState(false)
+  const { open, setOpen, loading, handleSubmit } = useDialogForm({
+    successMessage: "Novedad resuelta exitosamente",
+    onSuccess: () => setSolucion(""),
+  })
+
   const [solucion, setSolucion] = useState("")
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setLoading(true)
 
-    try {
+    await handleSubmit(async () => {
       if (!solucion.trim()) {
-        toast.error("Debe ingresar la solución aplicada")
-        setLoading(false)
-        return
+        throw new Error("Debe ingresar la solución aplicada")
       }
 
       const { data: { user } } = await supabase.auth.getUser()
 
       if (!user) {
-        toast.error("No hay sesión activa")
-        setLoading(false)
-        return
+        throw new Error("No hay sesión activa")
       }
 
       const { error } = await supabase
@@ -58,20 +54,11 @@ export function ResolverNovedad({ novedadId, descripcion }: ResolverNovedadProps
         .eq("id", novedadId)
 
       if (error) {
-        toast.error("Error al resolver la novedad: " + error.message)
-        setLoading(false)
-        return
+        throw error
       }
-
-      toast.success("Novedad resuelta exitosamente")
-      setOpen(false)
-      setSolucion("")
-      router.refresh()
-    } catch (error) {
-      toast.error("Error inesperado al resolver la novedad")
-    } finally {
-      setLoading(false)
-    }
+    }, {
+      errorMessage: "Error al resolver la novedad"
+    })
   }
 
   return (
@@ -89,7 +76,7 @@ export function ResolverNovedad({ novedadId, descripcion }: ResolverNovedadProps
             Marcar la novedad como resuelta e ingresar la solución
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={onSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label>Descripción del Problema</Label>
             <div className="p-3 bg-muted rounded-md">

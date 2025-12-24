@@ -1,35 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import type { PermisosModulo } from '@/lib/types/permissions'
-
-const PERMISOS_COMPLETOS: PermisosModulo = {
-  ver: true,
-  crear_cuentas: true,
-  editar_cuentas: true,
-  eliminar_cuentas: true,
-  crear_traslados: true,
-  editar_traslados: true,
-  eliminar_traslados: true,
-  crear_radicaciones: true,
-  editar_radicaciones: true,
-  eliminar_radicaciones: true,
-  gestionar_novedades: true,
-  configurar: true,
-}
-
-const PERMISOS_VACIOS: PermisosModulo = {
-  ver: false,
-  crear_cuentas: false,
-  editar_cuentas: false,
-  eliminar_cuentas: false,
-  crear_traslados: false,
-  editar_traslados: false,
-  eliminar_traslados: false,
-  crear_radicaciones: false,
-  editar_radicaciones: false,
-  eliminar_radicaciones: false,
-  gestionar_novedades: false,
-  configurar: false,
-}
+import { PERMISOS_COMPLETOS, PERMISOS_VACIOS } from '@/lib/types/permissions'
 
 export async function obtenerPermisosUsuario() {
   try {
