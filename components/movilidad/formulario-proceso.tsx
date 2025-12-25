@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
@@ -47,6 +47,7 @@ export function FormularioProceso({ tipo }: FormularioProcesoProps) {
   const [observaciones, setObservaciones] = useState("")
   const [modalErrorSecuencia, setModalErrorSecuencia] = useState(false)
   const [errorSecuenciaMsg, setErrorSecuenciaMsg] = useState("")
+  const placaBuscadaRef = useRef<string | null>(null)
 
   // Mostrar error de carga de organismos si existe
   useEffect(() => {
@@ -55,10 +56,11 @@ export function FormularioProceso({ tipo }: FormularioProcesoProps) {
     }
   }, [errorOrganismos])
 
-  // Buscar cuenta al cargar si viene placa en params
+  // Buscar cuenta al cargar si viene placa en params (solo una vez por placa)
   useEffect(() => {
     const placaParam = searchParams.get("placa")
-    if (placaParam) {
+    if (placaParam && placaParam !== placaBuscadaRef.current) {
+      placaBuscadaRef.current = placaParam
       buscarCuenta(placaParam)
     }
   }, [searchParams, buscarCuenta])

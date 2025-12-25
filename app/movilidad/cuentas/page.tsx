@@ -3,9 +3,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import Link from "next/link"
-import { Car, Search, FileText } from "lucide-react"
+import { Car, Search, FileText, History, Clock } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
-import { formatDateLong } from "@/lib/utils"
+import { formatDateLong, formatDateShort } from "@/lib/utils"
 import { BotonNuevaCuenta, BotonesIniciarProceso } from "@/components/movilidad/cuentas-acciones"
 import { obtenerPermisosUsuario } from "@/lib/server/permisos"
 import { EmptyState } from "@/components/shared/empty-state"
@@ -45,6 +45,9 @@ export default async function CuentasPage({
   if (error) {
   }
 
+  // Obtener último proceso completado de todas las cuentas
+  const { data: ultimosCompletados } = await supabase.rpc('obtener_ultimos_procesos_completados')
+
   // Obtener procesos activos para cada cuenta
   const cuentasConProcesos = await Promise.all(
     (cuentas || []).map(async (cuenta) => {
@@ -54,9 +57,12 @@ export default async function CuentasPage({
         .eq("cuenta_id", cuenta.id)
         .single()
 
+      const ultimoCompletado = (ultimosCompletados as any[] | null)?.find((uc: any) => uc.cuenta_id === cuenta.id)
+
       return {
         ...cuenta,
         procesoActivo,
+        ultimo_proceso_completado: ultimoCompletado || null,
       }
     })
   )
@@ -169,6 +175,35 @@ export default async function CuentasPage({
                     </>
                   )}
                 </div>
+                {/* Mostrar historial si no hay proceso activo pero sí completados */}
+                {!cuenta.procesoActivo?.proceso_tipo && cuenta.ultimo_proceso_completado && (
+                  <div className="mt-4 p-3 bg-muted/50 rounded-lg border border-muted">
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <History className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-sm font-medium">Último proceso completado</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <Badge variant="outline" className="text-xs capitalize">
+                          {cuenta.ultimo_proceso_completado.proceso_tipo}
+                        </Badge>
+                        <Badge
+                          variant="outline"
+                          className={`text-xs ${ESTADOS_CONFIG[cuenta.ultimo_proceso_completado.estado]?.color || ""}`}
+                        >
+                          {ESTADOS_CONFIG[cuenta.ultimo_proceso_completado.estado]?.label || cuenta.ultimo_proceso_completado.estado}
+                        </Badge>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <Clock className="h-3 w-3" />
+                      <span>{formatDateShort(cuenta.ultimo_proceso_completado.fecha_completado)}</span>
+                      <span>•</span>
+                      <span>{cuenta.ultimo_proceso_completado.organismo_nombre}</span>
+                    </div>
+                  </div>
+                )}
+
                 <div className="flex gap-2 mt-4">
                   <Button asChild variant="outline" size="sm">
                     <Link href={`/movilidad/vehiculos/${cuenta.placa}`}>
