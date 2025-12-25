@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { FileText, Search, RefreshCw, Clock, User, Activity, LogIn, LogOut, UserPlus, Edit, Shield, Key, CheckCircle, XCircle, ArrowRightLeft } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface RegistroAuditoria {
   id: string;
@@ -56,7 +57,7 @@ export default function AuditoriaPage() {
       const { data, error } = await query;
 
       if (error) {
-        console.error('Error cargando auditoría:', error);
+        toast.error('Error al cargar los registros de auditoría');
         return;
       }
 
@@ -99,7 +100,7 @@ export default function AuditoriaPage() {
 
       setRegistros(resultado);
     } catch (error) {
-      console.error('Error:', error);
+      toast.error('Error al procesar los registros de auditoría');
     } finally {
       setLoading(false);
     }

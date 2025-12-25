@@ -58,21 +58,3 @@ export const SESSION_CONFIG = {
    */
   TIMEOUT_MESSAGE: 'Tu sesión se cerró por inactividad. Por favor, inicia sesión nuevamente.',
 }
-
-/**
- * Helper para convertir minutos a milisegundos
- */
-export const minutesToMs = (minutes: number) => minutes * 60 * 1000
-
-/**
- * Helper para convertir milisegundos a texto legible
- */
-export const msToReadable = (ms: number): string => {
-  const minutes = Math.floor(ms / 60000)
-  const seconds = Math.floor((ms % 60000) / 1000)
-
-  if (minutes > 0) {
-    return seconds > 0 ? `${minutes} min ${seconds} seg` : `${minutes} min`
-  }
-  return `${seconds} seg`
-}
