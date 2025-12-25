@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { FileText, Search, RefreshCw, Clock, User, Activity, LogIn, LogOut, UserPlus, Edit, Shield, Key, CheckCircle, XCircle, ArrowRightLeft } from 'lucide-react';
 import { toast } from 'sonner';
+import { formatearEstadoProceso } from '@/lib/movilidad/formatters';
 
 interface RegistroAuditoria {
   id: string;
@@ -288,7 +289,7 @@ function renderBadgeAccion(accion: string): React.ReactNode {
     novedad_agregada: { label: 'Novedad agregada', variant: 'outline', className: 'bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200' },
   };
 
-  const config = configs[accion] || { label: accion.replace(/_/g, ' '), variant: 'outline' as const };
+  const config = configs[accion] || { label: formatearEstadoProceso(accion), variant: 'outline' as const };
 
   return (
     <Badge variant={config.variant} className={config.className}>

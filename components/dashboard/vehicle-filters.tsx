@@ -11,6 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Search, X, Filter } from "lucide-react"
+import { ESTADOS_CONFIG, TIPOS_SERVICIO_CONFIG } from "@/lib/movilidad/config"
 
 interface VehicleFiltersProps {
   onFilterChange: (filters: FilterState) => void
@@ -32,21 +33,18 @@ const filterLabels: Record<string, string> = {
 }
 
 const valueLabels: Record<string, string> = {
-  particular: "Particular",
-  publico: "Público",
-  otro: "Otro",
+  // Tipos de servicio
+  ...Object.fromEntries(
+    Object.values(TIPOS_SERVICIO_CONFIG).map(tipo => [tipo.value, tipo.label])
+  ),
+  // Estados
+  ...Object.fromEntries(
+    Object.values(ESTADOS_CONFIG).map(estado => [estado.value, estado.label])
+  ),
+  // Valores adicionales específicos de filtros
   sin_proceso: "Sin proceso",
   traslado: "Traslado",
   radicacion: "Radicación",
-  sin_asignar: "Sin asignar",
-  enviado_organismo: "Enviado a organismo",
-  recibido: "Recibido",
-  revisado: "Revisado",
-  con_novedades: "Con novedades",
-  pendiente_radicar: "Pendiente radicar",
-  trasladado: "Trasladado",
-  radicado: "Radicado",
-  devuelto: "Devuelto",
 }
 
 export function VehicleFilters({ onFilterChange, filters }: VehicleFiltersProps) {

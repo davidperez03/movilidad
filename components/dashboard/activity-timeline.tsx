@@ -3,6 +3,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Activity, ArrowRightLeft, ArrowDownToLine, FileText, CheckCircle2, AlertCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { ESTADOS_CONFIG } from "@/lib/movilidad/config"
 
 interface TimelineItem {
   id: string
@@ -96,8 +97,8 @@ export function ActivityTimeline({
                               </span>
                             )}
                             {activity.metadata.estado && (
-                              <span className="text-xs bg-muted px-2 py-1 rounded capitalize">
-                                {activity.metadata.estado.replace(/_/g, " ")}
+                              <span className="text-xs bg-muted px-2 py-1 rounded">
+                                {ESTADOS_CONFIG[activity.metadata.estado]?.label || activity.metadata.estado}
                               </span>
                             )}
                           </div>

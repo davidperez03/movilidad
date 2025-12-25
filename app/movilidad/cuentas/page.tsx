@@ -8,6 +8,8 @@ import { Badge } from "@/components/ui/badge"
 import { formatDateLong } from "@/lib/utils"
 import { BotonNuevaCuenta, BotonesIniciarProceso } from "@/components/movilidad/cuentas-acciones"
 import { obtenerPermisosUsuario } from "@/lib/server/permisos"
+import { EmptyState } from "@/components/shared/empty-state"
+import { ESTADOS_CONFIG } from "@/lib/movilidad/config"
 
 export default async function CuentasPage({
   searchParams,
@@ -160,8 +162,8 @@ export default async function CuentasPage({
                       </div>
                       <div>
                         <p className="text-sm text-muted-foreground">Estado del proceso</p>
-                        <p className="font-medium capitalize">
-                          {cuenta.procesoActivo.proceso_estado?.replace(/_/g, " ")}
+                        <p className="font-medium">
+                          {ESTADOS_CONFIG[cuenta.procesoActivo.proceso_estado || ""]?.label || cuenta.procesoActivo.proceso_estado}
                         </p>
                       </div>
                     </>
@@ -182,18 +184,16 @@ export default async function CuentasPage({
             </Card>
           ))
         ) : (
-          <Card>
-            <CardContent className="py-12 text-center">
-              <Car className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <p className="text-lg font-medium mb-2">No se encontraron cuentas</p>
-              <p className="text-muted-foreground mb-4">
-                {query
-                  ? "No hay cuentas que coincidan con tu búsqueda"
-                  : "Aún no hay cuentas registradas en el sistema"}
-              </p>
-              {!query && <BotonNuevaCuenta permisos={permisos} />}
-            </CardContent>
-          </Card>
+          <EmptyState
+            icon={Car}
+            titulo="No se encontraron cuentas"
+            descripcion={
+              query
+                ? "No hay cuentas que coincidan con tu búsqueda"
+                : "Aún no hay cuentas registradas en el sistema"
+            }
+            accion={!query ? <BotonNuevaCuenta permisos={permisos} /> : undefined}
+          />
         )}
       </div>
     </div>

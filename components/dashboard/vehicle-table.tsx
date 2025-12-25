@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { Eye } from "lucide-react"
 import { VehicleFilters, FilterState } from "./vehicle-filters"
+import { ESTADOS_CONFIG, TIPOS_SERVICIO_CONFIG } from "@/lib/movilidad/config"
 
 interface VehicleData {
   cuenta_id: string
@@ -20,24 +21,6 @@ interface VehicleData {
 
 interface VehicleTableProps {
   vehicles: VehicleData[]
-}
-
-const estadoColors: Record<string, string> = {
-  sin_asignar: "bg-gray-100 text-gray-700 border-gray-300",
-  enviado_organismo: "bg-blue-100 text-blue-700 border-blue-300",
-  recibido: "bg-cyan-100 text-cyan-700 border-cyan-300",
-  revisado: "bg-purple-100 text-purple-700 border-purple-300",
-  con_novedades: "bg-orange-100 text-orange-700 border-orange-300",
-  trasladado: "bg-green-100 text-green-700 border-green-300",
-  radicado: "bg-green-100 text-green-700 border-green-300",
-  devuelto: "bg-red-100 text-red-700 border-red-300",
-  pendiente_radicar: "bg-yellow-100 text-yellow-700 border-yellow-300",
-}
-
-const tipoColors: Record<string, string> = {
-  particular: "bg-blue-50 text-blue-600",
-  publico: "bg-purple-50 text-purple-600",
-  otro: "bg-gray-50 text-gray-600",
 }
 
 export function VehicleTable({ vehicles }: VehicleTableProps) {
@@ -113,9 +96,9 @@ export function VehicleTable({ vehicles }: VehicleTableProps) {
                     <td className="py-3 px-4">
                       <Badge
                         variant="outline"
-                        className={tipoColors[vehicle.tipo_servicio as keyof typeof tipoColors]}
+                        className={TIPOS_SERVICIO_CONFIG[vehicle.tipo_servicio as keyof typeof TIPOS_SERVICIO_CONFIG]?.color || ""}
                       >
-                        {vehicle.tipo_servicio}
+                        {TIPOS_SERVICIO_CONFIG[vehicle.tipo_servicio as keyof typeof TIPOS_SERVICIO_CONFIG]?.label || vehicle.tipo_servicio}
                       </Badge>
                     </td>
                     <td className="py-3 px-4">
@@ -131,11 +114,9 @@ export function VehicleTable({ vehicles }: VehicleTableProps) {
                       {vehicle.proceso_estado ? (
                         <Badge
                           variant="outline"
-                          className={
-                            estadoColors[vehicle.proceso_estado as keyof typeof estadoColors]
-                          }
+                          className={ESTADOS_CONFIG[vehicle.proceso_estado]?.color || ""}
                         >
-                          {vehicle.proceso_estado.replace(/_/g, " ")}
+                          {ESTADOS_CONFIG[vehicle.proceso_estado]?.label || vehicle.proceso_estado.replace(/_/g, " ")}
                         </Badge>
                       ) : (
                         <span className="text-sm text-muted-foreground">-</span>

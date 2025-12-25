@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Users, ShieldCheck, UserPlus, Activity, Clock, FileText, UserCheck, UserX, LogIn, LogOut, Edit2, Shield, XCircle, CheckCircle, ArrowRightLeft, Car, FileInput } from 'lucide-react';
+import { formatearEstadoProceso } from '@/lib/movilidad/formatters';
 
 interface DashboardStats {
   totalUsuarios: number;
@@ -448,7 +449,7 @@ function formatearDescripcionActividad(item: ActividadReciente): string {
     case 'estado_cambiado':
       return 'cambió el estado de una entidad';
     default:
-      return accion.replace(/_/g, ' ');
+      return formatearEstadoProceso(accion);
   }
 }
 
