@@ -4,9 +4,18 @@ import { useState, useMemo } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import { Eye } from "lucide-react"
+import { Eye, History } from "lucide-react"
 import { VehicleFilters, FilterState } from "./vehicle-filters"
 import { ESTADOS_CONFIG, TIPOS_SERVICIO_CONFIG } from "@/lib/movilidad/config"
+import { formatDateShort } from "@/lib/utils"
+import { HistorialProcesoDialog } from "./historial-proceso-dialog"
+
+interface UltimoProcesoCompletado {
+  proceso_tipo: string
+  estado: string
+  fecha_completado: string
+  organismo_nombre: string
+}
 
 interface VehicleData {
   cuenta_id: string
@@ -17,6 +26,7 @@ interface VehicleData {
   proceso_estado: string | null
   ciudad: string | null
   dias_restantes: number | null
+  ultimo_proceso_completado?: UltimoProcesoCompletado | null
 }
 
 interface VehicleTableProps {
@@ -82,6 +92,7 @@ export function VehicleTable({ vehicles }: VehicleTableProps) {
                 <th className="text-left py-3 px-4 font-medium text-sm">Estado</th>
                 <th className="text-left py-3 px-4 font-medium text-sm">Organismo</th>
                 <th className="text-left py-3 px-4 font-medium text-sm">Días Restantes</th>
+                <th className="text-left py-3 px-4 font-medium text-sm">Historial</th>
                 <th className="text-right py-3 px-4 font-medium text-sm">Acciones</th>
               </tr>
             </thead>
@@ -142,6 +153,32 @@ export function VehicleTable({ vehicles }: VehicleTableProps) {
                         </span>
                       ) : (
                         <span className="text-sm text-muted-foreground">-</span>
+                      )}
+                    </td>
+                    <td className="py-3 px-4">
+                      {vehicle.ultimo_proceso_completado ? (
+                        <div className="flex flex-col gap-1">
+                          <div className="flex items-center gap-1.5">
+                            <Badge variant="outline" className="text-xs capitalize">
+                              {vehicle.ultimo_proceso_completado.proceso_tipo}
+                            </Badge>
+                            <Badge
+                              variant="outline"
+                              className={`text-xs ${ESTADOS_CONFIG[vehicle.ultimo_proceso_completado.estado]?.color || ""}`}
+                            >
+                              {ESTADOS_CONFIG[vehicle.ultimo_proceso_completado.estado]?.label || vehicle.ultimo_proceso_completado.estado}
+                            </Badge>
+                          </div>
+                          <span className="text-xs text-muted-foreground">
+                            {formatDateShort(vehicle.ultimo_proceso_completado.fecha_completado)}
+                          </span>
+                          <HistorialProcesoDialog
+                            cuentaId={vehicle.cuenta_id}
+                            placa={vehicle.placa}
+                          />
+                        </div>
+                      ) : (
+                        <span className="text-sm text-muted-foreground">Sin historial</span>
                       )}
                     </td>
                     <td className="py-3 px-4 text-right">
