@@ -64,9 +64,9 @@ export function HistorialProcesoDialog({ cuentaId, placa }: HistorialProcesoDial
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button variant="link" size="sm" className="h-auto p-0 text-xs">
-          <History className="h-3 w-3 mr-1" />
-          Ver historial completo
+        <Button variant="outline" size="sm" className="h-7 text-xs">
+          <History className="h-3.5 w-3.5 mr-1.5" />
+          Ver historial
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">

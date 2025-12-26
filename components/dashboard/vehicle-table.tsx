@@ -157,21 +157,16 @@ export function VehicleTable({ vehicles }: VehicleTableProps) {
                     </td>
                     <td className="py-3 px-4">
                       {vehicle.ultimo_proceso_completado ? (
-                        <div className="flex flex-col gap-1">
-                          <div className="flex items-center gap-1.5">
-                            <Badge variant="outline" className="text-xs capitalize">
+                        <div className="space-y-1.5">
+                          <div className="text-xs">
+                            <span className="font-medium capitalize">
                               {vehicle.ultimo_proceso_completado.proceso_tipo}
-                            </Badge>
-                            <Badge
-                              variant="outline"
-                              className={`text-xs ${ESTADOS_CONFIG[vehicle.ultimo_proceso_completado.estado]?.color || ""}`}
-                            >
-                              {ESTADOS_CONFIG[vehicle.ultimo_proceso_completado.estado]?.label || vehicle.ultimo_proceso_completado.estado}
-                            </Badge>
+                            </span>
+                            <span className="text-muted-foreground mx-1">•</span>
+                            <span className="text-muted-foreground">
+                              {formatDateShort(vehicle.ultimo_proceso_completado.fecha_completado)}
+                            </span>
                           </div>
-                          <span className="text-xs text-muted-foreground">
-                            {formatDateShort(vehicle.ultimo_proceso_completado.fecha_completado)}
-                          </span>
                           <HistorialProcesoDialog
                             cuentaId={vehicle.cuenta_id}
                             placa={vehicle.placa}
