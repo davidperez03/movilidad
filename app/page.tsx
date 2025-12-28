@@ -23,7 +23,7 @@ export default async function HomePage() {
 
   // Si es superadmin, redirigir al panel de administración
   if (profile?.rol_global === "superadmin") {
-    redirect("/superadmin/roles")
+    redirect("/superadmin/dashboard")
   }
 
   // Verificar si tiene acceso al módulo de movilidad

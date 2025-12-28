@@ -5,6 +5,7 @@ import { ArrowRightLeft, ArrowDownToLine, Calendar, MapPin, FileText, AlertTrian
 import { BadgeEstadoProceso } from "@/components/movilidad/badge-estado-proceso"
 import { BadgeVencimiento } from "@/components/movilidad/badge-vencimiento"
 import { BotonDescargarRemision } from "@/components/movilidad/boton-descargar-remision"
+import { AgregarDatosTransporte } from "@/components/movilidad/agregar-datos-transporte"
 import { formatDateShort, formatDateForDisplay } from "@/lib/utils"
 import { calcularDiasRestantes } from "@/lib/movilidad/formatters"
 
@@ -86,6 +87,32 @@ export function ProcesoCard({ proceso, tipoProceso, esCompletado = false }: Proc
           <div className="mb-4 p-3 bg-muted rounded-md">
             <p className="text-sm text-muted-foreground mb-1">Observaciones:</p>
             <p className="text-sm">{proceso.observaciones}</p>
+          </div>
+        )}
+        {/* Datos de transporte - Solo para traslados en estado enviado_organismo */}
+        {tipoProceso === "traslado" && proceso.estado === "enviado_organismo" && !esCompletado && (
+          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex-1">
+                <p className="text-sm font-medium text-blue-900 mb-1">Información de Transporte</p>
+                <div className="text-sm text-blue-700 space-y-1">
+                  {proceso.empresa_transporte?.nombre && (
+                    <p><strong>Empresa:</strong> {proceso.empresa_transporte.nombre}</p>
+                  )}
+                  {proceso.numero_guia && (
+                    <p><strong>Número de guía:</strong> {proceso.numero_guia}</p>
+                  )}
+                  {!proceso.empresa_transporte && !proceso.numero_guia && (
+                    <p className="text-blue-600 italic">No se han agregado datos de transporte</p>
+                  )}
+                </div>
+              </div>
+              <AgregarDatosTransporte
+                trasladoId={proceso.id}
+                empresaActualId={proceso.empresa_transportadora_id}
+                numeroGuiaActual={proceso.numero_guia}
+              />
+            </div>
           </div>
         )}
         <div className="flex gap-2">

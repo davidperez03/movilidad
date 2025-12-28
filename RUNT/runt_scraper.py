@@ -68,7 +68,12 @@ class RUNTScraper:
         if municipio_elem:
             municipio_div = municipio_elem.find('div')
             if municipio_div:
-                datos['municipio'] = municipio_div.get_text(strip=True)
+                municipio_texto = municipio_div.get_text(strip=True)
+                # Eliminar el departamento si viene en el formato "MUNICIPIO - DEPARTAMENTO"
+                if ' - ' in municipio_texto:
+                    datos['municipio'] = municipio_texto.split(' - ')[0]
+                else:
+                    datos['municipio'] = municipio_texto
 
         # Departamento
         departamento_elem = article.find('div', class_='pxc-departamento')

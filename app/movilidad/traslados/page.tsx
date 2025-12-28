@@ -26,6 +26,10 @@ export default async function TrasladosPage() {
         nombre,
         municipio,
         departamento
+      ),
+      empresa_transporte:mov_empresas_transporte!empresa_transportadora_id (
+        id,
+        nombre
       )
     `)
     .not("estado", "in", "(trasladado,devuelto)")
@@ -39,18 +43,22 @@ export default async function TrasladosPage() {
     .from("mov_traslados")
     .select(`
       *,
-      cuenta:mov_cuentas_vehiculos!cuenta_id (
+      mov_cuentas_vehiculos!cuenta_id (
         placa,
         numero_cuenta,
         tipo_servicio
       ),
-      creador:perfiles!creado_por (
+      perfiles!creado_por (
         nombre_completo
       ),
       organismo:mov_organismos_transito!organismo_destino_id (
         nombre,
         municipio,
         departamento
+      ),
+      empresa_transporte:mov_empresas_transporte!empresa_transportadora_id (
+        id,
+        nombre
       )
     `)
     .in("estado", ["trasladado", "devuelto"])

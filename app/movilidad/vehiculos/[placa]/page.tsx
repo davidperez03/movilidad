@@ -22,6 +22,7 @@ import { formatDateShort, formatDateTime, formatDateLong, formatDateForDisplay }
 import { formatearEstadoProceso } from "@/lib/movilidad/formatters"
 import { ResolverNovedad } from "@/components/movilidad/resolver-novedad"
 import { BotonDescargarRemision } from "@/components/movilidad/boton-descargar-remision"
+import { AgregarDatosTransporte } from "@/components/movilidad/agregar-datos-transporte"
 
 export default async function DetalleVehiculoPage({
   params,
@@ -81,7 +82,8 @@ export default async function DetalleVehiculoPage({
       *,
       creador:perfiles!creado_por (nombre_completo),
       actualizador:perfiles!actualizado_por (nombre_completo),
-      organismo:mov_organismos_transito!organismo_destino_id (nombre, municipio, departamento)
+      organismo:mov_organismos_transito!organismo_destino_id (nombre, municipio, departamento),
+      empresa_transporte:mov_empresas_transporte!empresa_transportadora_id (id, nombre)
     `)
     .eq("cuenta_id", cuenta.id)
     .order("creado_en", { ascending: false })
@@ -269,6 +271,33 @@ export default async function DetalleVehiculoPage({
               </div>
             )}
 
+            {/* Datos de transporte - Solo para traslados en estado enviado_organismo */}
+            {procesoActivo.proceso_tipo === "traslado" && procesoActivo.proceso_estado === "enviado_organismo" && (
+              <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-blue-900 mb-1">Información de Transporte</p>
+                    <div className="text-sm text-blue-700 space-y-1">
+                      {procesoActivo.empresa_transporte?.nombre && (
+                        <p><strong>Empresa:</strong> {procesoActivo.empresa_transporte.nombre}</p>
+                      )}
+                      {procesoActivo.numero_guia && (
+                        <p><strong>Número de guía:</strong> {procesoActivo.numero_guia}</p>
+                      )}
+                      {!procesoActivo.empresa_transporte && !procesoActivo.numero_guia && (
+                        <p className="text-blue-600 italic">No se han agregado datos de transporte</p>
+                      )}
+                    </div>
+                  </div>
+                  <AgregarDatosTransporte
+                    trasladoId={procesoActivo.proceso_id}
+                    empresaActualId={procesoActivo.empresa_transportadora_id}
+                    numeroGuiaActual={procesoActivo.numero_guia}
+                  />
+                </div>
+              </div>
+            )}
+
             {/* Acciones del proceso */}
             <div className="flex gap-2">
               <CambiarEstado
@@ -408,6 +437,16 @@ export default async function DetalleVehiculoPage({
                       <p><strong>Vencimiento:</strong> {formatDateForDisplay(traslado.fecha_vencimiento)}</p>
                       {traslado.fecha_completado && (
                         <p><strong>Completado:</strong> {formatDateForDisplay(traslado.fecha_completado)}</p>
+                      )}
+                      {traslado.empresa_transporte?.nombre && (
+                        <p className="text-blue-700">
+                          <strong>Empresa:</strong> {traslado.empresa_transporte.nombre}
+                        </p>
+                      )}
+                      {traslado.numero_guia && (
+                        <p className="text-blue-700">
+                          <strong>Guía:</strong> {traslado.numero_guia}
+                        </p>
                       )}
                       {traslado.observaciones && (
                         <p className="text-xs text-muted-foreground italic">
