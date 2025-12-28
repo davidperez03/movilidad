@@ -83,7 +83,7 @@ export default async function DetalleVehiculoPage({
       creador:perfiles!creado_por (nombre_completo),
       actualizador:perfiles!actualizado_por (nombre_completo),
       organismo:mov_organismos_transito!organismo_destino_id (nombre, municipio, departamento),
-      empresa_transporte:mov_empresas_transporte!empresa_transportadora_id (id, nombre)
+      empresa_transporte:mov_empresas_transporte (id, nombre)
     `)
     .eq("cuenta_id", cuenta.id)
     .order("creado_en", { ascending: false })

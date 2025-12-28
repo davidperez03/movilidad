@@ -27,7 +27,7 @@ export default async function TrasladosPage() {
         municipio,
         departamento
       ),
-      empresa_transporte:mov_empresas_transporte!empresa_transportadora_id (
+      empresa_transporte:mov_empresas_transporte (
         id,
         nombre
       )
@@ -56,7 +56,7 @@ export default async function TrasladosPage() {
         municipio,
         departamento
       ),
-      empresa_transporte:mov_empresas_transporte!empresa_transportadora_id (
+      empresa_transporte:mov_empresas_transporte (
         id,
         nombre
       )
