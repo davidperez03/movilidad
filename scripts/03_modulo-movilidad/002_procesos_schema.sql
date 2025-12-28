@@ -30,6 +30,10 @@ create table if not exists public.mov_traslados (
   -- Observaciones
   observaciones text,
 
+  -- Datos de transporte
+  empresa_transportadora_id uuid references public.mov_empresas_transporte(id) on delete set null,
+  numero_guia text,
+
   -- Metadatos
   creado_por uuid not null references public.perfiles(id) on delete restrict,
   actualizado_por uuid references public.perfiles(id) on delete restrict,
@@ -78,6 +82,7 @@ create index if not exists idx_mov_traslados_estado on public.mov_traslados(esta
 create index if not exists idx_mov_traslados_fecha_tramite on public.mov_traslados(fecha_tramite desc);
 create index if not exists idx_mov_traslados_fecha_vencimiento on public.mov_traslados(fecha_vencimiento);
 create index if not exists idx_mov_traslados_creado_por on public.mov_traslados(creado_por);
+create index if not exists idx_mov_traslados_empresa_transportadora on public.mov_traslados(empresa_transportadora_id);
 
 -- Crear índices para radicaciones
 create index if not exists idx_mov_radicaciones_cuenta on public.mov_radicaciones(cuenta_id);
@@ -271,8 +276,71 @@ create policy "Eliminar radicaciones según permisos modulares"
   );
 
 -- =====================================================
+-- TABLA DE EMPRESAS DE TRANSPORTE
+-- =====================================================
+
+-- Crear tabla de empresas de transporte
+CREATE TABLE IF NOT EXISTS public.mov_empresas_transporte (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  nombre text NOT NULL UNIQUE,
+  activo boolean NOT NULL DEFAULT true,
+  creado_en timestamp with time zone DEFAULT now() NOT NULL,
+  actualizado_en timestamp with time zone DEFAULT now() NOT NULL
+);
+
+-- Crear índice
+CREATE INDEX IF NOT EXISTS idx_mov_empresas_transporte_nombre
+  ON public.mov_empresas_transporte(nombre);
+
+-- Trigger para actualizar fecha de actualización
+CREATE TRIGGER before_update_empresa_transporte
+  BEFORE UPDATE ON public.mov_empresas_transporte
+  FOR EACH ROW
+  EXECUTE FUNCTION trigger_actualizar_fecha();
+
+-- Habilitar Row Level Security
+ALTER TABLE public.mov_empresas_transporte ENABLE ROW LEVEL SECURITY;
+
+-- Políticas de seguridad
+CREATE POLICY "Usuarios pueden ver empresas de transporte"
+  ON public.mov_empresas_transporte FOR SELECT
+  USING (true);
+
+CREATE POLICY "Crear empresas de transporte según permisos"
+  ON public.mov_empresas_transporte FOR INSERT
+  WITH CHECK (
+    es_superadmin(auth.uid())
+    OR tiene_permiso(auth.uid(), 'movilidad', 'editar_traslados')
+  );
+
+CREATE POLICY "Actualizar empresas de transporte según permisos"
+  ON public.mov_empresas_transporte FOR UPDATE
+  USING (
+    es_superadmin(auth.uid())
+    OR tiene_permiso(auth.uid(), 'movilidad', 'editar_traslados')
+  );
+
+-- Insertar empresas iniciales
+INSERT INTO public.mov_empresas_transporte (nombre) VALUES
+  ('INTERRAPIDISIMO')
+ON CONFLICT (nombre) DO NOTHING;
+
+-- =====================================================
 -- COMENTARIOS Y DOCUMENTACIÓN
 -- =====================================================
+
+-- Tabla: mov_empresas_transporte
+COMMENT ON TABLE public.mov_empresas_transporte IS
+  'Catálogo de empresas transportadoras para traslados de vehículos';
+
+COMMENT ON COLUMN public.mov_empresas_transporte.id IS
+  'Identificador único de la empresa (UUID)';
+
+COMMENT ON COLUMN public.mov_empresas_transporte.nombre IS
+  'Nombre de la empresa transportadora';
+
+COMMENT ON COLUMN public.mov_empresas_transporte.activo IS
+  'Indica si la empresa está activa (disponible para selección)';
 
 -- Tabla: mov_traslados
 COMMENT ON TABLE public.mov_traslados IS
@@ -301,6 +369,12 @@ COMMENT ON COLUMN public.mov_traslados.fecha_completado IS
 
 COMMENT ON COLUMN public.mov_traslados.observaciones IS
   'Notas u observaciones adicionales sobre el proceso de traslado';
+
+COMMENT ON COLUMN public.mov_traslados.empresa_transportadora_id IS
+  'ID de la empresa transportadora encargada del traslado (referencia a mov_empresas_transporte.id)';
+
+COMMENT ON COLUMN public.mov_traslados.numero_guia IS
+  'Número de guía o tracking del envío del vehículo';
 
 COMMENT ON COLUMN public.mov_traslados.creado_por IS
   'ID del usuario que creó el traslado (referencia a perfiles.id)';
