@@ -187,91 +187,6 @@ export default async function MovilidadDashboard() {
         />
       </div>
 
-      {/* Acciones Rápidas */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="h-5 w-5 text-blue-500" />
-            Acciones Rápidas
-          </CardTitle>
-          <CardDescription>Accede a las funciones principales del módulo</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {!permisos.ver && !permisos.crear_cuentas && !permisos.crear_traslados && !permisos.crear_radicaciones ? (
-            <div className="py-8 text-center text-muted-foreground">
-              <p className="mb-2">No tienes permisos asignados para este módulo</p>
-              <p className="text-sm">Contacta a tu administrador para solicitar acceso</p>
-            </div>
-          ) : (
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-              {/* Nueva Cuenta - Solo si tiene permiso */}
-              {permisos.crear_cuentas && (
-                <Button asChild className="h-auto py-6 flex-col gap-2" variant="default">
-                  <Link href="/movilidad/cuentas/nueva">
-                    <FileText className="h-6 w-6" />
-                    <span className="font-medium">Nueva Cuenta</span>
-                  </Link>
-                </Button>
-              )}
-
-              {/* Nuevo Traslado - Solo si tiene permiso */}
-              {permisos.crear_traslados && (
-                <Button asChild className="h-auto py-6 flex-col gap-2" variant="outline">
-                  <Link href="/movilidad/traslados/nuevo">
-                    <ArrowRightLeft className="h-6 w-6" />
-                    <span className="font-medium">Nuevo Traslado</span>
-                  </Link>
-                </Button>
-              )}
-
-              {/* Nueva Radicación - Solo si tiene permiso */}
-              {permisos.crear_radicaciones && (
-                <Button asChild className="h-auto py-6 flex-col gap-2" variant="outline">
-                  <Link href="/movilidad/radicaciones/nueva">
-                    <ArrowDownToLine className="h-6 w-6" />
-                    <span className="font-medium">Nueva Radicación</span>
-                  </Link>
-                </Button>
-              )}
-
-              {/* Ver Cuentas - Siempre visible si tiene permiso 'ver' */}
-              {permisos.ver && (
-                <Button asChild className="h-auto py-6 flex-col gap-2" variant="outline">
-                  <Link href="/movilidad/cuentas">
-                    <Car className="h-6 w-6" />
-                    <span className="font-medium">Ver Cuentas</span>
-                  </Link>
-                </Button>
-              )}
-
-              {/* Estado General - Siempre visible si tiene permiso 'ver' */}
-              {permisos.ver && (
-                <Button asChild className="h-auto py-6 flex-col gap-2" variant="outline">
-                  <Link href="/movilidad/estado">
-                    <Activity className="h-6 w-6" />
-                    <span className="font-medium">Estado General</span>
-                  </Link>
-                </Button>
-              )}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Alertas y Actividad */}
-      <div className="grid gap-4 lg:grid-cols-2">
-        <AlertCard
-          alerts={alerts}
-          title="Alertas Prioritarias"
-          emptyMessage="No hay procesos próximos a vencer"
-        />
-        <ActivityTimeline
-          activities={activities}
-          title="Actividad Reciente"
-          emptyMessage="No hay actividad reciente para mostrar"
-        />
-      </div>
-
       {/* Vista General */}
       <Card>
         <CardHeader>
@@ -314,6 +229,91 @@ export default async function MovilidadDashboard() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Acciones Rápidas */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <TrendingUp className="h-5 w-5 text-blue-500" />
+            Acciones Rápidas
+          </CardTitle>
+          <CardDescription>Accede a las funciones principales del módulo</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {!permisos.ver && !permisos.crear_cuentas && !permisos.crear_traslados && !permisos.crear_radicaciones ? (
+            <div className="py-8 text-center text-muted-foreground">
+              <p className="mb-2">No tienes permisos asignados para este módulo</p>
+              <p className="text-sm">Contacta a tu administrador para solicitar acceso</p>
+            </div>
+          ) : (
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+              {/* Nueva Cuenta - Solo si tiene permiso */}
+              {permisos.crear_cuentas && (
+                <Button asChild className="h-auto py-6 flex-col gap-2" variant="default">
+                  <Link href="/movilidad/cuentas/nueva">
+                    <FileText className="h-6 w-6" />
+                    <span className="font-medium">Nueva Cuenta</span>
+                  </Link>
+                </Button>
+              )}
+
+              {/* Estado General - Siempre visible si tiene permiso 'ver' */}
+              {permisos.ver && (
+                <Button asChild className="h-auto py-6 flex-col gap-2" variant="outline">
+                  <Link href="/movilidad/estado">
+                    <Activity className="h-6 w-4" />
+                    <span className="font-medium">Estado General</span>
+                  </Link>
+                </Button>
+              )}
+
+              {/* Ver Cuentas - Siempre visible si tiene permiso 'ver' */}
+              {permisos.ver && (
+                <Button asChild className="h-auto py-6 flex-col gap-2" variant="outline">
+                  <Link href="/movilidad/cuentas">
+                    <Car className="h-6 w-6" />
+                    <span className="font-medium">Ver Cuentas</span>
+                  </Link>
+                </Button>
+              )}
+
+              {/* Nuevo Traslado - Solo si tiene permiso */}
+              {permisos.crear_traslados && (
+                <Button asChild className="h-auto py-6 flex-col gap-2" variant="outline">
+                  <Link href="/movilidad/traslados/nuevo">
+                    <ArrowRightLeft className="h-6 w-6" />
+                    <span className="font-medium">Nuevo Traslado</span>
+                  </Link>
+                </Button>
+              )}
+
+              {/* Nueva Radicación - Solo si tiene permiso */}
+              {permisos.crear_radicaciones && (
+                <Button asChild className="h-auto py-6 flex-col gap-2" variant="outline">
+                  <Link href="/movilidad/radicaciones/nueva">
+                    <ArrowDownToLine className="h-6 w-6" />
+                    <span className="font-medium">Nueva Radicación</span>
+                  </Link>
+                </Button>
+              )}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Alertas y Actividad */}
+      <div className="grid gap-4 lg:grid-cols-2">
+        <AlertCard
+          alerts={alerts}
+          title="Alertas Prioritarias"
+          emptyMessage="No hay procesos próximos a vencer"
+        />
+        <ActivityTimeline
+          activities={activities}
+          title="Actividad Reciente"
+          emptyMessage="No hay actividad reciente para mostrar"
+        />
+      </div>
     </div>
   )
 }

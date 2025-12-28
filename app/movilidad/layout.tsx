@@ -143,14 +143,6 @@ export default async function MovilidadLayout({
             </Link>
 
             <Link
-              href="/movilidad/reportes"
-              className="flex items-center gap-2 border-b-2 border-transparent px-4 py-3 text-sm font-medium text-muted-foreground transition-colors hover:border-primary hover:text-foreground data-[active=true]:border-primary data-[active=true]:text-foreground"
-            >
-              <FileBarChart className="h-4 w-4" />
-              Reportes
-            </Link>
-
-            <Link
               href="/movilidad/cuentas"
               className="flex items-center gap-2 border-b-2 border-transparent px-4 py-3 text-sm font-medium text-muted-foreground transition-colors hover:border-primary hover:text-foreground data-[active=true]:border-primary data-[active=true]:text-foreground"
             >
@@ -182,6 +174,14 @@ export default async function MovilidadLayout({
                   {radicacionesActivas}
                 </Badge>
               ) : null}
+            </Link>
+
+            <Link
+              href="/movilidad/reportes"
+              className="flex items-center gap-2 border-b-2 border-transparent px-4 py-3 text-sm font-medium text-muted-foreground transition-colors hover:border-primary hover:text-foreground data-[active=true]:border-primary data-[active=true]:text-foreground"
+            >
+              <FileBarChart className="h-4 w-4" />
+              Reportes
             </Link>
 
             {novedadesPendientes && novedadesPendientes > 0 ? (
