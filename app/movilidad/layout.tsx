@@ -101,7 +101,7 @@ export default async function MovilidadLayout({
                 </div>
                 <div>
                   <h1 className="text-lg font-bold leading-none">Movilidad</h1>
-                  <p className="text-xs text-muted-foreground">Sistema de traslados y radicaciones</p>
+                  <p className="text-xs text-muted-foreground">Traslados y Radicaciones</p>
                 </div>
               </div>
             </div>

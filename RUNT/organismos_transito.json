@@ -4,7 +4,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "5555555",
     "direccion": "CARRERA 2 NO. 7-25 BARRIO EL PROGRESO",
-    "municipio": "VILLAGARZON - PUTUMAYO",
+    "municipio": "VILLAGARZON",
     "departamento": "PUTUMAYO"
   },
   {
@@ -12,7 +12,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "6384900",
     "direccion": "CARRERA 21 # 14-23 PISO 2 BARRIO CRISTAL",
-    "municipio": "AGUAZUL - CASANARE",
+    "municipio": "AGUAZUL",
     "departamento": "CASANARE"
   },
   {
@@ -20,7 +20,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "6085130801",
     "direccion": "AVENIDA FRANCISCO NEWBALL EDIFICIO CORAL PALACE. SAN ANDRES ISLAS",
-    "municipio": "SAN ANDRES - SAN ANDRES",
+    "municipio": "SAN ANDRES",
     "departamento": "ARCHIPIÉLAGO DE SAN ANDRÉS Y PROVIDENCIA"
   },
   {
@@ -28,7 +28,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8550022",
     "direccion": "CALLE 6 CON CARRERA 4 ESQUINA",
-    "municipio": "MANZANARES - CALDAS",
+    "municipio": "MANZANARES",
     "departamento": "CALDAS"
   },
   {
@@ -36,7 +36,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "4548300",
     "direccion": "CARRERA 15 # 15-29 ANTIGUA SEDE DE BANCOLOMBIA",
-    "municipio": "BARBOSA - ANTIOQUIA",
+    "municipio": "BARBOSA",
     "departamento": "ANTIOQUIA"
   },
   {
@@ -44,7 +44,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "6711239",
     "direccion": "CALLE 30 DIAGONAL CEMENTERIO S.J",
-    "municipio": "ISTMINA - CHOCO",
+    "municipio": "ISTMINA",
     "departamento": "CHOCÓ"
   },
   {
@@ -52,7 +52,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8663243",
     "direccion": "CARRERA 30 NO. 29-59",
-    "municipio": "DON MATIAS - ANTIOQUIA",
+    "municipio": "DON MATIAS",
     "departamento": "ANTIOQUIA"
   },
   {
@@ -60,7 +60,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "6378415",
     "direccion": "KM. 4 VIA A GIRON - BUCARAMANGA",
-    "municipio": "BUCARAMANGA - SANTANDER",
+    "municipio": "BUCARAMANGA",
     "departamento": "SANTANDER"
   },
   {
@@ -68,7 +68,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "84316079",
     "direccion": "ALCALDIA MUNICIPAL",
-    "municipio": "BELEN DE LOS ANDAQUIES - CAQUETA",
+    "municipio": "BELEN DE LOS ANDAQUIES",
     "departamento": "CAQUETÁ"
   },
   {
@@ -76,7 +76,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "4352427",
     "direccion": "CALLE 15 CARRERA 13 ESQUINA",
-    "municipio": "EL PAUJIL - CAQUETA",
+    "municipio": "EL PAUJIL",
     "departamento": "CAQUETÁ"
   },
   {
@@ -84,7 +84,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "33",
     "direccion": "CALLE 2 # 4-46-48",
-    "municipio": "SAN VICENTE DEL CAGUAN - CAQUETA",
+    "municipio": "SAN VICENTE DEL CAGUAN",
     "departamento": "CAQUETÁ"
   },
   {
@@ -92,7 +92,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "6497871",
     "direccion": "CALLE 9 NO. 8-14",
-    "municipio": "FLORIDABLANCA - SANTANDER",
+    "municipio": "FLORIDABLANCA",
     "departamento": "SANTANDER"
   },
   {
@@ -100,7 +100,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "0",
     "direccion": "CALLE 3A N. 4-71",
-    "municipio": "LA CUMBRE - VALLE DEL CAUCA",
+    "municipio": "LA CUMBRE",
     "departamento": "VALLE DEL CAUCA"
   },
   {
@@ -108,7 +108,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "5708998",
     "direccion": "CARRERA 7 NO. 10-40. AUTOPISTA INTERNACIONAL BARRIO LOMITAS",
-    "municipio": "VILLA DEL ROSARIO - N. DE SANTANDER",
+    "municipio": "VILLA DEL ROSARIO",
     "departamento": "NORTE DE SANTANDER"
   },
   {
@@ -116,7 +116,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "6564412",
     "direccion": "AV. SANTANDER EDIFICIO MAR DEL NORTE NO. 46A-96 LOCALES DEL 1-5",
-    "municipio": "CARTAGENA - BOLIVAR",
+    "municipio": "CARTAGENA",
     "departamento": "BOLÍVAR"
   },
   {
@@ -124,7 +124,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "5-7272626",
     "direccion": "EDIFICIO DE LA MARINA CALLE 1 NO 6-05-RIOACHA",
-    "municipio": "HATONUEVO - LA GUAJIRA",
+    "municipio": "HATONUEVO",
     "departamento": "LA GUAJIRA"
   },
   {
@@ -132,7 +132,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "5767126",
     "direccion": "AVENIDA GRAN COLOMBIA # 6E-91 BARRIO LA RIVIERA",
-    "municipio": "CUCUTA - N. DE SANTANDER",
+    "municipio": "CUCUTA",
     "departamento": "NORTE DE SANTANDER"
   },
   {
@@ -140,7 +140,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "7333309",
     "direccion": "CALLE 18 NO. 19-54.  CENTRO ANTIGUA  CAJA AGRARIA",
-    "municipio": "PASTO - NARIÑO",
+    "municipio": "PASTO",
     "departamento": "NARIÑO"
   },
   {
@@ -148,7 +148,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "2820189",
     "direccion": "CALLE 3RA ESQUINA. ALCALDIA MUNICIPAL",
-    "municipio": "ALVARADO - TOLIMA",
+    "municipio": "ALVARADO",
     "departamento": "TOLIMA"
   },
   {
@@ -156,7 +156,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "2270280",
     "direccion": "CARRERA 7ª NO. 10 - 11. PARQUE DE LA CULTURA",
-    "municipio": "GUAMO - TOLIMA",
+    "municipio": "GUAMO",
     "departamento": "TOLIMA"
   },
   {
@@ -164,7 +164,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "2530041",
     "direccion": "ALCALDIA MUNICIPAL PISO 2",
-    "municipio": "ARMERO - TOLIMA",
+    "municipio": "ARMERO",
     "departamento": "TOLIMA"
   },
   {
@@ -172,7 +172,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "3133410651",
     "direccion": "MZ M CASA 7 PISO 1 B/TECHITOS",
-    "municipio": "ORTEGA - TOLIMA",
+    "municipio": "ORTEGA",
     "departamento": "TOLIMA"
   },
   {
@@ -180,7 +180,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "2282810",
     "direccion": "CARRERA 6 NO 8 A - 110",
-    "municipio": "PURIFICACION - TOLIMA",
+    "municipio": "PURIFICACION",
     "departamento": "TOLIMA"
   },
   {
@@ -188,7 +188,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "",
     "direccion": "",
-    "municipio": "SAN JUAN NEPOMUCENO - BOLIVAR",
+    "municipio": "SAN JUAN NEPOMUCENO",
     "departamento": "BOLÍVAR"
   },
   {
@@ -196,7 +196,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "5654132",
     "direccion": "CALLE 18 NO. 7-48",
-    "municipio": "PUERTO CARREÑO - VICHADA",
+    "municipio": "PUERTO CARREÑO",
     "departamento": "VICHADA"
   },
   {
@@ -204,7 +204,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "314574512",
     "direccion": "CALLE 16 BARRIO SAN MARTIN ANTIGUO IDEMA",
-    "municipio": "MAGANGUE - BOLIVAR",
+    "municipio": "MAGANGUE",
     "departamento": "BOLÍVAR"
   },
   {
@@ -212,7 +212,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8577255",
     "direccion": "CALLE 16 CON CARRERA 5 CENTRO COMERCIAL DORADO PLAZA  SEGUNDO PISO LOCAL 201-2",
-    "municipio": "LA DORADA - CALDAS",
+    "municipio": "LA DORADA",
     "departamento": "CALDAS"
   },
   {
@@ -220,7 +220,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "7520605",
     "direccion": "CARRERA 6 ENTRE CALLE  12  ESQUINA PALACIO MUNICIPAL",
-    "municipio": "QUIMBAYA - QUINDIO",
+    "municipio": "QUIMBAYA",
     "departamento": "QUINDÍO"
   },
   {
@@ -228,7 +228,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "2840039",
     "direccion": "CALLE 29 A NO-37-29. BARRIO SAN JUAN",
-    "municipio": "COROZAL - SUCRE",
+    "municipio": "COROZAL",
     "departamento": "SUCRE"
   },
   {
@@ -236,7 +236,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "6254306",
     "direccion": "CALLE 15 NO 21 - 34. CENTRO DE ABASTOS",
-    "municipio": "SAN VICENTE DE CHUCURI - SANTANDER",
+    "municipio": "SAN VICENTE DE CHUCURI",
     "departamento": "SANTANDER"
   },
   {
@@ -244,7 +244,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "5630018",
     "direccion": "ALCALDIA MUNICIPAL",
-    "municipio": "CONVENCION - N. DE SANTANDER",
+    "municipio": "CONVENCION",
     "departamento": "NORTE DE SANTANDER"
   },
   {
@@ -252,7 +252,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "4-8411183 EXT 31 o 44",
     "direccion": "CRA 49 NO 51-14",
-    "municipio": "CIUDAD BOLIVAR - ANTIOQUIA",
+    "municipio": "CIUDAD BOLIVAR",
     "departamento": "ANTIOQUIA"
   },
   {
@@ -260,7 +260,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8275505",
     "direccion": "CALLE 102 NO. 15-37 BARRIO BALTAZAR",
-    "municipio": "TURBO - ANTIOQUIA",
+    "municipio": "TURBO",
     "departamento": "ANTIOQUIA"
   },
   {
@@ -268,7 +268,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "5924369",
     "direccion": "CALLE  9 NO 10-68",
-    "municipio": "LETICIA - AMAZONAS",
+    "municipio": "LETICIA",
     "departamento": "AMAZONAS"
   },
   {
@@ -276,7 +276,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "7482040",
     "direccion": "CARRERA 9 CON CALLE 6 ESQUINA",
-    "municipio": "BARBOSA - SANTANDER",
+    "municipio": "BARBOSA",
     "departamento": "SANTANDER"
   },
   {
@@ -284,7 +284,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "5434377",
     "direccion": "CALLE 41 # 28A- 50",
-    "municipio": "EL CARMEN DE VIBORAL - ANTIOQUIA",
+    "municipio": "EL CARMEN DE VIBORAL",
     "departamento": "ANTIOQUIA"
   },
   {
@@ -292,7 +292,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "7243400",
     "direccion": "CALLE 12  NO. 9-51 FRENTE AL PARQUE PRINCIPAL",
-    "municipio": "SAN GIL - SANTANDER",
+    "municipio": "SAN GIL",
     "departamento": "SANTANDER"
   },
   {
@@ -300,7 +300,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8514239",
     "direccion": "CALLE 6 NO 5 - 23 PISO 1. PALACIO MUNICIPAL PLAZA PRINCIPAL",
-    "municipio": "AGUADAS - CALDAS",
+    "municipio": "AGUADAS",
     "departamento": "CALDAS"
   },
   {
@@ -308,7 +308,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "2375568",
     "direccion": "TERMINAL DE TRANSPORTE-SEGUNDO PISO OFICINA 207 Y  209",
-    "municipio": "GUADALAJARA DE BUGA - VALLE DEL CAUCA",
+    "municipio": "GUADALAJARA DE BUGA",
     "departamento": "VALLE DEL CAUCA"
   },
   {
@@ -316,7 +316,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "5534428",
     "direccion": "CARRERA 17 NO.   21 - 54  CENTRAL INTEGRADORA DE TRANSPORTES",
-    "municipio": "LA CEJA - ANTIOQUIA",
+    "municipio": "LA CEJA",
     "departamento": "ANTIOQUIA"
   },
   {
@@ -324,7 +324,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "3123953406",
     "direccion": "CARRERA 2 PALACIO DE SAN CARLOS",
-    "municipio": "MOMPOS - BOLIVAR",
+    "municipio": "MOMPOS",
     "departamento": "BOLÍVAR"
   },
   {
@@ -332,7 +332,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8332120",
     "direccion": "CARRERA 5 NO 50 - 11  PALACIO MUNICIPAL PISO 2",
-    "municipio": "PUERTO BERRIO - ANTIOQUIA",
+    "municipio": "PUERTO BERRIO",
     "departamento": "ANTIOQUIA"
   },
   {
@@ -340,7 +340,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8416830",
     "direccion": "CALLE 49 ARBOLEDA N° 49ª - 33",
-    "municipio": "ANDES - ANTIOQUIA",
+    "municipio": "ANDES",
     "departamento": "ANTIOQUIA"
   },
   {
@@ -348,7 +348,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "6214599",
     "direccion": "CARRERA 2 NO.50-25 SECTOR COMERCIAL",
-    "municipio": "BARRANCABERMEJA - SANTANDER",
+    "municipio": "BARRANCABERMEJA",
     "departamento": "SANTANDER"
   },
   {
@@ -356,7 +356,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "",
     "direccion": "AVENIDA CACIQUE CALLE 42 NO. 22-01",
-    "municipio": "CALARCA - QUINDIO",
+    "municipio": "CALARCA",
     "departamento": "QUINDÍO"
   },
   {
@@ -364,7 +364,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "7735426",
     "direccion": "CARRERA 25. TERMINAL DE TRANSPORTE",
-    "municipio": "LORICA - CORDOBA",
+    "municipio": "LORICA",
     "departamento": "CÓRDOBA"
   },
   {
@@ -372,7 +372,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "7383490",
     "direccion": "CARRERA 2 # 10 ESQUINA CENTRO ADMINISTRATIVO MUNICIPAL",
-    "municipio": "PUERTO BOYACA - BOYACA",
+    "municipio": "PUERTO BOYACA",
     "departamento": "BOYACÁ"
   },
   {
@@ -380,7 +380,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "7588350",
     "direccion": "CALLE 14 ENTRE CARRERA 10 Y 11",
-    "municipio": "SAHAGUN - CORDOBA",
+    "municipio": "SAHAGUN",
     "departamento": "CÓRDOBA"
   },
   {
@@ -388,7 +388,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8694444",
     "direccion": "CARRERA 6 NO.  6 - 58. ALCALDIA MUNICIPAL",
-    "municipio": "SONSON - ANTIOQUIA",
+    "municipio": "SONSON",
     "departamento": "ANTIOQUIA"
   },
   {
@@ -396,7 +396,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "2490484",
     "direccion": "ALCALDIA MUNICIPAL  CALLE 9  CON CARRERA 2 NORTE. PARQUE DIDACTICO",
-    "municipio": "ROLDANILLO - VALLE DEL CAUCA",
+    "municipio": "ROLDANILLO",
     "departamento": "VALLE DEL CAUCA"
   },
   {
@@ -404,7 +404,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "2219000",
     "direccion": "CARRERA 9 NO. 10-36. PALACIO MUNICIPAL",
-    "municipio": "ZARZAL - VALLE DEL CAUCA",
+    "municipio": "ZARZAL",
     "departamento": "VALLE DEL CAUCA"
   },
   {
@@ -412,7 +412,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "2460290",
     "direccion": "CALLE 10 # 8-42 CENTRO (CIS)",
-    "municipio": "CHAPARRAL - TOLIMA",
+    "municipio": "CHAPARRAL",
     "departamento": "TOLIMA"
   },
   {
@@ -420,15 +420,15 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8380088",
     "direccion": "CLL 18 # 7-32",
-    "municipio": "CAMPOALEGRE - HUILA",
+    "municipio": "CAMPOALEGRE",
     "departamento": "HUILA"
   },
   {
     "nombre": "INST DPTAL DE TTO QUINDIO/CIRCASIA",
     "tipo": "Organismos de Tránsito",
-    "telefono": "7498764",
-    "direccion": "VÍA ARMENIA - CIRCASIA, KM 1, DOBLE CALZADA, INTERSECCIÓN LA CABAÑA, COSTADO IZQUIERDO",
-    "municipio": "CIRCASIA - QUINDIO",
+    "telefono": "3156650379",
+    "direccion": "KM 1 INTERSECCION LA CABAÑA COSTADO DERECHO VIA PEREIRA ARMENIA CIRCASIA QUINDIO",
+    "municipio": "CIRCASIA",
     "departamento": "QUINDÍO"
   },
   {
@@ -436,7 +436,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "6550070",
     "direccion": "CALLE 8 NO 3 - 31 BARRIO GAITAN",
-    "municipio": "RESTREPO - META",
+    "municipio": "RESTREPO",
     "departamento": "META"
   },
   {
@@ -444,7 +444,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8-6755427",
     "direccion": "CARRERA 6 TRANSVERSAL 5 ESQUINA",
-    "municipio": "GUAMAL - META",
+    "municipio": "GUAMAL",
     "departamento": "META"
   },
   {
@@ -452,7 +452,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "6550305",
     "direccion": "CALLE 8 N. 3-31",
-    "municipio": "PUERTO LOPEZ - META",
+    "municipio": "PUERTO LOPEZ",
     "departamento": "META"
   },
   {
@@ -460,7 +460,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "3205100934",
     "direccion": "CALLE 7 #3 - 21 BARRIO CENTRO",
-    "municipio": "SAN ALBERTO - CESAR",
+    "municipio": "SAN ALBERTO",
     "departamento": "CESAR"
   },
   {
@@ -468,7 +468,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "5840310",
     "direccion": "CARRERA 8 # 4-78 BARRIO NIÑO DE JESUS",
-    "municipio": "SAN DIEGO - CESAR",
+    "municipio": "SAN DIEGO",
     "departamento": "CESAR"
   },
   {
@@ -476,7 +476,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "4221049",
     "direccion": "CALLE 10 NO. 30-60",
-    "municipio": "PUERTO ASIS - PUTUMAYO",
+    "municipio": "PUERTO ASIS",
     "departamento": "PUTUMAYO"
   },
   {
@@ -484,7 +484,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "4270727",
     "direccion": "CALLE 9 # 5 - 18 BARRIO CENTRO",
-    "municipio": "ARACATACA - MAGDALENA",
+    "municipio": "ARACATACA",
     "departamento": "MAGDALENA"
   },
   {
@@ -492,7 +492,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "5651445",
     "direccion": "CARRERA 15 NO. 2-42",
-    "municipio": "AGUACHICA - CESAR",
+    "municipio": "AGUACHICA",
     "departamento": "CESAR"
   },
   {
@@ -500,7 +500,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "4291714",
     "direccion": "CARRERA 4 NO. 6-20",
-    "municipio": "EL BANCO - MAGDALENA",
+    "municipio": "EL BANCO",
     "departamento": "MAGDALENA"
   },
   {
@@ -508,7 +508,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "4131439",
     "direccion": "TRANSVERSAL 8 DIAGONAL 9 NO. 9-75",
-    "municipio": "FUNDACION - MAGDALENA",
+    "municipio": "FUNDACION",
     "departamento": "MAGDALENA"
   },
   {
@@ -516,7 +516,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "7255524",
     "direccion": "CALLE 10 NO. 9-34 PISO 3 EDIFICIO JERUSALEN",
-    "municipio": "MAICAO - LA GUAJIRA",
+    "municipio": "MAICAO",
     "departamento": "LA GUAJIRA"
   },
   {
@@ -524,7 +524,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "3931108",
     "direccion": "CALLE 63 NO. 13-17 PROLONGACIÓN AVENIDA MURILLO. CENTRO COMERCIAL NUESTRO ATLÁNTICO. PISO 2 LOCAL 2005",
-    "municipio": "SOLEDAD - ATLANTICO",
+    "municipio": "SOLEDAD",
     "departamento": "ATLÁNTICO"
   },
   {
@@ -532,7 +532,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "3227707354",
     "direccion": "CR 3 5 53 B.SAN MARTIN",
-    "municipio": "ARAUQUITA - ARAUCA",
+    "municipio": "ARAUQUITA",
     "departamento": "ARAUCA"
   },
   {
@@ -540,7 +540,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8882174",
     "direccion": "CALLE 11 NO. 14 - 59",
-    "municipio": "TAME - ARAUCA",
+    "municipio": "TAME",
     "departamento": "ARAUCA"
   },
   {
@@ -548,7 +548,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "3235355707",
     "direccion": "CARRERA 10 # 14 - 01 BARRIO LA ESMERALDA",
-    "municipio": "SAN LUIS DE SINCE - SUCRE",
+    "municipio": "SAN LUIS DE SINCE",
     "departamento": "SUCRE"
   },
   {
@@ -556,7 +556,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8853157",
     "direccion": "CARRERA 19 NO 17-55. CENTRO",
-    "municipio": "ARAUCA - ARAUCA",
+    "municipio": "ARAUCA",
     "departamento": "ARAUCA"
   },
   {
@@ -564,7 +564,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "6564535",
     "direccion": "CALLE 15 NO. 16 - 56 BARRIO EL CENTRO",
-    "municipio": "ACACIAS - META",
+    "municipio": "ACACIAS",
     "departamento": "META"
   },
   {
@@ -572,7 +572,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "7258372",
     "direccion": "CARRERA 17 NO 24-11. ALCALDIA MUNICIPAL - PISO 2",
-    "municipio": "CHARALA - SANTANDER",
+    "municipio": "CHARALA",
     "departamento": "SANTANDER"
   },
   {
@@ -580,7 +580,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "7641537",
     "direccion": "CEREBASTOS BLOQUE A. PRIMER PISO",
-    "municipio": "CERETE - CORDOBA",
+    "municipio": "CERETE",
     "departamento": "CÓRDOBA"
   },
   {
@@ -588,7 +588,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8369915",
     "direccion": "CALLE 1 # 11-45 ESTE BARRIO PARAISO",
-    "municipio": "PITALITO - HUILA",
+    "municipio": "PITALITO",
     "departamento": "HUILA"
   },
   {
@@ -596,7 +596,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "7775377",
     "direccion": "CALLE 2 NO. 4-13 BARRIO EL CENTRO",
-    "municipio": "ALBANIA - LA GUAJIRA",
+    "municipio": "ALBANIA",
     "departamento": "LA GUAJIRA"
   },
   {
@@ -604,7 +604,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "5809524",
     "direccion": "AVENIDA 10 NO. 28-46 SEGUNDO PISO",
-    "municipio": "LOS PATIOS - N. DE SANTANDER",
+    "municipio": "LOS PATIOS",
     "departamento": "NORTE DE SANTANDER"
   },
   {
@@ -612,7 +612,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8374701",
     "direccion": "CARRERA 3 NO. 4 – 27 PISO 1",
-    "municipio": "TIMANA - HUILA",
+    "municipio": "TIMANA",
     "departamento": "HUILA"
   },
   {
@@ -620,7 +620,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "4101560",
     "direccion": "CALLE 12 # 12-07",
-    "municipio": "CIENAGA - MAGDALENA",
+    "municipio": "CIENAGA",
     "departamento": "MAGDALENA"
   },
   {
@@ -628,7 +628,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "7706761",
     "direccion": "CARRERA 5 NO. 1 - 45 BARRIO LOS PINOS",
-    "municipio": "SOGAMOSO - BOYACA",
+    "municipio": "SOGAMOSO",
     "departamento": "BOYACÁ"
   },
   {
@@ -636,7 +636,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "7279805",
     "direccion": "CARRERA 7 NO. 21-15",
-    "municipio": "RIOHACHA - LA GUAJIRA",
+    "municipio": "RIOHACHA",
     "departamento": "LA GUAJIRA"
   },
   {
@@ -644,7 +644,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "6860527",
     "direccion": "BARRIO EL TENDAL CALLE 23 # 48 - 60",
-    "municipio": "EL CARMEN DE BOLIVAR - BOLIVAR",
+    "municipio": "EL CARMEN DE BOLIVAR",
     "departamento": "BOLÍVAR"
   },
   {
@@ -652,7 +652,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "3366767",
     "direccion": "CARRERA 9 NO 37-65",
-    "municipio": "PEREIRA - RISARALDA",
+    "municipio": "PEREIRA",
     "departamento": "RISARALDA"
   },
   {
@@ -660,7 +660,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "6053713000",
     "direccion": "KM 15 VÍA CORDIALIDAD 300 M ANTES DEL PEAJE",
-    "municipio": "BARANOA - ATLANTICO",
+    "municipio": "BARANOA",
     "departamento": "ATLÁNTICO"
   },
   {
@@ -668,7 +668,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "7755390",
     "direccion": "CRA 12 # 17-30",
-    "municipio": "FONSECA - LA GUAJIRA",
+    "municipio": "FONSECA",
     "departamento": "LA GUAJIRA"
   },
   {
@@ -676,7 +676,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8392411",
     "direccion": "VEREDA BAJO PEDREGAL 100 METROS DESPUES DEL CRUCE VIA NEIVA - RIVERA",
-    "municipio": "RIVERA - HUILA",
+    "municipio": "RIVERA",
     "departamento": "HUILA"
   },
   {
@@ -684,7 +684,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "3212001188",
     "direccion": "CARRERA 11 NO. 76 PLAZA PRINCIPAL",
-    "municipio": "CLEMENCIA - BOLIVAR",
+    "municipio": "CLEMENCIA",
     "departamento": "BOLÍVAR"
   },
   {
@@ -692,7 +692,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "87860168/137 y 164 y 7450909",
     "direccion": "CARRERA 8 # 6-56",
-    "municipio": "SANTA ROSA DE VITERBO - BOYACA",
+    "municipio": "SANTA ROSA DE VITERBO",
     "departamento": "BOYACÁ"
   },
   {
@@ -700,7 +700,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "7451917",
     "direccion": "CARRERA 2  NO.72-43 KM. 3",
-    "municipio": "COMBITA - BOYACA",
+    "municipio": "COMBITA",
     "departamento": "BOYACÁ"
   },
   {
@@ -708,7 +708,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "87321386",
     "direccion": "CRA 9 N° 7 - 52 LOCAL 7 CC VILLA DE LEYVA PLAZA",
-    "municipio": "VILLA DE LEYVA - BOYACA",
+    "municipio": "VILLA DE LEYVA",
     "departamento": "BOYACÁ"
   },
   {
@@ -716,7 +716,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "7327031 -  0333107805944",
     "direccion": "TERMINAL DE TTE LOCAL 17",
-    "municipio": "RAMIRIQUI - BOYACA",
+    "municipio": "RAMIRIQUI",
     "departamento": "BOYACÁ"
   },
   {
@@ -724,7 +724,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "87773019",
     "direccion": "CRA 10 CON CALLE 4 ESQUINA /B JERONIMO HOGUIN",
-    "municipio": "NOBSA - BOYACA",
+    "municipio": "NOBSA",
     "departamento": "BOYACÁ"
   },
   {
@@ -732,7 +732,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "7255439",
     "direccion": "CARRERA 9 NO. 6-58",
-    "municipio": "SABOYA - BOYACA",
+    "municipio": "SABOYA",
     "departamento": "BOYACÁ"
   },
   {
@@ -740,7 +740,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "87282682",
     "direccion": "CALLE 20 NO 2-06 BARRIO EL CAMELL0N SECTOR COLISEO",
-    "municipio": "MONIQUIRA - BOYACA",
+    "municipio": "MONIQUIRA",
     "departamento": "BOYACÁ"
   },
   {
@@ -748,7 +748,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "382795130",
     "direccion": "CALLE 10 - CARRERA 3 A ESQUINA",
-    "municipio": "GUATEQUE - BOYACA",
+    "municipio": "GUATEQUE",
     "departamento": "BOYACÁ"
   },
   {
@@ -756,7 +756,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "87880082",
     "direccion": "CALLE 12 CON CRA 4 ESQUINA",
-    "municipio": "SOATA - BOYACA",
+    "municipio": "SOATA",
     "departamento": "BOYACÁ"
   },
   {
@@ -764,7 +764,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "87331794",
     "direccion": "CALLE 3 NO 5-17 BARRIO EL CAMELLON",
-    "municipio": "MIRAFLORES - BOYACA",
+    "municipio": "MIRAFLORES",
     "departamento": "BOYACÁ"
   },
   {
@@ -772,7 +772,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "5769375",
     "direccion": "CALLE 6 3A 23",
-    "municipio": "LA JAGUA DE IBIRICO - CESAR",
+    "municipio": "LA JAGUA DE IBIRICO",
     "departamento": "CESAR"
   },
   {
@@ -780,7 +780,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "5697448",
     "direccion": "CARRERA 12A Nº 11-26",
-    "municipio": "SANTA ROSA - BOLIVAR",
+    "municipio": "SANTA ROSA",
     "departamento": "BOLÍVAR"
   },
   {
@@ -788,7 +788,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "",
     "direccion": "2523520",
-    "municipio": "YOTOCO - VALLE DEL CAUCA",
+    "municipio": "YOTOCO",
     "departamento": "VALLE DEL CAUCA"
   },
   {
@@ -796,7 +796,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "5313505",
     "direccion": "CARRERA 47 NO 62-50",
-    "municipio": "RIONEGRO - ANTIOQUIA",
+    "municipio": "RIONEGRO",
     "departamento": "ANTIOQUIA"
   },
   {
@@ -804,7 +804,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8638559",
     "direccion": "DIAGONAL 17 NO 6 -108",
-    "municipio": "CHIA - CUNDINAMARCA",
+    "municipio": "CHIA",
     "departamento": "CUNDINAMARCA"
   },
   {
@@ -812,7 +812,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8879725",
     "direccion": "CARRERA 19 CALLE 21 - 02",
-    "municipio": "MANIZALES - CALDAS",
+    "municipio": "MANIZALES",
     "departamento": "CALDAS"
   },
   {
@@ -820,7 +820,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8716080",
     "direccion": "CARRERA 5 # 38-61 SUR",
-    "municipio": "NEIVA - HUILA",
+    "municipio": "NEIVA",
     "departamento": "HUILA"
   },
   {
@@ -828,7 +828,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "3207679693",
     "direccion": "CRA 22 N 20 16",
-    "municipio": "YARUMAL - ANTIOQUIA",
+    "municipio": "YARUMAL",
     "departamento": "ANTIOQUIA"
   },
   {
@@ -836,7 +836,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "0",
     "direccion": "VÍA LA CORDIALIDAD KILÓMETRO 2 EDS TERPEL EL MATORRAL",
-    "municipio": "SANTA ROSA - BOLIVAR",
+    "municipio": "SANTA ROSA",
     "departamento": "BOLÍVAR"
   },
   {
@@ -844,7 +844,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8295469",
     "direccion": "CALLE 6 # 17 - 03",
-    "municipio": "MOSQUERA - CUNDINAMARCA",
+    "municipio": "MOSQUERA",
     "departamento": "CUNDINAMARCA"
   },
   {
@@ -852,23 +852,15 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "2520280",
     "direccion": "CLL 6 # 5-37",
-    "municipio": "VIJES - VALLE DEL CAUCA",
+    "municipio": "VIJES",
     "departamento": "VALLE DEL CAUCA"
-  },
-  {
-    "nombre": "SECRETARIA DE MOVILIDAD Y TRANSPORTE DEL MUNICIPIO DE PLANADAS",
-    "tipo": "Organismos de Tránsito",
-    "telefono": "2265033",
-    "direccion": "CR. 5 CL. 1 CENTRO",
-    "municipio": "PLANADAS - TOLIMA",
-    "departamento": "TOLIMA"
   },
   {
     "nombre": "SECRETARIA DE TRANSITO Y TRANSPORTE MUNICIPIO DE SILVANIA",
     "tipo": "Organismos de Tránsito",
     "telefono": "3183636978",
     "direccion": "PALACIO MUNICIPAL",
-    "municipio": "SILVANIA - CUNDINAMARCA",
+    "municipio": "SILVANIA",
     "departamento": "CUNDINAMARCA"
   },
   {
@@ -876,7 +868,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "0",
     "direccion": "CALLE 8 CARRERA 21 ESQUINA",
-    "municipio": "LA MESA - CUNDINAMARCA",
+    "municipio": "LA MESA",
     "departamento": "CUNDINAMARCA"
   },
   {
@@ -884,7 +876,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8512064",
     "direccion": "CALLE 1 # 10-04 CENTRO COMERCIAL LA CASONA PISO 3",
-    "municipio": "ZIPAQUIRA - CUNDINAMARCA",
+    "municipio": "ZIPAQUIRA",
     "departamento": "CUNDINAMARCA"
   },
   {
@@ -892,7 +884,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8253630",
     "direccion": "CRR 104A100-108",
-    "municipio": "CHIGORODO - ANTIOQUIA",
+    "municipio": "CHIGORODO",
     "departamento": "ANTIOQUIA"
   },
   {
@@ -900,7 +892,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "3649400",
     "direccion": "CALLE 13 NO. 37 - 35",
-    "municipio": "BOGOTA, D.C. - BOGOTA",
+    "municipio": "BOGOTA, D.C.",
     "departamento": "BOGOTÁ, D. C."
   },
   {
@@ -908,7 +900,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "2830715",
     "direccion": "TRANSVERSAL 21 NO. 21A-4. BARRIO EL PORVENIR",
-    "municipio": "SAMPUES - SUCRE",
+    "municipio": "SAMPUES",
     "departamento": "SUCRE"
   },
   {
@@ -916,7 +908,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "4282332",
     "direccion": "CALLE 9 NO. 5-32 LAS AMERICAS SECRETARIA DE TRANSITO",
-    "municipio": "VALLE DEL GUAMUEZ - PUTUMAYO",
+    "municipio": "VALLE DEL GUAMUEZ",
     "departamento": "PUTUMAYO"
   },
   {
@@ -924,7 +916,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "6567100",
     "direccion": "CLL 11  8 59",
-    "municipio": "LEBRIJA - SANTANDER",
+    "municipio": "LEBRIJA",
     "departamento": "SANTANDER"
   },
   {
@@ -932,7 +924,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "5510025",
     "direccion": "CARRERA 50 #52-02",
-    "municipio": "GUARNE - ANTIOQUIA",
+    "municipio": "GUARNE",
     "departamento": "ANTIOQUIA"
   },
   {
@@ -940,7 +932,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8486212",
     "direccion": "VILLA RICA",
-    "municipio": "VILLA RICA - CAUCA",
+    "municipio": "VILLA RICA",
     "departamento": "CAUCA"
   },
   {
@@ -948,7 +940,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8868181",
     "direccion": "CARRERA 6 NO. 6 - 24. ALCALDIA MUNICIPAL",
-    "municipio": "FUSAGASUGA - CUNDINAMARCA",
+    "municipio": "FUSAGASUGA",
     "departamento": "CUNDINAMARCA"
   },
   {
@@ -956,7 +948,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "5530473",
     "direccion": "CALLE 3  3-52 BARRIO CENTRO",
-    "municipio": "EL PASO - CESAR",
+    "municipio": "EL PASO",
     "departamento": "CESAR"
   },
   {
@@ -964,7 +956,15 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "3185259586",
     "direccion": "CRA 7 N 4-86",
-    "municipio": "SESQUILE - CUNDINAMARCA",
+    "municipio": "SESQUILE",
+    "departamento": "CUNDINAMARCA"
+  },
+  {
+    "nombre": "STRIA DE TTO, TTE y MOVILIDAD MUNICIPAL DE COTA",
+    "tipo": "Organismos de Tránsito",
+    "telefono": "3017917008",
+    "direccion": "CRA 4 #12-63",
+    "municipio": "COTA",
     "departamento": "CUNDINAMARCA"
   },
   {
@@ -972,7 +972,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8238445",
     "direccion": "CALLE 70 CON CARRERA 80 EDIFICIO CENTRO DE ACOPIO DE TRANSPORTE DE CAREPA",
-    "municipio": "CAREPA - ANTIOQUIA",
+    "municipio": "CAREPA",
     "departamento": "ANTIOQUIA"
   },
   {
@@ -980,7 +980,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "2124847",
     "direccion": "CALLE 10 NO. 14-131 PISO 2",
-    "municipio": "CARTAGO - VALLE DEL CAUCA",
+    "municipio": "CARTAGO",
     "departamento": "VALLE DEL CAUCA"
   },
   {
@@ -988,7 +988,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "5484884",
     "direccion": "CALLE 28B N° 34-32 PLAZA DE MERCADO",
-    "municipio": "MARINILLA - ANTIOQUIA",
+    "municipio": "MARINILLA",
     "departamento": "ANTIOQUIA"
   },
   {
@@ -996,7 +996,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "3478165",
     "direccion": "CALLE 11 KRA 15 ESQUINA",
-    "municipio": "MALAMBO - ATLANTICO",
+    "municipio": "MALAMBO",
     "departamento": "ATLÁNTICO"
   },
   {
@@ -1004,7 +1004,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "7411355",
     "direccion": "CARRERA 19A CON CALLE 26 CENTRO CULTURAL METROPOLITANO LA ESTACION",
-    "municipio": "ARMENIA - QUINDIO",
+    "municipio": "ARMENIA",
     "departamento": "QUINDÍO"
   },
   {
@@ -1012,7 +1012,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "5750195",
     "direccion": "CALLE 7 NO. 15 - 104. ALCALDIA MUNICIPAL",
-    "municipio": "CURUMANI - CESAR",
+    "municipio": "CURUMANI",
     "departamento": "CESAR"
   },
   {
@@ -1020,7 +1020,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "2561100",
     "direccion": "CRA 3 NO 4 17",
-    "municipio": "GINEBRA - VALLE DEL CAUCA",
+    "municipio": "GINEBRA",
     "departamento": "VALLE DEL CAUCA"
   },
   {
@@ -1028,7 +1028,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "2522903",
     "direccion": "CALLE 4 CON CARRERA 3 ESQUINA 2 PISO",
-    "municipio": "MARIQUITA - TOLIMA",
+    "municipio": "MARIQUITA",
     "departamento": "TOLIMA"
   },
   {
@@ -1036,7 +1036,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "3012324346",
     "direccion": "CENTRO PLAZA PRINCIP",
-    "municipio": "SAN ONOFRE - SUCRE",
+    "municipio": "SAN ONOFRE",
     "departamento": "SUCRE"
   },
   {
@@ -1044,7 +1044,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "4457700",
     "direccion": "CARRERA 64 C NO. 72-58 - BARRIO CARIBE - MEDELLIN",
-    "municipio": "MEDELLIN - ANTIOQUIA",
+    "municipio": "MEDELLIN",
     "departamento": "ANTIOQUIA"
   },
   {
@@ -1052,7 +1052,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "7443841",
     "direccion": "CARRERA 6 # 50 – 51 BODEGA 15",
-    "municipio": "TUNJA - BOYACA",
+    "municipio": "TUNJA",
     "departamento": "BOYACÁ"
   },
   {
@@ -1060,7 +1060,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "033-3002510401",
     "direccion": "CALLE 20 CON CRA 12 ESQUINA TRONCAL DE OCCIDENTE",
-    "municipio": "LA APARTADA - CORDOBA",
+    "municipio": "LA APARTADA",
     "departamento": "CÓRDOBA"
   },
   {
@@ -1068,7 +1068,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "PBX: 7926297 30141003299",
     "direccion": "CALLE 27 NO 3-28 PISO 2 AL 8 Y CRA 13 NO 15-60 CARRETERA CENTRAL HINÚ CÓRDOBA",
-    "municipio": "CHINU - CORDOBA",
+    "municipio": "CHINU",
     "departamento": "CÓRDOBA"
   },
   {
@@ -1076,7 +1076,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "3694906",
     "direccion": "CARRERA 46 # 82 - 225",
-    "municipio": "BARRANQUILLA - ATLANTICO",
+    "municipio": "BARRANQUILLA",
     "departamento": "ATLÁNTICO"
   },
   {
@@ -1084,7 +1084,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "2452625",
     "direccion": "CALLE 6 CARRERA 22 ESQUINA",
-    "municipio": "MELGAR - TOLIMA",
+    "municipio": "MELGAR",
     "departamento": "TOLIMA"
   },
   {
@@ -1092,7 +1092,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8321383",
     "direccion": "CALLE 3 NO 6 - 55 BARRIO INDUSTRIAL",
-    "municipio": "GUADALUPE - HUILA",
+    "municipio": "GUADALUPE",
     "departamento": "HUILA"
   },
   {
@@ -1100,7 +1100,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "7262572",
     "direccion": "CALLE 17 7A -48 ALCALDIA MUNICIPAL TERCER PISO",
-    "municipio": "CHIQUINQUIRA - BOYACA",
+    "municipio": "CHIQUINQUIRA",
     "departamento": "BOYACÁ"
   },
   {
@@ -1108,7 +1108,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "5755700",
     "direccion": "CLL 13  7 - 30",
-    "municipio": "SOACHA - CUNDINAMARCA",
+    "municipio": "SOACHA",
     "departamento": "CUNDINAMARCA"
   },
   {
@@ -1116,7 +1116,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "3126400 EXT 105",
     "direccion": "CARRERA 100 NO 103A - 02 CENTRO ADMINISTRATIVO",
-    "municipio": "APARTADO - ANTIOQUIA",
+    "municipio": "APARTADO",
     "departamento": "ANTIOQUIA"
   },
   {
@@ -1124,7 +1124,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "6292836",
     "direccion": "VIA LA TRONCAL DE OCCIDENTE CARRERA 47ª NO. 50 - 20 SAN JOSE DE TURBAQUITO",
-    "municipio": "ARJONA - BOLIVAR",
+    "municipio": "ARJONA",
     "departamento": "BOLÍVAR"
   },
   {
@@ -1132,7 +1132,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "7919802",
     "direccion": "CALLE 56 NO  61-74. PISO 2",
-    "municipio": "MONTERIA - CORDOBA",
+    "municipio": "MONTERIA",
     "departamento": "CÓRDOBA"
   },
   {
@@ -1140,7 +1140,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "7768203",
     "direccion": "CALLE 22 CON CARRERA 10 ESQUINA",
-    "municipio": "PLANETA RICA - CORDOBA",
+    "municipio": "PLANETA RICA",
     "departamento": "CÓRDOBA"
   },
   {
@@ -1148,7 +1148,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "2823793",
     "direccion": "CARRERA 4 # 13-86",
-    "municipio": "SINCELEJO - SUCRE",
+    "municipio": "SINCELEJO",
     "departamento": "SUCRE"
   },
   {
@@ -1156,7 +1156,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "4184215",
     "direccion": "CARRERA 3 NO. 56-90 BARRIO  SALOMIA BLOQUE DESPACHO SECRETARIO DE TRANSITO",
-    "municipio": "CALI - VALLE DEL CAUCA",
+    "municipio": "CALI",
     "departamento": "VALLE DEL CAUCA"
   },
   {
@@ -1164,7 +1164,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "6500004",
     "direccion": "CALLE 12 # 15-19 BARRIO BELÉN",
-    "municipio": "GRANADA - META",
+    "municipio": "GRANADA",
     "departamento": "META"
   },
   {
@@ -1172,7 +1172,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "5779731",
     "direccion": "CARRERA 18 - CENTRO ADMINISTRATIVO MUNICIPAL DE BOSCONIA",
-    "municipio": "BOSCONIA - CESAR",
+    "municipio": "BOSCONIA",
     "departamento": "CESAR"
   },
   {
@@ -1180,7 +1180,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "2164445",
     "direccion": "PARQUE AGROINDUSTRIAL - VIA  CAICEDONIA SEVILLA",
-    "municipio": "CAICEDONIA - VALLE DEL CAUCA",
+    "municipio": "CAICEDONIA",
     "departamento": "VALLE DEL CAUCA"
   },
   {
@@ -1188,7 +1188,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8504465",
     "direccion": "CARRERA 8 CALLE 11 ESQUINA - PALACIO MUNICIPAL",
-    "municipio": "CHINCHINA - CALDAS",
+    "municipio": "CHINCHINA",
     "departamento": "CALDAS"
   },
   {
@@ -1196,7 +1196,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "3320564",
     "direccion": "CARRERA 16 NO. 36-44",
-    "municipio": "DOSQUEBRADAS - RISARALDA",
+    "municipio": "DOSQUEBRADAS",
     "departamento": "RISARALDA"
   },
   {
@@ -1204,7 +1204,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "7630517",
     "direccion": "DIAGONAL 18 NO. 20 - 57",
-    "municipio": "DUITAMA - BOYACA",
+    "municipio": "DUITAMA",
     "departamento": "BOYACÁ"
   },
   {
@@ -1212,7 +1212,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "2571922",
     "direccion": "CALLE 6 NO. 10-53",
-    "municipio": "EL CERRITO - VALLE DEL CAUCA",
+    "municipio": "EL CERRITO",
     "departamento": "VALLE DEL CAUCA"
   },
   {
@@ -1220,7 +1220,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "2390314",
     "direccion": "CALLE 8 NO. 6-15 - ALCALDIA MUNICIPAL",
-    "municipio": "ESPINAL - TOLIMA",
+    "municipio": "ESPINAL",
     "departamento": "TOLIMA"
   },
   {
@@ -1228,7 +1228,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "3823373",
     "direccion": "BANDA IZQUIERDA CARRETERA LA CORDIALIDAD VIA GALAPA PARQUE INDUSTRIAL LOS VOLCANES LOCAL 3",
-    "municipio": "GALAPA - ATLANTICO",
+    "municipio": "GALAPA",
     "departamento": "ATLÁNTICO"
   },
   {
@@ -1236,7 +1236,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8333383",
     "direccion": "CENTRO COMERCIAL PASEO DEL ROSARIO LOCAL 1 NO 055",
-    "municipio": "GARZON - HUILA",
+    "municipio": "GARZON",
     "departamento": "HUILA"
   },
   {
@@ -1244,7 +1244,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "6917272",
     "direccion": "CALLE 58 4-71 URBA. VEGAS VILLAMIZAR A 300 MTS DE CENFER EJE VIAL GIRON",
-    "municipio": "GIRON - SANTANDER",
+    "municipio": "GIRON",
     "departamento": "SANTANDER"
   },
   {
@@ -1252,7 +1252,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "2513171",
     "direccion": "CALLE 23 CARRERA 14 TERMINAL DE TRANSPORTE LOCAL 4 - 5",
-    "municipio": "HONDA - TOLIMA",
+    "municipio": "HONDA",
     "departamento": "TOLIMA"
   },
   {
@@ -1260,7 +1260,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "2669329",
     "direccion": "CARRERA 23 # 87-08 PARQUE INDUSTRIAL Y DE SERVICIOS PLUS +",
-    "municipio": "IBAGUE - TOLIMA",
+    "municipio": "IBAGUE",
     "departamento": "TOLIMA"
   },
   {
@@ -1268,7 +1268,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8372955",
     "direccion": "KILOMETRO 1 VIA LA PLATA - NEIVA PARADOR TERMINAL DE TRANSPORTE",
-    "municipio": "LA PLATA - HUILA",
+    "municipio": "LA PLATA",
     "departamento": "HUILA"
   },
   {
@@ -1276,7 +1276,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "3678503",
     "direccion": "CRA 8 N 5 35",
-    "municipio": "LA VIRGINIA - RISARALDA",
+    "municipio": "LA VIRGINIA",
     "departamento": "RISARALDA"
   },
   {
@@ -1284,7 +1284,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "5680501",
     "direccion": "CARRERA 6 CALLE 5 ESQUINA PALACIO MUNICIPAL",
-    "municipio": "PAMPLONA - N. DE SANTANDER",
+    "municipio": "PAMPLONA",
     "departamento": "NORTE DE SANTANDER"
   },
   {
@@ -1292,7 +1292,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "3097029",
     "direccion": "PROLONGACIÓN CARRERA 30 CORREDOR UNIVERSITARIO ESTACIÓN DE SERVICIO PAPIROS PARKING 2 PISO 2",
-    "municipio": "PUERTO COLOMBIA - ATLANTICO",
+    "municipio": "PUERTO COLOMBIA",
     "departamento": "ATLÁNTICO"
   },
   {
@@ -1300,7 +1300,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8791370",
     "direccion": "PALACIO MUNICIAL",
-    "municipio": "SABANAGRANDE - ATLANTICO",
+    "municipio": "SABANAGRANDE",
     "departamento": "ATLÁNTICO"
   },
   {
@@ -1308,7 +1308,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8560215",
     "direccion": "CALLE 32 NUMERO 6-11",
-    "municipio": "SUPIA - CALDAS",
+    "municipio": "SUPIA",
     "departamento": "CALDAS"
   },
   {
@@ -1316,15 +1316,23 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8690090",
     "direccion": "KR 8 # 7- 63",
-    "municipio": "VITERBO - CALDAS",
+    "municipio": "VITERBO",
     "departamento": "CALDAS"
+  },
+  {
+    "nombre": "STRIA MOVyTTE DE PLANADAS",
+    "tipo": "Organismos de Tránsito",
+    "telefono": "2265033",
+    "direccion": "CR. 5 CL. 1 CENTRO",
+    "municipio": "PLANADAS",
+    "departamento": "TOLIMA"
   },
   {
     "nombre": "STRIA MOVyTTE DPTAL VALLE DEL CAUCA/ALCALA",
     "tipo": "Organismos de Tránsito",
     "telefono": "6200197",
     "direccion": "CL 9 CON CL 8",
-    "municipio": "ALCALA - VALLE DEL CAUCA",
+    "municipio": "ALCALA",
     "departamento": "VALLE DEL CAUCA"
   },
   {
@@ -1332,7 +1340,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "76041001",
     "direccion": "CALLE 6 # 7 -44",
-    "municipio": "ANSERMANUEVO - VALLE DEL CAUCA",
+    "municipio": "ANSERMANUEVO",
     "departamento": "VALLE DEL CAUCA"
   },
   {
@@ -1340,7 +1348,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "3188346029",
     "direccion": "CALLE 7 N° 4-13",
-    "municipio": "BOLIVAR - VALLE DEL CAUCA",
+    "municipio": "BOLIVAR",
     "departamento": "VALLE DEL CAUCA"
   },
   {
@@ -1348,7 +1356,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "833373",
     "direccion": "CARRERA 5 NO 3 - 63 BARRIO CENTRO",
-    "municipio": "BUGALAGRANDE - VALLE DEL CAUCA",
+    "municipio": "BUGALAGRANDE",
     "departamento": "VALLE DEL CAUCA"
   },
   {
@@ -1356,7 +1364,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "3128754126",
     "direccion": "CRA 9 N° 9-67",
-    "municipio": "DAGUA - VALLE DEL CAUCA",
+    "municipio": "DAGUA",
     "departamento": "VALLE DEL CAUCA"
   },
   {
@@ -1364,7 +1372,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "3017541754",
     "direccion": "AVENIDA CIRCUNVALAR CARRERA 11 # 19-332",
-    "municipio": "OCAÑA - N. DE SANTANDER",
+    "municipio": "OCAÑA",
     "departamento": "NORTE DE SANTANDER"
   },
   {
@@ -1372,7 +1380,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "6717164",
     "direccion": "CALLE 30 DIAGONAL CEMENTERIO SAN JOSE",
-    "municipio": "QUIBDO - CHOCO",
+    "municipio": "QUIBDO",
     "departamento": "CHOCÓ"
   },
   {
@@ -1380,7 +1388,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "7281301",
     "direccion": "CARRERA 14 CALLE 16 PALACIO MUNICIPAL",
-    "municipio": "TUQUERRES - NARIÑO",
+    "municipio": "TUQUERRES",
     "departamento": "NARIÑO"
   },
   {
@@ -1388,7 +1396,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "6171914",
     "direccion": "CL 8 N 8 05",
-    "municipio": "ARBELAEZ - CUNDINAMARCA",
+    "municipio": "ARBELAEZ",
     "departamento": "CUNDINAMARCA"
   },
   {
@@ -1396,7 +1404,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8480357",
     "direccion": "AVENIDA 5 FRENTE AL HOSPITAL",
-    "municipio": "CAQUEZA - CUNDINAMARCA",
+    "municipio": "CAQUEZA",
     "departamento": "CUNDINAMARCA"
   },
   {
@@ -1404,7 +1412,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "7251633",
     "direccion": "CARRERA 6 NO. 8-64 ANTIGUA CASA DE LA CULTURA",
-    "municipio": "SIBATE - CUNDINAMARCA",
+    "municipio": "SIBATE",
     "departamento": "CUNDINAMARCA"
   },
   {
@@ -1412,7 +1420,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "6171914",
     "direccion": "VIA BOGOTÁ – VILLAVICENCIO KM12+250 CHIPAQUE - CUNDINAMARCA",
-    "municipio": "CHIPAQUE - CUNDINAMARCA",
+    "municipio": "CHIPAQUE",
     "departamento": "CUNDINAMARCA"
   },
   {
@@ -1420,7 +1428,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "",
     "direccion": "CALLE 6 NO. 6 - 32",
-    "municipio": "CHOCONTA - CUNDINAMARCA",
+    "municipio": "CHOCONTA",
     "departamento": "CUNDINAMARCA"
   },
   {
@@ -1428,7 +1436,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8240180",
     "direccion": "CALLE 10 NO. 9 - 01",
-    "municipio": "EL ROSAL - CUNDINAMARCA",
+    "municipio": "EL ROSAL",
     "departamento": "CUNDINAMARCA"
   },
   {
@@ -1436,7 +1444,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "3182529571",
     "direccion": "CARRERA 14 NO11/85",
-    "municipio": "PUERTO SALGAR - CUNDINAMARCA",
+    "municipio": "PUERTO SALGAR",
     "departamento": "CUNDINAMARCA"
   },
   {
@@ -1444,7 +1452,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8366593",
     "direccion": "CARRERA 15 NO. 6-109",
-    "municipio": "RICAURTE - CUNDINAMARCA",
+    "municipio": "RICAURTE",
     "departamento": "CUNDINAMARCA"
   },
   {
@@ -1452,15 +1460,15 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8444721",
     "direccion": "CALLE 1 CANCHA MUNICIPAL",
-    "municipio": "VILLETA - CUNDINAMARCA",
+    "municipio": "VILLETA",
     "departamento": "CUNDINAMARCA"
   },
   {
-    "nombre": "STRIA TTEyMOV CUNDINAMARCA/COTA",
+    "nombre": "STRIA TTEyMOV CUNDINAMARCA/TENJO",
     "tipo": "Organismos de Tránsito",
-    "telefono": "8767487",
-    "direccion": "CENTRO COMERCIAL MERIDIANO LOCAL 12- VARIANTE COTA/CHIA KM 18",
-    "municipio": "COTA - CUNDINAMARCA",
+    "telefono": "0",
+    "direccion": "LOCALES 4, 5 Y 6 DEL INTERIOR 4 ETAPA 4 DE LA AUTOPISTA MEDELLÍN, KILÓMETRO 6.7. COSTADO NORTE DENTRO DEL PARQUE INDUSTRIAL NOVOTECH",
+    "municipio": "TENJO",
     "departamento": "CUNDINAMARCA"
   },
   {
@@ -1468,7 +1476,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "85344979",
     "direccion": "PALACIO MUNICIPAL   CALLE 7 ENTRE 4  Y 5",
-    "municipio": "ANSERMA - CALDAS",
+    "municipio": "ANSERMA",
     "departamento": "CALDAS"
   },
   {
@@ -1476,7 +1484,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "4813030",
     "direccion": "DIAGONAL 50A  NO.  42 -95",
-    "municipio": "BELLO - ANTIOQUIA",
+    "municipio": "BELLO",
     "departamento": "ANTIOQUIA"
   },
   {
@@ -1484,7 +1492,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "4532584",
     "direccion": "CALLE 50 # 53-46",
-    "municipio": "COPACABANA - ANTIOQUIA",
+    "municipio": "COPACABANA",
     "departamento": "ANTIOQUIA"
   },
   {
@@ -1492,7 +1500,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "3394088",
     "direccion": "CALLE 49 SUR  NO. 48-28 - AVENIDA LAS VEGAS",
-    "municipio": "ENVIGADO - ANTIOQUIA",
+    "municipio": "ENVIGADO",
     "departamento": "ANTIOQUIA"
   },
   {
@@ -1500,7 +1508,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "4052540",
     "direccion": "KM 25 CENTRO INDUSTRIAL DEL NORTE LOCAL 201",
-    "municipio": "GIRARDOTA - ANTIOQUIA",
+    "municipio": "GIRARDOTA",
     "departamento": "ANTIOQUIA"
   },
   {
@@ -1508,7 +1516,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "3718014",
     "direccion": "CALLE 50  NO. 43-34",
-    "municipio": "ITAGUI - ANTIOQUIA",
+    "municipio": "ITAGUI",
     "departamento": "ANTIOQUIA"
   },
   {
@@ -1516,7 +1524,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "5766070",
     "direccion": "CALLE 6 # 30 LOTE 2",
-    "municipio": "AGUSTIN CODAZZI - CESAR",
+    "municipio": "AGUSTIN CODAZZI",
     "departamento": "CESAR"
   },
   {
@@ -1524,7 +1532,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "3037585 EXT 111",
     "direccion": "CARRERA 48 # 129 SUR - 59",
-    "municipio": "CALDAS - ANTIOQUIA",
+    "municipio": "CALDAS",
     "departamento": "ANTIOQUIA"
   },
   {
@@ -1532,7 +1540,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8595288",
     "direccion": "CALLE 30 NO. 30-04. PALACIO MUNICIPAL",
-    "municipio": "FRONTINO - ANTIOQUIA",
+    "municipio": "FRONTINO",
     "departamento": "ANTIOQUIA"
   },
   {
@@ -1540,7 +1548,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8533745",
     "direccion": "CALLE 9 # 8-34",
-    "municipio": "SANTAFE DE ANTIOQUIA - ANTIOQUIA",
+    "municipio": "SANTAFE DE ANTIOQUIA",
     "departamento": "ANTIOQUIA"
   },
   {
@@ -1548,7 +1556,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "7271803",
     "direccion": "CIUDADELA VIA TUMACO-PASTO.",
-    "municipio": "SAN ANDRES DE TUMACO - NARIÑO",
+    "municipio": "SAN ANDRES DE TUMACO",
     "departamento": "NARIÑO"
   },
   {
@@ -1556,7 +1564,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "5789655",
     "direccion": "AVENIDA 2 NO 5-80 BARRIO EL CENTRO  ZULIA",
-    "municipio": "EL ZULIA - N. DE SANTANDER",
+    "municipio": "EL ZULIA",
     "departamento": "NORTE DE SANTANDER"
   },
   {
@@ -1564,7 +1572,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8426124",
     "direccion": "CARRERA 2 NO. 2 - 89 ANTIGUA CAMARA DE COMERCIO",
-    "municipio": "FACATATIVA - CUNDINAMARCA",
+    "municipio": "FACATATIVA",
     "departamento": "CUNDINAMARCA"
   },
   {
@@ -1572,7 +1580,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "2293118",
     "direccion": "CALLE 15 NO. 14-34. ALCALDIA MUNICIPAL",
-    "municipio": "LA UNION - VALLE DEL CAUCA",
+    "municipio": "LA UNION",
     "departamento": "VALLE DEL CAUCA"
   },
   {
@@ -1580,7 +1588,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8261024",
     "direccion": "CARRERA 3 NO. 4-67 ESQUINA",
-    "municipio": "PATIA - CAUCA",
+    "municipio": "PATIA",
     "departamento": "CAUCA"
   },
   {
@@ -1588,7 +1596,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8283060",
     "direccion": "CARRERA 19 CALLE 17 ESQUINA ALCALDIA MUNICIPAL",
-    "municipio": "PUERTO TEJADA - CAUCA",
+    "municipio": "PUERTO TEJADA",
     "departamento": "CAUCA"
   },
   {
@@ -1596,7 +1604,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8609785",
     "direccion": "CARRERA 28A N 32-17 TERMINAL DE TRANSPORTE TERCER PISO",
-    "municipio": "SANTA ROSA DE OSOS - ANTIOQUIA",
+    "municipio": "SANTA ROSA DE OSOS",
     "departamento": "ANTIOQUIA"
   },
   {
@@ -1604,7 +1612,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "2320061",
     "direccion": "CRA 30 VÍA PRINCIPAL COLISEO MANUEL VICTORIA ROJAS",
-    "municipio": "TULUA - VALLE DEL CAUCA",
+    "municipio": "TULUA",
     "departamento": "VALLE DEL CAUCA"
   },
   {
@@ -1612,7 +1620,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "",
     "direccion": "",
-    "municipio": "NEIRA - CALDAS",
+    "municipio": "NEIRA",
     "departamento": "CALDAS"
   },
   {
@@ -1620,7 +1628,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8837077 Ext. 13000",
     "direccion": "CARRERA 4 # 03 - 07 - CASA DE LA CULTURA 1",
-    "municipio": "CAJICA - CUNDINAMARCA",
+    "municipio": "CAJICA",
     "departamento": "CUNDINAMARCA"
   },
   {
@@ -1628,7 +1636,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "3660600",
     "direccion": "CARRERA 14 CALLE 12 ESQUINA CAM  2 PISO",
-    "municipio": "SANTA ROSA DE CABAL - RISARALDA",
+    "municipio": "SANTA ROSA DE CABAL",
     "departamento": "RISARALDA"
   },
   {
@@ -1636,7 +1644,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "780462",
     "direccion": "KM 80 + 0.400 LOCAL 3 VIA LA CORDIALIDAD",
-    "municipio": "SABANALARGA - ATLANTICO",
+    "municipio": "SABANALARGA",
     "departamento": "ATLÁNTICO"
   },
   {
@@ -1644,7 +1652,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "3175737469",
     "direccion": "CARRERA 4 # 01-68 PISO 1 Y 2",
-    "municipio": "SOPO - CUNDINAMARCA",
+    "municipio": "SOPO",
     "departamento": "CUNDINAMARCA"
   },
   {
@@ -1652,7 +1660,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "6241204",
     "direccion": "CALLE 8 NO 13 - 35 BARRIO FUNDADORES",
-    "municipio": "VILLANUEVA - CASANARE",
+    "municipio": "VILLANUEVA",
     "departamento": "CASANARE"
   },
   {
@@ -1660,7 +1668,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "6650444 EXT 1200 - 1206",
     "direccion": "CRA 15 N° 3AN-10 SÓTANO 1 LOCAL B02 C.C. DELA CUESTA",
-    "municipio": "PIEDECUESTA - SANTANDER",
+    "municipio": "PIEDECUESTA",
     "departamento": "SANTANDER"
   },
   {
@@ -1668,7 +1676,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "2235168",
     "direccion": "CARRERA 4 CON CALLE 12-ESQUINA",
-    "municipio": "ANDALUCIA - VALLE DEL CAUCA",
+    "municipio": "ANDALUCIA",
     "departamento": "VALLE DEL CAUCA"
   },
   {
@@ -1676,7 +1684,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8381595",
     "direccion": "BARRIO EL PAJONAL CAUCASIA CL 20B  N 12-23",
-    "municipio": "CAUCASIA - ANTIOQUIA",
+    "municipio": "CAUCASIA",
     "departamento": "ANTIOQUIA"
   },
   {
@@ -1684,7 +1692,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "3122754290",
     "direccion": "CARRERA 49 48 55 BRR BIJAO",
-    "municipio": "EL BAGRE - ANTIOQUIA",
+    "municipio": "EL BAGRE",
     "departamento": "ANTIOQUIA"
   },
   {
@@ -1692,7 +1700,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "7235002",
     "direccion": "EDIFICIO PALACIO MUNICIPAL - BARRIO LOS ANDES",
-    "municipio": "TANGUA - NARIÑO",
+    "municipio": "TANGUA",
     "departamento": "NARIÑO"
   },
   {
@@ -1700,7 +1708,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "4602240",
     "direccion": "CARRERA 42  NO.  49-107",
-    "municipio": "EL SANTUARIO - ANTIOQUIA",
+    "municipio": "EL SANTUARIO",
     "departamento": "ANTIOQUIA"
   },
   {
@@ -1708,7 +1716,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "2538580",
     "direccion": "PLAZA PRINCIPAL CALLE 8 NO. CARRERA  19-27",
-    "municipio": "FLORIDA - VALLE DEL CAUCA",
+    "municipio": "FLORIDA",
     "departamento": "VALLE DEL CAUCA"
   },
   {
@@ -1716,7 +1724,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "",
     "direccion": "CL 4 N 4 - 09",
-    "municipio": "AIPE - HUILA",
+    "municipio": "AIPE",
     "departamento": "HUILA"
   },
   {
@@ -1724,7 +1732,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8300247",
     "direccion": "CALLE 20 NO 20 -52 PALACIO MUNICIPAL",
-    "municipio": "AMALFI - ANTIOQUIA",
+    "municipio": "AMALFI",
     "departamento": "ANTIOQUIA"
   },
   {
@@ -1732,7 +1740,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "3176811270",
     "direccion": "CALLE 5 6-39",
-    "municipio": "BARICHARA - SANTANDER",
+    "municipio": "BARICHARA",
     "departamento": "SANTANDER"
   },
   {
@@ -1740,7 +1748,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8272383",
     "direccion": "CALLE 6 NO. 6-28. PARQUE LOS FUNDADORES",
-    "municipio": "BOLIVAR - CAUCA",
+    "municipio": "BOLIVAR",
     "departamento": "CAUCA"
   },
   {
@@ -1748,7 +1756,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "2433354",
     "direccion": "CALLE LA VICTORIA CARRERA 10 NO. 5A-12.",
-    "municipio": "BUENAVENTURA - VALLE DEL CAUCA",
+    "municipio": "BUENAVENTURA",
     "departamento": "VALLE DEL CAUCA"
   },
   {
@@ -1756,7 +1764,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "3167767541",
     "direccion": "CAM CRA 2 N°8- 17 B/CENTRO",
-    "municipio": "BUESACO - NARIÑO",
+    "municipio": "BUESACO",
     "departamento": "NARIÑO"
   },
   {
@@ -1764,7 +1772,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8258337",
     "direccion": "CALLE 12 NO. 5 - 46",
-    "municipio": "CALOTO - CAUCA",
+    "municipio": "CALOTO",
     "departamento": "CAUCA"
   },
   {
@@ -1772,7 +1780,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "2646344",
     "direccion": "CALLE 9 CARRERA 8 ESQUINA ALCALDIA MUNICIPAL",
-    "municipio": "CANDELARIA - VALLE DEL CAUCA",
+    "municipio": "CANDELARIA",
     "departamento": "VALLE DEL CAUCA"
   },
   {
@@ -1780,7 +1788,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "1111111",
     "direccion": "CALLE 3 # 4-60 BARRIO OFICIAL PLAZA PRINCIPAL MUNICIPIO DE NARIÑO",
-    "municipio": "CHACHAGsI - NARIÑO",
+    "municipio": "CHACHAGsI",
     "departamento": "NARIÑO"
   },
   {
@@ -1788,7 +1796,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "6059219",
     "direccion": "CARRERA 5  6-10 PALACIO MUNICIPAL",
-    "municipio": "CIMITARRA - SANTANDER",
+    "municipio": "CIMITARRA",
     "departamento": "SANTANDER"
   },
   {
@@ -1796,7 +1804,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8466100",
     "direccion": "CALLE 4 NO.1-88",
-    "municipio": "GUADUAS - CUNDINAMARCA",
+    "municipio": "GUADUAS",
     "departamento": "CUNDINAMARCA"
   },
   {
@@ -1804,7 +1812,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "918250486",
     "direccion": "CLL 5 N. 4-74",
-    "municipio": "MADRID - CUNDINAMARCA",
+    "municipio": "MADRID",
     "departamento": "CUNDINAMARCA"
   },
   {
@@ -1812,7 +1820,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "7173285",
     "direccion": "CALLE 10 N 6-36",
-    "municipio": "OIBA - SANTANDER",
+    "municipio": "OIBA",
     "departamento": "SANTANDER"
   },
   {
@@ -1820,7 +1828,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8352017",
     "direccion": "CALLE 10 NO 10 - 71",
-    "municipio": "PUERTO TRIUNFO - ANTIOQUIA",
+    "municipio": "PUERTO TRIUNFO",
     "departamento": "ANTIOQUIA"
   },
   {
@@ -1828,7 +1836,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "7272579",
     "direccion": "CALLE 16 - CARRERA 16 TERMINAL DE TRANSPORTE LOCAL 2",
-    "municipio": "SOCORRO - SANTANDER",
+    "municipio": "SOCORRO",
     "departamento": "SANTANDER"
   },
   {
@@ -1836,7 +1844,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8276090",
     "direccion": "CALLE 4 NO. 2-98. ALCALDIA MUNICIPAL",
-    "municipio": "EL TAMBO - CAUCA",
+    "municipio": "EL TAMBO",
     "departamento": "CAUCA"
   },
   {
@@ -1844,7 +1852,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "4346631",
     "direccion": "CARRERA 15 # 14-27 BARRIO EL CENTRO",
-    "municipio": "FLORENCIA - CAQUETA",
+    "municipio": "FLORENCIA",
     "departamento": "CAQUETÁ"
   },
   {
@@ -1852,7 +1860,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "2581778",
     "direccion": "CARRERA 7 NO.  3-28 PALACIO MUNICIPAL PISO 1",
-    "municipio": "FRESNO - TOLIMA",
+    "municipio": "FRESNO",
     "departamento": "TOLIMA"
   },
   {
@@ -1860,7 +1868,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8223211",
     "direccion": "CARRERA 15 CON CALLE 14 ESQUINA CENTRO COMERCIAL BANCOLOMBIA PISO 2",
-    "municipio": "FUNZA - CUNDINAMARCA",
+    "municipio": "FUNZA",
     "departamento": "CUNDINAMARCA"
   },
   {
@@ -1868,7 +1876,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "7500710",
     "direccion": "CALLE 10 NO 9 - 65 PARQUE PRINCIPAL EDIFICIO ALCALDIA MUNICIPAL.",
-    "municipio": "GARAGOA - BOYACA",
+    "municipio": "GARAGOA",
     "departamento": "BOYACÁ"
   },
   {
@@ -1876,7 +1884,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8325712",
     "direccion": "CARRERA 12B # 32 -55 BARRIO ROSA BLANCA",
-    "municipio": "GIRARDOT - CUNDINAMARCA",
+    "municipio": "GIRARDOT",
     "departamento": "CUNDINAMARCA"
   },
   {
@@ -1884,7 +1892,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "2531000",
     "direccion": "SALIDA NORTE VIA GUACARI - BUGA",
-    "municipio": "GUACARI - VALLE DEL CAUCA",
+    "municipio": "GUACARI",
     "departamento": "VALLE DEL CAUCA"
   },
   {
@@ -1892,7 +1900,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "5656065",
     "direccion": "ALCALDIA MAYOR INIRIDA",
-    "municipio": "INIRIDA - GUAINIA",
+    "municipio": "INIRIDA",
     "departamento": "GUAINÍA"
   },
   {
@@ -1900,7 +1908,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "7730400",
     "direccion": "CARRERA 2 # 2-81 BARRIO LA LAGUNA",
-    "municipio": "IPIALES - NARIÑO",
+    "municipio": "IPIALES",
     "departamento": "NARIÑO"
   },
   {
@@ -1908,7 +1916,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "5169290",
     "direccion": "CALLE 11 NO. CON CARRERA 13  ESQUINA. CENTRO COMERCIAL  PALMAS  PLAZA LOCAL 11",
-    "municipio": "JAMUNDI - VALLE DEL CAUCA",
+    "municipio": "JAMUNDI",
     "departamento": "VALLE DEL CAUCA"
   },
   {
@@ -1916,7 +1924,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8756672",
     "direccion": "CALLE 6 # 4 - 53",
-    "municipio": "LA CALERA - CUNDINAMARCA",
+    "municipio": "LA CALERA",
     "departamento": "CUNDINAMARCA"
   },
   {
@@ -1924,7 +1932,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "2791606",
     "direccion": "CARRERA 60 NO. 80 SUR 24",
-    "municipio": "LA ESTRELLA - ANTIOQUIA",
+    "municipio": "LA ESTRELLA",
     "departamento": "ANTIOQUIA"
   },
   {
@@ -1932,7 +1940,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "5771240",
     "direccion": "TRANSVERSAL 5 # 4-130",
-    "municipio": "LA PAZ - CESAR",
+    "municipio": "LA PAZ",
     "departamento": "CESAR"
   },
   {
@@ -1940,7 +1948,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "7542444",
     "direccion": "CARRERA 6 NO. 12-27",
-    "municipio": "LA TEBAIDA - QUINDIO",
+    "municipio": "LA TEBAIDA",
     "departamento": "QUINDÍO"
   },
   {
@@ -1948,7 +1956,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "3212009870",
     "direccion": "CALLE 5 NO. 10 - 48 ALCALDIA MUNICIPAL PISO 2",
-    "municipio": "LIBANO - TOLIMA",
+    "municipio": "LIBANO",
     "departamento": "TOLIMA"
   },
   {
@@ -1956,7 +1964,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "6615339",
     "direccion": "CALLE 12 NO. 8-51",
-    "municipio": "MALAGA - SANTANDER",
+    "municipio": "MALAGA",
     "departamento": "SANTANDER"
   },
   {
@@ -1964,7 +1972,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8476013",
     "direccion": "CALLE 6 NO 5-21.  PALACIO MUNICIPAL  BARRIO CENTRAL MIRANDA CAUCA",
-    "municipio": "MIRANDA - CAUCA",
+    "municipio": "MIRANDA",
     "departamento": "CAUCA"
   },
   {
@@ -1972,7 +1980,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "7231578",
     "direccion": "CARRERA 4 NO 4 09",
-    "municipio": "NARIÑO - NARIÑO",
+    "municipio": "NARIÑO",
     "departamento": "NARIÑO"
   },
   {
@@ -1980,7 +1988,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8214616",
     "direccion": "CR50 N52-36/46",
-    "municipio": "NECOCLI - ANTIOQUIA",
+    "municipio": "NECOCLI",
     "departamento": "ANTIOQUIA"
   },
   {
@@ -1988,7 +1996,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "4292016",
     "direccion": "ALCALDIA MUNICIPAL",
-    "municipio": "ORITO - PUTUMAYO",
+    "municipio": "ORITO",
     "departamento": "PUTUMAYO"
   },
   {
@@ -1996,7 +2004,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8540065",
     "direccion": "CALLE 6 # 17-121",
-    "municipio": "PACHO - CUNDINAMARCA",
+    "municipio": "PACHO",
     "departamento": "CUNDINAMARCA"
   },
   {
@@ -2004,7 +2012,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "7853251",
     "direccion": "CALLE 25 NO 20-08. PISO 2 ANTIGUA CASA DE LA CULTURA",
-    "municipio": "PAIPA - BOYACA",
+    "municipio": "PAIPA",
     "departamento": "BOYACÁ"
   },
   {
@@ -2012,7 +2020,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8250834",
     "direccion": "CARRERA 5 # 9-93 ALCALDIA MUNICIPAL PISO 2",
-    "municipio": "PIENDAMO - CAUCA",
+    "municipio": "PIENDAMO",
     "departamento": "CAUCA"
   },
   {
@@ -2020,7 +2028,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "4840317",
     "direccion": "VIA 14 SALIDA AL DIFICIL - 2 PISO",
-    "municipio": "PLATO - MAGDALENA",
+    "municipio": "PLATO",
     "departamento": "MAGDALENA"
   },
   {
@@ -2028,7 +2036,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8200810",
     "direccion": "CARRERA 2 CALLE 25 NORTE VIA POMONA",
-    "municipio": "POPAYAN - CAUCA",
+    "municipio": "POPAYAN",
     "departamento": "CAUCA"
   },
   {
@@ -2036,7 +2044,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "2670577",
     "direccion": "CARRERA 8 CON CALLE 8 ESQUINA",
-    "municipio": "PRADERA - VALLE DEL CAUCA",
+    "municipio": "PRADERA",
     "departamento": "VALLE DEL CAUCA"
   },
   {
@@ -2044,7 +2052,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "3164958338",
     "direccion": "CARRERA 7 # 4 - 48",
-    "municipio": "PUENTE NACIONAL - SANTANDER",
+    "municipio": "PUENTE NACIONAL",
     "departamento": "SANTANDER"
   },
   {
@@ -2052,7 +2060,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "7753417",
     "direccion": "MUNICIPIO DE RIOCAUTE CENTRO",
-    "municipio": "RICAURTE - NARIÑO",
+    "municipio": "RICAURTE",
     "departamento": "NARIÑO"
   },
   {
@@ -2060,7 +2068,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "3222756934",
     "direccion": "CALLE 11 # 11-06 BARRIO AIRES",
-    "municipio": "SABANA DE TORRES - SANTANDER",
+    "municipio": "SABANA DE TORRES",
     "departamento": "SANTANDER"
   },
   {
@@ -2068,7 +2076,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "3015597",
     "direccion": "CARRERA 45 N. 75 SUR - 35",
-    "municipio": "SABANETA - ANTIOQUIA",
+    "municipio": "SABANETA",
     "departamento": "ANTIOQUIA"
   },
   {
@@ -2076,7 +2084,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "5840147",
     "direccion": "CALLE 9 D Nº 19-50-BARRIO PORVENIR",
-    "municipio": "SAN JOSE DEL GUAVIARE - GUAVIARE",
+    "municipio": "SAN JOSE DEL GUAVIARE",
     "departamento": "GUAVIARE"
   },
   {
@@ -2084,15 +2092,23 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "5548058",
     "direccion": "CRA 7 13-56",
-    "municipio": "SAN MARTIN - CESAR",
+    "municipio": "SAN MARTIN",
     "departamento": "CESAR"
+  },
+  {
+    "nombre": "STRIA TTOyTTE MCPAL SANTA CATALINA - BOLIVAR",
+    "tipo": "Organismos de Tránsito",
+    "telefono": "3197863632",
+    "direccion": "LOCAL 1, ESTACION DE SERVICIO LOMA DE ARENA - SANTA CATALINA - BOLÍVAR",
+    "municipio": "SANTA CATALINA",
+    "departamento": "BOLÍVAR"
   },
   {
     "nombre": "STRIA TTOyTTE MCPAL SARAVENA",
     "tipo": "Organismos de Tránsito",
     "telefono": "8891915",
     "direccion": "CALLE 27 NO. 15-16",
-    "municipio": "SARAVENA - ARAUCA",
+    "municipio": "SARAVENA",
     "departamento": "ARAUCA"
   },
   {
@@ -2100,7 +2116,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8316670",
     "direccion": "CALLE 50 # 53-105",
-    "municipio": "SEGOVIA - ANTIOQUIA",
+    "municipio": "SEGOVIA",
     "departamento": "ANTIOQUIA"
   },
   {
@@ -2108,7 +2124,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8278463",
     "direccion": "CARRERA 17 NO. 17-06",
-    "municipio": "TIMBIO - CAUCA",
+    "municipio": "TIMBIO",
     "departamento": "CAUCA"
   },
   {
@@ -2116,7 +2132,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "6555352",
     "direccion": "TRANSITO MUNICIPAL DE TURBACO AV TRONCAL DE OCCIDENTE - SECTOR PLAN PAREJO CALLE",
-    "municipio": "TURBACO - BOLIVAR",
+    "municipio": "TURBACO",
     "departamento": "BOLÍVAR"
   },
   {
@@ -2124,7 +2140,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8891668",
     "direccion": "CARRERA 4 CON CALLE 10 ESQUINA",
-    "municipio": "VILLA DE SAN DIEGO DE UBATE - CUNDINAMARCA",
+    "municipio": "VILLA DE SAN DIEGO DE UBATE",
     "departamento": "CUNDINAMARCA"
   },
   {
@@ -2132,7 +2148,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "504204",
     "direccion": "CALLE 34 A NO. 27-10 - CENTRO ADMINISTRATIVO",
-    "municipio": "URRAO - ANTIOQUIA",
+    "municipio": "URRAO",
     "departamento": "ANTIOQUIA"
   },
   {
@@ -2140,7 +2156,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "5804595",
     "direccion": "CALLE 16A # 10-24",
-    "municipio": "VALLEDUPAR - CESAR",
+    "municipio": "VALLEDUPAR",
     "departamento": "CESAR"
   },
   {
@@ -2148,7 +2164,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "6725369",
     "direccion": "CARRERA 37 A NO. 19 C 20",
-    "municipio": "VILLAVICENCIO - META",
+    "municipio": "VILLAVICENCIO",
     "departamento": "META"
   },
   {
@@ -2156,7 +2172,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "6320839",
     "direccion": "CRA 23 CON CALLE 26 ESQUINA TERMINAL DE TRANSPORTE",
-    "municipio": "YOPAL - CASANARE",
+    "municipio": "YOPAL",
     "departamento": "CASANARE"
   },
   {
@@ -2164,7 +2180,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "",
     "direccion": "",
-    "municipio": "ZONA BANANERA - MAGDALENA",
+    "municipio": "ZONA BANANERA",
     "departamento": "MAGDALENA"
   },
   {
@@ -2172,7 +2188,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "4200524",
     "direccion": "CARRERA 7 CON CALLE 8 ESQUINA PALACIO MUNICIPAL",
-    "municipio": "MOCOA - PUTUMAYO",
+    "municipio": "MOCOA",
     "departamento": "PUTUMAYO"
   },
   {
@@ -2180,7 +2196,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8294086",
     "direccion": "CARRERA  11 NO. 4 - 50",
-    "municipio": "SANTANDER DE QUILICHAO - CAUCA",
+    "municipio": "SANTANDER DE QUILICHAO",
     "departamento": "CAUCA"
   },
   {
@@ -2188,7 +2204,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "2711807",
     "direccion": "CALLE 47 NO. 35-91",
-    "municipio": "PALMIRA - VALLE DEL CAUCA",
+    "municipio": "PALMIRA",
     "departamento": "VALLE DEL CAUCA"
   },
   {
@@ -2196,7 +2212,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8595020",
     "direccion": "CALLE 5  NO. 5-65",
-    "municipio": "SALAMINA - CALDAS",
+    "municipio": "SALAMINA",
     "departamento": "CALDAS"
   },
   {
@@ -2204,7 +2220,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "2198845",
     "direccion": "ALCALDIA CARRERA 50 NO. 51-10 PISO 3. ESQUINA",
-    "municipio": "SEVILLA - VALLE DEL CAUCA",
+    "municipio": "SEVILLA",
     "departamento": "VALLE DEL CAUCA"
   },
   {
@@ -2212,7 +2228,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "7564990",
     "direccion": "CALLE 9 # 2-27 ALCALDIA MUNICIPAL",
-    "municipio": "VELEZ - SANTANDER",
+    "municipio": "VELEZ",
     "departamento": "SANTANDER"
   },
   {
@@ -2220,7 +2236,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "6699599",
     "direccion": "CARRERA 6 NO 4-36 BARRIO BELALCAZAR",
-    "municipio": "YUMBO - VALLE DEL CAUCA",
+    "municipio": "YUMBO",
     "departamento": "VALLE DEL CAUCA"
   },
   {
@@ -2228,7 +2244,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "033-3167179085",
     "direccion": "VIA PANAMERICANA CORREGIMIENTO PEDREGAL",
-    "municipio": "IMUES - NARIÑO",
+    "municipio": "IMUES",
     "departamento": "NARIÑO"
   },
   {
@@ -2236,7 +2252,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8594830",
     "direccion": "CARRERA 7 CALLE 10 ESQUINA PISO 1 - CASA DE GOBIERNO MUNICIPAL",
-    "municipio": "RIOSUCIO - CALDAS",
+    "municipio": "RIOSUCIO",
     "departamento": "CALDAS"
   },
   {
@@ -2244,7 +2260,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "3137496039",
     "direccion": "CARRERA 7 # 8-122",
-    "municipio": "LA UNION - NARIÑO",
+    "municipio": "LA UNION",
     "departamento": "NARIÑO"
   },
   {
@@ -2252,7 +2268,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "2-7246215",
     "direccion": "CARRERA 4 # 5 – 33 BARRIO SAN FRANCISCO",
-    "municipio": "PUPIALES - NARIÑO",
+    "municipio": "PUPIALES",
     "departamento": "NARIÑO"
   },
   {
@@ -2260,7 +2276,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "3014103299",
     "direccion": "ALCALDIA MUNICIPAL",
-    "municipio": "SAMANIEGO - NARIÑO",
+    "municipio": "SAMANIEGO",
     "departamento": "NARIÑO"
   },
   {
@@ -2268,7 +2284,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "033-3137208900",
     "direccion": "CRA 5 NO 10-33 B/MELÉNDEZ",
-    "municipio": "SANDONA - NARIÑO",
+    "municipio": "SANDONA",
     "departamento": "NARIÑO"
   },
   {
@@ -2276,7 +2292,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "2-7778601 Y 7771398",
     "direccion": "CRA 5 NO 8-55 EDIFICIO CAN",
-    "municipio": "GUACHUCAL - NARIÑO",
+    "municipio": "GUACHUCAL",
     "departamento": "NARIÑO"
   },
   {
@@ -2284,7 +2300,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "3839002",
     "direccion": "CLL 42B 52-106 P 12",
-    "municipio": "SAN JERONIMO - ANTIOQUIA",
+    "municipio": "SAN JERONIMO",
     "departamento": "ANTIOQUIA"
   },
   {
@@ -2292,7 +2308,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "4201515",
     "direccion": "CRA 8 NO. 7-40 BARRIO CENTRO",
-    "municipio": "SIBUNDOY - PUTUMAYO",
+    "municipio": "SIBUNDOY",
     "departamento": "PUTUMAYO"
   },
   {
@@ -2300,7 +2316,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "4381144",
     "direccion": "KILOMETRO 2 + 500 METROS VÍA PALERMO",
-    "municipio": "SITIONUEVO - MAGDALENA",
+    "municipio": "SITIONUEVO",
     "departamento": "MAGDALENA"
   },
   {
@@ -2308,7 +2324,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "3104119256",
     "direccion": "CALLE 7 N 3-29 BARRIO SANTA CLARA YACUANQUER",
-    "municipio": "YACUANQUER - NARIÑO",
+    "municipio": "YACUANQUER",
     "departamento": "NARIÑO"
   },
   {
@@ -2316,7 +2332,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "4382777",
     "direccion": "CALLE 15 NO. 1C - 54 OFIC. 302  EDIFICIO PEVESCA",
-    "municipio": "SANTA MARTA - MAGDALENA",
+    "municipio": "SANTA MARTA",
     "departamento": "MAGDALENA"
   },
   {
@@ -2324,7 +2340,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8753489",
     "direccion": "CALLE 33 NO. 5 P -10 VIA BOGOTA",
-    "municipio": "PALERMO - HUILA",
+    "municipio": "PALERMO",
     "departamento": "HUILA"
   },
   {
@@ -2332,7 +2348,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "3394000",
     "direccion": "CARRERA 6 # 6-23",
-    "municipio": "ARANZAZU - CALDAS",
+    "municipio": "ARANZAZU",
     "departamento": "CALDAS"
   },
   {
@@ -2340,7 +2356,7 @@
     "tipo": "Organismos de Tránsito",
     "telefono": "8779197",
     "direccion": "CALLE 10 # 3 - 30 LOCAL 1 Y 2 EDIFICIO JUAN MIGUEL",
-    "municipio": "VILLAMARIA - CALDAS",
+    "municipio": "VILLAMARIA",
     "departamento": "CALDAS"
   }
 ]
