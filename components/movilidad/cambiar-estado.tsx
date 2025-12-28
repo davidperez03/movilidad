@@ -22,7 +22,8 @@ import {
 } from "@/components/ui/select"
 import { toast } from "sonner"
 import { Edit, Loader2 } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { ESTADOS_TRASLADO, ESTADOS_RADICACION } from "@/lib/movilidad/config"
+import { useDialogForm } from "@/lib/hooks/use-dialog-form"
 
 interface CambiarEstadoProps {
   procesoId: string
@@ -30,30 +31,12 @@ interface CambiarEstadoProps {
   estadoActual: string
 }
 
-const ESTADOS_TRASLADO = [
-  { value: "sin_asignar", label: "Sin asignar" },
-  { value: "revisado", label: "Revisado" },
-  { value: "con_novedades", label: "Con novedades" },
-  { value: "enviado_organismo", label: "Enviado a organismo" },
-  { value: "trasladado", label: "Trasladado" },
-  { value: "devuelto", label: "Devuelto" },
-]
-
-const ESTADOS_RADICACION = [
-  { value: "sin_asignar", label: "Sin asignar" },
-  { value: "recibido", label: "Recibido" },
-  { value: "revisado", label: "Revisado" },
-  { value: "con_novedades", label: "Con novedades" },
-  { value: "pendiente_radicar", label: "Pendiente radicar" },
-  { value: "radicado", label: "Radicado" },
-  { value: "devuelto", label: "Devuelto" },
-]
-
 export function CambiarEstado({ procesoId, procesoTipo, estadoActual }: CambiarEstadoProps) {
-  const router = useRouter()
   const supabase = createClient()
-  const [open, setOpen] = useState(false)
-  const [loading, setLoading] = useState(false)
+  const { open, setOpen, loading, handleSubmit } = useDialogForm({
+    successMessage: "Estado actualizado exitosamente",
+  })
+
   const [nuevoEstado, setNuevoEstado] = useState("")
   const [observaciones, setObservaciones] = useState("")
   const [estadosPermitidos, setEstadosPermitidos] = useState<string[]>([])
@@ -84,7 +67,6 @@ export function CambiarEstado({ procesoId, procesoTipo, estadoActual }: CambiarE
         })
 
       if (error) {
-        console.error("Error al cargar transiciones:", error)
         toast.error("Error al cargar los estados disponibles")
         setEstadosPermitidos([])
         return
@@ -99,7 +81,6 @@ export function CambiarEstado({ procesoId, procesoTipo, estadoActual }: CambiarE
         toast.info("Este proceso está en un estado final")
       }
     } catch (error) {
-      console.error("Error:", error)
       toast.error("Error al cargar transiciones válidas")
       setEstadosPermitidos([])
     } finally {
@@ -107,30 +88,23 @@ export function CambiarEstado({ procesoId, procesoTipo, estadoActual }: CambiarE
     }
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setLoading(true)
 
-    try {
+    await handleSubmit(async () => {
       if (!nuevoEstado || nuevoEstado === estadoActual) {
-        toast.error("Debe seleccionar un nuevo estado")
-        setLoading(false)
-        return
+        throw new Error("Debe seleccionar un nuevo estado")
       }
 
       // Validar que el nuevo estado esté en los permitidos
       if (!estadosPermitidos.includes(nuevoEstado)) {
-        toast.error("La transición seleccionada no es válida")
-        setLoading(false)
-        return
+        throw new Error("La transición seleccionada no es válida")
       }
 
       const { data: { user } } = await supabase.auth.getUser()
 
       if (!user) {
-        toast.error("No hay sesión activa")
-        setLoading(false)
-        return
+        throw new Error("No hay sesión activa")
       }
 
       const updateData: any = {
@@ -148,21 +122,11 @@ export function CambiarEstado({ procesoId, procesoTipo, estadoActual }: CambiarE
         .eq("id", procesoId)
 
       if (error) {
-        console.error("Error al cambiar estado:", error)
-        toast.error("Error al cambiar el estado: " + error.message)
-        setLoading(false)
-        return
+        throw error
       }
-
-      toast.success("Estado actualizado exitosamente")
-      setOpen(false)
-      router.refresh()
-    } catch (error) {
-      console.error("Error:", error)
-      toast.error("Error inesperado al cambiar el estado")
-    } finally {
-      setLoading(false)
-    }
+    }, {
+      errorMessage: "Error al cambiar el estado"
+    })
   }
 
   return (
@@ -180,7 +144,7 @@ export function CambiarEstado({ procesoId, procesoTipo, estadoActual }: CambiarE
             Actualiza el estado del {procesoTipo === "traslado" ? "traslado" : "radicación"}
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={onSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label>Estado Actual</Label>
             <div className="p-3 bg-muted rounded-md">

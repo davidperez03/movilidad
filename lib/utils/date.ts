@@ -2,13 +2,13 @@
  * Utilidades para manejo de fechas en zona horaria de Colombia
  */
 
-import { format, formatDistanceToNow } from 'date-fns';
+import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 
 /**
  * Zona horaria de Colombia
  */
-export const COLOMBIA_TIMEZONE = 'America/Bogota';
+const COLOMBIA_TIMEZONE = 'America/Bogota';
 
 /**
  * Convierte una fecha UTC a hora de Colombia
@@ -70,35 +70,6 @@ export function formatDateTime(date: string | Date | null | undefined): string {
   return format(colombiaDate, 'dd/MM/yyyy HH:mm', { locale: es });
 }
 
-/**
- * Formatea fecha y hora completa
- * Ejemplo: "10 de noviembre de 2025, 14:30:45"
- */
-export function formatDateTimeLong(date: string | Date | null | undefined): string {
-  if (!date) return '-';
-  const colombiaDate = toColombiaTime(date);
-  return format(colombiaDate, "d 'de' MMMM 'de' yyyy, HH:mm:ss", { locale: es });
-}
-
-/**
- * Formatea una fecha relativa
- * Ejemplo: "hace 2 horas"
- */
-export function formatRelativeTime(date: string | Date | null | undefined): string {
-  if (!date) return '-';
-  const colombiaDate = toColombiaTime(date);
-  return formatDistanceToNow(colombiaDate, { addSuffix: true, locale: es });
-}
-
-/**
- * Obtiene solo la hora
- * Ejemplo: "14:30"
- */
-export function formatTime(date: string | Date | null | undefined): string {
-  if (!date) return '-';
-  const colombiaDate = toColombiaTime(date);
-  return format(colombiaDate, 'HH:mm', { locale: es });
-}
 
 // ============================================================================
 // FUNCIONES PARA FORMULARIOS E INPUTS
@@ -125,28 +96,6 @@ export function getTodayForInput(): string {
   const year = today.getFullYear()
   const month = String(today.getMonth() + 1).padStart(2, '0')
   const day = String(today.getDate()).padStart(2, '0')
-  return `${year}-${month}-${day}`
-}
-
-/**
- * Formatea una fecha de PostgreSQL para mostrar en el input type="date"
- *
- * @param dbDate Fecha desde PostgreSQL (puede ser Date o timestamp)
- * @returns Fecha en formato YYYY-MM-DD
- */
-export function formatDateForInput(dbDate: string | Date): string {
-  if (!dbDate) return ''
-
-  // Si viene como string YYYY-MM-DD desde PostgreSQL, devolverlo directamente
-  if (typeof dbDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dbDate.substring(0, 10))) {
-    return dbDate.substring(0, 10)
-  }
-
-  const date = typeof dbDate === 'string' ? new Date(dbDate) : dbDate
-  const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const day = String(date.getDate()).padStart(2, '0')
-
   return `${year}-${month}-${day}`
 }
 

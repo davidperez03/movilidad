@@ -28,14 +28,12 @@ export function useOrganismos() {
           .order('nombre')
 
         if (errorOrganismos) {
-          console.error('Error al cargar organismos:', errorOrganismos)
           setError('Error al cargar organismos de tránsito')
           return
         }
 
         setOrganismos(data || [])
       } catch (err) {
-        console.error('Error al cargar organismos:', err)
         setError('Error inesperado al cargar organismos')
       } finally {
         setCargando(false)

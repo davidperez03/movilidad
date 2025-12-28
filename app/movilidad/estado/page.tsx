@@ -9,10 +9,22 @@ export default async function EstadoVehiculosPage() {
   const supabase = await createClient()
 
   // Obtener todos los vehículos con su proceso activo (si tienen)
-  const { data: vehiculos } = await supabase
+  const { data: vehiculosActivos } = await supabase
     .from("mov_vista_proceso_activo")
     .select("*")
     .order("placa", { ascending: true })
+
+  // Obtener último proceso completado de cada vehículo
+  const { data: ultimosCompletados } = await supabase.rpc('obtener_ultimos_procesos_completados')
+
+  // Combinar datos: proceso activo + último completado
+  const vehiculos = vehiculosActivos?.map(v => {
+    const ultimoCompletado = (ultimosCompletados as any[] | null)?.find((uc: any) => uc.cuenta_id === v.cuenta_id)
+    return {
+      ...v,
+      ultimo_proceso_completado: ultimoCompletado || null
+    }
+  })
 
   return (
     <div className="space-y-6">

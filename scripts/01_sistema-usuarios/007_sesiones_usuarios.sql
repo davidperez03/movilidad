@@ -40,11 +40,9 @@ CREATE TABLE IF NOT EXISTS public.sys_sesiones (
   ip_address INET,  -- Dirección IP del cliente
   user_agent TEXT,  -- Navegador/cliente utilizado
   dispositivo TEXT,  -- Tipo de dispositivo (web, mobile, tablet)
-  ubicacion JSONB,  -- Información de geolocalización (opcional)
 
   -- Actividad de la sesión
   ultima_actividad TIMESTAMP WITH TIME ZONE DEFAULT now(),
-  paginas_visitadas INTEGER DEFAULT 0,
   acciones_realizadas INTEGER DEFAULT 0,
 
   -- Metadatos
@@ -88,7 +86,6 @@ SELECT
   EXTRACT(EPOCH FROM (now() - s.ultima_actividad)) / 60 AS minutos_inactivo,
   s.ip_address,
   s.dispositivo,
-  s.paginas_visitadas,
   s.acciones_realizadas
 FROM public.sys_sesiones s
 JOIN public.perfiles p ON s.usuario_id = p.id
@@ -119,7 +116,8 @@ CREATE OR REPLACE FUNCTION registrar_inicio_sesion(
   p_usuario_id UUID,
   p_ip_address INET DEFAULT NULL,
   p_user_agent TEXT DEFAULT NULL,
-  p_dispositivo TEXT DEFAULT 'web'
+  p_dispositivo TEXT DEFAULT 'web',
+  p_token_sesion TEXT DEFAULT NULL
 )
 RETURNS UUID
 LANGUAGE plpgsql
@@ -135,6 +133,7 @@ BEGIN
     ip_address,
     user_agent,
     dispositivo,
+    token_sesion,
     ultima_actividad
   ) VALUES (
     p_usuario_id,
@@ -143,6 +142,7 @@ BEGIN
     p_ip_address,
     p_user_agent,
     p_dispositivo,
+    p_token_sesion,
     now()
   )
   RETURNING id INTO nueva_sesion_id;
@@ -178,6 +178,7 @@ SECURITY DEFINER
 AS $$
 DECLARE
   v_usuario_id UUID;
+  v_usuario_info RECORD;
 BEGIN
   UPDATE public.sys_sesiones
   SET
@@ -188,7 +189,12 @@ BEGIN
   RETURNING usuario_id INTO v_usuario_id;
 
   IF FOUND THEN
-    -- Registrar en auditoría
+    -- Obtener información del usuario
+    SELECT correo, nombre_completo INTO v_usuario_info
+    FROM public.perfiles
+    WHERE id = v_usuario_id;
+
+    -- Registrar en auditoría con información completa del usuario
     PERFORM registrar_auditoria_sistema(
       CASE p_estado
         WHEN 'cerrada' THEN 'logout'
@@ -197,7 +203,11 @@ BEGIN
       END,
       'sesion',
       p_sesion_id,
-      jsonb_build_object('usuario_id', v_usuario_id)
+      jsonb_build_object(
+        'usuario_id', v_usuario_id,
+        'usuario_correo', v_usuario_info.correo,
+        'usuario_nombre', v_usuario_info.nombre_completo
+      )
     );
 
     RETURN TRUE;
@@ -362,14 +372,8 @@ COMMENT ON COLUMN public.sys_sesiones.user_agent IS
 COMMENT ON COLUMN public.sys_sesiones.dispositivo IS
   'Tipo de dispositivo (web, mobile, tablet)';
 
-COMMENT ON COLUMN public.sys_sesiones.ubicacion IS
-  'Información de geolocalización en formato JSON (opcional)';
-
 COMMENT ON COLUMN public.sys_sesiones.ultima_actividad IS
   'Fecha y hora de la última actividad registrada en esta sesión';
-
-COMMENT ON COLUMN public.sys_sesiones.paginas_visitadas IS
-  'Contador de páginas visitadas durante la sesión';
 
 COMMENT ON COLUMN public.sys_sesiones.acciones_realizadas IS
   'Contador de acciones realizadas durante la sesión';

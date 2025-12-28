@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { Plus } from 'lucide-react'
-import type { PermisosModulo } from '@/lib/hooks/use-permisos'
+import type { PermisosModulo } from '@/lib/types/permissions'
 
 interface BotonNuevaCuentaProps {
   permisos: PermisosModulo

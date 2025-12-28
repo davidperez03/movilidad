@@ -6,7 +6,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { FileText, Search, RefreshCw, Clock, User, Activity } from 'lucide-react';
+import { FileText, Search, RefreshCw, Clock, User, Activity, LogIn, LogOut, UserPlus, Edit, Shield, Key, CheckCircle, XCircle, ArrowRightLeft } from 'lucide-react';
+import { toast } from 'sonner';
+import { formatearEstadoProceso } from '@/lib/movilidad/formatters';
 
 interface RegistroAuditoria {
   id: string;
@@ -28,7 +30,6 @@ export default function AuditoriaPage() {
   const [registros, setRegistros] = useState<RegistroAuditoria[]>([]);
   const [loading, setLoading] = useState(true);
   const [filtros, setFiltros] = useState({
-    modulo: '',
     accion: '',
     busqueda: '',
   });
@@ -42,7 +43,7 @@ export default function AuditoriaPage() {
       setLoading(true);
       const supabase = createClient();
 
-      // Intentar cargar desde la vista unificada
+      // Cargar desde vista unificada que incluye sistema y movilidad
       let query = supabase
         .from('sys_vista_auditoria_completa')
         .select('*')
@@ -50,32 +51,57 @@ export default function AuditoriaPage() {
         .limit(100);
 
       // Aplicar filtros si existen
-      if (filtros.modulo) {
-        query = query.eq('modulo', filtros.modulo);
-      }
       if (filtros.accion) {
         query = query.eq('accion', filtros.accion);
-      }
-      if (filtros.busqueda) {
-        query = query.or(
-          `usuario_correo.ilike.%${filtros.busqueda}%,usuario_nombre.ilike.%${filtros.busqueda}%`
-        );
       }
 
       const { data, error } = await query;
 
       if (error) {
-        console.error('Error cargando auditoría:', error);
-        // Si la vista no existe aún, mostrar mensaje
-        if (error.code === '42P01') {
-          console.warn('La vista de auditoría aún no está creada en la base de datos');
-        }
+        toast.error('Error al cargar los registros de auditoría');
         return;
       }
 
-      setRegistros(data || []);
+      // Formatear datos (la vista ya trae usuario_correo y usuario_nombre)
+      const registrosFormateados = (data || []).map((item: any) => {
+        const detalles = item.detalles || {};
+
+        // La vista unificada ya trae usuario_correo y usuario_nombre directamente
+        // Si no hay usuario, intentar obtener del campo detalles (para logout/sesion_expirada)
+        const usuarioCorreo = item.usuario_correo || detalles.usuario_correo || 'Sistema';
+        const usuarioNombre = item.usuario_nombre || detalles.usuario_nombre || 'Sistema';
+
+        return {
+          id: item.id,
+          modulo: item.modulo || 'sistema',
+          accion: item.accion,
+          entidad_tipo: item.entidad_tipo,
+          entidad_id: item.entidad_id,
+          detalles,
+          valor_anterior: item.valor_anterior,
+          valor_nuevo: item.valor_nuevo,
+          usuario_id: item.usuario_id,
+          usuario_correo: usuarioCorreo,
+          usuario_nombre: usuarioNombre,
+          ip_address: item.ip_address,
+          creado_en: item.creado_en,
+        };
+      });
+
+      // Aplicar filtro de búsqueda localmente
+      let resultado = registrosFormateados;
+      if (filtros.busqueda) {
+        const busqueda = filtros.busqueda.toLowerCase();
+        resultado = registrosFormateados.filter((r: any) =>
+          r.usuario_correo.toLowerCase().includes(busqueda) ||
+          r.usuario_nombre.toLowerCase().includes(busqueda) ||
+          JSON.stringify(r.detalles).toLowerCase().includes(busqueda)
+        );
+      }
+
+      setRegistros(resultado);
     } catch (error) {
-      console.error('Error:', error);
+      toast.error('Error al procesar los registros de auditoría');
     } finally {
       setLoading(false);
     }
@@ -87,7 +113,6 @@ export default function AuditoriaPage() {
 
   function limpiarFiltros() {
     setFiltros({
-      modulo: '',
       accion: '',
       busqueda: '',
     });
@@ -124,17 +149,7 @@ export default function AuditoriaPage() {
       {/* Filtros */}
       <Card>
         <CardContent className="pt-6">
-          <div className="grid gap-4 md:grid-cols-4">
-            <select
-              value={filtros.modulo}
-              onChange={(e) => setFiltros({ ...filtros, modulo: e.target.value })}
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            >
-              <option value="">Todos los módulos</option>
-              <option value="sistema">Sistema</option>
-              <option value="movilidad">Movilidad</option>
-            </select>
-
+          <div className="grid gap-4 md:grid-cols-3">
             <select
               value={filtros.accion}
               onChange={(e) => setFiltros({ ...filtros, accion: e.target.value })}
@@ -143,16 +158,23 @@ export default function AuditoriaPage() {
               <option value="">Todas las acciones</option>
               <option value="usuario_creado">Usuario creado</option>
               <option value="usuario_editado">Usuario editado</option>
+              <option value="usuario_activado">Usuario activado</option>
+              <option value="usuario_desactivado">Usuario desactivado</option>
               <option value="rol_global_cambiado">Rol cambiado</option>
               <option value="rol_modulo_asignado">Rol asignado</option>
-              <option value="login_exitoso">Login</option>
+              <option value="rol_modulo_removido">Rol removido</option>
+              <option value="login_exitoso">Login exitoso</option>
+              <option value="login_fallido">Login fallido</option>
+              <option value="logout">Cierre de sesión</option>
               <option value="cuenta_creada">Cuenta creada</option>
+              <option value="traslado_iniciado">Traslado iniciado</option>
+              <option value="radicacion_iniciada">Radicación iniciada</option>
             </select>
 
             <div className="relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Buscar por usuario..."
+                placeholder="Buscar por usuario, correo o detalles..."
                 value={filtros.busqueda}
                 onChange={(e) => setFiltros({ ...filtros, busqueda: e.target.value })}
                 className="pl-10"
@@ -172,58 +194,65 @@ export default function AuditoriaPage() {
       </Card>
 
       {/* Listado de registros */}
-      <div className="grid gap-4">
+      <Card>
         {registros.length === 0 ? (
-          <Card>
-            <CardContent className="py-12 text-center">
-              <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <p className="text-lg font-medium mb-2">No se encontraron registros</p>
-              <p className="text-muted-foreground text-sm">
-                {filtros.modulo || filtros.accion || filtros.busqueda
-                  ? 'No hay registros que coincidan con los filtros aplicados'
-                  : 'Asegúrate de haber ejecutado los scripts SQL en la base de datos'}
-              </p>
-            </CardContent>
-          </Card>
+          <CardContent className="py-12 text-center">
+            <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+            <p className="text-lg font-medium mb-2">No se encontraron registros</p>
+            <p className="text-muted-foreground text-sm">
+              {filtros.accion || filtros.busqueda
+                ? 'No hay registros que coincidan con los filtros aplicados'
+                : 'No hay actividad registrada aún'}
+            </p>
+          </CardContent>
         ) : (
-          registros.map((registro) => (
-            <Card key={registro.id} className="hover:shadow-md transition-shadow">
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <Badge variant={registro.modulo === 'sistema' ? 'default' : 'secondary'}>
-                        {registro.modulo}
-                      </Badge>
-                      <CardTitle className="text-base">
-                        {formatearAccion(registro.accion)}
-                      </CardTitle>
-                    </div>
-                    <CardDescription className="flex items-center gap-2">
-                      <User className="h-3 w-3" />
-                      {registro.usuario_nombre || 'Sistema'} ({registro.usuario_correo})
-                    </CardDescription>
-                  </div>
-                  <div className="text-sm text-muted-foreground flex items-center gap-1">
-                    <Clock className="h-3 w-3" />
-                    {formatearFechaCompleta(registro.creado_en)}
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-sm">
-                  {renderDetalles(registro)}
-                </div>
-                {registro.ip_address && (
-                  <p className="text-xs text-muted-foreground mt-2">
-                    IP: {registro.ip_address}
-                  </p>
-                )}
-              </CardContent>
-            </Card>
-          ))
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="border-b bg-muted/50">
+                <tr>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider w-[140px]">
+                    Fecha
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider w-[180px]">
+                    Usuario
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider w-[160px]">
+                    Acción
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                    Detalles
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider w-[120px]">
+                    IP
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y">
+                {registros.map((registro) => (
+                  <tr key={registro.id} className="hover:bg-muted/50 transition-colors">
+                    <td className="px-4 py-3 text-sm align-top whitespace-nowrap">
+                      {formatearFechaCompleta(registro.creado_en)}
+                    </td>
+                    <td className="px-4 py-3 text-sm align-top">
+                      <div className="font-medium">{registro.usuario_nombre}</div>
+                      <div className="text-xs text-muted-foreground">{registro.usuario_correo}</div>
+                    </td>
+                    <td className="px-4 py-3 text-sm align-top">
+                      {renderBadgeAccion(registro.accion)}
+                    </td>
+                    <td className="px-4 py-3 text-sm align-top">
+                      {renderDetallesTabla(registro)}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-muted-foreground align-top whitespace-nowrap">
+                      {registro.ip_address || '-'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
-      </div>
+      </Card>
 
       {registros.length > 0 && (
         <Card>
@@ -239,25 +268,34 @@ export default function AuditoriaPage() {
   );
 }
 
-function formatearAccion(accion: string): string {
-  const acciones: Record<string, string> = {
-    usuario_creado: 'Usuario creado',
-    usuario_editado: 'Usuario editado',
-    usuario_eliminado: 'Usuario eliminado',
-    rol_global_cambiado: 'Rol global cambiado',
-    rol_modulo_asignado: 'Rol asignado',
-    rol_modulo_removido: 'Rol removido',
-    login_exitoso: 'Inicio de sesión',
-    login_fallido: 'Intento fallido de login',
-    logout: 'Cierre de sesión',
-    cuenta_creada: 'Cuenta creada',
-    traslado_iniciado: 'Traslado iniciado',
-    radicacion_iniciada: 'Radicación iniciada',
-    estado_cambiado: 'Estado cambiado',
-    novedad_agregada: 'Novedad agregada',
+function renderBadgeAccion(accion: string): React.ReactNode {
+  const configs: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline'; className?: string }> = {
+    usuario_creado: { label: 'Usuario creado', variant: 'default', className: 'bg-green-100 text-green-800 border-green-200' },
+    usuario_editado: { label: 'Usuario editado', variant: 'outline', className: 'bg-blue-50 text-blue-700 border-blue-200' },
+    usuario_eliminado: { label: 'Usuario eliminado', variant: 'destructive' },
+    usuario_activado: { label: 'Usuario activado', variant: 'default', className: 'bg-emerald-100 text-emerald-800 border-emerald-200' },
+    usuario_desactivado: { label: 'Usuario desactivado', variant: 'outline', className: 'bg-orange-50 text-orange-700 border-orange-200' },
+    rol_global_cambiado: { label: 'Rol global cambiado', variant: 'outline', className: 'bg-purple-50 text-purple-700 border-purple-200' },
+    rol_modulo_asignado: { label: 'Rol asignado', variant: 'outline', className: 'bg-indigo-50 text-indigo-700 border-indigo-200' },
+    rol_modulo_removido: { label: 'Rol removido', variant: 'outline', className: 'bg-amber-50 text-amber-700 border-amber-200' },
+    login_exitoso: { label: 'Inicio de sesión', variant: 'secondary' },
+    login_fallido: { label: 'Login fallido', variant: 'destructive' },
+    logout: { label: 'Cierre de sesión', variant: 'secondary' },
+    sesion_expirada: { label: 'Sesión expirada', variant: 'outline', className: 'bg-gray-50 text-gray-700 border-gray-200' },
+    cuenta_creada: { label: 'Cuenta creada', variant: 'default', className: 'bg-teal-100 text-teal-800 border-teal-200' },
+    traslado_iniciado: { label: 'Traslado iniciado', variant: 'outline', className: 'bg-cyan-50 text-cyan-700 border-cyan-200' },
+    radicacion_iniciada: { label: 'Radicación iniciada', variant: 'outline', className: 'bg-sky-50 text-sky-700 border-sky-200' },
+    estado_cambiado: { label: 'Estado cambiado', variant: 'outline', className: 'bg-violet-50 text-violet-700 border-violet-200' },
+    novedad_agregada: { label: 'Novedad agregada', variant: 'outline', className: 'bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200' },
   };
 
-  return acciones[accion] || accion;
+  const config = configs[accion] || { label: formatearEstadoProceso(accion), variant: 'outline' as const };
+
+  return (
+    <Badge variant={config.variant} className={config.className}>
+      {config.label}
+    </Badge>
+  );
 }
 
 function formatearFechaCompleta(fecha: string): string {
@@ -271,82 +309,251 @@ function formatearFechaCompleta(fecha: string): string {
   });
 }
 
-function renderDetalles(registro: RegistroAuditoria): React.ReactNode {
+function renderDetallesTabla(registro: RegistroAuditoria): React.ReactNode {
   const detalles = registro.detalles || {};
 
-  // Construir descripción según el tipo de acción
+  // Componente helper para mostrar cambios
+  const RenderCambio = ({ anterior, nuevo }: { anterior: string; nuevo: string }) => (
+    <div className="flex items-center gap-1.5 text-sm">
+      <span className="px-2 py-0.5 rounded bg-red-50 text-red-700 border border-red-200">{anterior}</span>
+      <ArrowRightLeft className="h-3 w-3 text-muted-foreground" />
+      <span className="px-2 py-0.5 rounded bg-green-50 text-green-700 border border-green-200">{nuevo}</span>
+    </div>
+  );
+
   switch (registro.accion) {
     case 'usuario_creado':
       return (
-        <div>
-          <div className="font-medium">{detalles.correo}</div>
+        <div className="space-y-1">
+          <div className="font-medium text-sm">{detalles.correo || detalles.usuario_correo}</div>
           {detalles.nombre_completo && (
-            <div className="text-xs text-gray-500">{detalles.nombre_completo}</div>
+            <div className="text-xs text-muted-foreground flex items-center gap-1">
+              <User className="h-3 w-3" />
+              {detalles.nombre_completo}
+            </div>
+          )}
+          {detalles.rol_global && (
+            <div className="text-xs">
+              <Badge variant="outline" className="text-xs">Rol: {detalles.rol_global}</Badge>
+            </div>
+          )}
+        </div>
+      );
+
+    case 'usuario_editado':
+      const correoAnterior = detalles.correo_anterior;
+      const correoNuevo = detalles.correo_nuevo;
+      const nombreAnterior = detalles.nombre_anterior;
+      const nombreNuevo = detalles.nombre_nuevo;
+
+      return (
+        <div className="space-y-1.5">
+          {correoAnterior && correoNuevo && correoAnterior !== correoNuevo ? (
+            <div>
+              <div className="text-xs text-muted-foreground mb-0.5">Correo:</div>
+              <RenderCambio anterior={correoAnterior} nuevo={correoNuevo} />
+            </div>
+          ) : (
+            <div className="font-medium text-sm">{correoNuevo || correoAnterior}</div>
+          )}
+          {nombreAnterior && nombreNuevo && nombreAnterior !== nombreNuevo && (
+            <div>
+              <div className="text-xs text-muted-foreground mb-0.5">Nombre:</div>
+              <RenderCambio anterior={nombreAnterior} nuevo={nombreNuevo} />
+            </div>
           )}
         </div>
       );
 
     case 'usuario_activado':
+      return (
+        <div className="space-y-1">
+          <div className="font-medium text-sm flex items-center gap-1.5">
+            <CheckCircle className="h-3.5 w-3.5 text-green-600" />
+            {detalles.correo}
+          </div>
+          <div className="text-xs text-muted-foreground">Usuario activado y habilitado</div>
+        </div>
+      );
+
     case 'usuario_desactivado':
       return (
-        <div>
-          <div className="font-medium">{detalles.correo}</div>
+        <div className="space-y-1">
+          <div className="font-medium text-sm flex items-center gap-1.5">
+            <XCircle className="h-3.5 w-3.5 text-orange-600" />
+            {detalles.correo}
+          </div>
           {detalles.razon_suspension && (
-            <div className="text-xs text-gray-500">Razón: {detalles.razon_suspension}</div>
+            <div className="text-xs text-muted-foreground">
+              <span className="font-medium">Razón:</span> {detalles.razon_suspension}
+            </div>
           )}
         </div>
       );
 
     case 'rol_global_cambiado':
+      const rolAnterior = registro.valor_anterior || detalles.rol_anterior;
+      const rolNuevo = registro.valor_nuevo || detalles.rol_nuevo || detalles.nuevo_rol;
+
       return (
-        <div>
-          <div className="font-medium">{detalles.correo}</div>
-          <div className="text-xs">
-            <span className="text-red-600">{registro.valor_anterior}</span>
-            {' → '}
-            <span className="text-green-600">{registro.valor_nuevo}</span>
-          </div>
+        <div className="space-y-1.5">
+          <div className="font-medium text-sm">{detalles.correo}</div>
+          {rolAnterior && rolNuevo && (
+            <RenderCambio anterior={rolAnterior} nuevo={rolNuevo} />
+          )}
         </div>
       );
 
     case 'rol_modulo_asignado':
+      return (
+        <div className="space-y-1">
+          <div className="font-medium text-sm">{detalles.usuario_correo || detalles.correo}</div>
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <Badge variant="secondary" className="text-xs">
+              <Shield className="h-3 w-3 mr-1" />
+              {detalles.rol_nombre || detalles.rol_codigo}
+            </Badge>
+            <span className="text-xs text-muted-foreground">en</span>
+            <Badge variant="outline" className="text-xs">
+              {detalles.modulo_id || detalles.modulo}
+            </Badge>
+          </div>
+        </div>
+      );
+
     case 'rol_modulo_removido':
       return (
-        <div>
-          <div className="font-medium">
-            {detalles.usuario_correo || detalles.correo || 'Usuario desconocido'}
-          </div>
-          <div className="text-xs text-gray-500">
-            {detalles.rol_nombre} en {detalles.modulo_id}
+        <div className="space-y-1">
+          <div className="font-medium text-sm">{detalles.usuario_correo || detalles.correo}</div>
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="text-xs text-muted-foreground">Removido:</span>
+            <Badge variant="outline" className="text-xs bg-red-50 text-red-700 border-red-200">
+              {detalles.rol_nombre || detalles.rol_codigo}
+            </Badge>
+            <span className="text-xs text-muted-foreground">de</span>
+            <Badge variant="outline" className="text-xs">
+              {detalles.modulo_id || detalles.modulo}
+            </Badge>
           </div>
         </div>
       );
 
     case 'login_exitoso':
       return (
-        <div>
-          <div className="font-medium">{registro.usuario_correo}</div>
-          {registro.ip_address && (
-            <div className="text-xs text-gray-500">IP: {registro.ip_address}</div>
+        <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+          <LogIn className="h-3.5 w-3.5" />
+          Inicio de sesión exitoso
+          {detalles.dispositivo && (
+            <Badge variant="outline" className="text-xs ml-1">
+              {detalles.dispositivo}
+            </Badge>
           )}
+        </div>
+      );
+
+    case 'login_fallido':
+      return (
+        <div className="space-y-1">
+          <div className="text-sm text-red-600 flex items-center gap-1.5">
+            <XCircle className="h-3.5 w-3.5" />
+            Intento fallido de inicio de sesión
+          </div>
+          {detalles.razon && (
+            <div className="text-xs text-muted-foreground">
+              <span className="font-medium">Razón:</span> {detalles.razon}
+            </div>
+          )}
+        </div>
+      );
+
+    case 'logout':
+      return (
+        <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+          <LogOut className="h-3.5 w-3.5" />
+          Cierre de sesión normal
+        </div>
+      );
+
+    case 'sesion_expirada':
+      return (
+        <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+          <Clock className="h-3.5 w-3.5" />
+          Sesión expirada por inactividad
         </div>
       );
 
     case 'cuenta_creada':
       return (
-        <div>
-          <div className="font-medium">Placa: {detalles.placa}</div>
-          <div className="text-xs text-gray-500">Cuenta: {detalles.numero_cuenta}</div>
+        <div className="space-y-1">
+          <div className="font-medium text-sm">Placa: {detalles.placa}</div>
+          {detalles.numero_cuenta && (
+            <div className="text-xs text-muted-foreground">
+              Cuenta N°: {detalles.numero_cuenta}
+            </div>
+          )}
         </div>
       );
 
     case 'traslado_iniciado':
+      return (
+        <div className="space-y-1">
+          {detalles.placa && <div className="font-medium text-sm">Placa: {detalles.placa}</div>}
+          {detalles.numero_traslado && (
+            <div className="text-xs">
+              <Badge variant="outline">Traslado N°: {detalles.numero_traslado}</Badge>
+            </div>
+          )}
+          {detalles.organismo_destino && (
+            <div className="text-xs text-muted-foreground">
+              Destino: {detalles.organismo_destino}
+            </div>
+          )}
+        </div>
+      );
+
     case 'radicacion_iniciada':
       return (
-        <div>
-          <div className="font-medium">Proceso iniciado</div>
-          {detalles.organismo_destino_id && (
-            <div className="text-xs text-gray-500">Organismo ID: {detalles.organismo_destino_id}</div>
+        <div className="space-y-1">
+          {detalles.placa && <div className="font-medium text-sm">Placa: {detalles.placa}</div>}
+          {detalles.numero_radicacion && (
+            <div className="text-xs">
+              <Badge variant="outline">Radicación N°: {detalles.numero_radicacion}</Badge>
+            </div>
+          )}
+          {detalles.organismo && (
+            <div className="text-xs text-muted-foreground">
+              Organismo: {detalles.organismo}
+            </div>
+          )}
+        </div>
+      );
+
+    case 'estado_cambiado':
+      const estadoAnterior = detalles.estado_anterior || registro.valor_anterior;
+      const estadoNuevo = detalles.nuevo_estado || registro.valor_nuevo;
+
+      return (
+        <div className="space-y-1.5">
+          {detalles.entidad && <div className="font-medium text-sm">{detalles.entidad}</div>}
+          {estadoAnterior && estadoNuevo && (
+            <RenderCambio anterior={estadoAnterior} nuevo={estadoNuevo} />
+          )}
+        </div>
+      );
+
+    case 'novedad_agregada':
+      return (
+        <div className="space-y-1">
+          {detalles.tipo_novedad && (
+            <Badge variant="outline" className="text-xs">{detalles.tipo_novedad}</Badge>
+          )}
+          {detalles.descripcion && (
+            <div className="text-xs text-muted-foreground max-w-md">
+              {detalles.descripcion.length > 100
+                ? `${detalles.descripcion.substring(0, 100)}...`
+                : detalles.descripcion
+              }
+            </div>
           )}
         </div>
       );
@@ -354,14 +561,22 @@ function renderDetalles(registro: RegistroAuditoria): React.ReactNode {
     default:
       // Mostrar cambio de valor si existe
       if (registro.valor_anterior && registro.valor_nuevo) {
+        return <RenderCambio anterior={registro.valor_anterior} nuevo={registro.valor_nuevo} />;
+      }
+
+      // Mostrar detalles como JSON si no hay caso específico
+      if (Object.keys(detalles).length > 0) {
         return (
-          <div>
-            <span className="text-red-600">{registro.valor_anterior}</span>
-            {' → '}
-            <span className="text-green-600">{registro.valor_nuevo}</span>
+          <div className="space-y-0.5">
+            {Object.entries(detalles).slice(0, 3).map(([key, val]) => (
+              <div key={key} className="text-xs text-muted-foreground">
+                <span className="font-medium">{key}:</span> {String(val)}
+              </div>
+            ))}
           </div>
         );
       }
-      return '-';
+
+      return <span className="text-muted-foreground">-</span>;
   }
 }

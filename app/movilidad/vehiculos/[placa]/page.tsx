@@ -126,9 +126,6 @@ export default async function DetalleVehiculoPage({
     .order("creado_en", { ascending: false })
     .limit(20)
 
-  const formatearAccion = (accion: string) => {
-    return accion.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())
-  }
 
   // Nota: dias_restantes ya viene calculado desde la base de datos
   // usando la función contar_dias_habiles que considera días hábiles
@@ -503,7 +500,7 @@ export default async function DetalleVehiculoPage({
               {historial.map((accion) => (
                 <div key={accion.id} className="flex items-start gap-3 p-3 rounded-md bg-muted">
                   <div className="flex-1">
-                    <p className="text-sm font-medium">{formatearAccion(accion.accion)}</p>
+                    <p className="text-sm font-medium">{formatearEstadoProceso(accion.accion)}</p>
                     {accion.estado_anterior && accion.estado_nuevo && (
                       <p className="text-xs text-muted-foreground">
                         {formatearEstadoProceso(accion.estado_anterior)} → {formatearEstadoProceso(accion.estado_nuevo)}

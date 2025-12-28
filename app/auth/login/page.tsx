@@ -3,6 +3,7 @@
 import type React from "react"
 
 import { createClient } from "@/lib/supabase/client"
+import { SessionManager } from "@/lib/session-manager"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -82,18 +83,8 @@ function LoginForm() {
           .update({ ultima_conexion: new Date().toISOString() })
           .eq("id", data.user.id)
 
-        // Registrar sesión (intentar, pero no fallar si la tabla no existe)
-        try {
-          await supabase.rpc('registrar_inicio_sesion', {
-            p_usuario_id: data.user.id,
-            p_ip_address: null, // Se podría obtener del cliente
-            p_user_agent: navigator.userAgent,
-            p_dispositivo: 'web'
-          })
-        } catch (sessionError) {
-          // Si la función no existe aún, continuar sin error
-          console.warn('No se pudo registrar sesión:', sessionError)
-        }
+        // Registrar inicio de sesión en BD
+        await SessionManager.registrarInicio(data.user.id)
 
         // Si es superadmin, redirigir al dashboard
         if (profile?.rol_global === "superadmin") {

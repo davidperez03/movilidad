@@ -37,19 +37,18 @@ export const SESSION_CONFIG = {
   /**
    * Throttle para actualización de actividad
    * Solo resetea los timers si han pasado al menos N ms desde la última vez
-   * Esto evita que mousemove resetee el timer constantemente
+   * Esto evita reseteos demasiado frecuentes del timer
    */
-  ACTIVITY_THROTTLE: 5000, // 5 segundos
+  ACTIVITY_THROTTLE: 2000, // 2 segundos
 
   /**
    * Eventos que se consideran "actividad del usuario"
    * y resetean el timer de inactividad
+   * Solo eventos INTENCIONALES (no pasivos como mousemove o scroll)
    */
   ACTIVITY_EVENTS: [
     'mousedown',
-    'mousemove',
-    'keypress',
-    'scroll',
+    'keydown',
     'touchstart',
     'click',
   ] as const,
@@ -58,22 +57,4 @@ export const SESSION_CONFIG = {
    * Mensaje que se muestra al usuario cuando se cierra por inactividad
    */
   TIMEOUT_MESSAGE: 'Tu sesión se cerró por inactividad. Por favor, inicia sesión nuevamente.',
-}
-
-/**
- * Helper para convertir minutos a milisegundos
- */
-export const minutesToMs = (minutes: number) => minutes * 60 * 1000
-
-/**
- * Helper para convertir milisegundos a texto legible
- */
-export const msToReadable = (ms: number): string => {
-  const minutes = Math.floor(ms / 60000)
-  const seconds = Math.floor((ms % 60000) / 1000)
-
-  if (minutes > 0) {
-    return seconds > 0 ? `${minutes} min ${seconds} seg` : `${minutes} min`
-  }
-  return `${seconds} seg`
 }

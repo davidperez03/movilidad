@@ -60,7 +60,6 @@ export function BotonDescargarRemision({
         .single()
 
       if (errorTraslado || !traslado) {
-        console.error("Error al cargar traslado:", errorTraslado)
         toast.error("Error al cargar información del traslado")
         setLoading(false)
         return
@@ -103,7 +102,6 @@ export function BotonDescargarRemision({
 
       toast.success("PDF descargado exitosamente")
     } catch (error) {
-      console.error("Error al generar PDF:", error)
       toast.error("Error al generar el documento PDF")
     } finally {
       setLoading(false)

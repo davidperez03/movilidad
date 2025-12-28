@@ -13,6 +13,8 @@ import {
   Activity,
   Plus,
 } from "lucide-react"
+import { ESTADOS_CONFIG } from "@/lib/movilidad/config"
+import { formatearEstadoProceso } from "@/lib/movilidad/formatters"
 import { StatCard } from "@/components/dashboard/stat-card"
 import { AlertCard } from "@/components/dashboard/alert-card"
 import { ActivityTimeline } from "@/components/dashboard/activity-timeline"
@@ -61,7 +63,7 @@ export default async function MovilidadDashboard() {
     return {
       id: proceso.proceso_id,
       title: `${proceso.placa} - ${proceso.proceso_tipo === "traslado" ? "Traslado" : "Radicación"}`,
-      description: `${proceso.proceso_tipo === "traslado" ? "Destino" : "Origen"}: ${proceso.ciudad} | Estado: ${proceso.estado.replace(/_/g, " ")}`,
+      description: `${proceso.proceso_tipo === "traslado" ? "Destino" : "Origen"}: ${proceso.ciudad} | Estado: ${ESTADOS_CONFIG[proceso.estado]?.label || formatearEstadoProceso(proceso.estado)}`,
       severity,
       link: `/movilidad/vehiculos/${proceso.placa}`,
       daysRemaining: Math.max(0, daysRemaining),
@@ -113,7 +115,7 @@ export default async function MovilidadDashboard() {
         estado_cambiado: {
           type: "estado_cambiado",
           title: "Estado actualizado",
-          description: `Cambió de "${item.estado_anterior?.replace(/_/g, " ")}" a "${item.estado_nuevo?.replace(/_/g, " ")}"`,
+          description: `Cambió de "${ESTADOS_CONFIG[item.estado_anterior || ""]?.label || formatearEstadoProceso(item.estado_anterior || "")}" a "${ESTADOS_CONFIG[item.estado_nuevo || ""]?.label || formatearEstadoProceso(item.estado_nuevo || "")}"`,
         },
         novedad_agregada: {
           type: "novedad_agregada",
@@ -124,7 +126,7 @@ export default async function MovilidadDashboard() {
 
       const accion = accionMap[item.accion] || {
         type: "estado_cambiado",
-        title: item.accion.replace(/_/g, " "),
+        title: formatearEstadoProceso(item.accion),
         description: "Acción realizada en el sistema",
       }
 

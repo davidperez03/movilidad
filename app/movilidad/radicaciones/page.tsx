@@ -1,12 +1,10 @@
 import { createClient } from "@/lib/supabase/server"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import { ArrowDownToLine, Plus, Calendar, MapPin, FileText, AlertTriangle } from "lucide-react"
+import { ArrowDownToLine, Plus } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { BadgeEstadoProceso } from "@/components/movilidad/badge-estado-proceso"
-import { BadgeVencimiento } from "@/components/movilidad/badge-vencimiento"
-import { formatDateShort, formatDateForDisplay } from "@/lib/utils"
+import { ProcesoCard } from "@/components/movilidad/proceso-card"
+import { EmptyState } from "@/components/shared/empty-state"
 
 export default async function RadicacionesPage() {
   const supabase = await createClient()
@@ -34,7 +32,6 @@ export default async function RadicacionesPage() {
     .order("creado_en", { ascending: false })
 
   if (errorActivas) {
-    console.error("Error radicaciones activas:", errorActivas)
   }
 
   // Obtener radicaciones completadas
@@ -89,158 +86,47 @@ export default async function RadicacionesPage() {
 
         <TabsContent value="activas" className="space-y-4">
           {radicacionesActivas && radicacionesActivas.length > 0 ? (
-            radicacionesActivas.map((radicacion) => {
-              const diasRestantes = calcularDiasRestantes(radicacion.fecha_vencimiento)
-              return (
-                <Card key={radicacion.id} className="hover:shadow-md transition-shadow">
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div className="space-y-1">
-                        <CardTitle className="flex items-center gap-2">
-                          <ArrowDownToLine className="h-5 w-5" />
-                          {radicacion.mov_cuentas_vehiculos?.placa}
-                        </CardTitle>
-                        <CardDescription>
-                          {radicacion.mov_cuentas_vehiculos?.numero_cuenta}
-                        </CardDescription>
-                      </div>
-                      <div className="flex gap-2">
-                        <BadgeEstadoProceso estado={radicacion.estado} tipoProceso="radicacion" />
-                        <BadgeVencimiento fechaVencimiento={radicacion.fecha_vencimiento} />
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid gap-4 md:grid-cols-4 mb-4">
-                      <div className="flex items-center gap-2">
-                        <MapPin className="h-4 w-4 text-muted-foreground" />
-                        <div>
-                          <p className="text-sm text-muted-foreground">Origen</p>
-                          <p className="font-medium">{radicacion.organismo?.nombre || 'Sin información'}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-muted-foreground" />
-                        <div>
-                          <p className="text-sm text-muted-foreground">Fecha trámite</p>
-                          <p className="font-medium">
-                            {formatDateForDisplay(radicacion.fecha_tramite)}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <AlertTriangle className="h-4 w-4 text-muted-foreground" />
-                        <div>
-                          <p className="text-sm text-muted-foreground">Vencimiento</p>
-                          <p className={`font-medium ${diasRestantes < 7 ? "text-orange-600" : ""}`}>
-                            {formatDateForDisplay(radicacion.fecha_vencimiento)}
-                          </p>
-                        </div>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Creado por</p>
-                        <p className="font-medium">{radicacion.perfiles?.nombre_completo || 'Sin información'}</p>
-                      </div>
-                    </div>
-                    {radicacion.observaciones && (
-                      <div className="mb-4 p-3 bg-muted rounded-md">
-                        <p className="text-sm text-muted-foreground mb-1">Observaciones:</p>
-                        <p className="text-sm">{radicacion.observaciones}</p>
-                      </div>
-                    )}
-                    <div className="flex gap-2">
-                      <Button asChild variant="outline" size="sm">
-                        <Link href={`/movilidad/vehiculos/${radicacion.mov_cuentas_vehiculos?.placa}`}>
-                          <FileText className="h-4 w-4 mr-2" />
-                          Ver Detalle
-                        </Link>
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              )
-            })
+            radicacionesActivas.map((radicacion) => (
+              <ProcesoCard
+                key={radicacion.id}
+                proceso={radicacion}
+                tipoProceso="radicacion"
+                esCompletado={false}
+              />
+            ))
           ) : (
-            <Card>
-              <CardContent className="py-12 text-center">
-                <ArrowDownToLine className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <p className="text-lg font-medium mb-2">No hay radicaciones activas</p>
-                <p className="text-muted-foreground mb-4">
-                  No hay procesos de radicación en curso en este momento
-                </p>
+            <EmptyState
+              icon={ArrowDownToLine}
+              titulo="No hay radicaciones activas"
+              descripcion="No hay procesos de radicación en curso en este momento"
+              accion={
                 <Button asChild>
                   <Link href="/movilidad/radicaciones/nueva">
                     <Plus className="h-4 w-4 mr-2" />
                     Iniciar Primera Radicación
                   </Link>
                 </Button>
-              </CardContent>
-            </Card>
+              }
+            />
           )}
         </TabsContent>
 
         <TabsContent value="completadas" className="space-y-4">
           {radicacionesCompletadas && radicacionesCompletadas.length > 0 ? (
             radicacionesCompletadas.map((radicacion) => (
-              <Card key={radicacion.id}>
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="space-y-1">
-                      <CardTitle className="flex items-center gap-2">
-                        <ArrowDownToLine className="h-5 w-5" />
-                        {radicacion.mov_cuentas_vehiculos?.placa}
-                      </CardTitle>
-                      <CardDescription>
-                        {radicacion.mov_cuentas_vehiculos?.numero_cuenta}
-                      </CardDescription>
-                    </div>
-                    <BadgeEstadoProceso estado={radicacion.estado} tipoProceso="radicacion" />
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid gap-4 md:grid-cols-4 mb-4">
-                    <div>
-                      <p className="text-sm text-muted-foreground">Origen</p>
-                      <p className="font-medium">{radicacion.organismo?.nombre || 'Sin información'}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Fecha trámite</p>
-                      <p className="font-medium">
-                        {formatDateForDisplay(radicacion.fecha_tramite)}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Completado</p>
-                      <p className="font-medium">
-                        {radicacion.fecha_completado
-                          ? formatDateShort(radicacion.fecha_completado)
-                          : "N/A"}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Responsable</p>
-                      <p className="font-medium">{radicacion.perfiles?.nombre_completo}</p>
-                    </div>
-                  </div>
-                  <Button asChild variant="outline" size="sm">
-                    <Link href={`/movilidad/vehiculos/${radicacion.mov_cuentas_vehiculos?.placa}`}>
-                      <FileText className="h-4 w-4 mr-2" />
-                      Ver Detalle
-                    </Link>
-                  </Button>
-                </CardContent>
-              </Card>
+              <ProcesoCard
+                key={radicacion.id}
+                proceso={radicacion}
+                tipoProceso="radicacion"
+                esCompletado={true}
+              />
             ))
           ) : (
-            <Card>
-              <CardContent className="py-12 text-center">
-                <ArrowDownToLine className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <p className="text-lg font-medium mb-2">No hay radicaciones completadas</p>
-                <p className="text-muted-foreground">
-                  No se han completado procesos de radicación aún
-                </p>
-              </CardContent>
-            </Card>
+            <EmptyState
+              icon={ArrowDownToLine}
+              titulo="No hay radicaciones completadas"
+              descripcion="No se han completado procesos de radicación aún"
+            />
           )}
         </TabsContent>
       </Tabs>

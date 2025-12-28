@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
 import type { TipoProceso } from '@/lib/movilidad/config'
@@ -19,7 +19,18 @@ export function useBuscarVehiculo(tipoProceso: TipoProceso) {
   const [modalProcesoActivo, setModalProcesoActivo] = useState(false)
   const [razonRechazo, setRazonRechazo] = useState("")
 
-  const buscarCuenta = async (placaBuscar: string) => {
+  const limpiarDatos = useCallback(() => {
+    setCuentaId(null)
+    setNumeroCuenta("")
+    setPlacaActual("")
+  }, [])
+
+  const cerrarModalProcesoActivo = useCallback(() => {
+    setModalProcesoActivo(false)
+    setRazonRechazo("")
+  }, [])
+
+  const buscarCuenta = useCallback(async (placaBuscar: string) => {
     if (!placaBuscar.trim()) {
       toast.error("Ingrese una placa para buscar")
       return
@@ -51,7 +62,6 @@ export function useBuscarVehiculo(tipoProceso: TipoProceso) {
         })
 
       if (errorValidacion) {
-        console.error("Error al validar:", errorValidacion)
         toast.error("Error al validar el vehículo")
         return
       }
@@ -69,23 +79,11 @@ export function useBuscarVehiculo(tipoProceso: TipoProceso) {
       setPlacaActual(cuenta.placa)
       toast.success(`Vehículo encontrado: ${cuenta.placa} - ${cuenta.numero_cuenta}`)
     } catch (error) {
-      console.error("Error:", error)
       toast.error("Error al buscar la cuenta")
     } finally {
       setBuscando(false)
     }
-  }
-
-  const limpiarDatos = () => {
-    setCuentaId(null)
-    setNumeroCuenta("")
-    setPlacaActual("")
-  }
-
-  const cerrarModalProcesoActivo = () => {
-    setModalProcesoActivo(false)
-    setRazonRechazo("")
-  }
+  }, [tipoProceso, limpiarDatos])
 
   return {
     cuentaId,
