@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
-import { Car, FileText, ArrowRightLeft, ArrowDownToLine, LayoutDashboard, Activity, User } from "lucide-react"
+import { Car, FileText, ArrowRightLeft, ArrowDownToLine, LayoutDashboard, Activity, User, FileBarChart } from "lucide-react"
 import { BotonCerrarSesion } from "@/components/logout-button"
 
 export default async function MovilidadLayout({
@@ -140,6 +140,14 @@ export default async function MovilidadLayout({
             >
               <Activity className="h-4 w-4" />
               Estado General
+            </Link>
+
+            <Link
+              href="/movilidad/reportes"
+              className="flex items-center gap-2 border-b-2 border-transparent px-4 py-3 text-sm font-medium text-muted-foreground transition-colors hover:border-primary hover:text-foreground data-[active=true]:border-primary data-[active=true]:text-foreground"
+            >
+              <FileBarChart className="h-4 w-4" />
+              Reportes
             </Link>
 
             <Link

@@ -9,6 +9,38 @@ export function formatearEstadoProceso(estado: string): string {
 }
 
 /**
+ * Formatea una fecha de manera consistente para evitar problemas de hidratación
+ * Retorna formato: DD/MM/AAAA
+ */
+export function formatearFecha(fecha: string | Date): string {
+  if (!fecha) return ''
+
+  const date = typeof fecha === 'string' ? new Date(fecha) : fecha
+  const dia = String(date.getUTCDate()).padStart(2, '0')
+  const mes = String(date.getUTCMonth() + 1).padStart(2, '0')
+  const anio = date.getUTCFullYear()
+
+  return `${dia}/${mes}/${anio}`
+}
+
+/**
+ * Formatea una fecha y hora de manera consistente
+ * Retorna formato: DD/MM/AAAA HH:MM
+ */
+export function formatearFechaHora(fecha: string | Date): string {
+  if (!fecha) return ''
+
+  const date = typeof fecha === 'string' ? new Date(fecha) : fecha
+  const dia = String(date.getUTCDate()).padStart(2, '0')
+  const mes = String(date.getUTCMonth() + 1).padStart(2, '0')
+  const anio = date.getUTCFullYear()
+  const horas = String(date.getUTCHours()).padStart(2, '0')
+  const minutos = String(date.getUTCMinutes()).padStart(2, '0')
+
+  return `${dia}/${mes}/${anio} ${horas}:${minutos}`
+}
+
+/**
  * Calcula los días restantes hasta una fecha de vencimiento
  * Retorna número positivo si aún no ha vencido, negativo si ya venció
  */
