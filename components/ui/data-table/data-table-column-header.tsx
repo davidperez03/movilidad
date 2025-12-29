@@ -15,13 +15,17 @@ export function DataTableColumnHeader<TData, TValue>({
   }
 
   const sorted = column.getIsSorted()
+  const isCentered = className?.includes('justify-center')
 
   return (
     <div className={cn('flex items-center space-x-2', className)}>
       <Button
         variant="ghost"
         size="sm"
-        className="-ml-3 h-8 data-[state=open]:bg-accent"
+        className={cn(
+          'h-8 data-[state=open]:bg-accent',
+          isCentered ? 'mx-auto' : '-ml-3'
+        )}
         onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
       >
         <span>{title}</span>

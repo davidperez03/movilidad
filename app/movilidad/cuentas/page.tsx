@@ -1,15 +1,12 @@
 import { createClient } from "@/lib/supabase/server"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import Link from "next/link"
-import { Car, Search, FileText, History, Clock } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
-import { formatDateLong, formatDateShort } from "@/lib/utils"
-import { BotonNuevaCuenta, BotonesIniciarProceso } from "@/components/movilidad/cuentas-acciones"
+import { Search } from "lucide-react"
+import { BotonNuevaCuenta } from "@/components/movilidad/cuentas-acciones"
 import { obtenerPermisosUsuario } from "@/lib/server/permisos"
-import { EmptyState } from "@/components/shared/empty-state"
-import { ESTADOS_CONFIG } from "@/lib/movilidad/config"
+import { CuentasTable } from "@/components/movilidad/cuentas/cuentas-table"
 
 export default async function CuentasPage({
   searchParams,
@@ -102,135 +99,12 @@ export default async function CuentasPage({
         </CardContent>
       </Card>
 
-      {/* Listado de cuentas */}
-      <div className="grid gap-4">
-        {cuentasConProcesos && cuentasConProcesos.length > 0 ? (
-          cuentasConProcesos.map((cuenta) => (
-            <Card key={cuenta.id} className="hover:shadow-md transition-shadow">
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div className="space-y-1">
-                    <CardTitle className="flex items-center gap-2">
-                      <Car className="h-5 w-5" />
-                      {cuenta.placa}
-                    </CardTitle>
-                    <CardDescription>
-                      Cuenta: {cuenta.numero_cuenta}
-                    </CardDescription>
-                  </div>
-                  <div className="flex gap-2">
-                    <Badge variant="outline">
-                      {cuenta.tipo_servicio === "particular" && "Particular"}
-                      {cuenta.tipo_servicio === "publico" && "Público"}
-                      {cuenta.tipo_servicio === "otro" && "Otro"}
-                    </Badge>
-                    {cuenta.procesoActivo?.proceso_tipo && (
-                      <Badge
-                        variant={
-                          cuenta.procesoActivo.proceso_estado === "con_novedades"
-                            ? "destructive"
-                            : "default"
-                        }
-                      >
-                        {cuenta.procesoActivo.proceso_tipo === "traslado"
-                          ? "Traslado Activo"
-                          : "Radicación Activa"}
-                      </Badge>
-                    )}
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Creado por</p>
-                    <p className="font-medium">
-                      {cuenta.creador?.nombre_completo || "Sin información"}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Fecha de creación</p>
-                    <p className="font-medium">
-                      {formatDateLong(cuenta.creado_en)}
-                    </p>
-                  </div>
-                  {cuenta.procesoActivo?.proceso_tipo && (
-                    <>
-                      <div>
-                        <p className="text-sm text-muted-foreground">
-                          {cuenta.procesoActivo.proceso_tipo === "traslado"
-                            ? "Organismo destino"
-                            : "Organismo origen"}
-                        </p>
-                        <p className="font-medium">
-                          {cuenta.procesoActivo.ciudad}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Estado del proceso</p>
-                        <p className="font-medium">
-                          {ESTADOS_CONFIG[cuenta.procesoActivo.proceso_estado || ""]?.label || cuenta.procesoActivo.proceso_estado}
-                        </p>
-                      </div>
-                    </>
-                  )}
-                </div>
-                {/* Mostrar historial si no hay proceso activo pero sí completados */}
-                {!cuenta.procesoActivo?.proceso_tipo && cuenta.ultimo_proceso_completado && (
-                  <div className="mt-4 p-3 bg-muted/50 rounded-lg border border-muted">
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <History className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm font-medium">Último proceso completado</span>
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <Badge variant="outline" className="text-xs capitalize">
-                          {cuenta.ultimo_proceso_completado.proceso_tipo}
-                        </Badge>
-                        <Badge
-                          variant="outline"
-                          className={`text-xs ${ESTADOS_CONFIG[cuenta.ultimo_proceso_completado.estado]?.color || ""}`}
-                        >
-                          {ESTADOS_CONFIG[cuenta.ultimo_proceso_completado.estado]?.label || cuenta.ultimo_proceso_completado.estado}
-                        </Badge>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <Clock className="h-3 w-3" />
-                      <span>{formatDateShort(cuenta.ultimo_proceso_completado.fecha_completado)}</span>
-                      <span>•</span>
-                      <span>{cuenta.ultimo_proceso_completado.organismo_nombre}</span>
-                    </div>
-                  </div>
-                )}
-
-                <div className="flex gap-2 mt-4">
-                  <Button asChild variant="outline" size="sm">
-                    <Link href={`/movilidad/vehiculos/${cuenta.placa}`}>
-                      <FileText className="h-4 w-4 mr-2" />
-                      Ver Detalles
-                    </Link>
-                  </Button>
-                  {!cuenta.procesoActivo?.proceso_tipo && (
-                    <BotonesIniciarProceso placa={cuenta.placa} permisos={permisos} />
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          ))
-        ) : (
-          <EmptyState
-            icon={Car}
-            titulo="No se encontraron cuentas"
-            descripcion={
-              query
-                ? "No hay cuentas que coincidan con tu búsqueda"
-                : "Aún no hay cuentas registradas en el sistema"
-            }
-            accion={!query ? <BotonNuevaCuenta permisos={permisos} /> : undefined}
-          />
-        )}
-      </div>
+      {/* Tabla de cuentas */}
+      <Card>
+        <CardContent className="pt-6">
+          <CuentasTable cuentas={cuentasConProcesos || []} permisos={permisos} />
+        </CardContent>
+      </Card>
     </div>
   )
 }
