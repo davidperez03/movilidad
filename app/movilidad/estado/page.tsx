@@ -1,8 +1,8 @@
 import { createClient } from "@/lib/supabase/server"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import { FileSpreadsheet, ArrowLeft } from "lucide-react"
+import { ArrowLeft } from "lucide-react"
 import { VehicleTable } from "@/components/dashboard/vehicle-table"
 
 export default async function EstadoVehiculosPage() {
@@ -46,13 +46,7 @@ export default async function EstadoVehiculosPage() {
       </div>
 
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <FileSpreadsheet className="h-5 w-5" />
-            Listado Completo de Vehículos
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
+        <CardContent className="pt-6">
           <VehicleTable vehicles={vehiculos || []} />
         </CardContent>
       </Card>
