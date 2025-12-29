@@ -28,13 +28,12 @@ as $$
       t.fecha_completado,
       o.nombre as organismo_nombre,
       p.nombre_completo as creado_por_nombre,
-      t.fecha_completado as orden_fecha
+      coalesce(t.fecha_completado, t.creado_en) as orden_fecha
     from public.mov_traslados t
     join public.mov_organismos_transito o on t.organismo_destino_id = o.id
     join public.perfiles p on t.creado_por = p.id
     where t.estado in ('trasladado', 'devuelto')
-      and t.fecha_completado is not null
-    order by t.cuenta_id, t.fecha_completado desc
+    order by t.cuenta_id, coalesce(t.fecha_completado, t.creado_en) desc
   ),
   -- Obtener últimas radicaciones completadas
   ultimas_radicaciones as (
@@ -46,13 +45,12 @@ as $$
       r.fecha_completado,
       o.nombre as organismo_nombre,
       p.nombre_completo as creado_por_nombre,
-      r.fecha_completado as orden_fecha
+      coalesce(r.fecha_completado, r.creado_en) as orden_fecha
     from public.mov_radicaciones r
     join public.mov_organismos_transito o on r.organismo_origen_id = o.id
     join public.perfiles p on r.creado_por = p.id
     where r.estado in ('radicado', 'devuelto')
-      and r.fecha_completado is not null
-    order by r.cuenta_id, r.fecha_completado desc
+    order by r.cuenta_id, coalesce(r.fecha_completado, r.creado_en) desc
   )
   -- Combinar y seleccionar el más reciente por cuenta
   select distinct on (cuenta_id)

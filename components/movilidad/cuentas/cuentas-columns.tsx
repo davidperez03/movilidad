@@ -117,14 +117,19 @@ export const columnasCuentas: ColumnDef<CuentaVehiculo>[] = [
       const ultimoCompletado = row.original.ultimo_proceso_completado
 
       if (procesoActivo?.ciudad) {
-        return <div className="text-sm">{procesoActivo.ciudad}</div>
+        return <div className="text-sm font-medium">{procesoActivo.ciudad}</div>
       }
 
       if (!procesoActivo?.proceso_tipo && ultimoCompletado) {
         return (
-          <div className="text-xs text-muted-foreground flex items-center gap-1">
-            <History className="h-3 w-3" />
-            {ultimoCompletado.organismo_nombre}
+          <div className="flex items-center gap-1.5">
+            <div className="flex items-center justify-center w-6 h-6 rounded-full bg-amber-100 dark:bg-amber-950">
+              <History className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-[10px] font-medium text-amber-600 dark:text-amber-400 uppercase tracking-wide">Último</span>
+              <span className="text-xs text-muted-foreground">{ultimoCompletado.organismo_nombre}</span>
+            </div>
           </div>
         )
       }

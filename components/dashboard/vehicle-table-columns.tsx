@@ -133,14 +133,32 @@ export const columnasVehicleTable: ColumnDef<VehicleData>[] = [
     id: 'historial',
     header: 'Historial',
     cell: ({ row }) => {
+      const tieneProcesoActivo = row.original.proceso_tipo !== null
       const ultimoProceso = row.original.ultimo_proceso_completado
+      const esDevuelto = ultimoProceso?.estado === 'devuelto'
+
+      // Si tiene proceso activo, no mostrar historial
+      if (tieneProcesoActivo) {
+        return <span className="text-sm text-muted-foreground">-</span>
+      }
+
+      // Si no tiene proceso activo, mostrar el último proceso completado
       return ultimoProceso ? (
         <div className="space-y-1.5">
-          <div className="text-xs">
+          <div className="text-xs flex items-center gap-1.5 flex-wrap">
             <span className="font-medium capitalize">
               {ultimoProceso.proceso_tipo}
             </span>
-            <span className="text-muted-foreground mx-1">•</span>
+            <span className="text-muted-foreground">•</span>
+            <Badge
+              variant={esDevuelto ? "destructive" : "outline"}
+              className={esDevuelto ? "text-[10px] px-1.5 py-0" : "text-[10px] px-1.5 py-0 bg-green-50 text-green-700 border-green-200"}
+            >
+              {ultimoProceso.estado === 'trasladado' ? 'Trasladado' :
+               ultimoProceso.estado === 'radicado' ? 'Radicado' :
+               ultimoProceso.estado === 'devuelto' ? 'Devuelto' :
+               ultimoProceso.estado}
+            </Badge>
             <span className="text-muted-foreground">
               {formatDateShort(ultimoProceso.fecha_completado)}
             </span>
