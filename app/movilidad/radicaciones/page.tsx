@@ -1,10 +1,10 @@
 import { createClient } from "@/lib/supabase/server"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
 import Link from "next/link"
-import { ArrowDownToLine, Plus } from "lucide-react"
+import { Plus } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ProcesoCard } from "@/components/movilidad/proceso-card"
-import { EmptyState } from "@/components/shared/empty-state"
+import { RadicacionesTable } from "@/components/movilidad/radicaciones/radicaciones-table"
 
 export default async function RadicacionesPage() {
   const supabase = await createClient()
@@ -55,7 +55,7 @@ export default async function RadicacionesPage() {
     `)
     .in("estado", ["radicado", "devuelto"])
     .order("fecha_completado", { ascending: false})
-    .limit(20)
+    .limit(50)
 
   return (
     <div className="space-y-6">
@@ -84,50 +84,20 @@ export default async function RadicacionesPage() {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="activas" className="space-y-4">
-          {radicacionesActivas && radicacionesActivas.length > 0 ? (
-            radicacionesActivas.map((radicacion) => (
-              <ProcesoCard
-                key={radicacion.id}
-                proceso={radicacion}
-                tipoProceso="radicacion"
-                esCompletado={false}
-              />
-            ))
-          ) : (
-            <EmptyState
-              icon={ArrowDownToLine}
-              titulo="No hay radicaciones activas"
-              descripcion="No hay procesos de radicación en curso en este momento"
-              accion={
-                <Button asChild>
-                  <Link href="/movilidad/radicaciones/nueva">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Iniciar Primera Radicación
-                  </Link>
-                </Button>
-              }
-            />
-          )}
+        <TabsContent value="activas">
+          <Card>
+            <CardContent className="pt-6">
+              <RadicacionesTable radicaciones={radicacionesActivas || []} esCompletadas={false} />
+            </CardContent>
+          </Card>
         </TabsContent>
 
-        <TabsContent value="completadas" className="space-y-4">
-          {radicacionesCompletadas && radicacionesCompletadas.length > 0 ? (
-            radicacionesCompletadas.map((radicacion) => (
-              <ProcesoCard
-                key={radicacion.id}
-                proceso={radicacion}
-                tipoProceso="radicacion"
-                esCompletado={true}
-              />
-            ))
-          ) : (
-            <EmptyState
-              icon={ArrowDownToLine}
-              titulo="No hay radicaciones completadas"
-              descripcion="No se han completado procesos de radicación aún"
-            />
-          )}
+        <TabsContent value="completadas">
+          <Card>
+            <CardContent className="pt-6">
+              <RadicacionesTable radicaciones={radicacionesCompletadas || []} esCompletadas={true} />
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
     </div>
