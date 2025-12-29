@@ -1,139 +1,55 @@
-import { createClient } from "@/lib/supabase/server"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import {
-  Car,
-  FileText,
-  ArrowRightLeft,
-  ArrowDownToLine,
-  Calendar,
-  User,
-  AlertTriangle,
-  Clock,
-  ArrowLeft,
-} from "lucide-react"
+import { Car, ArrowLeft } from "lucide-react"
 import { notFound } from "next/navigation"
-import { AgregarNovedad } from "@/components/movilidad/agregar-novedad"
-import { CambiarEstado } from "@/components/movilidad/cambiar-estado"
-import { formatDateShort, formatDateTime, formatDateLong, formatDateForDisplay } from "@/lib/utils"
-import { formatearEstadoProceso } from "@/lib/movilidad/formatters"
-import { ResolverNovedad } from "@/components/movilidad/resolver-novedad"
-import { BotonDescargarRemision } from "@/components/movilidad/boton-descargar-remision"
-import { AgregarDatosTransporte } from "@/components/movilidad/agregar-datos-transporte"
+import {
+  obtenerCuentaVehiculo,
+  obtenerProcesoActivo,
+  obtenerHistorialTraslados,
+  obtenerHistorialRadicaciones,
+  obtenerNovedadesProceso,
+  obtenerHistorialAcciones,
+} from "@/lib/movilidad/server/detalle-vehiculo"
+import { InformacionCuenta } from "@/components/movilidad/vehiculos/informacion-cuenta"
+import { ProcesoActivo } from "@/components/movilidad/vehiculos/proceso-activo"
+import { HistorialProcesos } from "@/components/movilidad/vehiculos/historial-procesos"
+import { HistorialAcciones } from "@/components/movilidad/vehiculos/historial-acciones"
 
 export default async function DetalleVehiculoPage({
   params,
 }: {
   params: Promise<{ placa: string }>
 }) {
-  const supabase = await createClient()
   const { placa } = await params
 
-  // Obtener cuenta del vehículo
-  const { data: cuenta, error: errorCuenta } = await supabase
-    .from("mov_cuentas_vehiculos")
-    .select(`
-      *,
-      creador:perfiles!creado_por (
-        nombre_completo,
-        correo
-      )
-    `)
-    .eq("placa", placa.toUpperCase())
-    .single()
-
-  if (errorCuenta || !cuenta) {
+  // Obtener datos del vehículo
+  let cuenta
+  try {
+    cuenta = await obtenerCuentaVehiculo(placa)
+  } catch {
     notFound()
   }
 
-  // Obtener proceso activo
-  const { data: procesoActivoData } = await supabase
-    .from("mov_vista_proceso_activo")
-    .select("*")
-    .eq("cuenta_id", cuenta.id)
-    .single()
+  // Obtener todos los datos en paralelo
+  const [procesoActivo, traslados, radicaciones, historial] = await Promise.all([
+    obtenerProcesoActivo(cuenta.id),
+    obtenerHistorialTraslados(cuenta.id),
+    obtenerHistorialRadicaciones(cuenta.id),
+    obtenerHistorialAcciones(cuenta.id),
+  ])
 
-  // Si hay proceso activo, obtener detalles completos con usuarios
-  let procesoActivo = procesoActivoData
-  if (procesoActivoData?.proceso_id) {
-    const tabla = procesoActivoData.proceso_tipo === "traslado" ? "mov_traslados" : "mov_radicaciones"
-    const { data: procesoDetalle } = await supabase
-      .from(tabla)
-      .select(`
-        *,
-        creador:perfiles!creado_por (nombre_completo),
-        actualizador:perfiles!actualizado_por (nombre_completo)
-      `)
-      .eq("id", procesoActivoData.proceso_id)
-      .single()
-
-    if (procesoDetalle) {
-      procesoActivo = { ...procesoActivoData, ...procesoDetalle }
-    }
-  }
-
-  // Obtener historial de traslados
-  const { data: traslados } = await supabase
-    .from("mov_traslados")
-    .select(`
-      *,
-      creador:perfiles!creado_por (nombre_completo),
-      actualizador:perfiles!actualizado_por (nombre_completo),
-      organismo:mov_organismos_transito!organismo_destino_id (nombre, municipio, departamento),
-      empresa_transporte:mov_empresas_transporte (id, nombre)
-    `)
-    .eq("cuenta_id", cuenta.id)
-    .order("creado_en", { ascending: false })
-
-  // Obtener historial de radicaciones
-  const { data: radicaciones } = await supabase
-    .from("mov_radicaciones")
-    .select(`
-      *,
-      creador:perfiles!creado_por (nombre_completo),
-      actualizador:perfiles!actualizado_por (nombre_completo),
-      organismo:mov_organismos_transito!organismo_origen_id (nombre, municipio, departamento)
-    `)
-    .eq("cuenta_id", cuenta.id)
-    .order("creado_en", { ascending: false })
-
-  // Obtener novedades del proceso activo
-  let novedadesActivas: any[] = []
-  if (procesoActivo?.proceso_id) {
-    const { data: novedades } = await supabase
-      .from("mov_novedades")
-      .select(`
-        *,
-        creador:perfiles!creado_por (nombre_completo),
-        resolutor:perfiles!resuelta_por (nombre_completo)
-      `)
-      .eq("proceso_tipo", procesoActivo.proceso_tipo)
-      .eq("proceso_id", procesoActivo.proceso_id)
-      .order("creado_en", { ascending: false })
-
-    novedadesActivas = novedades || []
-  }
-
-  // Obtener historial de acciones
-  const { data: historial } = await supabase
-    .from("mov_historial_acciones")
-    .select(`
-      *,
-      responsable:perfiles!realizado_por (nombre_completo)
-    `)
-    .eq("cuenta_id", cuenta.id)
-    .order("creado_en", { ascending: false })
-    .limit(20)
-
-
-  // Nota: dias_restantes ya viene calculado desde la base de datos
-  // usando la función contar_dias_habiles que considera días hábiles
-  // (sin sábados, domingos ni festivos)
+  // Obtener novedades si hay proceso activo
+  const novedades = procesoActivo?.proceso_id
+    ? await obtenerNovedadesProceso(
+        procesoActivo.proceso_id,
+        procesoActivo.proceso_tipo as 'traslado' | 'radicacion'
+      )
+    : []
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Button asChild variant="ghost" size="sm">
@@ -160,502 +76,20 @@ export default async function DetalleVehiculoPage({
       </div>
 
       {/* Información de la cuenta */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Información de la Cuenta</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-3">
-            <div>
-              <p className="text-sm text-muted-foreground">Creado por</p>
-              <p className="font-medium">{cuenta.creador?.nombre_completo}</p>
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Fecha de creación</p>
-              <p className="font-medium">
-                {formatDateLong(cuenta.creado_en)}
-              </p>
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Tipo de servicio</p>
-              <p className="font-medium capitalize">{cuenta.tipo_servicio}</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <InformacionCuenta cuenta={cuenta} />
 
       {/* Proceso activo */}
-      {procesoActivo?.proceso_id ? (
-        <Card className="border-2 border-primary">
-          <CardHeader>
-            <div className="flex items-start justify-between">
-              <div>
-                <CardTitle className="flex items-center gap-2">
-                  {procesoActivo.proceso_tipo === "traslado" ? (
-                    <ArrowRightLeft className="h-5 w-5" />
-                  ) : (
-                    <ArrowDownToLine className="h-5 w-5" />
-                  )}
-                  Proceso Activo: {procesoActivo.proceso_tipo === "traslado" ? "Traslado" : "Radicación"}
-                </CardTitle>
-                <CardDescription>
-                  Este vehículo tiene un proceso en curso
-                </CardDescription>
-              </div>
-              <Badge
-                variant={procesoActivo.proceso_estado === "con_novedades" ? "destructive" : "default"}
-              >
-                {formatearEstadoProceso(procesoActivo.proceso_estado)}
-              </Badge>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="grid gap-4 md:grid-cols-4">
-              <div>
-                <p className="text-sm text-muted-foreground">
-                  {procesoActivo.proceso_tipo === "traslado" ? "Destino" : "Origen"}
-                </p>
-                <p className="font-medium">{procesoActivo.ciudad}</p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Fecha trámite</p>
-                <p className="font-medium">
-                  {formatDateForDisplay(procesoActivo.fecha_tramite)}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Vencimiento</p>
-                <p className={`font-medium ${
-                  (procesoActivo.dias_restantes ?? 0) < 7 ? "text-orange-600" : ""
-                }`}>
-                  {formatDateForDisplay(procesoActivo.fecha_vencimiento)}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Días hábiles restantes</p>
-                <p className={`font-medium ${
-                  (procesoActivo.dias_restantes ?? 0) < 7
-                    ? "text-orange-600"
-                    : "text-green-600"
-                }`}>
-                  {procesoActivo.dias_restantes ?? 0} días
-                </p>
-              </div>
-            </div>
-
-            {/* Información de auditoría */}
-            <div className="grid gap-4 md:grid-cols-3 text-sm">
-              <div>
-                <p className="text-xs text-muted-foreground">Creado por</p>
-                <p className="font-medium">{procesoActivo.creador?.nombre_completo || 'Sin información'}</p>
-              </div>
-              {procesoActivo.actualizador && (
-                <div>
-                  <p className="text-xs text-muted-foreground">Última actualización por</p>
-                  <p className="font-medium">{procesoActivo.actualizador?.nombre_completo}</p>
-                </div>
-              )}
-              <div>
-                <p className="text-xs text-muted-foreground">Actualizado</p>
-                <p className="font-medium">
-                  {formatDateShort(procesoActivo.actualizado_en)}
-                </p>
-              </div>
-            </div>
-
-            {procesoActivo.observaciones && (
-              <div className="p-3 bg-muted rounded-md">
-                <p className="text-sm text-muted-foreground mb-1">Observaciones:</p>
-                <p className="text-sm">{procesoActivo.observaciones}</p>
-              </div>
-            )}
-
-            {/* Datos de transporte - Solo para traslados en estado enviado_organismo */}
-            {procesoActivo.proceso_tipo === "traslado" && procesoActivo.proceso_estado === "enviado_organismo" && (
-              <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-blue-900 mb-1">Información de Transporte</p>
-                    <div className="text-sm text-blue-700 space-y-1">
-                      {procesoActivo.empresa_transporte?.nombre && (
-                        <p><strong>Empresa:</strong> {procesoActivo.empresa_transporte.nombre}</p>
-                      )}
-                      {procesoActivo.numero_guia && (
-                        <p><strong>Número de guía:</strong> {procesoActivo.numero_guia}</p>
-                      )}
-                      {!procesoActivo.empresa_transporte && !procesoActivo.numero_guia && (
-                        <p className="text-blue-600 italic">No se han agregado datos de transporte</p>
-                      )}
-                    </div>
-                  </div>
-                  <AgregarDatosTransporte
-                    trasladoId={procesoActivo.proceso_id}
-                    empresaActualId={procesoActivo.empresa_transportadora_id}
-                    numeroGuiaActual={procesoActivo.numero_guia}
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* Acciones del proceso */}
-            <div className="flex gap-2">
-              <CambiarEstado
-                procesoId={procesoActivo.proceso_id}
-                procesoTipo={procesoActivo.proceso_tipo as "traslado" | "radicacion"}
-                estadoActual={procesoActivo.proceso_estado}
-              />
-              <AgregarNovedad
-                procesoId={procesoActivo.proceso_id}
-                procesoTipo={procesoActivo.proceso_tipo as "traslado" | "radicacion"}
-              />
-            </div>
-
-            {/* Novedades del proceso activo */}
-            {novedadesActivas.length > 0 && (
-              <div className="space-y-2">
-                <h3 className="font-semibold flex items-center gap-2">
-                  <AlertTriangle className="h-4 w-4" />
-                  Novedades Activas ({novedadesActivas.length})
-                </h3>
-                <div className="space-y-2">
-                  {novedadesActivas.map((novedad) => (
-                    <div
-                      key={novedad.id}
-                      className={`p-3 rounded-md border ${
-                        novedad.estado === "resuelta"
-                          ? "bg-green-50 border-green-200"
-                          : "bg-yellow-50 border-yellow-200"
-                      }`}
-                    >
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <Badge
-                            variant={
-                              novedad.prioridad === "critica" ? "destructive" :
-                              novedad.prioridad === "alta" ? "destructive" :
-                              "secondary"
-                            }
-                          >
-                            {novedad.prioridad}
-                          </Badge>
-                          <Badge variant="outline">
-                            {formatearEstadoProceso(novedad.tipo_novedad)}
-                          </Badge>
-                        </div>
-                        <Badge variant={novedad.estado === "resuelta" ? "default" : "secondary"}>
-                          {formatearEstadoProceso(novedad.estado)}
-                        </Badge>
-                      </div>
-                      <p className="text-sm mb-2">{novedad.descripcion}</p>
-                      {novedad.solucion && novedad.estado === "resuelta" && (
-                        <div className="mb-2 p-2 bg-white rounded border">
-                          <p className="text-xs font-medium text-green-700 mb-1">Solución:</p>
-                          <p className="text-sm text-green-900">{novedad.solucion}</p>
-                        </div>
-                      )}
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                          <span>Creado por: {novedad.creador?.nombre_completo}</span>
-                          <span>
-                            {formatDateShort(novedad.creado_en)}
-                          </span>
-                          {novedad.estado === "resuelta" && (
-                            <>
-                              <span>•</span>
-                              <span>Resuelto por: {novedad.resolutor?.nombre_completo}</span>
-                            </>
-                          )}
-                        </div>
-                        {novedad.estado !== "resuelta" && (
-                          <ResolverNovedad
-                            novedadId={novedad.id}
-                            descripcion={novedad.descripcion}
-                          />
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      ) : (
-        <Card className="border-dashed">
-          <CardContent className="py-6">
-            <div className="text-center space-y-3">
-              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-green-100 mb-2">
-                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-              <div>
-                <p className="text-sm font-medium text-gray-900">Sin procesos activos</p>
-                <p className="text-xs text-muted-foreground">
-                  Este vehículo no tiene procesos en curso
-                </p>
-              </div>
-              <div className="flex gap-2 justify-center pt-2">
-                <Button asChild size="sm">
-                  <Link href={`/movilidad/traslados/nuevo?placa=${placa}`}>
-                    <ArrowRightLeft className="h-3 w-3 mr-1.5" />
-                    Traslado
-                  </Link>
-                </Button>
-                <Button asChild variant="outline" size="sm">
-                  <Link href={`/movilidad/radicaciones/nueva?placa=${placa}`}>
-                    <ArrowDownToLine className="h-3 w-3 mr-1.5" />
-                    Radicación
-                  </Link>
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      <ProcesoActivo proceso={procesoActivo} novedades={novedades} placa={placa} />
 
       {/* Historial de procesos */}
-      <div className="grid gap-4 md:grid-cols-2">
-        {/* Traslados */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <ArrowRightLeft className="h-5 w-5" />
-              Historial de Traslados ({traslados?.length || 0})
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {traslados && traslados.length > 0 ? (
-              <div className="space-y-3">
-                {traslados.map((traslado) => (
-                  <div
-                    key={traslado.id}
-                    className={`border rounded-md p-3 space-y-2 ${
-                      traslado.estado === "devuelto"
-                        ? "border-red-300 bg-red-50"
-                        : ""
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <Badge variant="outline" className={
-                        traslado.estado === "devuelto"
-                          ? "bg-red-100 text-red-700 border-red-300"
-                          : ""
-                      }>
-                        {formatearEstadoProceso(traslado.estado)}
-                      </Badge>
-                      <span className="text-xs text-muted-foreground">
-                        {formatDateShort(traslado.creado_en)}
-                      </span>
-                    </div>
-                    <div className="text-sm space-y-1">
-                      <p><strong>Destino:</strong> {traslado.organismo?.nombre || 'Sin información'}</p>
-                      <p><strong>Creado por:</strong> {traslado.creador?.nombre_completo || 'Sin información'}</p>
-                      <p><strong>Fecha trámite:</strong> {formatDateForDisplay(traslado.fecha_tramite)}</p>
-                      <p><strong>Vencimiento:</strong> {formatDateForDisplay(traslado.fecha_vencimiento)}</p>
-                      {traslado.fecha_completado && (
-                        <p><strong>Completado:</strong> {formatDateForDisplay(traslado.fecha_completado)}</p>
-                      )}
-                      {traslado.empresa_transporte?.nombre && (
-                        <p className="text-blue-700">
-                          <strong>Empresa:</strong> {traslado.empresa_transporte.nombre}
-                        </p>
-                      )}
-                      {traslado.numero_guia && (
-                        <p className="text-blue-700">
-                          <strong>Guía:</strong> {traslado.numero_guia}
-                        </p>
-                      )}
-                      {traslado.observaciones && (
-                        <div className={`mt-2 p-2 rounded ${
-                          traslado.estado === "devuelto"
-                            ? "bg-red-100 border border-red-200"
-                            : "bg-muted"
-                        }`}>
-                          <p className={`text-sm font-medium mb-1 ${
-                            traslado.estado === "devuelto"
-                              ? "text-red-900"
-                              : ""
-                          }`}>
-                            {traslado.estado === "devuelto" ? "Motivo de devolución:" : "Observaciones:"}
-                          </p>
-                          <p className={`text-sm ${
-                            traslado.estado === "devuelto"
-                              ? "text-red-800"
-                              : "text-muted-foreground"
-                          }`}>
-                            {traslado.observaciones}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                    {(traslado.estado === "enviado_organismo" || traslado.estado === "trasladado") && (
-                      <div className="mt-2">
-                        <BotonDescargarRemision
-                          trasladoId={traslado.id}
-                          placa={placa}
-                          size="sm"
-                          variant="outline"
-                        />
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-sm text-muted-foreground text-center py-4">
-                No hay traslados registrados
-              </p>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Radicaciones */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <ArrowDownToLine className="h-5 w-5" />
-              Historial de Radicaciones ({radicaciones?.length || 0})
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {radicaciones && radicaciones.length > 0 ? (
-              <div className="space-y-3">
-                {radicaciones.map((radicacion) => (
-                  <div
-                    key={radicacion.id}
-                    className={`border rounded-md p-3 space-y-2 ${
-                      radicacion.estado === "devuelto"
-                        ? "border-red-300 bg-red-50"
-                        : ""
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <Badge variant="outline" className={
-                        radicacion.estado === "devuelto"
-                          ? "bg-red-100 text-red-700 border-red-300"
-                          : ""
-                      }>
-                        {formatearEstadoProceso(radicacion.estado)}
-                      </Badge>
-                      <span className="text-xs text-muted-foreground">
-                        {formatDateShort(radicacion.creado_en)}
-                      </span>
-                    </div>
-                    <div className="text-sm space-y-1">
-                      <p><strong>Origen:</strong> {radicacion.organismo?.nombre || 'Sin información'}</p>
-                      <p><strong>Creado por:</strong> {radicacion.creador?.nombre_completo || 'Sin información'}</p>
-                      <p><strong>Fecha trámite:</strong> {formatDateForDisplay(radicacion.fecha_tramite)}</p>
-                      <p><strong>Vencimiento:</strong> {formatDateForDisplay(radicacion.fecha_vencimiento)}</p>
-                      {radicacion.fecha_completado && (
-                        <p><strong>Completado:</strong> {formatDateForDisplay(radicacion.fecha_completado)}</p>
-                      )}
-                      {radicacion.observaciones && (
-                        <div className={`mt-2 p-2 rounded ${
-                          radicacion.estado === "devuelto"
-                            ? "bg-red-100 border border-red-200"
-                            : "bg-muted"
-                        }`}>
-                          <p className={`text-sm font-medium mb-1 ${
-                            radicacion.estado === "devuelto"
-                              ? "text-red-900"
-                              : ""
-                          }`}>
-                            {radicacion.estado === "devuelto" ? "Motivo de devolución:" : "Observaciones:"}
-                          </p>
-                          <p className={`text-sm ${
-                            radicacion.estado === "devuelto"
-                              ? "text-red-800"
-                              : "text-muted-foreground"
-                          }`}>
-                            {radicacion.observaciones}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-sm text-muted-foreground text-center py-4">
-                No hay radicaciones registradas
-              </p>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+      <HistorialProcesos
+        traslados={traslados}
+        radicaciones={radicaciones}
+        placa={placa}
+      />
 
       {/* Historial de acciones */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Clock className="h-5 w-5" />
-            Historial de Acciones
-          </CardTitle>
-          <CardDescription>
-            Registro cronológico de todas las acciones realizadas
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {historial && historial.length > 0 ? (
-            <div className="space-y-2">
-              {historial.map((accion) => {
-                const esDevolucion = accion.accion === "proceso_devuelto" || accion.estado_nuevo === "devuelto"
-                return (
-                  <div
-                    key={accion.id}
-                    className={`flex items-start gap-3 p-3 rounded-md ${
-                      esDevolucion
-                        ? "bg-red-50 border border-red-200"
-                        : "bg-muted"
-                    }`}
-                  >
-                    <div className="flex-1">
-                      <p className={`text-sm font-medium ${
-                        esDevolucion ? "text-red-900" : ""
-                      }`}>
-                        {formatearEstadoProceso(accion.accion)}
-                      </p>
-                      {accion.estado_anterior && accion.estado_nuevo && (
-                        <p className={`text-xs ${
-                          esDevolucion ? "text-red-700" : "text-muted-foreground"
-                        }`}>
-                          {formatearEstadoProceso(accion.estado_anterior)} → {formatearEstadoProceso(accion.estado_nuevo)}
-                        </p>
-                      )}
-                      <div className="flex items-center gap-2 mt-1">
-                        <User className={`h-3 w-3 ${
-                          esDevolucion ? "text-red-600" : "text-muted-foreground"
-                        }`} />
-                        <span className={`text-xs ${
-                          esDevolucion ? "text-red-700" : "text-muted-foreground"
-                        }`}>
-                          {accion.responsable?.nombre_completo}
-                        </span>
-                        <span className={`text-xs ${
-                          esDevolucion ? "text-red-700" : "text-muted-foreground"
-                        }`}>•</span>
-                        <Calendar className={`h-3 w-3 ${
-                          esDevolucion ? "text-red-600" : "text-muted-foreground"
-                        }`} />
-                        <span className={`text-xs ${
-                          esDevolucion ? "text-red-700" : "text-muted-foreground"
-                        }`}>
-                          {formatDateTime(accion.creado_en)}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          ) : (
-            <p className="text-sm text-muted-foreground text-center py-4">
-              No hay acciones registradas
-            </p>
-          )}
-        </CardContent>
-      </Card>
+      <HistorialAcciones acciones={historial} />
     </div>
   )
 }
