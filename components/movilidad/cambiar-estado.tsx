@@ -91,6 +91,12 @@ export function CambiarEstado({ procesoId, procesoTipo, estadoActual }: CambiarE
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
+    // Validación especial para estado "devuelto"
+    if (nuevoEstado === "devuelto" && !observaciones.trim()) {
+      toast.error("Debe especificar el motivo de la devolución")
+      return
+    }
+
     await handleSubmit(async () => {
       if (!nuevoEstado || nuevoEstado === estadoActual) {
         throw new Error("Debe seleccionar un nuevo estado")
@@ -125,7 +131,12 @@ export function CambiarEstado({ procesoId, procesoTipo, estadoActual }: CambiarE
         throw error
       }
     }, {
-      errorMessage: "Error al cambiar el estado"
+      errorMessage: nuevoEstado === "devuelto"
+        ? "Error al registrar la devolución"
+        : "Error al cambiar el estado",
+      successMessage: nuevoEstado === "devuelto"
+        ? "Proceso devuelto exitosamente"
+        : "Estado actualizado exitosamente"
     })
   }
 
@@ -195,25 +206,54 @@ export function CambiarEstado({ procesoId, procesoTipo, estadoActual }: CambiarE
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="observaciones">Observaciones</Label>
+            <Label htmlFor="observaciones">
+              {nuevoEstado === "devuelto" ? (
+                <>
+                  Motivo de la Devolución <span className="text-red-500">*</span>
+                </>
+              ) : (
+                "Observaciones"
+              )}
+            </Label>
             <Textarea
               id="observaciones"
-              placeholder="Ingrese observaciones sobre el cambio de estado (opcional)"
+              placeholder={
+                nuevoEstado === "devuelto"
+                  ? "Explique detalladamente el motivo de la devolución (obligatorio)"
+                  : "Ingrese observaciones sobre el cambio de estado (opcional)"
+              }
               value={observaciones}
               onChange={(e) => setObservaciones(e.target.value)}
               disabled={loading}
-              rows={3}
+              rows={nuevoEstado === "devuelto" ? 4 : 3}
+              required={nuevoEstado === "devuelto"}
+              className={nuevoEstado === "devuelto" ? "border-red-300 focus:border-red-500" : ""}
             />
+            {nuevoEstado === "devuelto" && (
+              <p className="text-xs text-red-600">
+                El motivo de la devolución quedará registrado en el historial del proceso
+              </p>
+            )}
           </div>
 
-          <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3">
-            <p className="text-sm text-yellow-800">
-              <strong>Nota:</strong> Solo se permiten transiciones de estado válidas.
-              {nuevoEstado === "trasladado" || nuevoEstado === "radicado"
-                ? " Este es un estado final y no se podrá revertir."
-                : ""}
-            </p>
-          </div>
+          {nuevoEstado === "devuelto" && (
+            <div className="bg-red-50 border border-red-200 rounded-md p-3">
+              <p className="text-sm text-red-800">
+                <strong>Advertencia:</strong> Este proceso será devuelto. Asegúrese de especificar claramente el motivo en las observaciones.
+              </p>
+            </div>
+          )}
+
+          {nuevoEstado !== "devuelto" && (
+            <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3">
+              <p className="text-sm text-yellow-800">
+                <strong>Nota:</strong> Solo se permiten transiciones de estado válidas.
+                {nuevoEstado === "trasladado" || nuevoEstado === "radicado"
+                  ? " Este es un estado final y no se podrá revertir."
+                  : ""}
+              </p>
+            </div>
+          )}
 
           <div className="flex justify-end gap-2">
             <Button

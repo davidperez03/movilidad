@@ -11,7 +11,6 @@ import {
   Calendar,
   User,
   AlertTriangle,
-  CheckCircle2,
   Clock,
   ArrowLeft,
 } from "lucide-react"
@@ -382,26 +381,34 @@ export default async function DetalleVehiculoPage({
           </CardContent>
         </Card>
       ) : (
-        <Card>
-          <CardContent className="py-12 text-center">
-            <CheckCircle2 className="h-12 w-12 mx-auto text-green-500 mb-4" />
-            <p className="text-lg font-medium mb-2">Sin procesos activos</p>
-            <p className="text-muted-foreground mb-4">
-              Este vehículo no tiene procesos en curso actualmente
-            </p>
-            <div className="flex gap-2 justify-center">
-              <Button asChild>
-                <Link href={`/movilidad/traslados/nuevo?placa=${placa}`}>
-                  <ArrowRightLeft className="h-4 w-4 mr-2" />
-                  Iniciar Traslado
-                </Link>
-              </Button>
-              <Button asChild variant="outline">
-                <Link href={`/movilidad/radicaciones/nueva?placa=${placa}`}>
-                  <ArrowDownToLine className="h-4 w-4 mr-2" />
-                  Iniciar Radicación
-                </Link>
-              </Button>
+        <Card className="border-dashed">
+          <CardContent className="py-6">
+            <div className="text-center space-y-3">
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-green-100 mb-2">
+                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-900">Sin procesos activos</p>
+                <p className="text-xs text-muted-foreground">
+                  Este vehículo no tiene procesos en curso
+                </p>
+              </div>
+              <div className="flex gap-2 justify-center pt-2">
+                <Button asChild size="sm">
+                  <Link href={`/movilidad/traslados/nuevo?placa=${placa}`}>
+                    <ArrowRightLeft className="h-3 w-3 mr-1.5" />
+                    Traslado
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" size="sm">
+                  <Link href={`/movilidad/radicaciones/nueva?placa=${placa}`}>
+                    <ArrowDownToLine className="h-3 w-3 mr-1.5" />
+                    Radicación
+                  </Link>
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -421,9 +428,20 @@ export default async function DetalleVehiculoPage({
             {traslados && traslados.length > 0 ? (
               <div className="space-y-3">
                 {traslados.map((traslado) => (
-                  <div key={traslado.id} className="border rounded-md p-3 space-y-2">
+                  <div
+                    key={traslado.id}
+                    className={`border rounded-md p-3 space-y-2 ${
+                      traslado.estado === "devuelto"
+                        ? "border-red-300 bg-red-50"
+                        : ""
+                    }`}
+                  >
                     <div className="flex items-center justify-between">
-                      <Badge variant="outline">
+                      <Badge variant="outline" className={
+                        traslado.estado === "devuelto"
+                          ? "bg-red-100 text-red-700 border-red-300"
+                          : ""
+                      }>
                         {formatearEstadoProceso(traslado.estado)}
                       </Badge>
                       <span className="text-xs text-muted-foreground">
@@ -449,9 +467,26 @@ export default async function DetalleVehiculoPage({
                         </p>
                       )}
                       {traslado.observaciones && (
-                        <p className="text-xs text-muted-foreground italic">
-                          <strong>Obs:</strong> {traslado.observaciones}
-                        </p>
+                        <div className={`mt-2 p-2 rounded ${
+                          traslado.estado === "devuelto"
+                            ? "bg-red-100 border border-red-200"
+                            : "bg-muted"
+                        }`}>
+                          <p className={`text-sm font-medium mb-1 ${
+                            traslado.estado === "devuelto"
+                              ? "text-red-900"
+                              : ""
+                          }`}>
+                            {traslado.estado === "devuelto" ? "Motivo de devolución:" : "Observaciones:"}
+                          </p>
+                          <p className={`text-sm ${
+                            traslado.estado === "devuelto"
+                              ? "text-red-800"
+                              : "text-muted-foreground"
+                          }`}>
+                            {traslado.observaciones}
+                          </p>
+                        </div>
                       )}
                     </div>
                     {(traslado.estado === "enviado_organismo" || traslado.estado === "trasladado") && (
@@ -487,9 +522,20 @@ export default async function DetalleVehiculoPage({
             {radicaciones && radicaciones.length > 0 ? (
               <div className="space-y-3">
                 {radicaciones.map((radicacion) => (
-                  <div key={radicacion.id} className="border rounded-md p-3 space-y-2">
+                  <div
+                    key={radicacion.id}
+                    className={`border rounded-md p-3 space-y-2 ${
+                      radicacion.estado === "devuelto"
+                        ? "border-red-300 bg-red-50"
+                        : ""
+                    }`}
+                  >
                     <div className="flex items-center justify-between">
-                      <Badge variant="outline">
+                      <Badge variant="outline" className={
+                        radicacion.estado === "devuelto"
+                          ? "bg-red-100 text-red-700 border-red-300"
+                          : ""
+                      }>
                         {formatearEstadoProceso(radicacion.estado)}
                       </Badge>
                       <span className="text-xs text-muted-foreground">
@@ -505,9 +551,26 @@ export default async function DetalleVehiculoPage({
                         <p><strong>Completado:</strong> {formatDateForDisplay(radicacion.fecha_completado)}</p>
                       )}
                       {radicacion.observaciones && (
-                        <p className="text-xs text-muted-foreground italic">
-                          <strong>Obs:</strong> {radicacion.observaciones}
-                        </p>
+                        <div className={`mt-2 p-2 rounded ${
+                          radicacion.estado === "devuelto"
+                            ? "bg-red-100 border border-red-200"
+                            : "bg-muted"
+                        }`}>
+                          <p className={`text-sm font-medium mb-1 ${
+                            radicacion.estado === "devuelto"
+                              ? "text-red-900"
+                              : ""
+                          }`}>
+                            {radicacion.estado === "devuelto" ? "Motivo de devolución:" : "Observaciones:"}
+                          </p>
+                          <p className={`text-sm ${
+                            radicacion.estado === "devuelto"
+                              ? "text-red-800"
+                              : "text-muted-foreground"
+                          }`}>
+                            {radicacion.observaciones}
+                          </p>
+                        </div>
                       )}
                     </div>
                   </div>
@@ -536,29 +599,55 @@ export default async function DetalleVehiculoPage({
         <CardContent>
           {historial && historial.length > 0 ? (
             <div className="space-y-2">
-              {historial.map((accion) => (
-                <div key={accion.id} className="flex items-start gap-3 p-3 rounded-md bg-muted">
-                  <div className="flex-1">
-                    <p className="text-sm font-medium">{formatearEstadoProceso(accion.accion)}</p>
-                    {accion.estado_anterior && accion.estado_nuevo && (
-                      <p className="text-xs text-muted-foreground">
-                        {formatearEstadoProceso(accion.estado_anterior)} → {formatearEstadoProceso(accion.estado_nuevo)}
+              {historial.map((accion) => {
+                const esDevolucion = accion.accion === "proceso_devuelto" || accion.estado_nuevo === "devuelto"
+                return (
+                  <div
+                    key={accion.id}
+                    className={`flex items-start gap-3 p-3 rounded-md ${
+                      esDevolucion
+                        ? "bg-red-50 border border-red-200"
+                        : "bg-muted"
+                    }`}
+                  >
+                    <div className="flex-1">
+                      <p className={`text-sm font-medium ${
+                        esDevolucion ? "text-red-900" : ""
+                      }`}>
+                        {formatearEstadoProceso(accion.accion)}
                       </p>
-                    )}
-                    <div className="flex items-center gap-2 mt-1">
-                      <User className="h-3 w-3 text-muted-foreground" />
-                      <span className="text-xs text-muted-foreground">
-                        {accion.responsable?.nombre_completo}
-                      </span>
-                      <span className="text-xs text-muted-foreground">•</span>
-                      <Calendar className="h-3 w-3 text-muted-foreground" />
-                      <span className="text-xs text-muted-foreground">
-                        {formatDateTime(accion.creado_en)}
-                      </span>
+                      {accion.estado_anterior && accion.estado_nuevo && (
+                        <p className={`text-xs ${
+                          esDevolucion ? "text-red-700" : "text-muted-foreground"
+                        }`}>
+                          {formatearEstadoProceso(accion.estado_anterior)} → {formatearEstadoProceso(accion.estado_nuevo)}
+                        </p>
+                      )}
+                      <div className="flex items-center gap-2 mt-1">
+                        <User className={`h-3 w-3 ${
+                          esDevolucion ? "text-red-600" : "text-muted-foreground"
+                        }`} />
+                        <span className={`text-xs ${
+                          esDevolucion ? "text-red-700" : "text-muted-foreground"
+                        }`}>
+                          {accion.responsable?.nombre_completo}
+                        </span>
+                        <span className={`text-xs ${
+                          esDevolucion ? "text-red-700" : "text-muted-foreground"
+                        }`}>•</span>
+                        <Calendar className={`h-3 w-3 ${
+                          esDevolucion ? "text-red-600" : "text-muted-foreground"
+                        }`} />
+                        <span className={`text-xs ${
+                          esDevolucion ? "text-red-700" : "text-muted-foreground"
+                        }`}>
+                          {formatDateTime(accion.creado_en)}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           ) : (
             <p className="text-sm text-muted-foreground text-center py-4">
