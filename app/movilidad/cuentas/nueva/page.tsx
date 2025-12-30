@@ -17,7 +17,7 @@ import {
 import { toast } from "sonner"
 import { ArrowLeft, Car, Loader2 } from "lucide-react"
 import Link from "next/link"
-import { ModalCuentaExistente } from "@/components/movilidad/modal-cuenta-existente"
+import { ModalCuentaExistente } from "@/components/movilidad/modals/modal-cuenta-existente"
 import { manejarErrorSupabase } from "@/lib/utils/rls-errors"
 import { RequirePermission } from "@/components/auth/RequirePermission"
 

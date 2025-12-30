@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server"
 import { Card, CardContent } from "@/components/ui/card"
-import { BotonNuevaCuenta } from "@/components/movilidad/cuentas-acciones"
+import { BotonNuevaCuenta } from "@/components/movilidad/procesos/cuentas-acciones"
 import { obtenerPermisosUsuario } from "@/lib/server/permisos"
 import { CuentasTable } from "@/components/movilidad/cuentas/cuentas-table"
 

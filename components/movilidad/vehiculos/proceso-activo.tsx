@@ -5,10 +5,10 @@ import Link from "next/link"
 import { ArrowRightLeft, ArrowDownToLine, AlertTriangle } from "lucide-react"
 import { formatDateForDisplay, formatDateShort } from "@/lib/utils"
 import { formatearEstadoProceso } from "@/lib/movilidad/formatters"
-import { CambiarEstado } from "@/components/movilidad/cambiar-estado"
-import { AgregarNovedad } from "@/components/movilidad/agregar-novedad"
-import { AgregarDatosTransporte } from "@/components/movilidad/agregar-datos-transporte"
-import { ResolverNovedad } from "@/components/movilidad/resolver-novedad"
+import { CambiarEstado } from "@/components/movilidad/procesos/cambiar-estado"
+import { AgregarNovedad } from "@/components/movilidad/procesos/agregar-novedad"
+import { AgregarDatosTransporte } from "@/components/movilidad/procesos/agregar-datos-transporte"
+import { ResolverNovedad } from "@/components/movilidad/procesos/resolver-novedad"
 
 interface ProcesoActivoProps {
   proceso: any

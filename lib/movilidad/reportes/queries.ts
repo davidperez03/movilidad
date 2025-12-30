@@ -1,8 +1,3 @@
-// =====================================================
-// QUERIES PARA MÓDULO DE REPORTES
-// Funciones para obtener datos de Supabase con filtros
-// =====================================================
-
 import { createClient } from '@/lib/supabase/server'
 import type {
   FiltrosReporte,
@@ -12,10 +7,7 @@ import type {
   Organismo,
   Responsable,
 } from './tipos'
-
-// =====================================================
-// PROCESOS ACTIVOS
-// =====================================================
+import { transformarTraslado, transformarRadicacion, ordenarPorFechaCompletado } from './transformers'
 
 export async function obtenerDatosActivos(
   filtros: FiltrosReporte
@@ -61,10 +53,6 @@ export async function obtenerDatosActivos(
 
   return data as DatosReporteActivos[]
 }
-
-// =====================================================
-// PROCESOS COMPLETADOS
-// =====================================================
 
 export async function obtenerDatosCompletados(
   filtros: FiltrosReporte
@@ -143,71 +131,34 @@ export async function obtenerDatosCompletados(
     console.error('Error obteniendo radicaciones completadas:', errorRadicaciones)
   }
 
-  // Combinar y transformar resultados
+  // Transformar y combinar resultados
   const resultados: DatosReporteCompletados[] = []
 
-  // Procesar traslados
+  // Transformar traslados
   if (traslados) {
-    for (const t of traslados as any[]) {
-      if (!t.cuenta || !t.organismo_destino || !t.creado_por_perfil) continue
-
-      // Calcular duración en días
-      const inicio = new Date(t.creado_en)
-      const fin = new Date(t.fecha_completado)
-      const duracionDias = Math.ceil((fin.getTime() - inicio.getTime()) / (1000 * 60 * 60 * 24))
-
-      resultados.push({
-        cuenta_id: t.cuenta_id,
-        placa: t.cuenta.placa,
-        numero_cuenta: t.cuenta.numero_cuenta,
-        tipo_servicio: t.cuenta.tipo_servicio,
-        proceso_tipo: 'traslado',
-        proceso_id: t.id,
-        estado: t.estado,
-        fecha_tramite: t.fecha_tramite,
-        fecha_completado: t.fecha_completado,
-        duracion_dias: duracionDias,
-        organismo: t.organismo_destino.nombre,
-        responsable: t.creado_por_perfil.nombre_completo,
-        observaciones: t.observaciones,
-        creado_en: t.creado_en,
-      })
+    for (const traslado of traslados) {
+      const transformado = transformarTraslado(traslado)
+      if (transformado) {
+        resultados.push(transformado)
+      }
     }
   }
 
-  // Procesar radicaciones
+  // Transformar radicaciones
   if (radicaciones) {
-    for (const r of radicaciones as any[]) {
-      if (!r.cuenta || !r.organismo_origen || !r.creado_por_perfil) continue
-
-      const inicio = new Date(r.creado_en)
-      const fin = new Date(r.fecha_completado)
-      const duracionDias = Math.ceil((fin.getTime() - inicio.getTime()) / (1000 * 60 * 60 * 24))
-
-      resultados.push({
-        cuenta_id: r.cuenta_id,
-        placa: r.cuenta.placa,
-        numero_cuenta: r.cuenta.numero_cuenta,
-        tipo_servicio: r.cuenta.tipo_servicio,
-        proceso_tipo: 'radicacion',
-        proceso_id: r.id,
-        estado: r.estado,
-        fecha_tramite: r.fecha_tramite,
-        fecha_completado: r.fecha_completado,
-        duracion_dias: duracionDias,
-        organismo: r.organismo_origen.nombre,
-        responsable: r.creado_por_perfil.nombre_completo,
-        observaciones: r.observaciones,
-        creado_en: r.creado_en,
-      })
+    for (const radicacion of radicaciones) {
+      const transformado = transformarRadicacion(radicacion)
+      if (transformado) {
+        resultados.push(transformado)
+      }
     }
   }
 
-  // Ordenar por fecha completado descendente
-  resultados.sort((a, b) => new Date(b.fecha_completado).getTime() - new Date(a.fecha_completado).getTime())
+  // Ordenar por fecha completado
+  const resultadosOrdenados = ordenarPorFechaCompletado(resultados)
 
   // Aplicar filtros adicionales en memoria
-  let resultadosFiltrados = resultados
+  let resultadosFiltrados = resultadosOrdenados
 
   if (filtros.tipoProceso !== 'todos') {
     resultadosFiltrados = resultadosFiltrados.filter((r) => r.proceso_tipo === filtros.tipoProceso)
@@ -219,10 +170,6 @@ export async function obtenerDatosCompletados(
 
   return resultadosFiltrados
 }
-
-// =====================================================
-// PROCESOS POR VENCER
-// =====================================================
 
 export async function obtenerDatosPorVencer(
   filtros: FiltrosReporte
@@ -252,10 +199,6 @@ export async function obtenerDatosPorVencer(
 
   return data as DatosReportePorVencer[]
 }
-
-// =====================================================
-// DATOS PARA FILTROS
-// =====================================================
 
 export async function obtenerOrganismos(): Promise<Organismo[]> {
   const supabase = await createClient()
@@ -288,10 +231,6 @@ export async function obtenerResponsables(): Promise<Responsable[]> {
 
   return data as Responsable[]
 }
-
-// =====================================================
-// CONTADORES PARA DASHBOARD
-// =====================================================
 
 export async function obtenerContadores() {
   const supabase = await createClient()

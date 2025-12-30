@@ -6,7 +6,7 @@ import { Eye } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { DataTableColumnHeader } from '@/components/ui/data-table/data-table-column-header'
-import { BadgeEstadoProceso } from '@/components/movilidad/badge-estado-proceso'
+import { BadgeEstadoProceso } from '@/components/movilidad/shared/badge-estado-proceso'
 import { formatDateForDisplay } from '@/lib/utils'
 import { calcularDiasRestantes } from '@/lib/movilidad/formatters'
 

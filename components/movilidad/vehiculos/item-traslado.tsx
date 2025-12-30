@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge"
 import { formatDateForDisplay, formatDateShort } from "@/lib/utils"
 import { formatearEstadoProceso } from "@/lib/movilidad/formatters"
-import { BotonDescargarRemision } from "@/components/movilidad/boton-descargar-remision"
+import { BotonDescargarRemision } from "@/components/movilidad/pdf/boton-descargar-remision"
 
 interface ItemTrasladoProps {
   traslado: any

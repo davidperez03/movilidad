@@ -7,7 +7,7 @@ import { DataTable } from '@/components/ui/data-table/data-table'
 import { columnasCuentas, type CuentaVehiculo } from './cuentas-columns'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { BotonesIniciarProceso } from '@/components/movilidad/cuentas-acciones'
+import { BotonesIniciarProceso } from '@/components/movilidad/procesos/cuentas-acciones'
 
 interface CuentasTableProps {
   cuentas: CuentaVehiculo[]
