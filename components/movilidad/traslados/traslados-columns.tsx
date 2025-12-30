@@ -9,7 +9,6 @@ import { DataTableColumnHeader } from '@/components/ui/data-table/data-table-col
 import { BadgeEstadoProceso } from '@/components/movilidad/shared/badge-estado-proceso'
 import { BotonDescargarRemision } from '@/components/movilidad/pdf/boton-descargar-remision'
 import { formatDateForDisplay } from '@/lib/utils'
-import { calcularDiasRestantes } from '@/lib/movilidad/formatters'
 import {
   type ProcesoBase,
   type EmpresaTransporte,
@@ -24,9 +23,10 @@ export interface TrasladoData extends ProcesoBase {
   numero_guia?: string | null
   empresa_transportadora_id?: string | null
   empresa_transporte?: EmpresaTransporte
+  dias_restantes?: number | null
 }
 
-// Columna de vencimiento con días restantes (específica para traslados activos)
+// Columna de vencimiento con días hábiles restantes (específica para traslados activos)
 const columnaVencimientoConDias: ColumnDef<TrasladoData> = {
   accessorKey: 'fecha_vencimiento',
   header: ({ column }) => (
@@ -34,15 +34,15 @@ const columnaVencimientoConDias: ColumnDef<TrasladoData> = {
   ),
   cell: ({ row }) => {
     const fecha = row.getValue('fecha_vencimiento') as string
-    const dias = calcularDiasRestantes(fecha)
+    const dias = row.original.dias_restantes
     return (
       <div className="text-sm whitespace-nowrap">
         <div>{formatDateForDisplay(fecha)}</div>
-        {dias !== null && (
+        {dias !== null && dias !== undefined && (
           <div className={`text-xs ${
             dias < 0 ? 'text-red-600' : dias <= 7 ? 'text-orange-600' : 'text-green-600'
           }`}>
-            {dias < 0 ? `Vencido hace ${Math.abs(dias)} días` : `${dias} días restantes`}
+            {dias < 0 ? `Vencido hace ${Math.abs(dias)} días hábiles` : `${dias} días hábiles`}
           </div>
         )}
       </div>

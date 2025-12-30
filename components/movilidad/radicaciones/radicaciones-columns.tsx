@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button'
 import { DataTableColumnHeader } from '@/components/ui/data-table/data-table-column-header'
 import { BadgeEstadoProceso } from '@/components/movilidad/shared/badge-estado-proceso'
 import { formatDateForDisplay } from '@/lib/utils'
-import { calcularDiasRestantes } from '@/lib/movilidad/formatters'
 import {
   type ProcesoBase,
   crearColumnaPlaca,
@@ -17,9 +16,11 @@ import {
   crearColumnaCreador,
 } from '@/lib/movilidad/columns/common-columns'
 
-export interface RadicacionData extends ProcesoBase {}
+export interface RadicacionData extends ProcesoBase {
+  dias_restantes?: number | null
+}
 
-// Columna de vencimiento con días restantes
+// Columna de vencimiento con días hábiles restantes
 const columnaVencimientoConDias: ColumnDef<RadicacionData> = {
   accessorKey: 'fecha_vencimiento',
   header: ({ column }) => (
@@ -27,15 +28,15 @@ const columnaVencimientoConDias: ColumnDef<RadicacionData> = {
   ),
   cell: ({ row }) => {
     const fecha = row.getValue('fecha_vencimiento') as string
-    const dias = calcularDiasRestantes(fecha)
+    const dias = row.original.dias_restantes
     return (
       <div className="text-sm whitespace-nowrap">
         <div>{formatDateForDisplay(fecha)}</div>
-        {dias !== null && (
+        {dias !== null && dias !== undefined && (
           <div className={`text-xs ${
             dias < 0 ? 'text-red-600' : dias <= 7 ? 'text-orange-600' : 'text-green-600'
           }`}>
-            {dias < 0 ? `Vencido hace ${Math.abs(dias)} días` : `${dias} días restantes`}
+            {dias < 0 ? `Vencido hace ${Math.abs(dias)} días hábiles` : `${dias} días hábiles`}
           </div>
         )}
       </div>
