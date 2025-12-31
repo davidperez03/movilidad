@@ -159,7 +159,8 @@ create or replace function registrar_historial(
   p_accion text,
   p_detalles jsonb default null,
   p_estado_anterior text default null,
-  p_estado_nuevo text default null
+  p_estado_nuevo text default null,
+  p_realizado_por uuid default null
 )
 returns uuid
 language plpgsql
@@ -167,7 +168,16 @@ security definer
 as $$
 declare
   nuevo_id uuid;
+  v_realizado_por uuid;
 begin
+  -- Usar el parámetro si se proporciona, sino usar auth.uid()
+  v_realizado_por := coalesce(p_realizado_por, auth.uid());
+
+  -- Validar que tengamos un usuario
+  if v_realizado_por is null then
+    raise exception 'No se puede registrar historial sin usuario. Proporciona p_realizado_por o asegúrate de que auth.uid() esté disponible.';
+  end if;
+
   insert into public.mov_historial_acciones (
     cuenta_id,
     proceso_tipo,
@@ -185,7 +195,7 @@ begin
     p_detalles,
     p_estado_anterior,
     p_estado_nuevo,
-    auth.uid()
+    v_realizado_por
   )
   returning id into nuevo_id;
 
@@ -209,7 +219,10 @@ begin
       'placa', new.placa,
       'numero_cuenta', new.numero_cuenta,
       'tipo_servicio', new.tipo_servicio
-    )
+    ),
+    null,
+    null,
+    new.creado_por
   );
   return new;
 end;
