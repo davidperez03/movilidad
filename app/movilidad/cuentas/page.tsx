@@ -25,27 +25,29 @@ export default async function CuentasPage() {
   if (error) {
   }
 
-  // Obtener último proceso completado de todas las cuentas
+  // Obtener procesos activos de todas las cuentas en una sola query
+  const { data: procesosActivos } = await supabase
+    .from("mov_vista_proceso_activo")
+    .select("*")
+
+  // Obtener últimos procesos completados en una sola query
   const { data: ultimosCompletados } = await supabase.rpc('obtener_ultimos_procesos_completados')
 
-  // Obtener procesos activos para cada cuenta
-  const cuentasConProcesos = await Promise.all(
-    (cuentas || []).map(async (cuenta) => {
-      const { data: procesoActivo } = await supabase
-        .from("mov_vista_proceso_activo")
-        .select("*")
-        .eq("cuenta_id", cuenta.id)
-        .single()
-
-      const ultimoCompletado = (ultimosCompletados as any[] | null)?.find((uc: any) => uc.cuenta_id === cuenta.id)
-
-      return {
-        ...cuenta,
-        procesoActivo,
-        ultimo_proceso_completado: ultimoCompletado || null,
-      }
-    })
+  // Crear Maps para búsqueda O(1)
+  const procesosActivosMap = new Map(
+    procesosActivos?.map(p => [p.cuenta_id, p]) || []
   )
+
+  const ultimosCompletadosMap = new Map(
+    (ultimosCompletados as any[] | null)?.map(uc => [uc.cuenta_id, uc]) || []
+  )
+
+  // Enriquecer cuentas con procesos en memoria
+  const cuentasConProcesos = (cuentas || []).map((cuenta) => ({
+    ...cuenta,
+    procesoActivo: procesosActivosMap.get(cuenta.id) || null,
+    ultimo_proceso_completado: ultimosCompletadosMap.get(cuenta.id) || null,
+  }))
 
   return (
     <div className="space-y-6">
