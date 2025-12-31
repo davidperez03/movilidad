@@ -2,16 +2,8 @@
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { Search, X, Filter } from "lucide-react"
-import { ESTADOS_CONFIG, TIPOS_SERVICIO_CONFIG } from "@/lib/movilidad/config"
+import { FacetedFilter } from "@/components/ui/data-table/faceted-filter"
+import { Search, X, Circle, AlertTriangle, CheckCircle2, Clock, XCircle, FileX } from "lucide-react"
 
 interface VehicleFiltersProps {
   onFilterChange: (filters: FilterState) => void
@@ -20,186 +12,106 @@ interface VehicleFiltersProps {
 
 export interface FilterState {
   search: string
-  tipoServicio: string
-  procesoTipo: string
-  estado: string
+  procesoTipo: Set<string>
+  estado: Set<string>
+  prioridad: Set<string>
 }
 
-const filterLabels: Record<string, string> = {
-  search: "Búsqueda",
-  tipoServicio: "Tipo de servicio",
-  procesoTipo: "Tipo de proceso",
-  estado: "Estado",
-}
+const procesoTipoOptions = [
+  { label: "Sin proceso", value: "sin_proceso", icon: Circle },
+  { label: "Traslado", value: "traslado", icon: CheckCircle2 },
+  { label: "Radicación", value: "radicacion", icon: FileX },
+]
 
-const valueLabels: Record<string, string> = {
-  // Tipos de servicio
-  ...Object.fromEntries(
-    Object.values(TIPOS_SERVICIO_CONFIG).map(tipo => [tipo.value, tipo.label])
-  ),
-  // Estados
-  ...Object.fromEntries(
-    Object.values(ESTADOS_CONFIG).map(estado => [estado.value, estado.label])
-  ),
-  // Valores adicionales específicos de filtros
-  sin_proceso: "Sin proceso",
-  traslado: "Traslado",
-  radicacion: "Radicación",
-}
+const estadoOptions = [
+  { label: "Sin asignar", value: "sin_asignar", icon: Circle },
+  { label: "Enviado", value: "enviado_organismo", icon: CheckCircle2 },
+  { label: "Recibido", value: "recibido", icon: Clock },
+  { label: "Revisado", value: "revisado", icon: CheckCircle2 },
+  { label: "Con novedades", value: "con_novedades", icon: AlertTriangle },
+  { label: "Pendiente radicar", value: "pendiente_radicar", icon: Clock },
+  { label: "Trasladado", value: "trasladado", icon: CheckCircle2 },
+  { label: "Radicado", value: "radicado", icon: CheckCircle2 },
+  { label: "Devuelto", value: "devuelto", icon: XCircle },
+]
+
+const prioridadOptions = [
+  { label: "Urgente", value: "urgente", icon: AlertTriangle },
+  { label: "Vencido", value: "vencido", icon: XCircle },
+  { label: "Alta", value: "alta", icon: AlertTriangle },
+  { label: "Media", value: "media", icon: Clock },
+  { label: "Baja", value: "baja", icon: CheckCircle2 },
+]
 
 export function VehicleFilters({ onFilterChange, filters }: VehicleFiltersProps) {
+  const hasActiveFilters =
+    filters.search !== "" ||
+    filters.procesoTipo.size > 0 ||
+    filters.estado.size > 0 ||
+    filters.prioridad.size > 0
+
   const handleReset = () => {
     onFilterChange({
       search: "",
-      tipoServicio: "todos",
-      procesoTipo: "todos",
-      estado: "todos",
+      procesoTipo: new Set(),
+      estado: new Set(),
+      prioridad: new Set(),
     })
   }
 
-  const handleRemoveFilter = (filterKey: keyof FilterState) => {
-    if (filterKey === "search") {
-      onFilterChange({ ...filters, [filterKey]: "" })
-    } else {
-      onFilterChange({ ...filters, [filterKey]: "todos" })
-    }
-  }
-
-  const getActiveFilters = () => {
-    const active: Array<{ key: keyof FilterState; label: string; value: string }> = []
-
-    if (filters.search !== "") {
-      active.push({ key: "search", label: filterLabels.search, value: filters.search })
-    }
-    if (filters.tipoServicio !== "todos") {
-      active.push({
-        key: "tipoServicio",
-        label: filterLabels.tipoServicio,
-        value: valueLabels[filters.tipoServicio] || filters.tipoServicio,
-      })
-    }
-    if (filters.procesoTipo !== "todos") {
-      active.push({
-        key: "procesoTipo",
-        label: filterLabels.procesoTipo,
-        value: valueLabels[filters.procesoTipo] || filters.procesoTipo,
-      })
-    }
-    if (filters.estado !== "todos") {
-      active.push({
-        key: "estado",
-        label: filterLabels.estado,
-        value: valueLabels[filters.estado] || filters.estado,
-      })
-    }
-
-    return active
-  }
-
-  const activeFilters = getActiveFilters()
-  const hasActiveFilters = activeFilters.length > 0
-
   return (
     <div className="space-y-4">
-      {/* Filtros principales */}
-      <div className="grid gap-3 md:grid-cols-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         {/* Búsqueda */}
-        <div className="relative">
+        <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Buscar por placa o cuenta..."
+            placeholder="Buscar por placa..."
             value={filters.search}
             onChange={(e) => onFilterChange({ ...filters, search: e.target.value.toUpperCase() })}
-            className="pl-9"
+            className="pl-9 h-9"
           />
         </div>
 
-        {/* Tipo de Servicio */}
-        <Select
-          value={filters.tipoServicio}
-          onValueChange={(value) => onFilterChange({ ...filters, tipoServicio: value })}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Tipo de servicio" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="todos">Todos los servicios</SelectItem>
-            <SelectItem value="particular">Particular</SelectItem>
-            <SelectItem value="publico">Público</SelectItem>
-            <SelectItem value="otro">Otro</SelectItem>
-          </SelectContent>
-        </Select>
+        {/* Filtros con FacetedFilter */}
+        <div className="flex flex-wrap gap-2">
+          <FacetedFilter
+            title="Tipo de Proceso"
+            options={procesoTipoOptions}
+            selectedValues={filters.procesoTipo}
+            onSelectedValuesChange={(values) =>
+              onFilterChange({ ...filters, procesoTipo: values })
+            }
+          />
+          <FacetedFilter
+            title="Estado"
+            options={estadoOptions}
+            selectedValues={filters.estado}
+            onSelectedValuesChange={(values) =>
+              onFilterChange({ ...filters, estado: values })
+            }
+          />
+          <FacetedFilter
+            title="Prioridad"
+            options={prioridadOptions}
+            selectedValues={filters.prioridad}
+            onSelectedValuesChange={(values) =>
+              onFilterChange({ ...filters, prioridad: values })
+            }
+          />
 
-        {/* Tipo de Proceso */}
-        <Select
-          value={filters.procesoTipo}
-          onValueChange={(value) => onFilterChange({ ...filters, procesoTipo: value })}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Tipo de proceso" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="todos">Todos los procesos</SelectItem>
-            <SelectItem value="sin_proceso">Sin proceso</SelectItem>
-            <SelectItem value="traslado">Traslado</SelectItem>
-            <SelectItem value="radicacion">Radicación</SelectItem>
-          </SelectContent>
-        </Select>
-
-        {/* Estado */}
-        <Select
-          value={filters.estado}
-          onValueChange={(value) => onFilterChange({ ...filters, estado: value })}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Estado" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="todos">Todos los estados</SelectItem>
-            <SelectItem value="sin_asignar">Sin asignar</SelectItem>
-            <SelectItem value="enviado_organismo">Enviado a organismo</SelectItem>
-            <SelectItem value="recibido">Recibido</SelectItem>
-            <SelectItem value="revisado">Revisado</SelectItem>
-            <SelectItem value="con_novedades">Con novedades</SelectItem>
-            <SelectItem value="pendiente_radicar">Pendiente radicar</SelectItem>
-            <SelectItem value="trasladado">Trasladado</SelectItem>
-            <SelectItem value="radicado">Radicado</SelectItem>
-            <SelectItem value="devuelto">Devuelto</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Filtros activos */}
-      {hasActiveFilters && (
-        <div className="flex flex-wrap items-center gap-2 rounded-lg border bg-muted/30 p-3">
-          <div className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
-            <Filter className="h-4 w-4" />
-            <span>Filtros activos:</span>
-          </div>
-
-          {activeFilters.map((filter) => (
-            <Badge
-              key={filter.key}
-              variant="secondary"
-              className="gap-1.5 pr-1 font-normal"
+          {hasActiveFilters && (
+            <Button
+              variant="ghost"
+              onClick={handleReset}
+              className="h-9 px-2 lg:px-3"
             >
-              <span className="text-xs text-muted-foreground">{filter.label}:</span>
-              <span className="font-medium">{filter.value}</span>
-              <button
-                onClick={() => handleRemoveFilter(filter.key)}
-                className="ml-1 rounded-sm hover:bg-muted-foreground/20 p-0.5"
-              >
-                <X className="h-3 w-3" />
-              </button>
-            </Badge>
-          ))}
-
-          <Button variant="ghost" size="sm" onClick={handleReset} className="ml-auto h-7">
-            <X className="h-3.5 w-3.5 mr-1" />
-            Limpiar todos
-          </Button>
+              Limpiar
+              <X className="ml-2 h-4 w-4" />
+            </Button>
+          )}
         </div>
-      )}
+      </div>
     </div>
   )
 }

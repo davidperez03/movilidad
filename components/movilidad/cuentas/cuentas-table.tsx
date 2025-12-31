@@ -1,11 +1,9 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import { Search } from 'lucide-react'
 import { DataTable } from '@/components/ui/data-table/data-table'
 import { columnasCuentas, type CuentaVehiculo } from './cuentas-columns'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { CuentasFilters, CuentasFilterState } from './cuentas-filters'
 
 interface CuentasTableProps {
   cuentas: CuentaVehiculo[]
@@ -13,41 +11,47 @@ interface CuentasTableProps {
 }
 
 export function CuentasTable({ cuentas, permisos }: CuentasTableProps) {
-  const [searchQuery, setSearchQuery] = useState('')
+  const [filters, setFilters] = useState<CuentasFilterState>({
+    search: '',
+    tipoServicio: new Set(),
+    estadoProceso: new Set(),
+  })
 
-  // Filtrar cuentas por búsqueda
+  // Filtrar cuentas
   const cuentasFiltradas = useMemo(() => {
-    if (!searchQuery) return cuentas
+    return cuentas.filter((cuenta) => {
+      // Filtro de búsqueda
+      const searchLower = filters.search.toLowerCase()
+      const matchesSearch =
+        filters.search === '' ||
+        cuenta.placa.toLowerCase().includes(searchLower) ||
+        cuenta.numero_cuenta.toLowerCase().includes(searchLower)
 
-    const query = searchQuery.toLowerCase()
-    return cuentas.filter((cuenta) =>
-      cuenta.placa.toLowerCase().includes(query) ||
-      cuenta.numero_cuenta.toLowerCase().includes(query)
-    )
-  }, [cuentas, searchQuery])
+      // Filtro de tipo de servicio (multi-select)
+      let matchesTipoServicio = true
+      if (filters.tipoServicio.size > 0) {
+        matchesTipoServicio = filters.tipoServicio.has(cuenta.tipo_servicio)
+      }
 
-  // Usar columnas sin modificaciones
-  const columnasFinales = columnasCuentas
+      // Filtro de estado del proceso (multi-select)
+      let matchesEstadoProceso = true
+      if (filters.estadoProceso.size > 0) {
+        if (filters.estadoProceso.has('con_proceso')) {
+          matchesEstadoProceso = cuenta.procesoActivo?.proceso_tipo !== undefined && cuenta.procesoActivo?.proceso_tipo !== null
+        } else if (filters.estadoProceso.has('sin_proceso')) {
+          matchesEstadoProceso = !cuenta.procesoActivo?.proceso_tipo && !cuenta.ultimo_proceso_completado
+        } else if (filters.estadoProceso.has('completado')) {
+          matchesEstadoProceso = !cuenta.procesoActivo?.proceso_tipo && cuenta.ultimo_proceso_completado !== undefined && cuenta.ultimo_proceso_completado !== null
+        }
+      }
+
+      return matchesSearch && matchesTipoServicio && matchesEstadoProceso
+    })
+  }, [cuentas, filters])
 
   return (
     <div className="space-y-4">
-      {/* Búsqueda */}
-      <div className="flex gap-2">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Buscar por placa o número de cuenta..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
-          />
-        </div>
-        {searchQuery && (
-          <Button variant="outline" onClick={() => setSearchQuery('')}>
-            Limpiar
-          </Button>
-        )}
-      </div>
+      <CuentasFilters filters={filters} onFilterChange={setFilters} />
 
       {/* Tabla */}
       <div className="rounded-lg border bg-card">
@@ -60,7 +64,7 @@ export function CuentasTable({ cuentas, permisos }: CuentasTableProps) {
 
         <div className="px-4 pt-4">
           <DataTable
-            columns={columnasFinales}
+            columns={columnasCuentas}
             data={cuentasFiltradas}
             enablePagination={true}
             pageSize={20}

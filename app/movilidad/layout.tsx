@@ -1,9 +1,9 @@
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
-import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
-import { Car, FileText, ArrowRightLeft, ArrowDownToLine, LayoutDashboard, Activity, User, FileBarChart } from "lucide-react"
+import { Car, User } from "lucide-react"
 import { BotonCerrarSesion } from "@/components/logout-button"
+import { NavTabs } from "@/components/movilidad/nav-tabs"
 
 export default async function MovilidadLayout({
   children,
@@ -125,73 +125,11 @@ export default async function MovilidadLayout({
           </div>
 
           {/* Navigation tabs */}
-          <nav className="flex gap-1 -mb-px">
-            <Link
-              href="/movilidad"
-              className="flex items-center gap-2 border-b-2 border-transparent px-4 py-3 text-sm font-medium text-muted-foreground transition-colors hover:border-primary hover:text-foreground data-[active=true]:border-primary data-[active=true]:text-foreground"
-            >
-              <LayoutDashboard className="h-4 w-4" />
-              Dashboard
-            </Link>
-
-            <Link
-              href="/movilidad/estado"
-              className="flex items-center gap-2 border-b-2 border-transparent px-4 py-3 text-sm font-medium text-muted-foreground transition-colors hover:border-primary hover:text-foreground data-[active=true]:border-primary data-[active=true]:text-foreground"
-            >
-              <Activity className="h-4 w-4" />
-              Estado General
-            </Link>
-
-            <Link
-              href="/movilidad/cuentas"
-              className="flex items-center gap-2 border-b-2 border-transparent px-4 py-3 text-sm font-medium text-muted-foreground transition-colors hover:border-primary hover:text-foreground data-[active=true]:border-primary data-[active=true]:text-foreground"
-            >
-              <FileText className="h-4 w-4" />
-              Cuentas
-            </Link>
-
-            <Link
-              href="/movilidad/traslados"
-              className="flex items-center gap-2 border-b-2 border-transparent px-4 py-3 text-sm font-medium text-muted-foreground transition-colors hover:border-primary hover:text-foreground data-[active=true]:border-primary data-[active=true]:text-foreground"
-            >
-              <ArrowRightLeft className="h-4 w-4" />
-              Traslados
-              {trasladosActivos && trasladosActivos > 0 ? (
-                <Badge variant="secondary" className="ml-1 h-5 min-w-5 px-1 text-xs">
-                  {trasladosActivos}
-                </Badge>
-              ) : null}
-            </Link>
-
-            <Link
-              href="/movilidad/radicaciones"
-              className="flex items-center gap-2 border-b-2 border-transparent px-4 py-3 text-sm font-medium text-muted-foreground transition-colors hover:border-primary hover:text-foreground data-[active=true]:border-primary data-[active=true]:text-foreground"
-            >
-              <ArrowDownToLine className="h-4 w-4" />
-              Radicaciones
-              {radicacionesActivas && radicacionesActivas > 0 ? (
-                <Badge variant="secondary" className="ml-1 h-5 min-w-5 px-1 text-xs">
-                  {radicacionesActivas}
-                </Badge>
-              ) : null}
-            </Link>
-
-            <Link
-              href="/movilidad/reportes"
-              className="flex items-center gap-2 border-b-2 border-transparent px-4 py-3 text-sm font-medium text-muted-foreground transition-colors hover:border-primary hover:text-foreground data-[active=true]:border-primary data-[active=true]:text-foreground"
-            >
-              <FileBarChart className="h-4 w-4" />
-              Reportes
-            </Link>
-
-            {novedadesPendientes && novedadesPendientes > 0 ? (
-              <div className="ml-auto flex items-center gap-2 px-4 py-3">
-                <Badge variant="destructive" className="h-6">
-                  {novedadesPendientes} novedades pendientes
-                </Badge>
-              </div>
-            ) : null}
-          </nav>
+          <NavTabs
+            trasladosActivos={trasladosActivos}
+            radicacionesActivas={radicacionesActivas}
+            novedadesPendientes={novedadesPendientes}
+          />
         </div>
       </header>
 

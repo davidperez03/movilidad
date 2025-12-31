@@ -12,9 +12,9 @@ interface VehicleTableProps {
 export function VehicleTable({ vehicles }: VehicleTableProps) {
   const [filters, setFilters] = useState<FilterState>({
     search: '',
-    tipoServicio: 'todos',
-    procesoTipo: 'todos',
-    estado: 'todos',
+    procesoTipo: new Set(),
+    estado: new Set(),
+    prioridad: new Set(),
   })
 
   const filteredVehicles = useMemo(() => {
@@ -26,22 +26,65 @@ export function VehicleTable({ vehicles }: VehicleTableProps) {
         vehicle.placa.toLowerCase().includes(searchLower) ||
         vehicle.numero_cuenta.toLowerCase().includes(searchLower)
 
-      // Filtro de tipo de servicio
-      const matchesTipoServicio =
-        filters.tipoServicio === 'todos' || vehicle.tipo_servicio === filters.tipoServicio
-
-      // Filtro de tipo de proceso
+      // Filtro de tipo de proceso (multi-select)
       let matchesProcesoTipo = true
-      if (filters.procesoTipo === 'sin_proceso') {
-        matchesProcesoTipo = vehicle.proceso_tipo === null
-      } else if (filters.procesoTipo !== 'todos') {
-        matchesProcesoTipo = vehicle.proceso_tipo === filters.procesoTipo
+      if (filters.procesoTipo.size > 0) {
+        if (filters.procesoTipo.has('sin_proceso')) {
+          matchesProcesoTipo = vehicle.proceso_tipo === null
+        } else {
+          matchesProcesoTipo = vehicle.proceso_tipo !== null && filters.procesoTipo.has(vehicle.proceso_tipo)
+        }
       }
 
-      // Filtro de estado
-      const matchesEstado = filters.estado === 'todos' || vehicle.proceso_estado === filters.estado
+      // Filtro de estado (multi-select)
+      let matchesEstado = true
+      if (filters.estado.size > 0) {
+        matchesEstado = vehicle.proceso_estado !== null && filters.estado.has(vehicle.proceso_estado)
+      }
 
-      return matchesSearch && matchesTipoServicio && matchesProcesoTipo && matchesEstado
+      // Filtro de prioridad (multi-select)
+      let matchesPrioridad = true
+      if (filters.prioridad.size > 0) {
+        const dias = vehicle.dias_restantes
+        const estado = vehicle.proceso_estado
+
+        // Solo aplicar filtro de prioridad a vehículos con proceso activo
+        if (!vehicle.proceso_tipo) {
+          matchesPrioridad = false
+        } else {
+          const vehiclePriorities: string[] = []
+
+          // Urgente: con novedades
+          if (estado === 'con_novedades') {
+            vehiclePriorities.push('urgente')
+          }
+
+          // Vencido
+          if (dias !== null && dias < 0) {
+            vehiclePriorities.push('vencido')
+          }
+
+          // Alta: 0-2 días
+          if (dias !== null && dias >= 0 && dias <= 2) {
+            vehiclePriorities.push('alta')
+          }
+
+          // Media: 3-7 días
+          if (dias !== null && dias > 2 && dias <= 7) {
+            vehiclePriorities.push('media')
+          }
+
+          // Baja: >7 días
+          if (dias !== null && dias > 7) {
+            vehiclePriorities.push('baja')
+          }
+
+          // Check if vehicle matches any selected priority
+          matchesPrioridad = vehiclePriorities.some(p => filters.prioridad.has(p))
+        }
+      }
+
+      return matchesSearch && matchesProcesoTipo && matchesEstado && matchesPrioridad
     })
   }, [vehicles, filters])
 
