@@ -70,11 +70,13 @@ export function AlertCard({ alerts, title = "Alertas", emptyMessage = "No hay al
                       <p className="font-medium text-sm">{alert.title}</p>
                       {alert.daysRemaining !== undefined && (
                         <Badge variant="outline" className={config.badge}>
-                          {alert.daysRemaining === 0
-                            ? "Hoy"
-                            : alert.daysRemaining === 1
-                              ? "Mañana"
-                              : `${alert.daysRemaining}d`}
+                          {alert.severity === "critical"
+                            ? "Vencido"
+                            : alert.daysRemaining === 0
+                              ? "Hoy"
+                              : alert.daysRemaining === 1
+                                ? "Mañana"
+                                : `${alert.daysRemaining}d`}
                         </Badge>
                       )}
                     </div>

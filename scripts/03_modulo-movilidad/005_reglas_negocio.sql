@@ -66,42 +66,39 @@ returns trigger
 language plpgsql
 as $$
 declare
-  ultimo_proceso record;
   ultimo_tipo text;
   ultimo_estado text;
+  ultimo_fecha timestamp with time zone;
 begin
-  -- Buscar el último proceso completado o devuelto de esta cuenta
-  select
-    'traslado' as tipo,
-    estado,
-    creado_en
-  into ultimo_proceso
-  from public.mov_traslados
-  where cuenta_id = new.cuenta_id
-    and estado in ('trasladado', 'devuelto')
-  order by creado_en desc
-  limit 1;
+  -- Buscar el último proceso completado o devuelto combinando traslados y radicaciones
+  with ultimos_procesos as (
+    select
+      'traslado' as tipo,
+      estado,
+      creado_en
+    from public.mov_traslados
+    where cuenta_id = new.cuenta_id
+      and estado in ('trasladado', 'devuelto')
 
-  if not found then
-    -- Si no hay traslado, buscar radicación
+    union all
+
     select
       'radicacion' as tipo,
       estado,
       creado_en
-    into ultimo_proceso
     from public.mov_radicaciones
     where cuenta_id = new.cuenta_id
       and estado in ('radicado', 'devuelto')
-    order by creado_en desc
-    limit 1;
-  end if;
+  )
+  select tipo, estado, creado_en
+  into ultimo_tipo, ultimo_estado, ultimo_fecha
+  from ultimos_procesos
+  order by creado_en desc
+  limit 1;
 
   -- Si existe un proceso anterior
   if found then
-    ultimo_tipo := ultimo_proceso.tipo;
-    ultimo_estado := ultimo_proceso.estado;
-
-    -- Si el último fue una radicación completada
+    -- Si el último fue una radicación completada (radicado)
     if ultimo_tipo = 'radicacion' and ultimo_estado = 'radicado' then
       -- Solo puede hacer traslado ahora
       if tg_table_name = 'mov_radicaciones' then
@@ -109,7 +106,7 @@ begin
       end if;
     end if;
 
-    -- Si el último fue un traslado completado
+    -- Si el último fue un traslado completado (trasladado)
     if ultimo_tipo = 'traslado' and ultimo_estado = 'trasladado' then
       -- Solo puede hacer radicación ahora
       if tg_table_name = 'mov_traslados' then
@@ -117,8 +114,8 @@ begin
       end if;
     end if;
 
-    -- Excepción: Si el proceso fue devuelto, puede hacer el proceso contrario
-    -- (no se valida porque el estado 'devuelto' permite cualquier proceso siguiente)
+    -- Excepción: Si el proceso fue devuelto, puede hacer cualquier proceso siguiente
+    -- (no se valida porque el estado 'devuelto' permite reintento del mismo o proceso contrario)
   end if;
 
   return new;

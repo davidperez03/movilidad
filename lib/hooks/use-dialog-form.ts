@@ -38,6 +38,8 @@ interface UseDialogFormReturn<T = any> {
     options?: {
       /** Mensaje de error personalizado */
       errorMessage?: string
+      /** Mensaje de éxito personalizado (sobrescribe el del constructor) */
+      successMessage?: string
       /** Si false, no cierra el dialog automáticamente */
       closeOnSuccess?: boolean
     }
@@ -88,11 +90,13 @@ export function useDialogForm<T = any>(
     action: () => Promise<T>,
     submitOptions?: {
       errorMessage?: string
+      successMessage?: string
       closeOnSuccess?: boolean
     }
   ): Promise<void> => {
     const {
       errorMessage = 'Error al realizar la operación',
+      successMessage: customSuccessMessage,
       closeOnSuccess = true
     } = submitOptions || {}
 
@@ -101,7 +105,8 @@ export function useDialogForm<T = any>(
     try {
       await action()
 
-      toast.success(successMessage)
+      // Usar el mensaje personalizado si se proporciona, sino el del constructor
+      toast.success(customSuccessMessage || successMessage)
 
       if (closeOnSuccess) {
         setOpen(false)

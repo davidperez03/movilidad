@@ -4,6 +4,27 @@
 -- Descripción: Esquema para traslados y radicaciones
 -- =====================================================
 
+-- =====================================================
+-- TABLA DE EMPRESAS DE TRANSPORTE
+-- =====================================================
+
+-- Crear tabla de empresas de transporte (DEBE IR PRIMERO porque mov_traslados la referencia)
+CREATE TABLE IF NOT EXISTS public.mov_empresas_transporte (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  nombre text NOT NULL UNIQUE,
+  activo boolean NOT NULL DEFAULT true,
+  creado_en timestamp with time zone DEFAULT now() NOT NULL,
+  actualizado_en timestamp with time zone DEFAULT now() NOT NULL
+);
+
+-- Crear índice para empresas
+CREATE INDEX IF NOT EXISTS idx_mov_empresas_transporte_nombre
+  ON public.mov_empresas_transporte(nombre);
+
+-- =====================================================
+-- TABLAS DE PROCESOS
+-- =====================================================
+
 -- Crear tabla de traslados (enviar vehículo)
 create table if not exists public.mov_traslados (
   id uuid primary key default gen_random_uuid(),
@@ -75,6 +96,10 @@ create table if not exists public.mov_radicaciones (
   actualizado_en timestamp with time zone default now() not null
 );
 
+-- =====================================================
+-- ÍNDICES
+-- =====================================================
+
 -- Crear índices para traslados
 create index if not exists idx_mov_traslados_cuenta on public.mov_traslados(cuenta_id);
 create index if not exists idx_mov_traslados_organismo_destino on public.mov_traslados(organismo_destino_id);
@@ -91,6 +116,16 @@ create index if not exists idx_mov_radicaciones_estado on public.mov_radicacione
 create index if not exists idx_mov_radicaciones_fecha_tramite on public.mov_radicaciones(fecha_tramite desc);
 create index if not exists idx_mov_radicaciones_fecha_vencimiento on public.mov_radicaciones(fecha_vencimiento);
 create index if not exists idx_mov_radicaciones_creado_por on public.mov_radicaciones(creado_por);
+
+-- =====================================================
+-- TRIGGERS Y FUNCIONES
+-- =====================================================
+
+-- Trigger para actualizar fecha de actualización en empresas
+CREATE TRIGGER before_update_empresa_transporte
+  BEFORE UPDATE ON public.mov_empresas_transporte
+  FOR EACH ROW
+  EXECUTE FUNCTION trigger_actualizar_fecha();
 
 -- Trigger para auto-calcular fecha de vencimiento en traslados (60 días hábiles)
 create or replace function trigger_vencimiento_traslado()
@@ -205,9 +240,33 @@ create trigger before_update_estado_radicacion
   for each row
   execute function trigger_marcar_completado();
 
--- Habilitar Row Level Security
+-- =====================================================
+-- ROW LEVEL SECURITY
+-- =====================================================
+
+-- Habilitar RLS para todas las tablas
+alter table public.mov_empresas_transporte enable row level security;
 alter table public.mov_traslados enable row level security;
 alter table public.mov_radicaciones enable row level security;
+
+-- Políticas de seguridad para empresas de transporte
+CREATE POLICY "Usuarios pueden ver empresas de transporte"
+  ON public.mov_empresas_transporte FOR SELECT
+  USING (true);
+
+CREATE POLICY "Crear empresas de transporte según permisos"
+  ON public.mov_empresas_transporte FOR INSERT
+  WITH CHECK (
+    es_superadmin(auth.uid())
+    OR tiene_permiso(auth.uid(), 'movilidad', 'editar_traslados')
+  );
+
+CREATE POLICY "Actualizar empresas de transporte según permisos"
+  ON public.mov_empresas_transporte FOR UPDATE
+  USING (
+    es_superadmin(auth.uid())
+    OR tiene_permiso(auth.uid(), 'movilidad', 'editar_traslados')
+  );
 
 -- Políticas de seguridad para traslados
 create policy "Usuarios pueden ver todos los traslados"
@@ -276,49 +335,8 @@ create policy "Eliminar radicaciones según permisos modulares"
   );
 
 -- =====================================================
--- TABLA DE EMPRESAS DE TRANSPORTE
+-- DATOS INICIALES
 -- =====================================================
-
--- Crear tabla de empresas de transporte
-CREATE TABLE IF NOT EXISTS public.mov_empresas_transporte (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  nombre text NOT NULL UNIQUE,
-  activo boolean NOT NULL DEFAULT true,
-  creado_en timestamp with time zone DEFAULT now() NOT NULL,
-  actualizado_en timestamp with time zone DEFAULT now() NOT NULL
-);
-
--- Crear índice
-CREATE INDEX IF NOT EXISTS idx_mov_empresas_transporte_nombre
-  ON public.mov_empresas_transporte(nombre);
-
--- Trigger para actualizar fecha de actualización
-CREATE TRIGGER before_update_empresa_transporte
-  BEFORE UPDATE ON public.mov_empresas_transporte
-  FOR EACH ROW
-  EXECUTE FUNCTION trigger_actualizar_fecha();
-
--- Habilitar Row Level Security
-ALTER TABLE public.mov_empresas_transporte ENABLE ROW LEVEL SECURITY;
-
--- Políticas de seguridad
-CREATE POLICY "Usuarios pueden ver empresas de transporte"
-  ON public.mov_empresas_transporte FOR SELECT
-  USING (true);
-
-CREATE POLICY "Crear empresas de transporte según permisos"
-  ON public.mov_empresas_transporte FOR INSERT
-  WITH CHECK (
-    es_superadmin(auth.uid())
-    OR tiene_permiso(auth.uid(), 'movilidad', 'editar_traslados')
-  );
-
-CREATE POLICY "Actualizar empresas de transporte según permisos"
-  ON public.mov_empresas_transporte FOR UPDATE
-  USING (
-    es_superadmin(auth.uid())
-    OR tiene_permiso(auth.uid(), 'movilidad', 'editar_traslados')
-  );
 
 -- Insertar empresas iniciales
 INSERT INTO public.mov_empresas_transporte (nombre) VALUES

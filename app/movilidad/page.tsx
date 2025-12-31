@@ -47,14 +47,18 @@ export default async function MovilidadDashboard() {
     .select("*", { count: "exact", head: true })
     .neq("estado", "resuelta")
 
-  // Procesos por vencer (próximos 7 días)
-  const { data: procesosPorVencer } = await supabase
+  // Procesos por vencer (próximos 7 días hábiles)
+  const { data: procesosPorVencer, error: errorVencer } = await supabase
     .from("mov_vista_procesos_por_vencer")
     .select("*")
     .order("dias_restantes", { ascending: true })
     .limit(10)
 
-  // Crear alertas
+  if (errorVencer) {
+    console.error('Error obteniendo procesos por vencer:', errorVencer)
+  }
+
+  // Crear alertas (todos los procesos que vencen en 7 días hábiles o menos)
   const alerts = (procesosPorVencer || []).map((proceso) => {
     const daysRemaining = proceso.dias_restantes
     const severity: "critical" | "warning" | "info" =
@@ -66,7 +70,7 @@ export default async function MovilidadDashboard() {
       description: `${proceso.proceso_tipo === "traslado" ? "Destino" : "Origen"}: ${proceso.ciudad} | Estado: ${ESTADOS_CONFIG[proceso.estado]?.label || formatearEstadoProceso(proceso.estado)}`,
       severity,
       link: `/movilidad/vehiculos/${proceso.placa}`,
-      daysRemaining: Math.max(0, daysRemaining),
+      daysRemaining: Math.abs(daysRemaining), // Siempre positivo para el badge
     }
   })
 

@@ -1,123 +1,59 @@
-// =====================================================
-// DOCUMENTO PDF: PROCESOS COMPLETADOS
-// Genera PDF para reporte de procesos completados
-// =====================================================
-
-import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer'
+import { Document, Page, Text, View } from '@react-pdf/renderer'
 import { formatearFechaPDF, obtenerFechaGeneracion } from '@/lib/movilidad/reportes/exportar-pdf'
 import type { DatosReporteCompletados } from '@/lib/movilidad/reportes/tipos'
+import { basePdfStyles } from './base-pdf-styles'
+import { PdfHeader } from './pdf-header'
+import { PdfTableHeader } from './pdf-table-header'
 
 interface DocumentoCompletadosPDFProps {
   datos: DatosReporteCompletados[]
 }
 
-const styles = StyleSheet.create({
-  page: {
-    padding: 30,
-    fontSize: 10,
-    fontFamily: 'Helvetica',
-  },
-  header: {
-    marginBottom: 20,
-    borderBottom: '2 solid #000',
-    paddingBottom: 10,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 5,
-  },
-  subtitle: {
-    fontSize: 10,
-    color: '#666',
-  },
-  metadata: {
-    marginBottom: 20,
-    fontSize: 9,
-  },
-  table: {
-    width: '100%',
-  },
-  tableHeader: {
-    flexDirection: 'row',
-    backgroundColor: '#f0f0f0',
-    padding: 8,
-    fontWeight: 'bold',
-    fontSize: 9,
-    borderBottom: '1 solid #000',
-  },
-  tableRow: {
-    flexDirection: 'row',
-    padding: 6,
-    borderBottom: '0.5 solid #ddd',
-    fontSize: 8,
-  },
-  col1: { width: '10%' },
-  col2: { width: '12%' },
-  col3: { width: '12%' },
-  col4: { width: '12%' },
-  col5: { width: '13%' },
-  col6: { width: '18%' },
-  col7: { width: '13%' },
-  col8: { width: '10%' },
-  footer: {
-    position: 'absolute',
-    bottom: 30,
-    left: 30,
-    right: 30,
-    textAlign: 'center',
-    fontSize: 8,
-    color: '#666',
-  },
-})
+const columnas = [
+  { texto: 'Placa', ancho: '10%' },
+  { texto: 'N° Cuenta', ancho: '12%' },
+  { texto: 'Tipo Serv.', ancho: '12%' },
+  { texto: 'Tipo Proc.', ancho: '12%' },
+  { texto: 'Estado Final', ancho: '13%' },
+  { texto: 'Organismo', ancho: '18%' },
+  { texto: 'F. Completado', ancho: '13%' },
+  { texto: 'Duración', ancho: '10%' },
+]
 
 export function DocumentoCompletadosPDF({ datos }: DocumentoCompletadosPDFProps) {
   return (
     <Document>
-      <Page size="A4" orientation="landscape" style={styles.page}>
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.title}>Reporte de Procesos Completados</Text>
-          <Text style={styles.subtitle}>Histórico de Procesos Finalizados</Text>
-        </View>
-
-        {/* Metadata */}
-        <View style={styles.metadata}>
-          <Text>Fecha de generación: {obtenerFechaGeneracion()}</Text>
-          <Text>Total de registros: {datos.length}</Text>
-        </View>
+      <Page size="A4" orientation="landscape" style={basePdfStyles.page}>
+        <PdfHeader
+          titulo="Reporte de Procesos Completados"
+          subtitulo="Histórico de Procesos Finalizados"
+          metadata={[
+            { label: 'Fecha de generación', value: obtenerFechaGeneracion() },
+            { label: 'Total de registros', value: datos.length },
+          ]}
+        />
 
         {/* Tabla */}
-        <View style={styles.table}>
-          {/* Header de tabla */}
-          <View style={styles.tableHeader}>
-            <Text style={styles.col1}>Placa</Text>
-            <Text style={styles.col2}>N° Cuenta</Text>
-            <Text style={styles.col3}>Tipo Serv.</Text>
-            <Text style={styles.col4}>Tipo Proc.</Text>
-            <Text style={styles.col5}>Estado Final</Text>
-            <Text style={styles.col6}>Organismo</Text>
-            <Text style={styles.col7}>F. Completado</Text>
-            <Text style={styles.col8}>Duración</Text>
-          </View>
+        <View style={basePdfStyles.table}>
+          <PdfTableHeader columnas={columnas} />
 
           {/* Filas de datos */}
           {datos.map((d, index) => (
-            <View key={index} style={styles.tableRow}>
-              <Text style={styles.col1}>{d.placa}</Text>
-              <Text style={styles.col2}>{d.numero_cuenta}</Text>
-              <Text style={styles.col3}>{d.tipo_servicio}</Text>
-              <Text style={styles.col4}>{d.proceso_tipo}</Text>
-              <Text style={styles.col5}>{d.estado}</Text>
-              <Text style={styles.col6}>{d.organismo}</Text>
-              <Text style={styles.col7}>{formatearFechaPDF(d.fecha_completado)}</Text>
-              <Text style={styles.col8}>{d.duracion_dias} días</Text>
+            <View key={index} style={basePdfStyles.tableRow}>
+              <Text style={{ width: columnas[0].ancho }}>{d.placa}</Text>
+              <Text style={{ width: columnas[1].ancho }}>{d.numero_cuenta}</Text>
+              <Text style={{ width: columnas[2].ancho }}>{d.tipo_servicio}</Text>
+              <Text style={{ width: columnas[3].ancho }}>{d.proceso_tipo}</Text>
+              <Text style={{ width: columnas[4].ancho }}>{d.estado}</Text>
+              <Text style={{ width: columnas[5].ancho }}>{d.organismo}</Text>
+              <Text style={{ width: columnas[6].ancho }}>{formatearFechaPDF(d.fecha_completado)}</Text>
+              <Text style={{ width: columnas[7].ancho }}>{d.duracion_dias} días</Text>
             </View>
           ))}
         </View>
 
         {/* Footer */}
-        <Text style={styles.footer}>
+        <Text style={basePdfStyles.footer}>
           Reporte generado por Sistema de Movilidad - Página 1 de 1
         </Text>
       </Page>

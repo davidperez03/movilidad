@@ -1,16 +1,27 @@
 import { createClient } from "@/lib/supabase/server"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
 import Link from "next/link"
-import { ArrowRightLeft, Plus } from "lucide-react"
+import { Plus } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ProcesoCard } from "@/components/movilidad/proceso-card"
-import { EmptyState } from "@/components/shared/empty-state"
+import { TrasladosTable } from "@/components/movilidad/traslados/traslados-table"
 
 export default async function TrasladosPage() {
   const supabase = await createClient()
 
-  // Obtener traslados activos
-  const { data: trasladosActivos, error: errorActivos } = await supabase
+  // Obtener datos de días hábiles desde la vista
+  const { data: vistaActivos } = await supabase
+    .from("mov_vista_proceso_activo")
+    .select("proceso_id, dias_restantes")
+    .eq("proceso_tipo", "traslado")
+
+  // Crear mapa de proceso_id -> dias_restantes
+  const diasPorProceso = new Map(
+    vistaActivos?.map(v => [v.proceso_id, v.dias_restantes]) || []
+  )
+
+  // Obtener traslados activos con todos sus datos
+  const { data: trasladosActivosRaw, error: errorActivos } = await supabase
     .from("mov_traslados")
     .select(`
       *,
@@ -27,13 +38,19 @@ export default async function TrasladosPage() {
         municipio,
         departamento
       ),
-      empresa_transporte:mov_empresas_transporte!empresa_transportadora_id (
+      empresa_transporte:mov_empresas_transporte (
         id,
         nombre
       )
     `)
     .not("estado", "in", "(trasladado,devuelto)")
     .order("creado_en", { ascending: false })
+
+  // Agregar días restantes a cada traslado
+  const trasladosActivos = trasladosActivosRaw?.map(traslado => ({
+    ...traslado,
+    dias_restantes: diasPorProceso.get(traslado.id) || null
+  }))
 
   if (errorActivos) {
   }
@@ -56,14 +73,14 @@ export default async function TrasladosPage() {
         municipio,
         departamento
       ),
-      empresa_transporte:mov_empresas_transporte!empresa_transportadora_id (
+      empresa_transporte:mov_empresas_transporte (
         id,
         nombre
       )
     `)
     .in("estado", ["trasladado", "devuelto"])
     .order("fecha_completado", { ascending: false })
-    .limit(20)
+    .limit(50)
 
   return (
     <div className="space-y-6">
@@ -92,50 +109,20 @@ export default async function TrasladosPage() {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="activos" className="space-y-4">
-          {trasladosActivos && trasladosActivos.length > 0 ? (
-            trasladosActivos.map((traslado) => (
-              <ProcesoCard
-                key={traslado.id}
-                proceso={traslado}
-                tipoProceso="traslado"
-                esCompletado={false}
-              />
-            ))
-          ) : (
-            <EmptyState
-              icon={ArrowRightLeft}
-              titulo="No hay traslados activos"
-              descripcion="No hay procesos de traslado en curso en este momento"
-              accion={
-                <Button asChild>
-                  <Link href="/movilidad/traslados/nuevo">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Iniciar Primer Traslado
-                  </Link>
-                </Button>
-              }
-            />
-          )}
+        <TabsContent value="activos">
+          <Card>
+            <CardContent className="pt-6">
+              <TrasladosTable traslados={trasladosActivos || []} esCompletados={false} />
+            </CardContent>
+          </Card>
         </TabsContent>
 
-        <TabsContent value="completados" className="space-y-4">
-          {trasladosCompletados && trasladosCompletados.length > 0 ? (
-            trasladosCompletados.map((traslado) => (
-              <ProcesoCard
-                key={traslado.id}
-                proceso={traslado}
-                tipoProceso="traslado"
-                esCompletado={true}
-              />
-            ))
-          ) : (
-            <EmptyState
-              icon={ArrowRightLeft}
-              titulo="No hay traslados completados"
-              descripcion="No se han completado procesos de traslado aún"
-            />
-          )}
+        <TabsContent value="completados">
+          <Card>
+            <CardContent className="pt-6">
+              <TrasladosTable traslados={trasladosCompletados || []} esCompletados={true} />
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
     </div>
