@@ -11,10 +11,9 @@ CREATE INDEX IF NOT EXISTS idx_sys_sesiones_token_expira
   ON public.sys_sesiones(token_expira_en)
   WHERE estado = 'activa';
 
--- Función mejorada para cerrar sesiones inactivas O con token expirado
-CREATE OR REPLACE FUNCTION cerrar_sesiones_inactivas(
-  p_minutos_inactividad INTEGER DEFAULT 60
-)
+-- Función para cerrar sesiones con token expirado
+-- Esta función es llamada manualmente desde el panel de superadmin
+CREATE OR REPLACE FUNCTION cerrar_sesiones_token_expirado()
 RETURNS INTEGER
 LANGUAGE plpgsql
 SECURITY DEFINER
@@ -29,13 +28,8 @@ BEGIN
       fin_sesion = now(),
       actualizado_en = now()
     WHERE estado = 'activa'
-      AND (
-        -- Cerrar por inactividad
-        ultima_actividad < (now() - (p_minutos_inactividad || ' minutes')::INTERVAL)
-        OR
-        -- Cerrar si el token REALMENTE expiró (basado en el exp del JWT)
-        (token_expira_en IS NOT NULL AND token_expira_en < now())
-      )
+      AND token_expira_en IS NOT NULL
+      AND token_expira_en < now()
     RETURNING id, usuario_id
   )
   SELECT COUNT(*) INTO sesiones_cerradas FROM sesiones_a_cerrar;
@@ -43,17 +37,76 @@ BEGIN
   -- Registrar en auditoría las sesiones cerradas automáticamente
   IF sesiones_cerradas > 0 THEN
     PERFORM registrar_auditoria_sistema(
-      'sesiones_expiradas_automaticamente',
+      'sesiones_token_expirado',
       'sistema',
       NULL,
       jsonb_build_object(
-        'sesiones_cerradas', sesiones_cerradas,
-        'minutos_inactividad', p_minutos_inactividad
+        'sesiones_cerradas', sesiones_cerradas
       )
     );
   END IF;
 
   RETURN sesiones_cerradas;
+END;
+$$;
+
+-- Función para que el superadmin cierre sesiones huérfanas manualmente
+CREATE OR REPLACE FUNCTION superadmin_cerrar_sesion(
+  p_sesion_id UUID,
+  p_admin_id UUID
+)
+RETURNS BOOLEAN
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+  v_usuario_id UUID;
+  v_usuario_info RECORD;
+  v_admin_info RECORD;
+BEGIN
+  -- Verificar que quien ejecuta es superadmin
+  SELECT rol_global INTO v_admin_info
+  FROM public.perfiles
+  WHERE id = p_admin_id;
+
+  IF v_admin_info.rol_global != 'superadmin' THEN
+    RAISE EXCEPTION 'Solo superadmins pueden cerrar sesiones manualmente';
+  END IF;
+
+  -- Cerrar la sesión
+  UPDATE public.sys_sesiones
+  SET
+    estado = 'forzada_cierre',
+    fin_sesion = now(),
+    actualizado_en = now()
+  WHERE id = p_sesion_id AND estado = 'activa'
+  RETURNING usuario_id INTO v_usuario_id;
+
+  IF FOUND THEN
+    -- Obtener información del usuario
+    SELECT correo, nombre_completo INTO v_usuario_info
+    FROM public.perfiles
+    WHERE id = v_usuario_id;
+
+    -- Registrar en auditoría
+    PERFORM registrar_auditoria_sistema(
+      'sesion_cerrada_por_admin',
+      'sesion',
+      p_sesion_id,
+      jsonb_build_object(
+        'usuario_id', v_usuario_id,
+        'usuario_correo', v_usuario_info.correo,
+        'usuario_nombre', v_usuario_info.nombre_completo,
+        'admin_id', p_admin_id
+      ),
+      NULL,
+      p_admin_id
+    );
+
+    RETURN TRUE;
+  END IF;
+
+  RETURN FALSE;
 END;
 $$;
 
