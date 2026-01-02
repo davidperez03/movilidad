@@ -46,6 +46,39 @@ export async function updateSession(request: NextRequest) {
   const isPublicRoute = publicRoutes.includes(request.nextUrl.pathname)
   const isAuthRoute = request.nextUrl.pathname.startsWith("/auth")
 
+  // Si hay usuario autenticado según Supabase, verificar que su sesión esté activa en nuestra DB
+  if (user && !isPublicRoute && !isAuthRoute) {
+    try {
+      // Verificar si el usuario tiene una sesión activa en nuestra DB
+      const { data: sessionData, error } = await supabase
+        .from('sys_sesiones')
+        .select('id, estado, token_expira_en')
+        .eq('usuario_id', user.id)
+        .eq('estado', 'activa')
+        .order('inicio_sesion', { ascending: false })
+        .limit(1)
+        .single()
+
+      // Si no hay sesión activa O el token expiró, cerrar sesión
+      if (error || !sessionData ||
+          (sessionData.token_expira_en && new Date(sessionData.token_expira_en) < new Date())) {
+
+        // Invalidar token de Supabase
+        await supabase.auth.signOut()
+
+        // Redirigir a login
+        const url = request.nextUrl.clone()
+        url.pathname = "/auth/login"
+        url.searchParams.set('reason', 'session_closed')
+        return NextResponse.redirect(url)
+      }
+    } catch (error) {
+      // Si hay error al verificar sesión, permitir continuar
+      // (para no bloquear en caso de problemas de conexión)
+      console.error('Error verificando sesión:', error)
+    }
+  }
+
   if (!user && !isPublicRoute && !isAuthRoute) {
     // no user, potentially respond by redirecting the user to the login page
     const url = request.nextUrl.clone()
