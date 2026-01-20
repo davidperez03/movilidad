@@ -10,13 +10,46 @@ import {
   Clock
 } from 'lucide-react'
 
+interface DetallesAuditoria {
+  correo?: string
+  usuario_correo?: string
+  nombre_completo?: string
+  rol_global?: string
+  correo_anterior?: string
+  correo_nuevo?: string
+  nombre_anterior?: string
+  nombre_nuevo?: string
+  rol_anterior?: string
+  rol_nuevo?: string
+  nuevo_rol?: string
+  rol_nombre?: string
+  rol_codigo?: string
+  modulo_id?: string
+  modulo?: string
+  razon_suspension?: string
+  dispositivo?: string
+  razon?: string
+  placa?: string
+  numero_cuenta?: string
+  numero_traslado?: string
+  organismo_destino?: string
+  numero_radicacion?: string
+  organismo?: string
+  estado_anterior?: string
+  nuevo_estado?: string
+  entidad?: string
+  tipo_novedad?: string
+  descripcion?: string
+  [key: string]: unknown
+}
+
 interface RegistroAuditoria {
   id: string
   modulo: string
   accion: string
   entidad_tipo: string
   entidad_id: string
-  detalles: any
+  detalles: DetallesAuditoria | null
   valor_anterior: string | null
   valor_nuevo: string | null
   usuario_id: string

@@ -22,7 +22,7 @@ interface UseDialogFormOptions {
   refreshOnSuccess?: boolean
 }
 
-interface UseDialogFormReturn<T = any> {
+interface UseDialogFormReturn<T = unknown> {
   /** Estado de apertura del dialog */
   open: boolean
 
@@ -73,7 +73,7 @@ interface UseDialogFormReturn<T = any> {
  * }
  * ```
  */
-export function useDialogForm<T = any>(
+export function useDialogForm<T = unknown>(
   options: UseDialogFormOptions = {}
 ): UseDialogFormReturn<T> {
   const {
@@ -117,8 +117,8 @@ export function useDialogForm<T = any>(
       }
 
       onSuccess?.()
-    } catch (error: any) {
-      const message = error?.message
+    } catch (error) {
+      const message = error instanceof Error
         ? `${errorMessage}: ${error.message}`
         : errorMessage
       toast.error(message)

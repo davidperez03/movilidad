@@ -36,6 +36,12 @@ interface Empresa {
   nombre: string
 }
 
+interface UpdateTransporteData {
+  actualizado_por: string
+  empresa_transportadora_id?: string
+  numero_guia?: string
+}
+
 interface AgregarDatosTransporteProps {
   trasladoId: string
   empresaActualId?: string | null
@@ -132,16 +138,10 @@ export function AgregarDatosTransporte({
         throw new Error("No hay sesión activa")
       }
 
-      const updateData: any = {
+      const updateData: UpdateTransporteData = {
         actualizado_por: user.id,
-      }
-
-      if (empresaSeleccionadaId) {
-        updateData.empresa_transportadora_id = empresaSeleccionadaId
-      }
-
-      if (numeroGuia.trim()) {
-        updateData.numero_guia = numeroGuia.trim()
+        ...(empresaSeleccionadaId && { empresa_transportadora_id: empresaSeleccionadaId }),
+        ...(numeroGuia.trim() && { numero_guia: numeroGuia.trim() }),
       }
 
       const { error } = await supabase

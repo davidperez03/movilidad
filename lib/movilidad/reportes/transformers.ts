@@ -1,12 +1,38 @@
 import type { DatosReporteCompletados } from './tipos'
 
+interface TrasladoData {
+  id: string
+  cuenta_id: string
+  estado: string
+  fecha_tramite: string
+  fecha_completado: string
+  observaciones: string | null
+  creado_en: string
+  cuenta: { placa: string; numero_cuenta: string; tipo_servicio: string } | null
+  organismo_destino: { nombre: string } | null
+  creado_por_perfil: { nombre_completo: string } | null
+}
+
+interface RadicacionData {
+  id: string
+  cuenta_id: string
+  estado: string
+  fecha_tramite: string
+  fecha_completado: string
+  observaciones: string | null
+  creado_en: string
+  cuenta: { placa: string; numero_cuenta: string; tipo_servicio: string } | null
+  organismo_origen: { nombre: string } | null
+  creado_por_perfil: { nombre_completo: string } | null
+}
+
 function calcularDuracionDias(fechaInicio: string, fechaFin: string): number {
   const inicio = new Date(fechaInicio)
   const fin = new Date(fechaFin)
   return Math.ceil((fin.getTime() - inicio.getTime()) / (1000 * 60 * 60 * 24))
 }
 
-export function transformarTraslado(traslado: any): DatosReporteCompletados | null {
+export function transformarTraslado(traslado: TrasladoData): DatosReporteCompletados | null {
   if (!traslado.cuenta || !traslado.organismo_destino || !traslado.creado_por_perfil) {
     return null
   }
@@ -31,7 +57,7 @@ export function transformarTraslado(traslado: any): DatosReporteCompletados | nu
   }
 }
 
-export function transformarRadicacion(radicacion: any): DatosReporteCompletados | null {
+export function transformarRadicacion(radicacion: RadicacionData): DatosReporteCompletados | null {
   if (!radicacion.cuenta || !radicacion.organismo_origen || !radicacion.creado_por_perfil) {
     return null
   }
