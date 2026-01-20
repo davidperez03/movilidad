@@ -2,9 +2,10 @@ import { Badge } from "@/components/ui/badge"
 import { formatDateForDisplay, formatDateShort } from "@/lib/utils"
 import { formatearEstadoProceso } from "@/lib/movilidad/formatters"
 import { BotonDescargarRemision } from "@/components/movilidad/pdf/boton-descargar-remision"
+import type { TrasladoHistorial } from "@/lib/movilidad/types"
 
 interface ItemTrasladoProps {
-  traslado: any
+  traslado: TrasladoHistorial
   placa: string
 }
 

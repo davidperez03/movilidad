@@ -1,9 +1,10 @@
 import { Badge } from "@/components/ui/badge"
 import { formatDateForDisplay, formatDateShort } from "@/lib/utils"
 import { formatearEstadoProceso } from "@/lib/movilidad/formatters"
+import type { RadicacionHistorial } from "@/lib/movilidad/types"
 
 interface ItemRadicacionProps {
-  radicacion: any
+  radicacion: RadicacionHistorial
 }
 
 export function ItemRadicacion({ radicacion }: ItemRadicacionProps) {
