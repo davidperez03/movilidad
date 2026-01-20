@@ -2,9 +2,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Clock, User, Calendar } from "lucide-react"
 import { formatDateTime } from "@/lib/utils"
 import { formatearEstadoProceso } from "@/lib/movilidad/formatters"
+import type { HistorialAccion } from "@/lib/movilidad/types"
 
 interface HistorialAccionesProps {
-  acciones: any[]
+  acciones: HistorialAccion[]
 }
 
 export function HistorialAcciones({ acciones }: HistorialAccionesProps) {

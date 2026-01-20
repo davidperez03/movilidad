@@ -53,7 +53,9 @@ CREATE INDEX IF NOT EXISTS idx_sys_sesiones_token_expira
   ON public.sys_sesiones(token_expira_en)
   WHERE estado = 'activa';
 
-CREATE OR REPLACE VIEW sys_vista_sesiones_activas AS
+DROP VIEW IF EXISTS sys_vista_sesiones_activas;
+CREATE VIEW sys_vista_sesiones_activas
+WITH (security_invoker = true) AS
 SELECT
   s.id,
   s.usuario_id,
@@ -64,13 +66,16 @@ SELECT
   EXTRACT(EPOCH FROM (now() - s.ultima_actividad)) / 60 AS minutos_inactivo,
   s.ip_address,
   s.dispositivo,
-  s.acciones_realizadas
+  s.acciones_realizadas,
+  s.token_expira_en
 FROM public.sys_sesiones s
 JOIN public.perfiles p ON s.usuario_id = p.id
 WHERE s.estado = 'activa'
 ORDER BY s.ultima_actividad DESC;
 
-CREATE OR REPLACE VIEW sys_vista_resumen_sesiones AS
+DROP VIEW IF EXISTS sys_vista_resumen_sesiones;
+CREATE VIEW sys_vista_resumen_sesiones
+WITH (security_invoker = true) AS
 SELECT
   p.id AS usuario_id,
   p.correo,

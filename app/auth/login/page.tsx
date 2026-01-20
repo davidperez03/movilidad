@@ -83,8 +83,11 @@ function LoginForm() {
           .update({ ultima_conexion: new Date().toISOString() })
           .eq("id", data.user.id)
 
-        // Registrar inicio de sesión en BD
-        await SessionManager.registrarInicio(data.user.id)
+        // Registrar inicio de sesión en BD - ESPERAR a que se complete
+        const sessionId = await SessionManager.registrarInicio(data.user.id)
+        if (!sessionId) {
+          throw new Error("No se pudo registrar la sesión. Intenta nuevamente.")
+        }
 
         // Si es superadmin, redirigir al dashboard
         if (profile?.rol_global === "superadmin") {

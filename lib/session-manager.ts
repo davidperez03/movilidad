@@ -59,6 +59,8 @@ export class SessionManager {
       // Guardar también en sessionStorage para persistencia
       if (typeof window !== 'undefined') {
         sessionStorage.setItem('current_session_id', data)
+        // Cookie para que el middleware sepa que ya se registró la sesión
+        document.cookie = 'session_registered=true; path=/; max-age=86400'
       }
 
       return data

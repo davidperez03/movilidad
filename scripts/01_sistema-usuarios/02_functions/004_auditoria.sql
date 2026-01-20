@@ -11,6 +11,7 @@ CREATE OR REPLACE FUNCTION registrar_auditoria_sistema(
 RETURNS UUID
 LANGUAGE plpgsql
 SECURITY DEFINER
+SET search_path = public
 AS $$
 DECLARE
   nuevo_id UUID;
@@ -46,6 +47,7 @@ CREATE OR REPLACE FUNCTION trigger_auditoria_perfiles()
 RETURNS TRIGGER
 LANGUAGE plpgsql
 SECURITY DEFINER
+SET search_path = public
 AS $$
 BEGIN
   IF (TG_OP = 'INSERT') THEN
@@ -135,6 +137,7 @@ CREATE OR REPLACE FUNCTION trigger_auditoria_usuarios_roles()
 RETURNS TRIGGER
 LANGUAGE plpgsql
 SECURITY DEFINER
+SET search_path = public
 AS $$
 DECLARE
   v_rol_info RECORD;

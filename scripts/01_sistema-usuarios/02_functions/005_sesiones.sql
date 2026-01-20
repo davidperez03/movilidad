@@ -2,6 +2,7 @@ CREATE OR REPLACE FUNCTION extraer_exp_de_jwt(p_token TEXT)
 RETURNS TIMESTAMP WITH TIME ZONE
 LANGUAGE plpgsql
 IMMUTABLE
+SET search_path = public
 AS $$
 DECLARE
   payload_b64 TEXT;
@@ -41,6 +42,7 @@ CREATE OR REPLACE FUNCTION registrar_inicio_sesion(
 RETURNS UUID
 LANGUAGE plpgsql
 SECURITY DEFINER
+SET search_path = public
 AS $$
 DECLARE
   nueva_sesion_id UUID;
@@ -100,6 +102,7 @@ CREATE OR REPLACE FUNCTION registrar_fin_sesion(
 RETURNS BOOLEAN
 LANGUAGE plpgsql
 SECURITY DEFINER
+SET search_path = public
 AS $$
 DECLARE
   v_usuario_id UUID;
@@ -146,6 +149,7 @@ CREATE OR REPLACE FUNCTION actualizar_actividad_sesion(
 RETURNS BOOLEAN
 LANGUAGE plpgsql
 SECURITY DEFINER
+SET search_path = public
 AS $$
 BEGIN
   UPDATE public.sys_sesiones
@@ -165,6 +169,7 @@ CREATE OR REPLACE FUNCTION cerrar_sesiones_inactivas(
 RETURNS INTEGER
 LANGUAGE plpgsql
 SECURITY DEFINER
+SET search_path = public
 AS $$
 DECLARE
   sesiones_cerradas INTEGER;
@@ -189,6 +194,7 @@ CREATE OR REPLACE FUNCTION cerrar_sesiones_token_expirado()
 RETURNS INTEGER
 LANGUAGE plpgsql
 SECURITY DEFINER
+SET search_path = public
 AS $$
 DECLARE
   sesiones_cerradas INTEGER;
@@ -228,6 +234,7 @@ CREATE OR REPLACE FUNCTION superadmin_cerrar_sesion(
 RETURNS BOOLEAN
 LANGUAGE plpgsql
 SECURITY DEFINER
+SET search_path = public
 AS $$
 DECLARE
   v_usuario_id UUID;
@@ -264,9 +271,7 @@ BEGIN
         'usuario_correo', v_usuario_info.correo,
         'usuario_nombre', v_usuario_info.nombre_completo,
         'admin_id', p_admin_id
-      ),
-      NULL,
-      p_admin_id
+      )
     );
 
     RETURN TRUE;
@@ -280,18 +285,15 @@ CREATE OR REPLACE FUNCTION obtener_sesion_activa(p_usuario_id UUID)
 RETURNS UUID
 LANGUAGE plpgsql
 SECURITY DEFINER
+SET search_path = public
 AS $$
-DECLARE
-  sesion_id UUID;
 BEGIN
-  SELECT id INTO sesion_id
-  FROM public.sys_sesiones
-  WHERE usuario_id = p_usuario_id
-    AND estado = 'activa'
-  ORDER BY inicio_sesion DESC
-  LIMIT 1;
-
-  RETURN sesion_id;
+  RETURN (
+    SELECT id FROM public.sys_sesiones
+    WHERE usuario_id = p_usuario_id AND estado = 'activa'
+    ORDER BY inicio_sesion DESC
+    LIMIT 1
+  );
 END;
 $$;
 

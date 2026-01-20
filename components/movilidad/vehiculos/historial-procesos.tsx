@@ -2,10 +2,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowRightLeft, ArrowDownToLine } from "lucide-react"
 import { ItemTraslado } from "./item-traslado"
 import { ItemRadicacion } from "./item-radicacion"
+import type { TrasladoHistorial, RadicacionHistorial } from "@/lib/movilidad/types"
 
 interface HistorialProcesosProps {
-  traslados: any[]
-  radicaciones: any[]
+  traslados: TrasladoHistorial[]
+  radicaciones: RadicacionHistorial[]
   placa: string
 }
 

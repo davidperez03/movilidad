@@ -5,6 +5,13 @@ import { Car, User } from "lucide-react"
 import { BotonCerrarSesion } from "@/components/logout-button"
 import { NavTabs } from "@/components/movilidad/nav-tabs"
 
+export const revalidate = 60
+
+interface RolModulo {
+  codigo: string
+  nombre: string
+}
+
 export default async function MovilidadLayout({
   children,
 }: {
@@ -74,10 +81,10 @@ export default async function MovilidadLayout({
     .eq('modulo_id', 'movilidad')
     .single()
 
-  const rolModuloRaw = rolModuloData?.roles_modulo as any
-  const rolModulo = esSuperAdmin
+  const rolModuloRaw = rolModuloData?.roles_modulo as unknown as RolModulo | null
+  const rolModulo: RolModulo = esSuperAdmin
     ? { codigo: 'superadmin', nombre: 'SuperAdmin' }
-    : (rolModuloRaw ? { codigo: rolModuloRaw.codigo, nombre: rolModuloRaw.nombre } : { codigo: 'sin_rol', nombre: 'Sin rol' })
+    : (rolModuloRaw ?? { codigo: 'sin_rol', nombre: 'Sin rol' })
 
   const rolColors: Record<string, string> = {
     superadmin: "bg-red-100 text-red-700 border-red-300",
