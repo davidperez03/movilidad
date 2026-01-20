@@ -1,5 +1,15 @@
 import { createClient } from '@/lib/supabase/client'
-import type { RolUsuarioModulo } from '@/lib/types/permissions'
+import type { RolUsuarioModulo, Modulo, CodigoRol } from '@/lib/types/permissions'
+
+interface UsuarioRolRow {
+  modulo_id: Modulo
+  roles_modulo: {
+    codigo: CodigoRol
+    nombre: string
+    permisos: string[]
+    nivel: number
+  }
+}
 
 export async function cargarPermisosUsuario(): Promise<{
   esSuperAdmin: boolean
@@ -45,13 +55,13 @@ export async function cargarPermisosUsuario(): Promise<{
 
   if (rolesError) throw rolesError
 
-  const roles = rolesData?.map((r: any) => ({
+  const roles = ((rolesData || []) as UsuarioRolRow[]).map((r) => ({
     modulo_id: r.modulo_id,
     rol_codigo: r.roles_modulo.codigo,
     rol_nombre: r.roles_modulo.nombre,
     permisos: r.roles_modulo.permisos,
     nivel: r.roles_modulo.nivel,
-  })) || []
+  }))
 
   return { esSuperAdmin: false, roles }
 }

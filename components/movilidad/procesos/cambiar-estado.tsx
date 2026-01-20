@@ -25,6 +25,16 @@ import { Edit, Loader2 } from "lucide-react"
 import { ESTADOS_TRASLADO, ESTADOS_RADICACION } from "@/lib/movilidad/config"
 import { useDialogForm } from "@/lib/hooks/use-dialog-form"
 
+interface TransicionValida {
+  estado_siguiente: string
+}
+
+interface UpdateProcesoData {
+  estado: string
+  actualizado_por: string
+  observaciones?: string
+}
+
 interface CambiarEstadoProps {
   procesoId: string
   procesoTipo: "traslado" | "radicacion"
@@ -73,7 +83,7 @@ export function CambiarEstado({ procesoId, procesoTipo, estadoActual }: CambiarE
       }
 
       // Extraer solo los valores de estado_siguiente
-      const permitidos = data?.map((row: any) => row.estado_siguiente) || []
+      const permitidos = (data as TransicionValida[] | null)?.map((row) => row.estado_siguiente) || []
       setEstadosPermitidos(permitidos)
 
       // Si no hay transiciones válidas, significa que es un estado final
@@ -113,13 +123,10 @@ export function CambiarEstado({ procesoId, procesoTipo, estadoActual }: CambiarE
         throw new Error("No hay sesión activa")
       }
 
-      const updateData: any = {
+      const updateData: UpdateProcesoData = {
         estado: nuevoEstado,
         actualizado_por: user.id,
-      }
-
-      if (observaciones.trim()) {
-        updateData.observaciones = observaciones.trim()
+        ...(observaciones.trim() && { observaciones: observaciones.trim() }),
       }
 
       const { error } = await supabase

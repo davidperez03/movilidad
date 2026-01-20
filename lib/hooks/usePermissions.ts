@@ -37,8 +37,8 @@ export function usePermissions(): UsePermissionsReturn {
 
       setEsSuperAdmin(isSuperAdmin)
       setRoles(rolesUsuario)
-    } catch (err: any) {
-      setError(err.message || 'Error desconocido')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error desconocido')
     } finally {
       setLoading(false)
     }

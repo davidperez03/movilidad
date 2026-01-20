@@ -8,6 +8,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Clock, Mail, Settings, ShieldCheck, User } from 'lucide-react';
 import { toast } from 'sonner';
 import type { CodigoRol, Modulo } from '@/lib/types/permissions';
+import { logger } from '@/lib/logger';
+
+interface RolUsuarioRow {
+  modulo_id: Modulo;
+  roles_modulo: {
+    codigo: CodigoRol;
+    nombre: string;
+  };
+}
 
 interface Usuario {
   id: string;
@@ -70,7 +79,7 @@ export function ModalDetallesUsuario({ usuario, onCerrar }: ModalDetallesUsuario
 
       if (rolesError) throw rolesError;
 
-      const roles: RolAsignado[] = (rolesData || []).map((r: any) => ({
+      const roles: RolAsignado[] = ((rolesData || []) as RolUsuarioRow[]).map((r) => ({
         modulo_id: r.modulo_id,
         rol_codigo: r.roles_modulo.codigo,
         rol_nombre: r.roles_modulo.nombre,
@@ -88,7 +97,8 @@ export function ModalDetallesUsuario({ usuario, onCerrar }: ModalDetallesUsuario
       if (rolesDispError) throw rolesDispError;
       setRolesDisponibles(rolesDisp || []);
     } catch (error) {
-      // Error silencioso
+      toast.error('Error al cargar roles del usuario');
+      logger.error('Error cargando roles', error);
     } finally {
       setLoading(false);
     }
@@ -110,8 +120,9 @@ export function ModalDetallesUsuario({ usuario, onCerrar }: ModalDetallesUsuario
       if (error) throw error;
       toast.success('Rol asignado exitosamente');
       await cargarRoles();
-    } catch (error: any) {
-      toast.error('Error asignando rol: ' + error.message);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Error desconocido';
+      toast.error('Error asignando rol: ' + message);
     }
   }
 
@@ -128,8 +139,9 @@ export function ModalDetallesUsuario({ usuario, onCerrar }: ModalDetallesUsuario
       if (error) throw error;
       toast.success('Rol eliminado exitosamente');
       await cargarRoles();
-    } catch (error: any) {
-      toast.error('Error eliminando rol: ' + error.message);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Error desconocido';
+      toast.error('Error eliminando rol: ' + message);
     }
   }
 
@@ -145,8 +157,9 @@ export function ModalDetallesUsuario({ usuario, onCerrar }: ModalDetallesUsuario
       if (error) throw error;
       setRolGlobal(nuevoRol);
       toast.success('Rol global actualizado exitosamente');
-    } catch (error: any) {
-      toast.error('Error: ' + error.message);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Error desconocido';
+      toast.error('Error: ' + message);
     }
   }
 
