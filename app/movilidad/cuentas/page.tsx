@@ -3,15 +3,21 @@ import { Card, CardContent } from "@/components/ui/card"
 import { BotonNuevaCuenta } from "@/components/movilidad/procesos/cuentas-acciones"
 import { obtenerPermisosUsuario } from "@/lib/server/permisos"
 import { CuentasTable } from "@/components/movilidad/cuentas/cuentas-table"
+import { AlertCircle } from "lucide-react"
+import { logger } from "@/lib/logger"
+
+interface ProcesoCompletado {
+  cuenta_id: string
+  tipo: string
+  fecha_completado: string
+}
 
 export default async function CuentasPage() {
   const supabase = await createClient()
 
-  // Obtener permisos del usuario en el servidor
   const { movilidad: permisos } = await obtenerPermisosUsuario()
 
-  // Obtener todas las cuentas
-  const { data: cuentas, error } = await supabase
+  const { data: cuentas, error: errorCuentas } = await supabase
     .from("mov_cuentas_vehiculos")
     .select(`
       *,
@@ -22,24 +28,43 @@ export default async function CuentasPage() {
     `)
     .order("creado_en", { ascending: false })
 
-  if (error) {
+  if (errorCuentas) {
+    logger.error("Error al cargar cuentas", errorCuentas)
+    return (
+      <div className="space-y-6">
+        <h1 className="text-3xl font-bold">Cuentas de Vehículos</h1>
+        <Card className="border-destructive">
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3 text-destructive">
+              <AlertCircle className="h-5 w-5" />
+              <p>Error al cargar las cuentas. Por favor, intenta nuevamente.</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )
   }
 
-  // Obtener procesos activos de todas las cuentas en una sola query
-  const { data: procesosActivos } = await supabase
+  const { data: procesosActivos, error: errorProcesos } = await supabase
     .from("mov_vista_proceso_activo")
     .select("*")
 
-  // Obtener últimos procesos completados en una sola query
-  const { data: ultimosCompletados } = await supabase.rpc('obtener_ultimos_procesos_completados')
+  if (errorProcesos) {
+    logger.error("Error al cargar procesos activos", errorProcesos)
+  }
 
-  // Crear Maps para búsqueda O(1)
+  const { data: ultimosCompletados, error: errorCompletados } = await supabase.rpc('obtener_ultimos_procesos_completados')
+
+  if (errorCompletados) {
+    logger.error("Error al cargar procesos completados", errorCompletados)
+  }
+
   const procesosActivosMap = new Map(
     procesosActivos?.map(p => [p.cuenta_id, p]) || []
   )
 
   const ultimosCompletadosMap = new Map(
-    (ultimosCompletados as any[] | null)?.map(uc => [uc.cuenta_id, uc]) || []
+    (ultimosCompletados as ProcesoCompletado[] | null)?.map(uc => [uc.cuenta_id, uc]) || []
   )
 
   // Enriquecer cuentas con procesos en memoria

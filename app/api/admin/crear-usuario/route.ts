@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient as createServerClient } from '@/lib/supabase/server';
 import { z } from 'zod';
+import { logger } from '@/lib/logger';
 
 const crearUsuarioSchema = z.object({
   email: z.string().min(1, 'Email requerido').email('Email inválido'),
@@ -69,7 +70,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('[crear-usuario]', error);
-    return NextResponse.json({ error: 'Error interno' }, { status: 500 });
+    logger.error('Error en crear-usuario', error);
+    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 });
   }
 }
