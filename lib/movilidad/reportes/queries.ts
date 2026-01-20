@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { logger } from '@/lib/logger'
 import type {
   FiltrosReporte,
   DatosReporteActivos,
@@ -47,7 +48,7 @@ export async function obtenerDatosActivos(
   const { data, error } = await query
 
   if (error) {
-    console.error('Error obteniendo datos activos:', error)
+    logger.error('Error obteniendo datos activos:', error)
     return []
   }
 
@@ -124,11 +125,11 @@ export async function obtenerDatosCompletados(
     await Promise.all([queryTraslados, queryRadicaciones])
 
   if (errorTraslados) {
-    console.error('Error obteniendo traslados completados:', errorTraslados)
+    logger.error('Error obteniendo traslados completados:', errorTraslados)
   }
 
   if (errorRadicaciones) {
-    console.error('Error obteniendo radicaciones completadas:', errorRadicaciones)
+    logger.error('Error obteniendo radicaciones completadas:', errorRadicaciones)
   }
 
   // Transformar y combinar resultados
@@ -193,7 +194,7 @@ export async function obtenerDatosPorVencer(
   const { data, error } = await query
 
   if (error) {
-    console.error('Error obteniendo datos por vencer:', error)
+    logger.error('Error obteniendo datos por vencer:', error)
     return []
   }
 
@@ -209,7 +210,7 @@ export async function obtenerOrganismos(): Promise<Organismo[]> {
     .order('nombre')
 
   if (error) {
-    console.error('Error obteniendo organismos:', error)
+    logger.error('Error obteniendo organismos:', error)
     return []
   }
 
@@ -225,7 +226,7 @@ export async function obtenerResponsables(): Promise<Responsable[]> {
     .order('nombre_completo')
 
   if (error) {
-    console.error('Error obteniendo responsables:', error)
+    logger.error('Error obteniendo responsables:', error)
     return []
   }
 

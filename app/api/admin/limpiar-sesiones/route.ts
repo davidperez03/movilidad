@@ -1,25 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { z } from 'zod'
+import { logger } from '@/lib/logger'
 
-/**
- * API Route: Limpiar sesiones con token expirado (Superadmin)
- *
- * Cierra todas las sesiones cuyo token JWT ha expirado
- */
+const limpiarSesionesSchema = z.object({
+  admin_id: z.string().uuid('admin_id debe ser un UUID válido')
+})
+
 export async function POST(request: NextRequest) {
   try {
-    const { admin_id } = await request.json()
+    const body = await request.json()
+    const validacion = limpiarSesionesSchema.safeParse(body)
 
-    if (!admin_id) {
+    if (!validacion.success) {
       return NextResponse.json(
-        { error: 'admin_id es requerido' },
+        { error: validacion.error.errors[0].message },
         { status: 400 }
       )
     }
 
+    const { admin_id } = validacion.data
     const supabase = await createClient()
 
-    // Verificar que el admin está autenticado y es superadmin
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user || user.id !== admin_id) {
@@ -29,7 +31,6 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Verificar que es superadmin
     const { data: perfil } = await supabase
       .from('perfiles')
       .select('rol_global')
@@ -43,13 +44,12 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Llamar función RPC para cerrar sesiones con token expirado
     const { data: sesiones_cerradas, error } = await supabase.rpc('cerrar_sesiones_token_expirado')
 
     if (error) {
-      console.error('Error limpiando sesiones:', error)
+      logger.error('Error limpiando sesiones', error)
       return NextResponse.json(
-        { error: error.message },
+        { error: 'Error al limpiar sesiones. Intenta nuevamente.' },
         { status: 500 }
       )
     }
@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Error en limpiar-sesiones:', error)
+    logger.error('Error en limpiar-sesiones', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }

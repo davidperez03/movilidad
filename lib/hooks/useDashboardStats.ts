@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import type { ActividadReciente } from '@/lib/dashboard/utils'
+import type { SupabaseClient } from '@supabase/supabase-js'
 
 export interface DashboardStats {
   totalUsuarios: number
@@ -13,6 +14,51 @@ export interface DashboardStats {
   totalAccionesHoy: number
 }
 
+interface AuditoriaItem {
+  id: string
+  accion: string
+  detalles: Record<string, unknown> | null
+  entidad_tipo: string
+  usuario_correo: string | null
+  usuario_nombre: string | null
+  creado_en: string
+}
+
+async function obtenerSesionesActivas(supabase: SupabaseClient): Promise<number> {
+  try {
+    const { count, error } = await supabase
+      .from('sys_sesiones')
+      .select('*', { count: 'exact', head: true })
+      .eq('estado', 'activa')
+
+    if (!error && count !== null) {
+      return count
+    }
+  } catch {
+    // Error de conexión
+  }
+  return 0
+}
+
+async function obtenerAccionesHoy(supabase: SupabaseClient): Promise<number> {
+  try {
+    const hoy = new Date()
+    hoy.setHours(0, 0, 0, 0)
+
+    const { count, error } = await supabase
+      .from('sys_auditoria')
+      .select('*', { count: 'exact', head: true })
+      .gte('creado_en', hoy.toISOString())
+
+    if (!error && count !== null) {
+      return count
+    }
+  } catch {
+    // Error de conexión
+  }
+  return 0
+}
+
 export function useDashboardStats() {
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [actividadReciente, setActividadReciente] = useState<ActividadReciente[]>([])
@@ -21,7 +67,6 @@ export function useDashboardStats() {
   useEffect(() => {
     cargarDatos()
 
-    // Auto-refresh cada 60 segundos
     const intervalo = setInterval(() => {
       cargarDatosEnTiempoReal()
     }, 60000)
@@ -30,87 +75,52 @@ export function useDashboardStats() {
   }, [])
 
   async function cargarDatosEnTiempoReal() {
-    try {
-      const supabase = createClient()
+    if (!stats) return
 
-      if (stats) {
-        // Obtener sesiones activas
-        let sesionesActivas = 0
-        try {
-          const { count, error: errorSesiones } = await supabase
-            .from('sys_sesiones')
-            .select('*', { count: 'exact', head: true })
-            .eq('estado', 'activa')
+    const supabase = createClient()
+    const [sesionesActivas, totalAccionesHoy] = await Promise.all([
+      obtenerSesionesActivas(supabase),
+      obtenerAccionesHoy(supabase)
+    ])
 
-          if (!errorSesiones && count !== null) {
-            sesionesActivas = count
-          }
-        } catch {
-          // Ignorar error
-        }
+    setStats({
+      ...stats,
+      sesionesActivas,
+      totalAccionesHoy,
+    })
 
-        // Obtener acciones de hoy
-        let totalAccionesHoy = 0
-        try {
-          const hoy = new Date()
-          hoy.setHours(0, 0, 0, 0)
-
-          const { count, error: errorAuditoria } = await supabase
-            .from('sys_auditoria')
-            .select('*', { count: 'exact', head: true })
-            .gte('creado_en', hoy.toISOString())
-
-          if (!errorAuditoria && count !== null) {
-            totalAccionesHoy = count
-          }
-        } catch {
-          // Ignorar error
-        }
-
-        setStats({
-          ...stats,
-          sesionesActivas,
-          totalAccionesHoy,
-        })
-      }
-
-      // Actualizar actividad reciente
-      await cargarActividadReciente()
-    } catch (error) {
-      // Error ya manejado
-    }
+    await cargarActividadReciente()
   }
 
   async function cargarActividadReciente() {
     try {
       const supabase = createClient()
 
-      const { data: actividad, error: errorActividad } = await supabase
+      const { data: actividad, error } = await supabase
         .from('sys_vista_auditoria_completa')
         .select('*')
         .order('creado_en', { ascending: false })
         .limit(10)
 
-      if (!errorActividad && actividad) {
-        const actividadFormateada = actividad.map((item: any) => {
+      if (!error && actividad) {
+        const actividadFormateada = (actividad as AuditoriaItem[]).map((item) => {
           const detalles = item.detalles || {}
-          const usuarioCorreo = item.usuario_correo || detalles.usuario_correo || 'Sistema'
-          const usuarioNombre = item.usuario_nombre || detalles.usuario_nombre || 'Sistema'
+          const detailsRecord = detalles as Record<string, string>
 
           return {
             id: item.id,
             accion: item.accion,
             detalles,
             entidad_tipo: item.entidad_tipo,
-            usuario_correo: usuarioCorreo,
-            usuario_nombre: usuarioNombre,
+            usuario_correo: item.usuario_correo || detailsRecord.usuario_correo || 'Sistema',
+            usuario_nombre: item.usuario_nombre || detailsRecord.usuario_nombre || 'Sistema',
             creado_en: item.creado_en,
           }
         })
         setActividadReciente(actividadFormateada)
       }
     } catch {
-      // Ignorar error
+      // Error de conexión
     }
   }
 
@@ -118,7 +128,6 @@ export function useDashboardStats() {
     try {
       const supabase = createClient()
 
-      // Obtener estadísticas de usuarios
       const { data: usuarios, error: errorUsuarios } = await supabase
         .from('perfiles')
         .select('rol_global, activo')
@@ -130,38 +139,10 @@ export function useDashboardStats() {
       const usuariosActivos = usuarios?.filter((u) => u.activo === true).length || 0
       const usuariosInactivos = usuarios?.filter((u) => u.activo === false).length || 0
 
-      // Obtener sesiones activas
-      let sesionesActivas = 0
-      try {
-        const { count, error: errorSesiones } = await supabase
-          .from('sys_sesiones')
-          .select('*', { count: 'exact', head: true })
-          .eq('estado', 'activa')
-
-        if (!errorSesiones && count !== null) {
-          sesionesActivas = count
-        }
-      } catch {
-        // Ignorar error
-      }
-
-      // Obtener acciones de hoy
-      let totalAccionesHoy = 0
-      try {
-        const hoy = new Date()
-        hoy.setHours(0, 0, 0, 0)
-
-        const { count, error: errorAuditoria } = await supabase
-          .from('sys_auditoria')
-          .select('*', { count: 'exact', head: true })
-          .gte('creado_en', hoy.toISOString())
-
-        if (!errorAuditoria && count !== null) {
-          totalAccionesHoy = count
-        }
-      } catch {
-        // Ignorar error
-      }
+      const [sesionesActivas, totalAccionesHoy] = await Promise.all([
+        obtenerSesionesActivas(supabase),
+        obtenerAccionesHoy(supabase)
+      ])
 
       setStats({
         totalUsuarios,
@@ -172,9 +153,8 @@ export function useDashboardStats() {
         totalAccionesHoy,
       })
 
-      // Cargar actividad reciente
       await cargarActividadReciente()
-    } catch (error) {
+    } catch {
       // Error ya manejado
     } finally {
       setLoading(false)
