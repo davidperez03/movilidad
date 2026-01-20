@@ -184,40 +184,6 @@ export function SessionProvider({ children }: SessionProviderProps) {
     }
   }, [pathname, isPublicRoute])
 
-  // Listener para cerrar sesión cuando se cierra la ventana/pestaña
-  useEffect(() => {
-    // Solo aplicar en rutas privadas con sesión activa
-    if (isPublicRoute) {
-      return
-    }
-
-    const handleBeforeUnload = async (event: BeforeUnloadEvent) => {
-      // Obtener session ID antes de cerrar
-      const sessionId = SessionManager.getSessionId()
-      if (!sessionId) return
-
-      // Usar sendBeacon para garantizar que la petición se envíe
-      // incluso si la ventana se cierra inmediatamente
-      const endpoint = '/api/close-session'
-      const data = JSON.stringify({ sessionId })
-
-      // sendBeacon es más confiable que fetch en beforeunload
-      if (navigator.sendBeacon) {
-        navigator.sendBeacon(endpoint, data)
-      } else {
-        // Fallback: intentar con fetch síncrono (menos confiable)
-        SessionManager.registrarFin('cerrada').catch(() => {
-          // Ignorar errores ya que la ventana se está cerrando
-        })
-      }
-    }
-
-    window.addEventListener('beforeunload', handleBeforeUnload)
-
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload)
-    }
-  }, [isPublicRoute])
 
   return <>{children}</>
 }

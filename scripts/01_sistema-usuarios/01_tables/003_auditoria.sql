@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS public.sys_auditoria (
     'rol_global_cambiado',
     'rol_modulo_asignado',
     'rol_modulo_removido',
+    'rol_modulo_cambiado',
     'password_reseteado',
     'modulo_activado',
     'modulo_desactivado',
@@ -17,7 +18,9 @@ CREATE TABLE IF NOT EXISTS public.sys_auditoria (
     'login_exitoso',
     'login_fallido',
     'logout',
-    'sesion_expirada'
+    'sesion_expirada',
+    'sesion_cerrada_por_admin',
+    'sesiones_token_expirado'
   )),
 
   entidad_tipo TEXT CHECK (entidad_tipo IN (
@@ -25,7 +28,8 @@ CREATE TABLE IF NOT EXISTS public.sys_auditoria (
     'rol',
     'modulo',
     'configuracion',
-    'sesion'
+    'sesion',
+    'sistema'
   )),
   entidad_id UUID,
 

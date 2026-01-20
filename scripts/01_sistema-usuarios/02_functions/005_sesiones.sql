@@ -264,9 +264,7 @@ BEGIN
         'usuario_correo', v_usuario_info.correo,
         'usuario_nombre', v_usuario_info.nombre_completo,
         'admin_id', p_admin_id
-      ),
-      NULL,
-      p_admin_id
+      )
     );
 
     RETURN TRUE;
@@ -281,17 +279,13 @@ RETURNS UUID
 LANGUAGE plpgsql
 SECURITY DEFINER
 AS $$
-DECLARE
-  sesion_id UUID;
 BEGIN
-  SELECT id INTO sesion_id
-  FROM public.sys_sesiones
-  WHERE usuario_id = p_usuario_id
-    AND estado = 'activa'
-  ORDER BY inicio_sesion DESC
-  LIMIT 1;
-
-  RETURN sesion_id;
+  RETURN (
+    SELECT id FROM public.sys_sesiones
+    WHERE usuario_id = p_usuario_id AND estado = 'activa'
+    ORDER BY inicio_sesion DESC
+    LIMIT 1
+  );
 END;
 $$;
 
