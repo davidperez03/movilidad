@@ -43,7 +43,9 @@ export function FormularioProceso({ tipo }: FormularioProcesoProps) {
   const [loading, setLoading] = useState(false)
   const [placa, setPlaca] = useState(searchParams.get("placa") || "")
   const [organismoId, setOrganismoId] = useState("")
+  const [organismoTouched, setOrganismoTouched] = useState(false)
   const [fechaTramite, setFechaTramite] = useState(getTodayForInput())
+  const [fechaTouched, setFechaTouched] = useState(false)
   const [observaciones, setObservaciones] = useState("")
   const [modalErrorSecuencia, setModalErrorSecuencia] = useState(false)
   const [errorSecuenciaMsg, setErrorSecuenciaMsg] = useState("")
@@ -67,21 +69,29 @@ export function FormularioProceso({ tipo }: FormularioProcesoProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    // Validar todos los campos
+    setOrganismoTouched(true)
+    setFechaTouched(true)
+
+    if (!cuentaId) {
+      toast.error("Debe buscar y seleccionar un vehículo válido")
+      return
+    }
+
+    if (!organismoId) {
+      toast.error(`Debe seleccionar el ${config.organismoLabel.toLowerCase()}`)
+      return
+    }
+
+    if (!fechaTramite) {
+      toast.error("Debe seleccionar la fecha del trámite")
+      return
+    }
+
     setLoading(true)
 
     try {
-      if (!cuentaId) {
-        toast.error("Debe buscar y seleccionar un vehículo válido")
-        setLoading(false)
-        return
-      }
-
-      if (!organismoId) {
-        toast.error(`Debe seleccionar el ${config.organismoLabel.toLowerCase()}`)
-        setLoading(false)
-        return
-      }
-
       const { data: { user } } = await supabase.auth.getUser()
 
       if (!user) {
@@ -214,12 +224,19 @@ export function FormularioProceso({ tipo }: FormularioProcesoProps) {
                 <ComboboxOrganismos
                   organismos={organismos}
                   value={organismoId}
-                  onValueChange={setOrganismoId}
+                  onValueChange={(value) => {
+                    setOrganismoId(value)
+                    setOrganismoTouched(true)
+                  }}
                   disabled={loading || cargandoOrganismos}
                   placeholder={cargandoOrganismos ? "Cargando organismos..." : `Seleccione el ${config.organismoLabel.toLowerCase()}`}
                   searchPlaceholder="Buscar por nombre, municipio o departamento..."
                   emptyMessage="No se encontró el organismo."
+                  className={organismoTouched && !organismoId ? "border-destructive" : ""}
                 />
+                {organismoTouched && !organismoId && (
+                  <p className="text-xs text-destructive">Debe seleccionar el {config.organismoLabel.toLowerCase()}</p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -230,13 +247,22 @@ export function FormularioProceso({ tipo }: FormularioProcesoProps) {
                   id="fecha_tramite"
                   type="date"
                   value={fechaTramite}
-                  onChange={(e) => setFechaTramite(e.target.value)}
+                  onChange={(e) => {
+                    setFechaTramite(e.target.value)
+                    setFechaTouched(true)
+                  }}
+                  onBlur={() => setFechaTouched(true)}
                   disabled={loading}
                   required
+                  className={fechaTouched && !fechaTramite ? "border-destructive" : ""}
                 />
-                <p className="text-xs text-muted-foreground">
-                  El proceso vencerá 60 días hábiles después de esta fecha
-                </p>
+                {fechaTouched && !fechaTramite ? (
+                  <p className="text-xs text-destructive">Debe seleccionar la fecha del trámite</p>
+                ) : (
+                  <p className="text-xs text-muted-foreground">
+                    El proceso vencerá 60 días hábiles después de esta fecha
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
