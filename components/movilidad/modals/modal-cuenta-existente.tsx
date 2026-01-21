@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { AlertTriangle, FileText } from "lucide-react"
 import Link from "next/link"
+import { AlertBox } from "@/components/ui/alert-box"
 
 interface ModalCuentaExistenteProps {
   open: boolean
@@ -37,25 +38,23 @@ export function ModalCuentaExistente({
           <AlertDialogDescription asChild>
             <div className="space-y-4 pt-4">
               {/* Mensaje principal */}
-              <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
-                <p className="text-sm text-orange-900">
-                  La placa <strong>{placa}</strong> ya está registrada en el sistema.
-                </p>
-              </div>
+              <AlertBox variant="orange" showIcon={false}>
+                La placa <strong>{placa}</strong> ya está registrada en el sistema.
+              </AlertBox>
 
               {/* Información de la cuenta */}
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <AlertBox variant="info" showIcon={false}>
                 <div className="space-y-2">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium text-blue-900">Placa:</span>
-                    <span className="text-sm text-blue-900">{placa}</span>
+                    <span className="font-medium">Placa:</span>
+                    <span>{placa}</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium text-blue-900">Número de Cuenta:</span>
-                    <span className="text-sm text-blue-900 font-mono">{numeroCuenta}</span>
+                    <span className="font-medium">Número de Cuenta:</span>
+                    <span className="font-mono">{numeroCuenta}</span>
                   </div>
                 </div>
-              </div>
+              </AlertBox>
 
               {/* Sugerencia */}
               <div className="text-sm text-muted-foreground">

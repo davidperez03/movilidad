@@ -12,6 +12,8 @@ import { toast } from "sonner"
 import { ArrowLeft, Loader2, Search } from "lucide-react"
 import Link from "next/link"
 import { getTodayForInput, formatDateForDB } from "@/lib/utils"
+import { AlertBox } from "@/components/ui/alert-box"
+import { SubmitButton } from "@/components/ui/submit-button"
 import { ModalProcesoActivo } from "@/components/movilidad/modals/modal-proceso-activo"
 import { ModalErrorSecuencia } from "@/components/movilidad/modals/modal-error-secuencia"
 import { ComboboxOrganismos } from "@/components/movilidad/shared/combobox-organismos"
@@ -43,7 +45,9 @@ export function FormularioProceso({ tipo }: FormularioProcesoProps) {
   const [loading, setLoading] = useState(false)
   const [placa, setPlaca] = useState(searchParams.get("placa") || "")
   const [organismoId, setOrganismoId] = useState("")
+  const [organismoTouched, setOrganismoTouched] = useState(false)
   const [fechaTramite, setFechaTramite] = useState(getTodayForInput())
+  const [fechaTouched, setFechaTouched] = useState(false)
   const [observaciones, setObservaciones] = useState("")
   const [modalErrorSecuencia, setModalErrorSecuencia] = useState(false)
   const [errorSecuenciaMsg, setErrorSecuenciaMsg] = useState("")
@@ -67,21 +71,29 @@ export function FormularioProceso({ tipo }: FormularioProcesoProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    // Validar todos los campos
+    setOrganismoTouched(true)
+    setFechaTouched(true)
+
+    if (!cuentaId) {
+      toast.error("Debe buscar y seleccionar un vehículo válido")
+      return
+    }
+
+    if (!organismoId) {
+      toast.error(`Debe seleccionar el ${config.organismoLabel.toLowerCase()}`)
+      return
+    }
+
+    if (!fechaTramite) {
+      toast.error("Debe seleccionar la fecha del trámite")
+      return
+    }
+
     setLoading(true)
 
     try {
-      if (!cuentaId) {
-        toast.error("Debe buscar y seleccionar un vehículo válido")
-        setLoading(false)
-        return
-      }
-
-      if (!organismoId) {
-        toast.error(`Debe seleccionar el ${config.organismoLabel.toLowerCase()}`)
-        setLoading(false)
-        return
-      }
-
       const { data: { user } } = await supabase.auth.getUser()
 
       if (!user) {
@@ -184,14 +196,9 @@ export function FormularioProceso({ tipo }: FormularioProcesoProps) {
             </Button>
           </div>
           {cuentaId && (
-            <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-md">
-              <p className="text-sm font-medium text-green-900">
-                Vehículo encontrado: {placaActual}
-              </p>
-              <p className="text-sm text-green-700">
-                Número de cuenta: {numeroCuenta}
-              </p>
-            </div>
+            <AlertBox variant="success" title={`Vehículo encontrado: ${placaActual}`} className="mt-4">
+              Número de cuenta: {numeroCuenta}
+            </AlertBox>
           )}
         </CardContent>
       </Card>
@@ -214,12 +221,19 @@ export function FormularioProceso({ tipo }: FormularioProcesoProps) {
                 <ComboboxOrganismos
                   organismos={organismos}
                   value={organismoId}
-                  onValueChange={setOrganismoId}
+                  onValueChange={(value) => {
+                    setOrganismoId(value)
+                    setOrganismoTouched(true)
+                  }}
                   disabled={loading || cargandoOrganismos}
                   placeholder={cargandoOrganismos ? "Cargando organismos..." : `Seleccione el ${config.organismoLabel.toLowerCase()}`}
                   searchPlaceholder="Buscar por nombre, municipio o departamento..."
                   emptyMessage="No se encontró el organismo."
+                  className={organismoTouched && !organismoId ? "border-destructive" : ""}
                 />
+                {organismoTouched && !organismoId && (
+                  <p className="text-xs text-destructive">Debe seleccionar el {config.organismoLabel.toLowerCase()}</p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -230,13 +244,22 @@ export function FormularioProceso({ tipo }: FormularioProcesoProps) {
                   id="fecha_tramite"
                   type="date"
                   value={fechaTramite}
-                  onChange={(e) => setFechaTramite(e.target.value)}
+                  onChange={(e) => {
+                    setFechaTramite(e.target.value)
+                    setFechaTouched(true)
+                  }}
+                  onBlur={() => setFechaTouched(true)}
                   disabled={loading}
                   required
+                  className={fechaTouched && !fechaTramite ? "border-destructive" : ""}
                 />
-                <p className="text-xs text-muted-foreground">
-                  El proceso vencerá 60 días hábiles después de esta fecha
-                </p>
+                {fechaTouched && !fechaTramite ? (
+                  <p className="text-xs text-destructive">Debe seleccionar la fecha del trámite</p>
+                ) : (
+                  <p className="text-xs text-muted-foreground">
+                    El proceso vencerá 60 días hábiles después de esta fecha
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -252,23 +275,14 @@ export function FormularioProceso({ tipo }: FormularioProcesoProps) {
               </div>
 
               <div className="flex gap-4 pt-4">
-                <Button
-                  type="submit"
-                  disabled={loading}
+                <SubmitButton
+                  loading={loading}
+                  loadingText="Creando..."
+                  icon={Icono}
                   className="flex-1"
                 >
-                  {loading ? (
-                    <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Creando...
-                    </>
-                  ) : (
-                    <>
-                      <Icono className="h-4 w-4 mr-2" />
-                      {config.labels.iniciar}
-                    </>
-                  )}
-                </Button>
+                  {config.labels.iniciar}
+                </SubmitButton>
                 <Button
                   type="button"
                   variant="outline"

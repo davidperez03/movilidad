@@ -21,9 +21,21 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { toast } from "sonner"
-import { Edit, Loader2 } from "lucide-react"
+import { Edit } from "lucide-react"
 import { ESTADOS_TRASLADO, ESTADOS_RADICACION } from "@/lib/movilidad/config"
 import { useDialogForm } from "@/lib/hooks/use-dialog-form"
+import { AlertBox } from "@/components/ui/alert-box"
+import { SubmitButton } from "@/components/ui/submit-button"
+
+interface TransicionValida {
+  estado_siguiente: string
+}
+
+interface UpdateProcesoData {
+  estado: string
+  actualizado_por: string
+  observaciones?: string
+}
 
 interface CambiarEstadoProps {
   procesoId: string
@@ -73,7 +85,7 @@ export function CambiarEstado({ procesoId, procesoTipo, estadoActual }: CambiarE
       }
 
       // Extraer solo los valores de estado_siguiente
-      const permitidos = data?.map((row: any) => row.estado_siguiente) || []
+      const permitidos = (data as TransicionValida[] | null)?.map((row) => row.estado_siguiente) || []
       setEstadosPermitidos(permitidos)
 
       // Si no hay transiciones válidas, significa que es un estado final
@@ -113,13 +125,10 @@ export function CambiarEstado({ procesoId, procesoTipo, estadoActual }: CambiarE
         throw new Error("No hay sesión activa")
       }
 
-      const updateData: any = {
+      const updateData: UpdateProcesoData = {
         estado: nuevoEstado,
         actualizado_por: user.id,
-      }
-
-      if (observaciones.trim()) {
-        updateData.observaciones = observaciones.trim()
+        ...(observaciones.trim() && { observaciones: observaciones.trim() }),
       }
 
       const { error } = await supabase
@@ -237,22 +246,18 @@ export function CambiarEstado({ procesoId, procesoTipo, estadoActual }: CambiarE
           </div>
 
           {nuevoEstado === "devuelto" && (
-            <div className="bg-red-50 border border-red-200 rounded-md p-3">
-              <p className="text-sm text-red-800">
-                <strong>Advertencia:</strong> Este proceso será devuelto. Asegúrese de especificar claramente el motivo en las observaciones.
-              </p>
-            </div>
+            <AlertBox variant="error" title="Advertencia">
+              Este proceso será devuelto. Asegúrese de especificar claramente el motivo en las observaciones.
+            </AlertBox>
           )}
 
           {nuevoEstado !== "devuelto" && (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3">
-              <p className="text-sm text-yellow-800">
-                <strong>Nota:</strong> Solo se permiten transiciones de estado válidas.
-                {nuevoEstado === "trasladado" || nuevoEstado === "radicado"
-                  ? " Este es un estado final y no se podrá revertir."
-                  : ""}
-              </p>
-            </div>
+            <AlertBox variant="warning" title="Nota">
+              Solo se permiten transiciones de estado válidas.
+              {nuevoEstado === "trasladado" || nuevoEstado === "radicado"
+                ? " Este es un estado final y no se podrá revertir."
+                : ""}
+            </AlertBox>
           )}
 
           <div className="flex justify-end gap-2">
@@ -264,19 +269,13 @@ export function CambiarEstado({ procesoId, procesoTipo, estadoActual }: CambiarE
             >
               Cancelar
             </Button>
-            <Button
-              type="submit"
-              disabled={loading || cargandoTransiciones || estadosPermitidos.length === 0}
+            <SubmitButton
+              loading={loading}
+              loadingText="Actualizando..."
+              disabled={cargandoTransiciones || estadosPermitidos.length === 0}
             >
-              {loading ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Actualizando...
-                </>
-              ) : (
-                "Actualizar Estado"
-              )}
-            </Button>
+              Actualizar Estado
+            </SubmitButton>
           </div>
         </form>
       </DialogContent>

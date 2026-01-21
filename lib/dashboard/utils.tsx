@@ -9,7 +9,7 @@ export interface ActividadReciente {
   accion: string
   usuario_correo: string
   usuario_nombre: string
-  detalles: any
+  detalles: Record<string, unknown>
   entidad_tipo: string | null
   creado_en: string
 }

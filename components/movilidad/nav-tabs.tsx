@@ -12,7 +12,7 @@ interface NavTabsProps {
 
 export function NavTabs({ trasladosActivos, radicacionesActivas, novedadesPendientes }: NavTabsProps) {
   return (
-    <nav className="flex gap-1 -mb-px">
+    <nav className="flex gap-1 -mb-px" role="navigation" aria-label="Navegación principal de Movilidad">
       <NavLink href="/movilidad" exact>
         <LayoutDashboard className="h-4 w-4" />
         Dashboard

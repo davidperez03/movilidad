@@ -184,5 +184,6 @@ export function SessionProvider({ children }: SessionProviderProps) {
     }
   }, [pathname, isPublicRoute])
 
+
   return <>{children}</>
 }

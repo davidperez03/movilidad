@@ -1,13 +1,8 @@
 'use client'
 
-// =====================================================
-// TABLA DE PROCESOS POR VENCER
-// Tabla con filtros para reportes de procesos por vencer
-// =====================================================
-
-import { useMemo } from 'react'
 import { DataTable } from '@/components/ui/data-table/data-table'
 import { columnasTablaPorVencer } from './tabla-por-vencer-columns'
+import { useFiltrosReporte } from '@/lib/movilidad/reportes/use-filtros-reporte'
 import type { DatosReportePorVencer, FiltrosReporte } from '@/lib/movilidad/reportes/tipos'
 
 interface TablaPorVencerProps {
@@ -16,22 +11,7 @@ interface TablaPorVencerProps {
 }
 
 export function TablaPorVencer({ datos, filtros }: TablaPorVencerProps) {
-  // Filtrar datos según filtros aplicados
-  const datosFiltrados = useMemo(() => {
-    return datos.filter((d) => {
-      // Filtro por estado
-      if (filtros.estado !== 'todos' && d.estado !== filtros.estado) {
-        return false
-      }
-
-      // Filtro por tipo de proceso
-      if (filtros.tipoProceso !== 'todos' && d.proceso_tipo !== filtros.tipoProceso) {
-        return false
-      }
-
-      return true
-    })
-  }, [datos, filtros])
+  const datosFiltrados = useFiltrosReporte(datos, filtros, 'fecha_vencimiento')
 
   return (
     <DataTable

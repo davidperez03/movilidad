@@ -1,6 +1,22 @@
 # Sistema de Movilidad
 
+![Versión](https://img.shields.io/badge/versión-1.0.0-blue)
+![Next.js](https://img.shields.io/badge/Next.js-16.1.0-black)
+![React](https://img.shields.io/badge/React-19-61DAFB)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6)
+![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3ECF8E)
+
 Sistema web integral para la gestión de procesos de movilidad vehicular, diseñado para organismos de tránsito. Permite administrar traslados y radicaciones de vehículos con control completo de estados, auditoría y consulta pública.
+
+## Documentación
+
+| Documento | Descripción |
+|-----------|-------------|
+| [CHANGELOG](./docs/CHANGELOG.md) | Historial de cambios y versiones |
+| [VERSIONING](./docs/VERSIONING.md) | Guía de versionado y GitFlow |
+| [Arquitectura](./docs/ARCHITECTURE.md) | Arquitectura técnica del sistema |
+| [Despliegue](./docs/DEPLOYMENT.md) | Guía de despliegue |
+| [Contribución](./docs/CONTRIBUTING.md) | Guía para contribuidores |
 
 ## Características Principales
 

@@ -46,6 +46,25 @@ export async function updateSession(request: NextRequest) {
   const isPublicRoute = publicRoutes.includes(request.nextUrl.pathname)
   const isAuthRoute = request.nextUrl.pathname.startsWith("/auth")
 
+  if (user && !isPublicRoute && !isAuthRoute) {
+    try {
+      const { data: sesionId, error } = await supabase
+        .rpc('obtener_sesion_activa', { p_usuario_id: user.id })
+
+      const sessionCookie = request.cookies.get('session_registered')
+      if (!error && sesionId === null && sessionCookie) {
+        await supabase.auth.signOut()
+        const url = request.nextUrl.clone()
+        url.pathname = "/auth/login"
+        url.searchParams.set('reason', 'session_closed')
+        const response = NextResponse.redirect(url)
+        response.cookies.delete('session_registered')
+        return response
+      }
+    } catch {
+    }
+  }
+
   if (!user && !isPublicRoute && !isAuthRoute) {
     // no user, potentially respond by redirecting the user to the login page
     const url = request.nextUrl.clone()

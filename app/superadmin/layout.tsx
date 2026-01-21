@@ -3,7 +3,7 @@
 import { RequireSuperAdmin } from '@/components/auth/RequirePermission';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ShieldCheck, LayoutDashboard, Users, FileText, ChevronDown } from 'lucide-react';
+import { ShieldCheck, LayoutDashboard, Users, FileText, ChevronDown, Activity } from 'lucide-react';
 import { useState } from 'react';
 import { BotonCerrarSesion } from '@/components/logout-button';
 
@@ -29,6 +29,7 @@ function SuperAdminNav() {
   const navItems = [
     { href: '/superadmin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/superadmin/usuarios', label: 'Usuarios', icon: Users },
+    { href: '/superadmin/sesiones', label: 'Sesiones', icon: Activity },
     { href: '/superadmin/auditoria', label: 'Auditoría', icon: FileText },
   ];
 
