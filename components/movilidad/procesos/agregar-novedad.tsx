@@ -20,9 +20,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { toast } from "sonner"
-import { Plus, Loader2 } from "lucide-react"
+import { Plus } from "lucide-react"
 import { useDialogForm } from "@/lib/hooks/use-dialog-form"
+import { SubmitButton } from "@/components/ui/submit-button"
 
 interface AgregarNovedadProps {
   procesoId: string
@@ -157,16 +157,9 @@ export function AgregarNovedad({ procesoId, procesoTipo }: AgregarNovedadProps) 
             >
               Cancelar
             </Button>
-            <Button type="submit" disabled={loading}>
-              {loading ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Guardando...
-                </>
-              ) : (
-                "Guardar Novedad"
-              )}
-            </Button>
+            <SubmitButton loading={loading}>
+              Guardar Novedad
+            </SubmitButton>
           </div>
         </form>
       </DialogContent>

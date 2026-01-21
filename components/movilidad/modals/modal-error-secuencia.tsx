@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { AlertTriangle, ArrowRightLeft, ArrowDownToLine, Info } from "lucide-react"
 import Link from "next/link"
+import { AlertBox } from "@/components/ui/alert-box"
 
 interface ModalErrorSecuenciaProps {
   open: boolean
@@ -46,12 +47,10 @@ export function ModalErrorSecuencia({
           <AlertDialogDescription asChild>
             <div className="space-y-4 pt-4">
               {/* Explicación principal */}
-              <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
-                <p className="text-sm text-orange-900">
-                  <strong>La placa {placa}</strong> no puede iniciar {" "}
-                  {procesoIntentado === "traslado" ? "un traslado" : "una radicación"} en este momento.
-                </p>
-              </div>
+              <AlertBox variant="orange" showIcon={false}>
+                <strong>La placa {placa}</strong> no puede iniciar {" "}
+                {procesoIntentado === "traslado" ? "un traslado" : "una radicación"} en este momento.
+              </AlertBox>
 
               {/* Razón del error */}
               <div className="space-y-2">
@@ -84,12 +83,12 @@ export function ModalErrorSecuencia({
               )}
 
               {/* Recordatorio de secuencia */}
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                <p className="text-xs text-blue-900">
-                  <strong>Recuerda:</strong> Los vehículos deben alternar entre traslados y radicaciones.
+              <AlertBox variant="info" title="Recuerda" showIcon={false} className="p-3">
+                <p className="text-xs">
+                  Los vehículos deben alternar entre traslados y radicaciones.
                   Si el último proceso fue un traslado, el siguiente debe ser una radicación, y viceversa.
                 </p>
-              </div>
+              </AlertBox>
             </div>
           </AlertDialogDescription>
         </AlertDialogHeader>

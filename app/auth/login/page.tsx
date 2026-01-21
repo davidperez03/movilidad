@@ -10,7 +10,8 @@ import { Label } from "@/components/ui/label"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useState, useEffect, Suspense } from "react"
-import { Car, Loader2, AlertCircle } from "lucide-react"
+import { Car, Loader2 } from "lucide-react"
+import { AlertBox } from "@/components/ui/alert-box"
 
 function LoginForm() {
   const [email, setEmail] = useState("")
@@ -135,13 +136,9 @@ function LoginForm() {
 
           {/* Mensaje de timeout */}
           {timeoutMessage && (
-            <div className="rounded-lg bg-yellow-50 border border-yellow-200 p-4 flex items-start gap-3">
-              <AlertCircle className="h-5 w-5 text-yellow-600 flex-shrink-0 mt-0.5" />
-              <div className="text-sm text-yellow-800">
-                <p className="font-medium">Sesión cerrada por inactividad</p>
-                <p className="mt-1">Tu sesión se cerró después de 10 minutos de inactividad. Por favor, inicia sesión nuevamente.</p>
-              </div>
-            </div>
+            <AlertBox variant="warning" title="Sesión cerrada por inactividad">
+              Tu sesión se cerró después de 10 minutos de inactividad. Por favor, inicia sesión nuevamente.
+            </AlertBox>
           )}
 
           {/* Login Form */}
