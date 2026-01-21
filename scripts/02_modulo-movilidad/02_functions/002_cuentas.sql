@@ -1,6 +1,7 @@
 create or replace function generar_numero_cuenta()
 returns text
 language plpgsql
+set search_path = public
 as $$
 declare
   fecha_actual text;
@@ -25,6 +26,7 @@ $$;
 create or replace function trigger_generar_numero_cuenta()
 returns trigger
 language plpgsql
+set search_path = public
 as $$
 begin
   if new.numero_cuenta is null or new.numero_cuenta = '' then
@@ -37,6 +39,7 @@ $$;
 create or replace function trigger_actualizar_fecha()
 returns trigger
 language plpgsql
+set search_path = public
 as $$
 begin
   new.actualizado_en := now();

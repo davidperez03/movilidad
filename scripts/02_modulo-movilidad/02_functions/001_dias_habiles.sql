@@ -2,6 +2,7 @@ create or replace function es_dia_habil(fecha date)
 returns boolean
 language plpgsql
 immutable
+set search_path = public
 as $$
 declare
   dia_semana integer;
@@ -27,6 +28,7 @@ create or replace function sumar_dias_habiles(
 returns date
 language plpgsql
 immutable
+set search_path = public
 as $$
 declare
   fecha_actual date;
@@ -54,6 +56,7 @@ create or replace function contar_dias_habiles(
 returns integer
 language plpgsql
 immutable
+set search_path = public
 as $$
 declare
   fecha_actual date;

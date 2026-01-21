@@ -6,11 +6,11 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { formatDateLong, formatDateForDisplay } from "@/lib/utils"
-import { Car, Search, Loader2, AlertCircle, Calendar, MapPin, Clock } from "lucide-react"
+import { Car, Search, Loader2, AlertCircle, Calendar, MapPin, Clock, FileText, Truck, Package } from "lucide-react"
 import Link from "next/link"
+import { ProcessTimeline } from "@/components/consulta/process-timeline"
 
 interface ProcesoInfo {
   placa: string
@@ -24,6 +24,8 @@ interface ProcesoInfo {
   dias_restantes: number | null
   ciudad: string | null
   observaciones: string | null
+  empresa_transporte: string | null
+  numero_guia: string | null
 }
 
 export default function ConsultaPublicaPage() {
@@ -64,36 +66,6 @@ export default function ConsultaPublicaPage() {
     } finally {
       setLoading(false)
     }
-  }
-
-  const getEstadoBadgeColor = (estado: string) => {
-    const colores: Record<string, string> = {
-      sin_asignar: "bg-gray-500",
-      revisado: "bg-blue-500",
-      con_novedades: "bg-yellow-500",
-      enviado_organismo: "bg-purple-500",
-      trasladado: "bg-green-500",
-      recibido: "bg-cyan-500",
-      pendiente_radicar: "bg-orange-500",
-      radicado: "bg-green-500",
-      devuelto: "bg-red-500",
-    }
-    return colores[estado] || "bg-gray-500"
-  }
-
-  const getEstadoLabel = (estado: string) => {
-    const labels: Record<string, string> = {
-      sin_asignar: "Sin Asignar",
-      revisado: "Revisado",
-      con_novedades: "Con Novedades",
-      enviado_organismo: "Enviado a Organismo",
-      trasladado: "Trasladado",
-      recibido: "Recibido",
-      pendiente_radicar: "Pendiente Radicar",
-      radicado: "Radicado",
-      devuelto: "Devuelto",
-    }
-    return labels[estado] || estado
   }
 
   return (
@@ -179,149 +151,177 @@ export default function ConsultaPublicaPage() {
           {/* Results */}
           {resultado && (
             <Card className="shadow-lg">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="text-2xl">Vehículo Encontrado</CardTitle>
-                    <CardDescription>Información del trámite en proceso</CardDescription>
+              <CardContent className="p-6 space-y-6">
+                {/* Header con placa centrada */}
+                <div className="text-center pb-4 border-b">
+                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 mb-3">
+                    <Car className="h-6 w-6 text-primary" />
                   </div>
-                  <div className="text-right">
-                    <div className="text-3xl font-bold font-mono">{resultado.placa}</div>
-                    <div className="text-sm text-muted-foreground">
-                      Cuenta: {resultado.numero_cuenta}
-                    </div>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {/* Tipo de Servicio */}
-                <div>
-                  <Label className="text-xs text-muted-foreground">Tipo de Servicio</Label>
-                  <p className="text-lg font-medium capitalize">{resultado.tipo_servicio}</p>
+                  <p className="text-2xl font-bold font-mono tracking-wide">{resultado.placa}</p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Cuenta: <span className="font-mono font-medium text-foreground">{resultado.numero_cuenta}</span>
+                  </p>
                 </div>
 
-                <Separator />
-
-                {/* Estado del Proceso */}
-                {resultado.proceso_tipo ? (
-                  <div className="space-y-4">
-                    <div>
-                      <Label className="text-xs text-muted-foreground">Tipo de Proceso</Label>
-                      <p className="text-lg font-medium capitalize">
+                {/* Info básica en grid */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="text-center p-4 rounded-lg border">
+                    <p className="text-xs text-muted-foreground mb-1">Tipo de Servicio</p>
+                    <p className="font-semibold capitalize">{resultado.tipo_servicio}</p>
+                  </div>
+                  {resultado.proceso_tipo && (
+                    <div className="text-center p-4 rounded-lg border">
+                      <p className="text-xs text-muted-foreground mb-1">Tipo de Proceso</p>
+                      <p className="font-semibold">
                         {resultado.proceso_tipo === "traslado" ? "Traslado" : "Radicación"}
                       </p>
                     </div>
+                  )}
+                </div>
 
+                {resultado.proceso_tipo && resultado.proceso_estado ? (
+                  <>
+                    <Separator />
+
+                    {/* Timeline del proceso */}
                     <div>
-                      <Label className="text-xs text-muted-foreground">Estado Actual</Label>
-                      <div className="mt-1">
-                        <Badge className={`${getEstadoBadgeColor(resultado.proceso_estado!)} text-white`}>
-                          {getEstadoLabel(resultado.proceso_estado!)}
-                        </Badge>
-                      </div>
+                      <p className="text-sm font-medium mb-4">Estado del Proceso</p>
+                      <ProcessTimeline
+                        tipo={resultado.proceso_tipo}
+                        estadoActual={resultado.proceso_estado}
+                      />
                     </div>
 
-                    {resultado.ciudad && (
-                      <div className="flex items-center gap-2">
-                        <MapPin className="h-5 w-5 text-muted-foreground" />
-                        <div>
-                          <Label className="text-xs text-muted-foreground">
-                            {resultado.proceso_tipo === "traslado" ? "Organismo Destino" : "Organismo Origen"}
-                          </Label>
-                          <p className="font-medium">
-                            {resultado.ciudad}
-                          </p>
+                    <Separator />
+
+                    {/* Información del trámite */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      {resultado.ciudad && (
+                        <div className="flex items-start gap-3 p-3 border rounded-lg">
+                          <MapPin className="h-5 w-5 text-primary mt-0.5" />
+                          <div>
+                            <p className="text-xs text-muted-foreground">
+                              {resultado.proceso_tipo === "traslado" ? "Destino" : "Origen"}
+                            </p>
+                            <p className="font-medium">{resultado.ciudad}</p>
+                          </div>
                         </div>
+                      )}
+
+                      {resultado.fecha_tramite && (
+                        <div className="flex items-start gap-3 p-3 border rounded-lg">
+                          <Calendar className="h-5 w-5 text-primary mt-0.5" />
+                          <div>
+                            <p className="text-xs text-muted-foreground">Fecha Trámite</p>
+                            <p className="font-medium">{formatDateForDisplay(resultado.fecha_tramite)}</p>
+                          </div>
+                        </div>
+                      )}
+
+                      {resultado.fecha_vencimiento && !resultado.fecha_completado && (
+                        <div className="flex items-start gap-3 p-3 border rounded-lg">
+                          <Clock className="h-5 w-5 text-primary mt-0.5" />
+                          <div>
+                            <p className="text-xs text-muted-foreground">Vencimiento</p>
+                            <p className="font-medium">{formatDateForDisplay(resultado.fecha_vencimiento)}</p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Información de transporte (solo para traslados enviados) */}
+                    {resultado.proceso_tipo === "traslado" &&
+                     resultado.proceso_estado === "enviado_organismo" &&
+                     (resultado.empresa_transporte || resultado.numero_guia) && (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {resultado.empresa_transporte && (
+                          <div className="flex items-start gap-3 p-3 border rounded-lg">
+                            <Truck className="h-5 w-5 text-primary mt-0.5" />
+                            <div>
+                              <p className="text-xs text-muted-foreground">Empresa Transportadora</p>
+                              <p className="font-medium">{resultado.empresa_transporte}</p>
+                            </div>
+                          </div>
+                        )}
+                        {resultado.numero_guia && (
+                          <div className="flex items-start gap-3 p-3 border rounded-lg">
+                            <Package className="h-5 w-5 text-primary mt-0.5" />
+                            <div>
+                              <p className="text-xs text-muted-foreground">Número de Guía</p>
+                              <p className="font-medium font-mono">{resultado.numero_guia}</p>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     )}
 
-                    <div className="grid grid-cols-2 gap-4">
-                      {resultado.fecha_tramite && (
-                        <div className="flex items-start gap-2">
-                          <Calendar className="h-5 w-5 text-muted-foreground mt-0.5" />
-                          <div>
-                            <Label className="text-xs text-muted-foreground">Fecha de Trámite</Label>
-                            <p className="font-medium">
-                              {formatDateForDisplay(resultado.fecha_tramite)}
-                            </p>
-                          </div>
-                        </div>
-                      )}
-
-                      {resultado.fecha_vencimiento && (
-                        <div className="flex items-start gap-2">
-                          <Clock className="h-5 w-5 text-muted-foreground mt-0.5" />
-                          <div>
-                            <Label className="text-xs text-muted-foreground">Fecha de Vencimiento</Label>
-                            <p className="font-medium">
-                              {formatDateForDisplay(resultado.fecha_vencimiento)}
-                            </p>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
+                    {/* Días restantes o completado */}
                     {resultado.fecha_completado ? (
-                      <div className="rounded-lg bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 p-4">
+                      <div className="flex items-center justify-center gap-3 p-4 bg-green-50 dark:bg-green-950 rounded-lg border border-green-200 dark:border-green-800">
                         <div className="text-center">
-                          <div className="text-lg font-semibold text-green-700 dark:text-green-300 mb-1">
+                          <p className="text-lg font-semibold text-green-700 dark:text-green-300">
                             Proceso Completado
-                          </div>
-                          <div className="text-sm text-green-600 dark:text-green-400">
+                          </p>
+                          <p className="text-sm text-green-600 dark:text-green-400">
                             {formatDateLong(resultado.fecha_completado)}
-                          </div>
+                          </p>
                         </div>
                       </div>
-                    ) : resultado.dias_restantes !== null && (
-                      <div className={`rounded-lg p-4 ${
+                    ) : resultado.dias_restantes !== null && resultado.proceso_estado !== "con_novedades" && resultado.proceso_estado !== "devuelto" && (
+                      <div className={`flex items-center justify-between p-4 rounded-lg border ${
                         resultado.dias_restantes <= 7
-                          ? "bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800"
+                          ? "bg-red-50 dark:bg-red-950 border-red-200 dark:border-red-800"
                           : resultado.dias_restantes <= 15
-                          ? "bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800"
-                          : "bg-muted"
+                          ? "bg-yellow-50 dark:bg-yellow-950 border-yellow-200 dark:border-yellow-800"
+                          : "bg-muted/50 border-border"
                       }`}>
-                        <div className="text-center">
-                          <div className={`text-3xl font-bold ${
-                            resultado.dias_restantes <= 7
-                              ? "text-red-700 dark:text-red-300"
-                              : resultado.dias_restantes <= 15
-                              ? "text-yellow-700 dark:text-yellow-300"
-                              : ""
-                          }`}>
-                            {resultado.dias_restantes}
-                          </div>
-                          <div className={`text-sm ${
+                        <div>
+                          <p className={`text-sm ${
                             resultado.dias_restantes <= 7
                               ? "text-red-600 dark:text-red-400"
                               : resultado.dias_restantes <= 15
                               ? "text-yellow-600 dark:text-yellow-400"
                               : "text-muted-foreground"
                           }`}>
-                            días restantes para vencimiento
-                          </div>
+                            Tiempo restante para vencimiento
+                          </p>
                           {resultado.dias_restantes <= 7 && (
-                            <div className="mt-2 text-xs text-red-600 dark:text-red-400 font-medium">
-                              ⚠️ Próximo a vencer
-                            </div>
+                            <p className="text-xs text-red-500 mt-1">Se requiere atención urgente</p>
                           )}
+                        </div>
+                        <div className={`text-4xl font-bold ${
+                          resultado.dias_restantes <= 7
+                            ? "text-red-700 dark:text-red-300"
+                            : resultado.dias_restantes <= 15
+                            ? "text-yellow-700 dark:text-yellow-300"
+                            : "text-foreground"
+                        }`}>
+                          {resultado.dias_restantes} <span className="text-lg font-normal">días</span>
                         </div>
                       </div>
                     )}
 
+                    {/* Observaciones */}
                     {resultado.observaciones && (
-                      <div className="rounded-lg bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 p-4">
-                        <Label className="text-sm font-semibold text-blue-900 dark:text-blue-100">
-                          Observaciones / Comentarios
-                        </Label>
-                        <p className="mt-2 text-sm text-blue-800 dark:text-blue-200 whitespace-pre-wrap">
+                      <div className="p-4 bg-blue-50 dark:bg-blue-950 rounded-lg border border-blue-200 dark:border-blue-800">
+                        <p className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-2">
+                          Observaciones
+                        </p>
+                        <p className="text-sm text-blue-800 dark:text-blue-200 whitespace-pre-wrap">
                           {resultado.observaciones}
                         </p>
                       </div>
                     )}
-                  </div>
+                  </>
                 ) : (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <p>Este vehículo no tiene procesos activos en este momento</p>
+                  <div className="text-center py-8">
+                    <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center">
+                      <Car className="h-8 w-8 text-green-600 dark:text-green-400" />
+                    </div>
+                    <p className="text-lg font-medium">Sin procesos activos</p>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Este vehículo no tiene trámites en curso
+                    </p>
                   </div>
                 )}
               </CardContent>

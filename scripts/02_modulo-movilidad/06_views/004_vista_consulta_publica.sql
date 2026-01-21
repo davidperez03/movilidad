@@ -1,5 +1,6 @@
-
-create or replace view public.mov_vista_consulta_publica as
+create or replace view public.mov_vista_consulta_publica
+with (security_invoker = true)
+as
 select distinct on (cv.id)
   cv.placa,
   cv.numero_cuenta,
@@ -26,12 +27,15 @@ select distinct on (cv.id)
     else null
   end as ciudad,
   coalesce(t.observaciones, r.observaciones) as observaciones,
+  et.nombre as empresa_transporte,
+  t.numero_guia,
   coalesce(t.creado_en, r.creado_en) as proceso_creado_en
 from public.mov_cuentas_vehiculos cv
 left join public.mov_traslados t on cv.id = t.cuenta_id
 left join public.mov_radicaciones r on cv.id = r.cuenta_id
 left join public.mov_organismos_transito ot on t.organismo_destino_id = ot.id
 left join public.mov_organismos_transito or_org on r.organismo_origen_id = or_org.id
+left join public.mov_empresas_transporte et on t.empresa_transportadora_id = et.id
 where t.id is not null or r.id is not null
 order by cv.id, coalesce(t.creado_en, r.creado_en) desc;
 

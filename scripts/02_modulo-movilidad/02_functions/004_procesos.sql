@@ -1,6 +1,7 @@
 create or replace function trigger_vencimiento_traslado()
 returns trigger
 language plpgsql
+set search_path = public
 as $$
 begin
   new.fecha_vencimiento := sumar_dias_habiles(new.fecha_tramite::date, 60);
@@ -11,6 +12,7 @@ $$;
 create or replace function trigger_vencimiento_radicacion()
 returns trigger
 language plpgsql
+set search_path = public
 as $$
 begin
   new.fecha_vencimiento := sumar_dias_habiles(new.fecha_tramite::date, 60);
@@ -21,6 +23,7 @@ $$;
 create or replace function trigger_auto_actualizado_por()
 returns trigger
 language plpgsql
+set search_path = public
 as $$
 begin
   if new.actualizado_por is null then
@@ -33,6 +36,7 @@ $$;
 create or replace function trigger_marcar_completado()
 returns trigger
 language plpgsql
+set search_path = public
 as $$
 begin
   if tg_table_name = 'mov_traslados' and new.estado = 'trasladado' and old.estado != 'trasladado' then
