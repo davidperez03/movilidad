@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
   Select,
@@ -20,34 +19,63 @@ import Link from "next/link"
 import { ModalCuentaExistente } from "@/components/movilidad/modals/modal-cuenta-existente"
 import { manejarErrorSupabase } from "@/lib/utils/rls-errors"
 import { RequirePermission } from "@/components/auth/RequirePermission"
+import { FormInput } from "@/components/ui/form-field"
 
 function NuevaCuentaForm() {
   const router = useRouter()
   const supabase = createClient()
   const [loading, setLoading] = useState(false)
   const [placa, setPlaca] = useState("")
+  const [placaError, setPlacaError] = useState<string | null>(null)
+  const [placaTouched, setPlacaTouched] = useState(false)
   const [tipoServicio, setTipoServicio] = useState("")
+  const [tipoServicioTouched, setTipoServicioTouched] = useState(false)
   const [modalCuentaExistente, setModalCuentaExistente] = useState(false)
   const [cuentaExistenteData, setCuentaExistenteData] = useState({ placa: "", numeroCuenta: "" })
 
+  const validatePlaca = (value: string): string | null => {
+    if (!value.trim()) return "La placa es requerida"
+    if (!/^[A-Z0-9]{4,10}$/.test(value.toUpperCase())) {
+      return "La placa debe tener entre 4 y 10 caracteres alfanuméricos"
+    }
+    return null
+  }
+
+  const handlePlacaChange = (value: string) => {
+    const upperValue = value.toUpperCase()
+    setPlaca(upperValue)
+    if (placaTouched) {
+      setPlacaError(validatePlaca(upperValue))
+    }
+  }
+
+  const handlePlacaBlur = () => {
+    setPlacaTouched(true)
+    setPlacaError(validatePlaca(placa))
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    // Validar todos los campos
+    setPlacaTouched(true)
+    setTipoServicioTouched(true)
+    const placaValidationError = validatePlaca(placa)
+    setPlacaError(placaValidationError)
+
+    if (placaValidationError) {
+      toast.error(placaValidationError)
+      return
+    }
+
+    if (!tipoServicio) {
+      toast.error("Debe seleccionar el tipo de servicio")
+      return
+    }
+
     setLoading(true)
 
     try {
-      // Validar que la placa no esté vacía
-      if (!placa.trim()) {
-        toast.error("La placa es requerida")
-        setLoading(false)
-        return
-      }
-
-      // Validar que el tipo de servicio esté seleccionado
-      if (!tipoServicio) {
-        toast.error("Debe seleccionar el tipo de servicio")
-        setLoading(false)
-        return
-      }
 
       // Normalizar placa (convertir a mayúsculas y eliminar espacios)
       const placaNormalizada = placa.trim().toUpperCase()
@@ -134,24 +162,21 @@ function NuevaCuentaForm() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="placa">
-                Placa del Vehículo <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                id="placa"
-                placeholder="Ej: ABC123"
-                value={placa}
-                onChange={(e) => setPlaca(e.target.value.toUpperCase())}
-                disabled={loading}
-                maxLength={10}
-                required
-                className="uppercase"
-              />
-              <p className="text-xs text-muted-foreground">
-                La placa debe ser única en el sistema
-              </p>
-            </div>
+            <FormInput
+              label="Placa del Vehículo"
+              name="placa"
+              placeholder="Ej: ABC123"
+              value={placa}
+              onChange={(e) => handlePlacaChange(e.target.value)}
+              onBlur={handlePlacaBlur}
+              error={placaError}
+              touched={placaTouched}
+              disabled={loading}
+              maxLength={10}
+              required
+              className="uppercase"
+              description="La placa debe ser única en el sistema"
+            />
 
             <div className="space-y-2">
               <Label htmlFor="tipo_servicio">
@@ -159,11 +184,18 @@ function NuevaCuentaForm() {
               </Label>
               <Select
                 value={tipoServicio}
-                onValueChange={setTipoServicio}
+                onValueChange={(value) => {
+                  setTipoServicio(value)
+                  setTipoServicioTouched(true)
+                }}
                 disabled={loading}
                 required
               >
-                <SelectTrigger id="tipo_servicio">
+                <SelectTrigger
+                  id="tipo_servicio"
+                  className={tipoServicioTouched && !tipoServicio ? "border-destructive" : ""}
+                  onBlur={() => setTipoServicioTouched(true)}
+                >
                   <SelectValue placeholder="Seleccione el tipo de servicio" />
                 </SelectTrigger>
                 <SelectContent>
@@ -172,6 +204,9 @@ function NuevaCuentaForm() {
                   <SelectItem value="otro">Otro</SelectItem>
                 </SelectContent>
               </Select>
+              {tipoServicioTouched && !tipoServicio && (
+                <p className="text-xs text-destructive">Debe seleccionar el tipo de servicio</p>
+              )}
             </div>
 
             <div className="flex gap-4 pt-4">
