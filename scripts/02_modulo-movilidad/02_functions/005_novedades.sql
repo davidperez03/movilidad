@@ -1,6 +1,7 @@
 create or replace function trigger_marcar_resolucion()
 returns trigger
 language plpgsql
+set search_path = public
 as $$
 begin
   if new.estado = 'resuelta' and old.estado != 'resuelta' then
@@ -16,6 +17,7 @@ $$;
 create or replace function trigger_actualizar_estado_proceso()
 returns trigger
 language plpgsql
+set search_path = public
 as $$
 declare
   tiene_pendientes boolean;

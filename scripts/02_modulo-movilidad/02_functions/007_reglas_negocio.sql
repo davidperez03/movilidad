@@ -2,6 +2,7 @@
 create or replace function validar_proceso_unico()
 returns trigger
 language plpgsql
+set search_path = public
 as $$
 declare
   tiene_traslado_activo boolean;
@@ -34,6 +35,7 @@ $$;
 create or replace function validar_secuencia_procesos()
 returns trigger
 language plpgsql
+set search_path = public
 as $$
 declare
   ultimo_tipo text;
@@ -87,6 +89,7 @@ $$;
 create or replace function validar_transicion_estado()
 returns trigger
 language plpgsql
+set search_path = public
 as $$
 declare
   transicion_valida boolean := false;
@@ -164,6 +167,7 @@ $$;
 create or replace function validar_proceso_no_finalizado()
 returns trigger
 language plpgsql
+set search_path = public
 as $$
 begin
   if tg_table_name = 'mov_traslados' and old.estado in ('trasladado', 'devuelto') then
@@ -191,6 +195,7 @@ returns table (
   tiene_novedades_pendientes boolean
 )
 language plpgsql
+set search_path = public
 as $$
 begin
   return query
@@ -217,6 +222,7 @@ returns table (
   razon text
 )
 language plpgsql
+set search_path = public
 as $$
 declare
   v_cuenta_id uuid;
@@ -256,6 +262,7 @@ returns table (
   estado_siguiente text
 )
 language plpgsql
+set search_path = public
 as $$
 declare
   transiciones_validas text[][];

@@ -1,6 +1,7 @@
 create or replace function update_organismo_search_vector()
 returns trigger
 language plpgsql
+set search_path = public
 as $$
 begin
   new.search_vector :=

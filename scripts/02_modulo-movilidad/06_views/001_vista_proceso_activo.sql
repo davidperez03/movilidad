@@ -1,4 +1,6 @@
-create or replace view public.mov_vista_proceso_activo as
+create or replace view public.mov_vista_proceso_activo
+with (security_invoker = true)
+as
 select distinct on (cv.id)
   cv.id as cuenta_id,
   cv.placa,

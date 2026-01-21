@@ -1,4 +1,6 @@
-create or replace view public.mov_vista_procesos_por_vencer as
+create or replace view public.mov_vista_procesos_por_vencer
+with (security_invoker = true)
+as
 select
   'traslado' as proceso_tipo,
   t.id as proceso_id,
