@@ -5,7 +5,25 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
-## [1.0.0] - 2025-01-21
+## [1.0.1] - 2026-01-21
+
+### Mejoras en consulta pública y seguridad
+
+#### Cambiado
+- Rediseño completo del card de resultados en consulta pública
+- Nuevo componente ProcessTimeline con visualización de estados
+- Línea de progreso centrada y animada en timeline
+- Reducción de tamaño de placa para mejor proporción visual
+- Agregada información de empresa transportadora y número de guía en traslados
+
+#### Seguridad
+- Agregado `SET search_path = public` a 29 funciones SQL
+- Agregado `WITH (security_invoker = true)` a 4 vistas SQL
+- Corrección de warnings del linter de Supabase
+
+---
+
+## [1.0.0] - 2026-01-21
 
 ### Primera versión estable del Sistema de Movilidad
 
@@ -78,7 +96,7 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ## Historial de Desarrollo
 
-### Fase 1: Fundamentos (Enero 2025)
+### Fase 1: Fundamentos (Enero 2026)
 - Configuración inicial del proyecto Next.js
 - Integración con Supabase
 - Sistema base de autenticación
