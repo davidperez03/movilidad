@@ -1,4 +1,6 @@
-create or replace view public.mov_vista_resumen_novedades as
+create or replace view public.mov_vista_resumen_novedades
+with (security_invoker = true)
+as
 select
   n.proceso_tipo,
   n.proceso_id,

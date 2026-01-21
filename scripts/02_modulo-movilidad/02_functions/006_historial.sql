@@ -11,6 +11,7 @@ create or replace function registrar_historial(
 returns uuid
 language plpgsql
 security definer
+set search_path = public
 as $$
 declare
   nuevo_id uuid;
@@ -51,6 +52,7 @@ create or replace function trigger_historial_cuenta_creada()
 returns trigger
 language plpgsql
 security definer
+set search_path = public
 as $$
 begin
   perform registrar_historial(
@@ -75,6 +77,7 @@ create or replace function trigger_historial_traslado_iniciado()
 returns trigger
 language plpgsql
 security definer
+set search_path = public
 as $$
 begin
   perform registrar_historial(
@@ -98,6 +101,7 @@ create or replace function trigger_historial_radicacion_iniciada()
 returns trigger
 language plpgsql
 security definer
+set search_path = public
 as $$
 begin
   perform registrar_historial(
@@ -121,6 +125,7 @@ create or replace function trigger_historial_estado_traslado()
 returns trigger
 language plpgsql
 security definer
+set search_path = public
 as $$
 begin
   if old.estado != new.estado then
@@ -146,6 +151,7 @@ create or replace function trigger_historial_estado_radicacion()
 returns trigger
 language plpgsql
 security definer
+set search_path = public
 as $$
 begin
   if old.estado != new.estado then
@@ -179,6 +185,7 @@ returns table (
 )
 language sql
 security definer
+set search_path = public
 as $$
   with ultimos_traslados as (
     select distinct on (t.cuenta_id)
@@ -244,6 +251,7 @@ returns table (
 )
 language sql
 security definer
+set search_path = public
 as $$
   -- Obtener todos los traslados
   select
