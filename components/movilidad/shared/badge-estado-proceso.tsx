@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { formatearEstadoProceso, getVariantePorEstado } from '@/lib/movilidad/formatters'
 import type { TipoProceso } from '@/lib/movilidad/config'
@@ -8,7 +9,11 @@ interface BadgeEstadoProcesoProps {
   className?: string
 }
 
-export function BadgeEstadoProceso({ estado, tipoProceso, className }: BadgeEstadoProcesoProps) {
+export const BadgeEstadoProceso = memo(function BadgeEstadoProceso({
+  estado,
+  tipoProceso,
+  className,
+}: BadgeEstadoProcesoProps) {
   const variant = getVariantePorEstado(estado, tipoProceso)
   const textoFormateado = formatearEstadoProceso(estado)
 
@@ -17,4 +22,4 @@ export function BadgeEstadoProceso({ estado, tipoProceso, className }: BadgeEsta
       {textoFormateado}
     </Badge>
   )
-}
+})

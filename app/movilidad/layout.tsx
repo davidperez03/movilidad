@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge"
 import { Car, User } from "lucide-react"
 import { BotonCerrarSesion } from "@/components/logout-button"
 import { NavTabs } from "@/components/movilidad/nav-tabs"
+import { SkipLink } from "@/components/ui/skip-link"
 
 export const revalidate = 60
 
@@ -96,8 +97,10 @@ export default async function MovilidadLayout({
 
   return (
     <div className="min-h-screen bg-muted/30">
+      <SkipLink href="#main-content">Saltar al contenido principal</SkipLink>
+
       {/* Header mejorado */}
-      <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60" role="banner">
         <div className="container mx-auto px-4">
           {/* Top bar */}
           <div className="flex h-16 items-center justify-between">
@@ -141,7 +144,7 @@ export default async function MovilidadLayout({
       </header>
 
       {/* Contenido */}
-      <main className="container mx-auto px-4 py-8">
+      <main id="main-content" className="container mx-auto px-4 py-8" role="main">
         {children}
       </main>
     </div>

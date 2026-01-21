@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Clock, Mail, Settings, ShieldCheck, User } from 'lucide-react';
+import { Clock, Mail, Settings, ShieldCheck, User, X } from 'lucide-react';
 import { toast } from 'sonner';
 import type { CodigoRol, Modulo } from '@/lib/types/permissions';
 import { logger } from '@/lib/logger';
@@ -56,6 +56,34 @@ export function ModalDetallesUsuario({ usuario, onCerrar }: ModalDetallesUsuario
   const [loading, setLoading] = useState(true);
   const [rolGlobal, setRolGlobal] = useState(usuario.rol_global);
   const supabase = createClient();
+  const modalRef = useRef<HTMLDivElement>(null);
+  const previousActiveElement = useRef<HTMLElement | null>(null);
+
+  // Handle keyboard events
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      onCerrar();
+    }
+  }, [onCerrar]);
+
+  // Focus management
+  useEffect(() => {
+    previousActiveElement.current = document.activeElement as HTMLElement;
+    document.addEventListener('keydown', handleKeyDown);
+    document.body.style.overflow = 'hidden';
+
+    // Focus first focusable element
+    setTimeout(() => {
+      const firstButton = modalRef.current?.querySelector<HTMLElement>('button');
+      firstButton?.focus();
+    }, 0);
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = '';
+      previousActiveElement.current?.focus();
+    };
+  }, [handleKeyDown]);
 
   useEffect(() => {
     cargarRoles();
@@ -166,14 +194,43 @@ export function ModalDetallesUsuario({ usuario, onCerrar }: ModalDetallesUsuario
   const rolMovilidad = rolesAsignados.find((r) => r.modulo_id === 'movilidad');
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto p-4">
-      <Card className="w-full max-w-3xl my-8">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto p-4"
+      role="presentation"
+    >
+      {/* Backdrop */}
+      <div
+        className="fixed inset-0 bg-black/50"
+        onClick={onCerrar}
+        aria-hidden="true"
+      />
+
+      <Card
+        ref={modalRef}
+        className="relative z-50 w-full max-w-3xl my-8"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-title-detalles-usuario"
+        aria-describedby="modal-desc-detalles-usuario"
+      >
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Settings className="h-5 w-5" />
-            Gestión Completa de Usuario
-          </CardTitle>
-          <CardDescription>Información, roles y permisos del usuario</CardDescription>
+          <div className="flex items-center justify-between">
+            <CardTitle id="modal-title-detalles-usuario" className="flex items-center gap-2">
+              <Settings className="h-5 w-5" aria-hidden="true" />
+              Gestión Completa de Usuario
+            </CardTitle>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onCerrar}
+              aria-label="Cerrar modal"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+          <CardDescription id="modal-desc-detalles-usuario">
+            Información, roles y permisos del usuario
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Información Básica */}
