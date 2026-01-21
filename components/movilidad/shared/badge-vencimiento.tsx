@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { Badge } from '@/components/ui/badge'
 import {
   calcularDiasRestantes,
@@ -11,7 +12,7 @@ interface BadgeVencimientoProps {
   className?: string
 }
 
-export function BadgeVencimiento({
+export const BadgeVencimiento = memo(function BadgeVencimiento({
   fechaVencimiento,
   mostrarSiMayorA = 7,
   className
@@ -31,4 +32,4 @@ export function BadgeVencimiento({
       {texto}
     </Badge>
   )
-}
+})

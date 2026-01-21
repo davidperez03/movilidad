@@ -1,3 +1,4 @@
+import { memo } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
@@ -9,13 +10,41 @@ import { AgregarDatosTransporte } from "@/components/movilidad/procesos/agregar-
 import { formatDateShort, formatDateForDisplay } from "@/lib/utils"
 import { calcularDiasRestantes } from "@/lib/movilidad/formatters"
 
+interface ProcesoData {
+  id: string
+  estado: string
+  fecha_tramite: string
+  fecha_vencimiento: string
+  fecha_completado?: string
+  observaciones?: string
+  numero_guia?: string
+  empresa_transportadora_id?: string
+  mov_cuentas_vehiculos?: {
+    placa: string
+    numero_cuenta: string
+  }
+  organismo?: {
+    nombre: string
+  }
+  perfiles?: {
+    nombre_completo: string
+  }
+  empresa_transporte?: {
+    nombre: string
+  }
+}
+
 interface ProcesoCardProps {
-  proceso: any
+  proceso: ProcesoData
   tipoProceso: "traslado" | "radicacion"
   esCompletado?: boolean
 }
 
-export function ProcesoCard({ proceso, tipoProceso, esCompletado = false }: ProcesoCardProps) {
+export const ProcesoCard = memo(function ProcesoCard({
+  proceso,
+  tipoProceso,
+  esCompletado = false
+}: ProcesoCardProps) {
   const Icono = tipoProceso === "traslado" ? ArrowRightLeft : ArrowDownToLine
   const etiquetaOrganismo = tipoProceso === "traslado" ? "Destino" : "Origen"
 
@@ -132,4 +161,4 @@ export function ProcesoCard({ proceso, tipoProceso, esCompletado = false }: Proc
       </CardContent>
     </Card>
   )
-}
+})
