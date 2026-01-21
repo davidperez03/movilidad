@@ -12,6 +12,8 @@ import { toast } from "sonner"
 import { ArrowLeft, Loader2, Search } from "lucide-react"
 import Link from "next/link"
 import { getTodayForInput, formatDateForDB } from "@/lib/utils"
+import { AlertBox } from "@/components/ui/alert-box"
+import { SubmitButton } from "@/components/ui/submit-button"
 import { ModalProcesoActivo } from "@/components/movilidad/modals/modal-proceso-activo"
 import { ModalErrorSecuencia } from "@/components/movilidad/modals/modal-error-secuencia"
 import { ComboboxOrganismos } from "@/components/movilidad/shared/combobox-organismos"
@@ -194,14 +196,9 @@ export function FormularioProceso({ tipo }: FormularioProcesoProps) {
             </Button>
           </div>
           {cuentaId && (
-            <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-md">
-              <p className="text-sm font-medium text-green-900">
-                Vehículo encontrado: {placaActual}
-              </p>
-              <p className="text-sm text-green-700">
-                Número de cuenta: {numeroCuenta}
-              </p>
-            </div>
+            <AlertBox variant="success" title={`Vehículo encontrado: ${placaActual}`} className="mt-4">
+              Número de cuenta: {numeroCuenta}
+            </AlertBox>
           )}
         </CardContent>
       </Card>
@@ -278,23 +275,14 @@ export function FormularioProceso({ tipo }: FormularioProcesoProps) {
               </div>
 
               <div className="flex gap-4 pt-4">
-                <Button
-                  type="submit"
-                  disabled={loading}
+                <SubmitButton
+                  loading={loading}
+                  loadingText="Creando..."
+                  icon={Icono}
                   className="flex-1"
                 >
-                  {loading ? (
-                    <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Creando...
-                    </>
-                  ) : (
-                    <>
-                      <Icono className="h-4 w-4 mr-2" />
-                      {config.labels.iniciar}
-                    </>
-                  )}
-                </Button>
+                  {config.labels.iniciar}
+                </SubmitButton>
                 <Button
                   type="button"
                   variant="outline"

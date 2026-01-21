@@ -1,7 +1,8 @@
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import { BotonCerrarSesion } from "@/components/logout-button"
-import { ShieldAlert, AlertCircle } from "lucide-react"
+import { ShieldAlert } from "lucide-react"
+import { AlertBox } from "@/components/ui/alert-box"
 
 export default async function SinAccesoPage() {
   const supabase = await createClient()
@@ -38,19 +39,14 @@ export default async function SinAccesoPage() {
           </h1>
 
           {/* Mensaje */}
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-            <div className="flex">
-              <AlertCircle className="h-5 w-5 text-yellow-600 mr-2 flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="text-sm text-gray-700 mb-2">
-                  Tu cuenta <strong>{profile?.correo}</strong> no tiene roles asignados en ningún módulo del sistema.
-                </p>
-                <p className="text-sm text-gray-600">
-                  Contacta al administrador del sistema para que te asigne los permisos correspondientes.
-                </p>
-              </div>
-            </div>
-          </div>
+          <AlertBox variant="warning" className="mb-6">
+            <p className="mb-2">
+              Tu cuenta <strong>{profile?.correo}</strong> no tiene roles asignados en ningún módulo del sistema.
+            </p>
+            <p className="text-yellow-800">
+              Contacta al administrador del sistema para que te asigne los permisos correspondientes.
+            </p>
+          </AlertBox>
 
           {/* Información del usuario */}
           <div className="bg-gray-50 rounded-lg p-4 mb-6">
@@ -78,17 +74,14 @@ export default async function SinAccesoPage() {
           </div>
 
           {/* Módulos disponibles */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-            <h2 className="text-sm font-semibold text-blue-900 mb-2">
-              Módulos del Sistema
-            </h2>
-            <ul className="text-sm text-blue-700 space-y-1">
+          <AlertBox variant="info" title="Módulos del Sistema" className="mb-6">
+            <ul className="space-y-1 mb-2">
               <li>• Gestión de Movilidad</li>
             </ul>
-            <p className="text-xs text-blue-600 mt-2">
+            <p className="text-xs text-blue-700">
               Necesitas que te asignen un rol en al menos uno de estos módulos.
             </p>
-          </div>
+          </AlertBox>
 
           {/* Acciones */}
           <div className="space-y-3">

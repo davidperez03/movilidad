@@ -27,9 +27,11 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { toast } from "sonner"
-import { Truck, Loader2, ChevronsUpDown, Check, Plus } from "lucide-react"
+import { Truck, ChevronsUpDown, Check, Plus } from "lucide-react"
 import { useDialogForm } from "@/lib/hooks/use-dialog-form"
 import { cn } from "@/lib/utils"
+import { AlertBox } from "@/components/ui/alert-box"
+import { SubmitButton } from "@/components/ui/submit-button"
 
 interface Empresa {
   id: string
@@ -299,11 +301,9 @@ export function AgregarDatosTransporte({
             />
           </div>
 
-          <div className="bg-blue-50 border border-blue-200 rounded-md p-3">
-            <p className="text-sm text-blue-800">
-              <strong>Nota:</strong> Puede ingresar uno o ambos campos. Esta información será visible en el detalle del traslado.
-            </p>
-          </div>
+          <AlertBox variant="info" title="Nota">
+            Puede ingresar uno o ambos campos. Esta información será visible en el detalle del traslado.
+          </AlertBox>
 
           <div className="flex justify-end gap-2">
             <Button
@@ -314,19 +314,12 @@ export function AgregarDatosTransporte({
             >
               Cancelar
             </Button>
-            <Button
-              type="submit"
-              disabled={loading || (!empresaSeleccionadaId && !numeroGuia.trim())}
+            <SubmitButton
+              loading={loading}
+              disabled={!empresaSeleccionadaId && !numeroGuia.trim()}
             >
-              {loading ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Guardando...
-                </>
-              ) : (
-                "Guardar"
-              )}
-            </Button>
+              Guardar
+            </SubmitButton>
           </div>
         </form>
       </DialogContent>

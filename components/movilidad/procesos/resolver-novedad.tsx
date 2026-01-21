@@ -13,8 +13,9 @@ import {
 } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { CheckCircle2, Loader2 } from "lucide-react"
+import { CheckCircle2 } from "lucide-react"
 import { useDialogForm } from "@/lib/hooks/use-dialog-form"
+import { SubmitButton } from "@/components/ui/submit-button"
 
 interface ResolverNovedadProps {
   novedadId: string
@@ -108,19 +109,13 @@ export function ResolverNovedad({ novedadId, descripcion }: ResolverNovedadProps
             >
               Cancelar
             </Button>
-            <Button type="submit" disabled={loading}>
-              {loading ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Resolviendo...
-                </>
-              ) : (
-                <>
-                  <CheckCircle2 className="h-4 w-4 mr-2" />
-                  Marcar como Resuelta
-                </>
-              )}
-            </Button>
+            <SubmitButton
+              loading={loading}
+              loadingText="Resolviendo..."
+              icon={CheckCircle2}
+            >
+              Marcar como Resuelta
+            </SubmitButton>
           </div>
         </form>
       </DialogContent>
