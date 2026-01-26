@@ -3,7 +3,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Activity, ArrowRightLeft, ArrowDownToLine, FileText, CheckCircle2, AlertCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { ESTADOS_CONFIG } from "@/lib/movilidad/config"
 
 interface TimelineItem {
   id: string
@@ -11,10 +10,6 @@ interface TimelineItem {
   title: string
   description: string
   timestamp: string
-  metadata?: {
-    placa?: string
-    estado?: string
-  }
 }
 
 interface ActivityTimelineProps {
@@ -84,27 +79,13 @@ export function ActivityTimeline({
                   </div>
 
                   {/* Content */}
-                  <div className="flex-1 pb-4">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <p className="font-medium text-sm">{activity.title}</p>
-                        <p className="text-xs text-muted-foreground mt-1">{activity.description}</p>
-                        {activity.metadata && (
-                          <div className="flex gap-2 mt-2">
-                            {activity.metadata.placa && (
-                              <span className="text-xs bg-muted px-2 py-1 rounded">
-                                {activity.metadata.placa}
-                              </span>
-                            )}
-                            {activity.metadata.estado && (
-                              <span className="text-xs bg-muted px-2 py-1 rounded">
-                                {ESTADOS_CONFIG[activity.metadata.estado]?.label || activity.metadata.estado}
-                              </span>
-                            )}
-                          </div>
-                        )}
+                  <div className="flex-1 pb-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <p className="font-medium text-sm truncate">{activity.title}</p>
+                        <p className="text-xs text-muted-foreground">{activity.description}</p>
                       </div>
-                      <span className="text-xs text-muted-foreground whitespace-nowrap" suppressHydrationWarning>
+                      <span className="text-xs text-muted-foreground whitespace-nowrap flex-shrink-0" suppressHydrationWarning>
                         {formatTimestamp(activity.timestamp)}
                       </span>
                     </div>

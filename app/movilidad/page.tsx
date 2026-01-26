@@ -74,7 +74,7 @@ export default async function MovilidadDashboard() {
     }
   })
 
-  // Actividad reciente (últimas 10 acciones del historial)
+  // Actividad reciente (últimas 5 acciones del historial)
   const { data: actividadReciente } = await supabase
     .from("mov_historial_acciones")
     .select(
@@ -83,11 +83,9 @@ export default async function MovilidadDashboard() {
       accion,
       estado_anterior,
       estado_nuevo,
-      detalles,
       creado_en,
       cuenta:mov_cuentas_vehiculos!cuenta_id (
-        placa,
-        numero_cuenta
+        placa
       ),
       usuario:perfiles!realizado_por (
         nombre_completo
@@ -95,43 +93,46 @@ export default async function MovilidadDashboard() {
     `
     )
     .order("creado_en", { ascending: false })
-    .limit(10)
+    .limit(5)
 
-  // Mapear actividades al formato del timeline
+  // Mapear actividades al formato del timeline (simplificado)
   const activities =
     actividadReciente?.map((item: any) => {
+      const usuario = item.usuario?.nombre_completo?.split(' ')[0] || "Usuario"
+      const placa = item.cuenta?.placa || ""
+
       const accionMap: Record<string, any> = {
         cuenta_creada: {
           type: "cuenta_creada",
-          title: "Nueva cuenta creada",
-          description: `${item.usuario?.nombre_completo || "Usuario"} registró un nuevo vehículo`,
+          title: `${placa} - Cuenta creada`,
+          description: `Por ${usuario}`,
         },
         traslado_iniciado: {
           type: "traslado_iniciado",
-          title: "Traslado iniciado",
-          description: `${item.usuario?.nombre_completo || "Usuario"} inició un traslado`,
+          title: `${placa} - Traslado iniciado`,
+          description: `Por ${usuario}`,
         },
         radicacion_iniciada: {
           type: "radicacion_iniciada",
-          title: "Radicación iniciada",
-          description: `${item.usuario?.nombre_completo || "Usuario"} inició una radicación`,
+          title: `${placa} - Radicación iniciada`,
+          description: `Por ${usuario}`,
         },
         estado_cambiado: {
           type: "estado_cambiado",
-          title: "Estado actualizado",
-          description: `Cambió de "${ESTADOS_CONFIG[item.estado_anterior || ""]?.label || formatearEstadoProceso(item.estado_anterior || "")}" a "${ESTADOS_CONFIG[item.estado_nuevo || ""]?.label || formatearEstadoProceso(item.estado_nuevo || "")}"`,
+          title: `${placa} - Estado actualizado`,
+          description: `${ESTADOS_CONFIG[item.estado_anterior || ""]?.label || item.estado_anterior || ""} → ${ESTADOS_CONFIG[item.estado_nuevo || ""]?.label || item.estado_nuevo || ""}`,
         },
         novedad_agregada: {
           type: "novedad_agregada",
-          title: "Novedad agregada",
-          description: `${item.usuario?.nombre_completo || "Usuario"} agregó una novedad`,
+          title: `${placa} - Novedad`,
+          description: `Por ${usuario}`,
         },
       }
 
       const accion = accionMap[item.accion] || {
         type: "estado_cambiado",
-        title: formatearEstadoProceso(item.accion),
-        description: "Acción realizada en el sistema",
+        title: `${placa} - ${formatearEstadoProceso(item.accion)}`,
+        description: `Por ${usuario}`,
       }
 
       return {
@@ -140,10 +141,6 @@ export default async function MovilidadDashboard() {
         title: accion.title,
         description: accion.description,
         timestamp: item.creado_en,
-        metadata: {
-          placa: item.cuenta?.placa,
-          estado: item.estado_nuevo,
-        },
       }
     }) || []
 
