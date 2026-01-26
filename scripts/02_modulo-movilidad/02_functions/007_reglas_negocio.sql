@@ -101,13 +101,15 @@ begin
     transiciones_validas := array[
       array['sin_asignar', 'revisado'],
       array['sin_asignar', 'con_novedades'],
-      array['sin_asignar', 'enviado_organismo'],
+      array['sin_asignar', 'aprobado'],
       array['revisado', 'con_novedades'],
-      array['revisado', 'enviado_organismo'],
+      array['revisado', 'aprobado'],
       array['revisado', 'devuelto'],
       array['con_novedades', 'revisado'],
-      array['con_novedades', 'enviado_organismo'],
+      array['con_novedades', 'aprobado'],
       array['con_novedades', 'devuelto'],
+      array['aprobado', 'enviado_organismo'],
+      array['aprobado', 'devuelto'],
       array['enviado_organismo', 'trasladado'],
       array['enviado_organismo', 'devuelto']
     ];
@@ -272,13 +274,15 @@ begin
     transiciones_validas := array[
       array['sin_asignar', 'revisado'],
       array['sin_asignar', 'con_novedades'],
-      array['sin_asignar', 'enviado_organismo'],
+      array['sin_asignar', 'aprobado'],
       array['revisado', 'con_novedades'],
-      array['revisado', 'enviado_organismo'],
+      array['revisado', 'aprobado'],
       array['revisado', 'devuelto'],
       array['con_novedades', 'revisado'],
-      array['con_novedades', 'enviado_organismo'],
+      array['con_novedades', 'aprobado'],
       array['con_novedades', 'devuelto'],
+      array['aprobado', 'enviado_organismo'],
+      array['aprobado', 'devuelto'],
       array['enviado_organismo', 'trasladado'],
       array['enviado_organismo', 'devuelto']
     ];

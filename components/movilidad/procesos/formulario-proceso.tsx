@@ -74,7 +74,6 @@ export function FormularioProceso({ tipo }: FormularioProcesoProps) {
 
     // Validar todos los campos
     setOrganismoTouched(true)
-    setFechaTouched(true)
 
     if (!cuentaId) {
       toast.error("Debe buscar y seleccionar un vehículo válido")
@@ -86,9 +85,13 @@ export function FormularioProceso({ tipo }: FormularioProcesoProps) {
       return
     }
 
-    if (!fechaTramite) {
-      toast.error("Debe seleccionar la fecha del trámite")
-      return
+    // Solo validar fecha para radicaciones
+    if (tipo === 'radicacion') {
+      setFechaTouched(true)
+      if (!fechaTramite) {
+        toast.error("Debe seleccionar la fecha del trámite")
+        return
+      }
     }
 
     setLoading(true)
@@ -103,16 +106,22 @@ export function FormularioProceso({ tipo }: FormularioProcesoProps) {
       }
 
       // Crear el proceso (radicación o traslado)
+      const insertData: Record<string, unknown> = {
+        cuenta_id: cuentaId,
+        [config.organismoField]: organismoId,
+        observaciones: observaciones.trim() || null,
+        creado_por: user.id,
+        actualizado_por: user.id,
+      }
+
+      // Solo incluir fecha_tramite para radicaciones
+      if (tipo === 'radicacion') {
+        insertData.fecha_tramite = formatDateForDB(fechaTramite)
+      }
+
       const { data, error } = await supabase
         .from(config.tabla)
-        .insert({
-          cuenta_id: cuentaId,
-          [config.organismoField]: organismoId,
-          fecha_tramite: formatDateForDB(fechaTramite),
-          observaciones: observaciones.trim() || null,
-          creado_por: user.id,
-          actualizado_por: user.id,
-        })
+        .insert(insertData)
         .select()
         .single()
 
@@ -236,31 +245,39 @@ export function FormularioProceso({ tipo }: FormularioProcesoProps) {
                 )}
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="fecha_tramite">
-                  Fecha del Trámite <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  id="fecha_tramite"
-                  type="date"
-                  value={fechaTramite}
-                  onChange={(e) => {
-                    setFechaTramite(e.target.value)
-                    setFechaTouched(true)
-                  }}
-                  onBlur={() => setFechaTouched(true)}
-                  disabled={loading}
-                  required
-                  className={fechaTouched && !fechaTramite ? "border-destructive" : ""}
-                />
-                {fechaTouched && !fechaTramite ? (
-                  <p className="text-xs text-destructive">Debe seleccionar la fecha del trámite</p>
-                ) : (
-                  <p className="text-xs text-muted-foreground">
-                    El proceso vencerá 60 días hábiles después de esta fecha
-                  </p>
-                )}
-              </div>
+              {tipo === 'radicacion' && (
+                <div className="space-y-2">
+                  <Label htmlFor="fecha_tramite">
+                    Fecha del Trámite <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    id="fecha_tramite"
+                    type="date"
+                    value={fechaTramite}
+                    onChange={(e) => {
+                      setFechaTramite(e.target.value)
+                      setFechaTouched(true)
+                    }}
+                    onBlur={() => setFechaTouched(true)}
+                    disabled={loading}
+                    required
+                    className={fechaTouched && !fechaTramite ? "border-destructive" : ""}
+                  />
+                  {fechaTouched && !fechaTramite ? (
+                    <p className="text-xs text-destructive">Debe seleccionar la fecha del trámite</p>
+                  ) : (
+                    <p className="text-xs text-muted-foreground">
+                      El proceso vencerá 60 días hábiles después de esta fecha
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {tipo === 'traslado' && (
+                <AlertBox variant="info" title="Información">
+                  Los 60 días hábiles de vencimiento empezarán a contar cuando el trámite sea aprobado.
+                </AlertBox>
+              )}
 
               <div className="space-y-2">
                 <Label htmlFor="observaciones">Observaciones</Label>

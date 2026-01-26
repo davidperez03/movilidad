@@ -85,29 +85,44 @@ export function ProcesoActivo({ proceso, novedades, placa }: ProcesoActivoProps)
             </p>
             <p className="font-medium">{proceso.ciudad}</p>
           </div>
-          <div>
-            <p className="text-sm text-muted-foreground">Fecha trámite</p>
-            <p className="font-medium">
-              {formatDateForDisplay(proceso.fecha_tramite)}
-            </p>
-          </div>
+          {/* Fecha trámite solo para radicaciones */}
+          {proceso.proceso_tipo === "radicacion" && (
+            <div>
+              <p className="text-sm text-muted-foreground">Fecha trámite</p>
+              <p className="font-medium">
+                {formatDateForDisplay(proceso.fecha_tramite)}
+              </p>
+            </div>
+          )}
           <div>
             <p className="text-sm text-muted-foreground">Vencimiento</p>
-            <p className={`font-medium ${
-              (proceso.dias_restantes ?? 0) < 7 ? "text-orange-600" : ""
-            }`}>
-              {formatDateForDisplay(proceso.fecha_vencimiento)}
-            </p>
+            {proceso.fecha_vencimiento ? (
+              <p className={`font-medium ${
+                (proceso.dias_restantes ?? 0) < 7 ? "text-orange-600" : ""
+              }`}>
+                {formatDateForDisplay(proceso.fecha_vencimiento)}
+              </p>
+            ) : (
+              <p className="font-medium text-muted-foreground">
+                Pendiente de aprobación
+              </p>
+            )}
           </div>
           <div>
             <p className="text-sm text-muted-foreground">Días hábiles restantes</p>
-            <p className={`font-medium ${
-              (proceso.dias_restantes ?? 0) < 7
-                ? "text-orange-600"
-                : "text-green-600"
-            }`}>
-              {proceso.dias_restantes ?? 0} días
-            </p>
+            {proceso.fecha_vencimiento ? (
+              <p className={`font-medium ${
+                (proceso.dias_restantes ?? 0) < 7
+                  ? "text-orange-600"
+                  : "text-green-600"
+              }`}>
+                {proceso.dias_restantes ?? 0} días
+              </p>
+            ) : (
+              <p className="font-medium text-muted-foreground">
+                —
+              </p>
+            )}
           </div>
         </div>
 

@@ -17,6 +17,7 @@ join public.mov_cuentas_vehiculos cv on t.cuenta_id = cv.id
 join public.perfiles p on t.creado_por = p.id
 join public.mov_organismos_transito ot on t.organismo_destino_id = ot.id
 where t.estado not in ('trasladado', 'devuelto')
+  and t.fecha_vencimiento is not null
   and contar_dias_habiles(current_date, t.fecha_vencimiento::date) <= 7
 
 union all

@@ -18,15 +18,17 @@ create table if not exists public.mov_traslados (
   organismo_destino_id uuid not null references public.mov_organismos_transito(id) on delete restrict,
   estado text not null default 'sin_asignar' check (estado in (
     'sin_asignar',
-    'enviado_organismo',
     'revisado',
     'con_novedades',
+    'aprobado',
+    'enviado_organismo',
     'trasladado',
     'devuelto'
   )),
 
   fecha_tramite date not null default current_date,
-  fecha_vencimiento date not null,
+  fecha_aprobacion date,
+  fecha_vencimiento date,
   fecha_completado timestamp with time zone,
 
   observaciones text,
@@ -108,13 +110,16 @@ COMMENT ON COLUMN public.mov_traslados.organismo_destino_id IS
   'ID del organismo de tránsito destino al que se envía el vehículo (referencia a mov_organismos_transito.id)';
 
 COMMENT ON COLUMN public.mov_traslados.estado IS
-  'Estado actual del proceso: sin_asignar, enviado_organismo, revisado, con_novedades, trasladado (final), devuelto (final)';
+  'Estado actual del proceso: sin_asignar, revisado, con_novedades, aprobado (genera remisión), enviado_organismo, trasladado (final), devuelto (final)';
+
+COMMENT ON COLUMN public.mov_traslados.fecha_aprobacion IS
+  'Fecha en que el trámite fue aprobado (cuando estado cambia a "aprobado"). A partir de esta fecha se calculan los 60 días hábiles de vencimiento';
 
 COMMENT ON COLUMN public.mov_traslados.fecha_tramite IS
   'Fecha de inicio del trámite de traslado';
 
 COMMENT ON COLUMN public.mov_traslados.fecha_vencimiento IS
-  'Fecha límite del trámite (60 días hábiles desde fecha_tramite, calculado automáticamente sin contar sábados, domingos ni festivos)';
+  'Fecha límite del trámite (60 días hábiles desde fecha_aprobacion, calculado automáticamente al aprobar sin contar sábados, domingos ni festivos)';
 
 COMMENT ON COLUMN public.mov_traslados.fecha_completado IS
   'Fecha y hora en que se completó el traslado (cuando estado cambia a "trasladado")';
