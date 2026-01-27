@@ -151,7 +151,7 @@ export const ProcesoCard = memo(function ProcesoCard({
               Ver Detalle
             </Link>
           </Button>
-          {tipoProceso === "traslado" && (proceso.estado === "enviado_organismo" || proceso.estado === "trasladado") && (
+          {tipoProceso === "traslado" && (proceso.estado === "aprobado" || proceso.estado === "enviado_organismo" || proceso.estado === "trasladado") && (
             <BotonDescargarRemision
               trasladoId={proceso.id}
               placa={proceso.mov_cuentas_vehiculos?.placa || ""}

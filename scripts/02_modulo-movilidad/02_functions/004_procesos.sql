@@ -32,8 +32,11 @@ as $$
 begin
   -- Cuando el estado cambia a 'aprobado', calcular fecha de vencimiento
   if new.estado = 'aprobado' and (old.estado is null or old.estado != 'aprobado') then
-    new.fecha_aprobacion := current_date;
-    new.fecha_vencimiento := sumar_dias_habiles(current_date, 60);
+    -- Usar fecha_aprobacion proporcionada o usar current_date
+    if new.fecha_aprobacion is null then
+      new.fecha_aprobacion := current_date;
+    end if;
+    new.fecha_vencimiento := sumar_dias_habiles(new.fecha_aprobacion::date, 60);
   end if;
 
   return new;

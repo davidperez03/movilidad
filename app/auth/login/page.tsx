@@ -213,23 +213,14 @@ function LoginForm() {
       <div className="hidden lg:block relative bg-gradient-to-br from-primary to-primary/80">
         <div className="absolute inset-0 bg-grid-white/10" />
         <div className="relative flex h-full flex-col items-center justify-center p-12 text-white">
-          <div className="space-y-6 text-center">
-            <h1 className="text-5xl font-bold tracking-tight">
-              Bienvenido a Movilidad
+          <div className="space-y-6 text-center max-w-lg">
+            <Car className="h-20 w-20 mx-auto opacity-90" />
+            <h1 className="text-4xl font-bold tracking-tight">
+              Sistema de Gestión de Movilidad
             </h1>
-            <p className="text-xl text-white/90 max-w-md">
-              Gestiona traslados y radicaciones de vehículos de manera eficiente y segura
+            <p className="text-lg text-white/90">
+              Administración de traslados y radicaciones de vehículos
             </p>
-            <div className="grid grid-cols-2 gap-6 pt-8 max-w-md mx-auto">
-              <div className="rounded-lg bg-white/10 backdrop-blur-sm p-4 text-center">
-                <div className="text-3xl font-bold">24/7</div>
-                <div className="text-sm text-white/80">Disponibilidad</div>
-              </div>
-              <div className="rounded-lg bg-white/10 backdrop-blur-sm p-4 text-center">
-                <div className="text-3xl font-bold">100%</div>
-                <div className="text-sm text-white/80">Seguro</div>
-              </div>
-            </div>
           </div>
         </div>
       </div>
