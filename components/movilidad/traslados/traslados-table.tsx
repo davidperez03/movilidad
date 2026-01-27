@@ -68,10 +68,7 @@ export function TrasladosTable({ traslados, esCompletados = false }: TrasladosTa
             pageSize={10}
             pageSizeOptions={[10, 20, 50]}
             enableSorting={true}
-            defaultSorting={esCompletados
-              ? [{ id: 'fecha_completado', desc: true }]
-              : [{ id: 'fecha_vencimiento', desc: false }]
-            }
+            defaultSorting={[{ id: 'numero_cuenta', desc: true }]}
             emptyMessage={esCompletados
               ? "No se encontraron traslados completados"
               : "No se encontraron traslados activos"

@@ -70,7 +70,7 @@ export function CuentasTable({ cuentas, permisos }: CuentasTableProps) {
             pageSize={20}
             pageSizeOptions={[10, 20, 50, 100]}
             enableSorting={true}
-            defaultSorting={[{ id: 'placa', desc: false }]}
+            defaultSorting={[{ id: 'numero_cuenta', desc: true }]}
             emptyMessage="No se encontraron cuentas"
           />
         </div>

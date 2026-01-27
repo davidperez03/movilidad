@@ -28,7 +28,7 @@ export default async function ReporteActivosPage() {
   return (
     <ReporteWrapper
       titulo="Procesos Activos"
-      descripcion="Traslados y radicaciones en curso"
+      descripcion="Reporte de activos"
       tipoReporte="activos"
       datos={datos}
       organismos={organismos}

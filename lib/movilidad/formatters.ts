@@ -65,27 +65,35 @@ export function getVariantePorEstado(
   estado: string,
   tipoProceso?: TipoProceso
 ): 'default' | 'secondary' | 'destructive' | 'outline' {
-  // Estados completados con éxito
-  if (estado === 'trasladado' || estado === 'radicado') {
-    return 'default'
-  }
+  switch (estado) {
+    // Completados con éxito
+    case 'trasladado':
+    case 'radicado':
+      return 'default'
 
-  // Estado con problemas
-  if (estado === 'con_novedades') {
-    return 'destructive'
-  }
+    // En progreso avanzado
+    case 'aprobado':
+    case 'enviado_organismo':
+      return 'default'
 
-  // Estados intermedios
-  if (estado === 'revisado' || estado === 'recibido' || estado === 'en_tramite') {
-    return 'secondary'
-  }
+    // En progreso inicial
+    case 'sin_asignar':
+    case 'revisado':
+    case 'recibido':
+    case 'en_tramite':
+      return 'secondary'
 
-  // Estado devuelto
-  if (estado === 'devuelto') {
-    return 'outline'
-  }
+    // Problemas
+    case 'con_novedades':
+      return 'destructive'
 
-  return 'secondary'
+    // Devuelto
+    case 'devuelto':
+      return 'outline'
+
+    default:
+      return 'secondary'
+  }
 }
 
 /**

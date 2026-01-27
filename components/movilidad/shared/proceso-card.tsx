@@ -64,7 +64,7 @@ export const ProcesoCard = memo(function ProcesoCard({
             </CardDescription>
           </div>
           <div className="flex gap-2">
-            <BadgeEstadoProceso estado={proceso.estado} tipoProceso={tipoProceso} />
+            <BadgeEstadoProceso estado={proceso.estado} />
             {!esCompletado && <BadgeVencimiento fechaVencimiento={proceso.fecha_vencimiento} />}
           </div>
         </div>

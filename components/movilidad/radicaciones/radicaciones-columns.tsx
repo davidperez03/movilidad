@@ -48,11 +48,12 @@ const columnaVencimientoConDias: ColumnDef<RadicacionData> = {
 // Columna de estado (para radicaciones)
 const columnaEstado: ColumnDef<RadicacionData> = {
   accessorKey: 'estado',
-  header: 'Estado',
-  cell: ({ row }) => (
-    <BadgeEstadoProceso estado={row.getValue('estado')} tipoProceso="radicacion" />
+  header: ({ column }) => (
+    <DataTableColumnHeader column={column} title="Estado" />
   ),
-  enableSorting: false,
+  cell: ({ row }) => (
+    <BadgeEstadoProceso estado={row.getValue('estado')} />
+  ),
 }
 
 // Columna de acciones
@@ -72,37 +73,36 @@ const columnaAcciones: ColumnDef<RadicacionData> = {
   enableSorting: false,
 }
 
+// Columna fecha completado
+const columnaFechaCompletado: ColumnDef<RadicacionData> = {
+  accessorKey: 'fecha_completado',
+  header: ({ column }) => (
+    <DataTableColumnHeader column={column} title="Completado" />
+  ),
+  cell: ({ row }) => (
+    <div className="text-sm whitespace-nowrap">
+      {row.getValue('fecha_completado') ? formatDateForDisplay(row.getValue('fecha_completado')) : '-'}
+    </div>
+  ),
+  sortingFn: 'datetime',
+}
+
 // Columnas para radicaciones activas
 export const columnasRadicaciones: ColumnDef<RadicacionData>[] = [
-  crearColumnaPlaca(),
   crearColumnaNumeroCuenta(),
-  crearColumnaOrganismo('Organismo Origen'),
-  crearColumnaFechaTramite(),
+  crearColumnaPlaca(),
+  crearColumnaOrganismo('Origen'),
   columnaVencimientoConDias,
   columnaEstado,
-  crearColumnaCreador(),
   columnaAcciones,
 ]
 
 // Columnas para radicaciones completadas
 export const columnasRadicacionesCompletadas: ColumnDef<RadicacionData>[] = [
-  crearColumnaPlaca(),
   crearColumnaNumeroCuenta(),
-  crearColumnaOrganismo('Organismo Origen'),
-  crearColumnaFechaTramite(),
-  {
-    accessorKey: 'fecha_completado',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Fecha Completado" />
-    ),
-    cell: ({ row }) => (
-      <div className="text-sm whitespace-nowrap">
-        {row.getValue('fecha_completado') ? formatDateForDisplay(row.getValue('fecha_completado')) : '-'}
-      </div>
-    ),
-    sortingFn: 'datetime',
-  },
+  crearColumnaPlaca(),
+  crearColumnaOrganismo('Origen'),
+  columnaFechaCompletado,
   columnaEstado,
-  crearColumnaCreador(),
   columnaAcciones,
 ]

@@ -136,17 +136,14 @@ function NuevaCuentaForm() {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div className="flex items-center gap-4">
-        <Button asChild variant="ghost" size="sm">
+        <Button asChild variant="ghost" size="icon">
           <Link href="/movilidad/cuentas">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Volver
+            <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
         <div>
-          <h1 className="text-3xl font-bold">Nueva Cuenta de Vehículo</h1>
-          <p className="text-muted-foreground">
-            Registra un nuevo vehículo en el sistema
-          </p>
+          <h1 className="text-2xl font-bold tracking-tight">Nueva Cuenta</h1>
+          <p className="text-muted-foreground">Crear cuenta</p>
         </div>
       </div>
 

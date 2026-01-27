@@ -33,6 +33,7 @@ interface ComboboxOrganismosProps {
   placeholder?: string
   searchPlaceholder?: string
   emptyMessage?: string
+  className?: string
 }
 
 export function ComboboxOrganismos({
@@ -43,6 +44,7 @@ export function ComboboxOrganismos({
   placeholder = "Seleccione un organismo...",
   searchPlaceholder = "Buscar organismo...",
   emptyMessage = "No se encontró ningún organismo.",
+  className,
 }: ComboboxOrganismosProps) {
   const [open, setOpen] = React.useState(false)
 
@@ -55,7 +57,7 @@ export function ComboboxOrganismos({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-full justify-between"
+          className={cn("w-full justify-between", className)}
           disabled={disabled}
         >
           {selectedOrganismo ? (

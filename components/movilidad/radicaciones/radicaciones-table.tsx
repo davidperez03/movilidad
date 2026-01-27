@@ -66,10 +66,7 @@ export function RadicacionesTable({ radicaciones, esCompletadas = false }: Radic
             pageSize={10}
             pageSizeOptions={[10, 20, 50]}
             enableSorting={true}
-            defaultSorting={esCompletadas
-              ? [{ id: 'fecha_completado', desc: true }]
-              : [{ id: 'fecha_vencimiento', desc: false }]
-            }
+            defaultSorting={[{ id: 'numero_cuenta', desc: true }]}
             emptyMessage={esCompletadas
               ? "No se encontraron radicaciones completadas"
               : "No se encontraron radicaciones activas"

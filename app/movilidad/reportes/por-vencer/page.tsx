@@ -54,7 +54,7 @@ export default async function ReportePorVencerPage() {
   return (
     <ReporteWrapper
       titulo="Procesos por Vencer"
-      descripcion="Alertas de vencimientos próximos"
+      descripcion="Reporte por vencer"
       tipoReporte="por-vencer"
       datos={datos}
       organismos={organismos}

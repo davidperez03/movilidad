@@ -28,7 +28,7 @@ export default async function ReporteCompletadosPage() {
   return (
     <ReporteWrapper
       titulo="Procesos Completados"
-      descripcion="Histórico de procesos finalizados"
+      descripcion="Reporte de completados"
       tipoReporte="completados"
       datos={datos}
       organismos={organismos}
