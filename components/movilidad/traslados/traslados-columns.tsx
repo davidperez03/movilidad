@@ -90,7 +90,7 @@ const columnaAccionesConRemision: ColumnDef<TrasladoData> = {
   header: () => <div className="text-right">Acciones</div>,
   cell: ({ row }) => {
     const traslado = row.original
-    const puedeDescargar = traslado.estado === 'enviado_organismo' || traslado.estado === 'trasladado'
+    const puedeDescargar = traslado.estado === 'aprobado' || traslado.estado === 'enviado_organismo' || traslado.estado === 'trasladado'
 
     return (
       <div className="text-right flex gap-1.5 justify-end">

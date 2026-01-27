@@ -343,9 +343,13 @@ echo "✅ Base de datos configurada correctamente"
 4. Transiciones de estado válidas por tipo de proceso
 5. No se puede modificar proceso finalizado
 
-**Estados de proceso:**
-- `pendiente` → `en_transito` → `entregado` (traslado)
-- `pendiente` → `en_revision` → `radicado` (radicación)
+**Estados de Traslados:**
+`sin_asignar` → `revisado` → `aprobado` → `enviado_organismo` → `trasladado`
+                ↘ `con_novedades` ↗        ↘ `devuelto`
+
+**Estados de Radicaciones:**
+`sin_asignar` → `recibido` → `revisado` → `pendiente_radicar` → `radicado`
+                             ↘ `con_novedades` ↗    ↘ `devuelto`
 
 ---
 

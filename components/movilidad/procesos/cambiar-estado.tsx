@@ -13,6 +13,8 @@ import {
 } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { Input } from "@/components/ui/input"
+import { Checkbox } from "@/components/ui/checkbox"
 import {
   Select,
   SelectContent,
@@ -35,6 +37,7 @@ interface UpdateProcesoData {
   estado: string
   actualizado_por: string
   observaciones?: string
+  fecha_aprobacion?: string
 }
 
 interface CambiarEstadoProps {
@@ -51,8 +54,13 @@ export function CambiarEstado({ procesoId, procesoTipo, estadoActual }: CambiarE
 
   const [nuevoEstado, setNuevoEstado] = useState("")
   const [observaciones, setObservaciones] = useState("")
+  const [usarOtraFecha, setUsarOtraFecha] = useState(false)
+  const [fechaAprobacion, setFechaAprobacion] = useState("")
   const [estadosPermitidos, setEstadosPermitidos] = useState<string[]>([])
   const [cargandoTransiciones, setCargandoTransiciones] = useState(true)
+
+  // Fecha máxima es hoy
+  const hoy = new Date().toISOString().split("T")[0]
 
   const estados = procesoTipo === "traslado" ? ESTADOS_TRASLADO : ESTADOS_RADICACION
   const tabla = procesoTipo === "traslado" ? "mov_traslados" : "mov_radicaciones"
@@ -66,6 +74,8 @@ export function CambiarEstado({ procesoId, procesoTipo, estadoActual }: CambiarE
       // Reset when closing
       setNuevoEstado("")
       setObservaciones("")
+      setUsarOtraFecha(false)
+      setFechaAprobacion("")
     }
   }, [open, estadoActual, procesoTipo])
 
@@ -129,6 +139,8 @@ export function CambiarEstado({ procesoId, procesoTipo, estadoActual }: CambiarE
         estado: nuevoEstado,
         actualizado_por: user.id,
         ...(observaciones.trim() && { observaciones: observaciones.trim() }),
+        // Incluir fecha_aprobacion solo si se marcó usar otra fecha
+        ...(nuevoEstado === "aprobado" && procesoTipo === "traslado" && usarOtraFecha && fechaAprobacion && { fecha_aprobacion: fechaAprobacion }),
       }
 
       const { error } = await supabase
@@ -213,6 +225,38 @@ export function CambiarEstado({ procesoId, procesoTipo, estadoActual }: CambiarE
               </p>
             )}
           </div>
+
+          {/* Opción de fecha de aprobación personalizada - Solo para traslados */}
+          {nuevoEstado === "aprobado" && procesoTipo === "traslado" && (
+            <div className="space-y-3">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="usar_otra_fecha"
+                  checked={usarOtraFecha}
+                  onCheckedChange={(checked) => {
+                    setUsarOtraFecha(checked === true)
+                    if (!checked) setFechaAprobacion("")
+                  }}
+                  disabled={loading}
+                />
+                <Label htmlFor="usar_otra_fecha" className="text-sm font-normal cursor-pointer">
+                  Usar otra fecha de aprobación
+                </Label>
+              </div>
+              {usarOtraFecha && (
+                <Input
+                  id="fecha_aprobacion"
+                  type="date"
+                  value={fechaAprobacion}
+                  onChange={(e) => setFechaAprobacion(e.target.value)}
+                  max={hoy}
+                  disabled={loading}
+                  required
+                  className="w-full"
+                />
+              )}
+            </div>
+          )}
 
           <div className="space-y-2">
             <Label htmlFor="observaciones">

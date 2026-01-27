@@ -48,45 +48,61 @@ El Sistema de Movilidad es una aplicación web moderna construida con Next.js 16
 ```
 sistema-movilidad/
 ├── app/                          # Next.js App Router
-│   ├── api/                      # API Routes (mínimos)
+│   ├── api/                      # API Routes
 │   │   ├── admin/                # Endpoints de administración
+│   │   │   ├── cerrar-sesion/    # Cerrar sesión de usuario
+│   │   │   ├── crear-usuario/    # Crear nuevo usuario
+│   │   │   └── limpiar-sesiones/ # Limpiar sesiones inactivas
 │   │   ├── client-info/          # Info del cliente
 │   │   └── close-session/        # Cierre de sesión
 │   ├── auth/                     # Autenticación
 │   │   ├── login/                # Página de login
 │   │   ├── sign-up/              # Registro
+│   │   ├── sign-up-success/      # Registro exitoso
 │   │   └── error/                # Errores de auth
 │   ├── movilidad/                # Módulo principal
 │   │   ├── cuentas/              # Gestión de cuentas
+│   │   │   └── nueva/            # Nueva cuenta
 │   │   ├── traslados/            # Gestión de traslados
+│   │   │   └── nuevo/            # Nuevo traslado
 │   │   ├── radicaciones/         # Gestión de radicaciones
+│   │   │   └── nueva/            # Nueva radicación
 │   │   ├── vehiculos/[placa]/    # Detalle de vehículo
 │   │   ├── reportes/             # Reportes y métricas
-│   │   └── estado/               # Estado del sistema
+│   │   │   ├── activos/          # Procesos activos
+│   │   │   ├── completados/      # Procesos completados
+│   │   │   └── por-vencer/       # Por vencer
+│   │   └── estado/               # Estado general consolidado
 │   ├── superadmin/               # Panel de administración
 │   │   ├── dashboard/            # Dashboard principal
 │   │   ├── usuarios/             # Gestión de usuarios
 │   │   ├── sesiones/             # Gestión de sesiones
 │   │   └── auditoria/            # Sistema de auditoría
-│   ├── consulta/                 # Consulta pública
+│   ├── consulta/                 # Consulta pública (sin auth)
 │   └── sin-acceso/               # Página sin permisos
 │
 ├── components/                    # Componentes React
 │   ├── ui/                       # Componentes base (Shadcn)
-│   │   ├── button.tsx
-│   │   ├── card.tsx
-│   │   ├── dialog.tsx
+│   │   ├── data-table/           # Tabla con paginación y filtros
 │   │   ├── alert-box.tsx         # AlertBox reutilizable
 │   │   ├── submit-button.tsx     # SubmitButton con loading
-│   │   └── ...
+│   │   └── ...                   # button, card, dialog, etc.
 │   ├── movilidad/                # Componentes del módulo
+│   │   ├── cuentas/              # Componentes de cuentas
+│   │   ├── traslados/            # Tablas y columnas de traslados
+│   │   ├── radicaciones/         # Tablas y columnas de radicaciones
 │   │   ├── procesos/             # Formularios de procesos
 │   │   ├── vehiculos/            # Componentes de vehículos
+│   │   ├── estado/               # Componentes de estado general
+│   │   ├── reportes/             # Componentes de reportes
 │   │   ├── modals/               # Modales específicos
-│   │   ├── shared/               # Componentes compartidos
+│   │   ├── shared/               # Componentes compartidos (badges)
 │   │   └── pdf/                  # Generación de PDFs
+│   ├── consulta/                 # Componentes consulta pública
+│   ├── auth/                     # Componentes de autenticación
 │   ├── dashboard/                # Componentes de dashboard
-│   └── superadmin/               # Componentes de admin
+│   ├── superadmin/               # Componentes de admin
+│   └── shared/                   # Componentes globales compartidos
 │
 ├── lib/                          # Utilidades y configuración
 │   ├── supabase/                 # Clientes de Supabase
@@ -94,23 +110,24 @@ sistema-movilidad/
 │   │   ├── server.ts             # Cliente del servidor
 │   │   └── middleware.ts         # Cliente de middleware
 │   ├── hooks/                    # React hooks personalizados
-│   │   ├── use-dialog-form.ts    # Hook para formularios en dialog
-│   │   ├── use-organismos.ts     # Hook para organismos
-│   │   └── use-buscar-vehiculo.ts
 │   ├── movilidad/                # Lógica del módulo
 │   │   ├── config.ts             # Configuración de estados
-│   │   └── formatters.ts         # Formateadores
+│   │   ├── formatters.ts         # Formateadores de fechas/estados
+│   │   ├── types.ts              # Tipos TypeScript del módulo
+│   │   ├── columns/              # Definiciones de columnas de tablas
+│   │   ├── reportes/             # Lógica de reportes
+│   │   └── server/               # Funciones server-side
+│   ├── auth/                     # Utilidades de autenticación
+│   ├── server/                   # Funciones del servidor
+│   ├── dashboard/                # Lógica del dashboard
 │   ├── config/                   # Configuración global
-│   │   └── session.ts            # Config de sesiones
-│   ├── types/                    # Tipos TypeScript
+│   ├── types/                    # Tipos TypeScript globales
 │   └── utils/                    # Utilidades generales
-│       ├── index.ts              # cn(), formatDate(), etc.
-│       └── lazy-components.tsx   # Lazy loading
 │
-├── scripts/                      # Scripts de BD
+├── scripts/                      # Scripts de BD (ver scripts/README.md)
 │   ├── 00_configuracion/         # Setup inicial
 │   ├── 01_sistema-usuarios/      # Usuarios y roles
-│   ├── 03_modulo-movilidad/      # Esquema movilidad
+│   ├── 02_modulo-movilidad/      # Esquema movilidad
 │   └── 99_vistas_finales/        # Vistas optimizadas
 │
 └── docs/                         # Documentación
@@ -179,9 +196,13 @@ await handleSubmit(async () => {
 ```tsx
 // lib/movilidad/config.ts
 export const ESTADOS_TRASLADO = [
-  { value: "sin_asignar", label: "Sin Asignar" },
-  { value: "enviado_organismo", label: "Enviado a Organismo" },
-  // ...
+  { value: "sin_asignar", label: "Sin asignar" },
+  { value: "revisado", label: "Revisado" },
+  { value: "con_novedades", label: "Con novedades" },
+  { value: "aprobado", label: "Aprobado" },
+  { value: "enviado_organismo", label: "Enviado a organismo" },
+  { value: "trasladado", label: "Trasladado" },
+  { value: "devuelto", label: "Devuelto" },
 ]
 
 export const CONFIG_PROCESO = {
@@ -332,5 +353,6 @@ await handleSubmit(async () => {
 ### Funciones Clave
 
 - `obtener_transiciones_validas()`: Retorna estados siguientes permitidos
-- `calcular_fecha_vencimiento()`: Calcula vencimiento (60 días hábiles)
-- `verificar_permiso()`: Verifica si usuario tiene permiso específico
+- `sumar_dias_habiles()`: Suma N días hábiles a una fecha (considera festivos)
+- `es_superadmin()`: Verifica si usuario es superadmin
+- `tiene_permiso()`: Verifica si usuario tiene permiso específico en módulo
