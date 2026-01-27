@@ -19,6 +19,7 @@ create trigger before_insert_radicacion
 
 drop trigger if exists before_update_traslado on public.mov_traslados;
 drop trigger if exists before_update_auto_actualizado_traslado on public.mov_traslados;
+drop trigger if exists before_update_aprobar_traslado on public.mov_traslados;
 
 create trigger before_update_auto_actualizado_traslado
   before update on public.mov_traslados
@@ -29,6 +30,12 @@ create trigger before_update_traslado
   before update on public.mov_traslados
   for each row
   execute function trigger_actualizar_fecha();
+
+-- Trigger para calcular fecha de vencimiento al aprobar
+create trigger before_update_aprobar_traslado
+  before update on public.mov_traslados
+  for each row
+  execute function trigger_aprobar_traslado();
 
 drop trigger if exists before_update_radicacion on public.mov_radicaciones;
 drop trigger if exists before_update_auto_actualizado_radicacion on public.mov_radicaciones;

@@ -5,6 +5,33 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.1.0] - 2026-01-27
+
+### Estado Aprobado para Traslados
+
+#### Agregado
+- Nuevo estado "aprobado" en el flujo de traslados
+- Transición directa de sin_asignar → aprobado
+- Campo `fecha_aprobacion` en traslados
+- Trigger para calcular fecha de vencimiento (60 días hábiles) al aprobar
+- Mensaje informativo en formulario de traslados sobre conteo de días
+
+#### Cambiado
+- La fecha de vencimiento ahora se calcula al aprobar, no al crear el traslado
+- Removido campo fecha_tramite del formulario de traslados (solo aplica a radicaciones)
+- Proceso activo muestra "Pendiente de aprobación" cuando traslado no está aprobado
+- Alertas prioritarias filtran traslados sin fecha_vencimiento
+- Rediseño de AlertCard con estilo timeline consistente
+
+#### Flujo de Estados Actualizado (Traslados)
+```
+sin_asignar → revisado → aprobado → enviado_organismo → trasladado
+           ↘ con_novedades ↗      ↘ devuelto
+           ↘ aprobado (directo)
+```
+
+---
+
 ## [1.0.1] - 2026-01-21
 
 ### Mejoras en consulta pública y seguridad

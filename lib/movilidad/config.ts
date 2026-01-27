@@ -26,16 +26,6 @@ export const ESTADOS_CONFIG: Record<string, ConfigEstado> = {
     label: "Sin asignar",
     color: "bg-gray-100 text-gray-700 border-gray-300",
   },
-  enviado_organismo: {
-    value: "enviado_organismo",
-    label: "Enviado a organismo",
-    color: "bg-blue-100 text-blue-700 border-blue-300",
-  },
-  recibido: {
-    value: "recibido",
-    label: "Recibido",
-    color: "bg-cyan-100 text-cyan-700 border-cyan-300",
-  },
   revisado: {
     value: "revisado",
     label: "Revisado",
@@ -45,6 +35,21 @@ export const ESTADOS_CONFIG: Record<string, ConfigEstado> = {
     value: "con_novedades",
     label: "Con novedades",
     color: "bg-orange-100 text-orange-700 border-orange-300",
+  },
+  aprobado: {
+    value: "aprobado",
+    label: "Aprobado",
+    color: "bg-emerald-100 text-emerald-700 border-emerald-300",
+  },
+  enviado_organismo: {
+    value: "enviado_organismo",
+    label: "Enviado a organismo",
+    color: "bg-blue-100 text-blue-700 border-blue-300",
+  },
+  recibido: {
+    value: "recibido",
+    label: "Recibido",
+    color: "bg-cyan-100 text-cyan-700 border-cyan-300",
   },
   pendiente_radicar: {
     value: "pendiente_radicar",
@@ -72,6 +77,7 @@ export const ESTADOS_TRASLADO: OpcionEstado[] = [
   { value: "sin_asignar", label: "Sin asignar" },
   { value: "revisado", label: "Revisado" },
   { value: "con_novedades", label: "Con novedades" },
+  { value: "aprobado", label: "Aprobado" },
   { value: "enviado_organismo", label: "Enviado a organismo" },
   { value: "trasladado", label: "Trasladado" },
   { value: "devuelto", label: "Devuelto" },

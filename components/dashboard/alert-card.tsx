@@ -1,10 +1,9 @@
 "use client"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { AlertTriangle, Clock, ExternalLink } from "lucide-react"
+import { AlertTriangle, Clock, Calendar, ChevronRight } from "lucide-react"
 import Link from "next/link"
+import { cn } from "@/lib/utils"
 
 interface AlertItem {
   id: string
@@ -25,21 +24,25 @@ const severityConfig = {
   critical: {
     icon: AlertTriangle,
     color: "text-red-600",
-    bgColor: "bg-red-50 border-red-200",
-    badge: "bg-red-100 text-red-700 border-red-300",
+    bgColor: "bg-red-100",
   },
   warning: {
     icon: Clock,
     color: "text-orange-600",
-    bgColor: "bg-orange-50 border-orange-200",
-    badge: "bg-orange-100 text-orange-700 border-orange-300",
+    bgColor: "bg-orange-100",
   },
   info: {
-    icon: AlertTriangle,
+    icon: Calendar,
     color: "text-blue-600",
-    bgColor: "bg-blue-50 border-blue-200",
-    badge: "bg-blue-100 text-blue-700 border-blue-300",
+    bgColor: "bg-blue-100",
   },
+}
+
+function formatDaysRemaining(days: number, severity: string): string {
+  if (severity === "critical") return "Vencido"
+  if (days === 0) return "Vence hoy"
+  if (days === 1) return "Vence mañana"
+  return `${days} días`
 }
 
 export function AlertCard({ alerts, title = "Alertas", emptyMessage = "No hay alertas" }: AlertCardProps) {
@@ -50,47 +53,52 @@ export function AlertCard({ alerts, title = "Alertas", emptyMessage = "No hay al
           <AlertTriangle className="h-5 w-5 text-orange-500" />
           {title}
         </CardTitle>
-        <CardDescription>Requieren atención inmediata</CardDescription>
+        <CardDescription>Procesos que requieren atención</CardDescription>
       </CardHeader>
       <CardContent>
         {alerts.length > 0 ? (
-          <div className="space-y-3">
-            {alerts.map((alert) => {
+          <div className="space-y-4">
+            {alerts.map((alert, index) => {
               const config = severityConfig[alert.severity]
               const Icon = config.icon
+              const isLast = index === alerts.length - 1
 
-              return (
-                <div
-                  key={alert.id}
-                  className={`flex items-start gap-3 rounded-lg border p-3 ${config.bgColor}`}
-                >
-                  <Icon className={`h-5 w-5 mt-0.5 flex-shrink-0 ${config.color}`} />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-2">
-                      <p className="font-medium text-sm">{alert.title}</p>
-                      {alert.daysRemaining !== undefined && (
-                        <Badge variant="outline" className={config.badge}>
-                          {alert.severity === "critical"
-                            ? "Vencido"
-                            : alert.daysRemaining === 0
-                              ? "Hoy"
-                              : alert.daysRemaining === 1
-                                ? "Mañana"
-                                : `${alert.daysRemaining}d`}
-                        </Badge>
-                      )}
+              const content = (
+                <div className="flex gap-4">
+                  {/* Icon column */}
+                  <div className="flex flex-col items-center">
+                    <div className={cn("rounded-full p-2", config.bgColor)}>
+                      <Icon className={cn("h-4 w-4", config.color)} />
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1">{alert.description}</p>
-                    {alert.link && (
-                      <Button asChild variant="link" size="sm" className="h-auto p-0 mt-2">
-                        <Link href={alert.link}>
-                          Ver detalles
-                          <ExternalLink className="h-3 w-3 ml-1" />
-                        </Link>
-                      </Button>
-                    )}
+                    {!isLast && <div className="w-px h-full bg-border mt-2" />}
+                  </div>
+
+                  {/* Content */}
+                  <div className="flex-1 pb-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <p className="font-medium text-sm truncate">{alert.title}</p>
+                        <p className="text-xs text-muted-foreground">{alert.description}</p>
+                      </div>
+                      <div className="flex items-center gap-1 flex-shrink-0">
+                        {alert.daysRemaining !== undefined && (
+                          <span className={cn("text-xs font-medium whitespace-nowrap", config.color)}>
+                            {formatDaysRemaining(alert.daysRemaining, alert.severity)}
+                          </span>
+                        )}
+                        {alert.link && <ChevronRight className="h-4 w-4 text-muted-foreground" />}
+                      </div>
+                    </div>
                   </div>
                 </div>
+              )
+
+              return alert.link ? (
+                <Link key={alert.id} href={alert.link} className="block hover:bg-muted/50 -mx-2 px-2 rounded-md transition-colors">
+                  {content}
+                </Link>
+              ) : (
+                <div key={alert.id}>{content}</div>
               )
             })}
           </div>
