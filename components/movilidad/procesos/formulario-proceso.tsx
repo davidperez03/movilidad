@@ -152,17 +152,14 @@ export function FormularioProceso({ tipo }: FormularioProcesoProps) {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div className="flex items-center gap-4">
-        <Button asChild variant="ghost" size="sm">
+        <Button asChild variant="ghost" size="icon">
           <Link href={volverUrl}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Volver
+            <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
         <div>
-          <h1 className="text-3xl font-bold">{config.labels.nuevo}</h1>
-          <p className="text-muted-foreground">
-            Inicia el proceso de {tipo} de un vehículo
-          </p>
+          <h1 className="text-2xl font-bold tracking-tight">{config.labels.nuevo}</h1>
+          <p className="text-muted-foreground">Crear {tipo}</p>
         </div>
       </div>
 

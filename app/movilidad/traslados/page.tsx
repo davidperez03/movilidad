@@ -86,10 +86,8 @@ export default async function TrasladosPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Traslados</h1>
-          <p className="text-muted-foreground">
-            Gestiona los procesos de envío de vehículos
-          </p>
+          <h1 className="text-2xl font-bold tracking-tight">Traslados</h1>
+          <p className="text-muted-foreground">Gestión de traslados</p>
         </div>
         <Button asChild>
           <Link href="/movilidad/traslados/nuevo">

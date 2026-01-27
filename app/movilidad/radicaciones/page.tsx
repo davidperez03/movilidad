@@ -78,10 +78,8 @@ export default async function RadicacionesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Radicaciones</h1>
-          <p className="text-muted-foreground">
-            Gestiona los procesos de recepción de vehículos
-          </p>
+          <h1 className="text-2xl font-bold tracking-tight">Radicaciones</h1>
+          <p className="text-muted-foreground">Gestión de radicaciones</p>
         </div>
         <Button asChild>
           <Link href="/movilidad/radicaciones/nueva">

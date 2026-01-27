@@ -39,6 +39,15 @@ export interface CuentaVehiculo {
 
 export const columnasCuentas: ColumnDef<CuentaVehiculo>[] = [
   {
+    accessorKey: 'numero_cuenta',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="N° Cuenta" />
+    ),
+    cell: ({ row }) => (
+      <div className="font-mono font-medium">{row.getValue('numero_cuenta')}</div>
+    ),
+  },
+  {
     accessorKey: 'placa',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Placa" />
@@ -48,17 +57,10 @@ export const columnasCuentas: ColumnDef<CuentaVehiculo>[] = [
     ),
   },
   {
-    accessorKey: 'numero_cuenta',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="N° Cuenta" />
-    ),
-    cell: ({ row }) => (
-      <div className="text-sm text-muted-foreground">{row.getValue('numero_cuenta')}</div>
-    ),
-  },
-  {
     accessorKey: 'tipo_servicio',
-    header: 'Tipo Servicio',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Tipo" />
+    ),
     cell: ({ row }) => {
       const tipo = row.getValue('tipo_servicio') as string
       const labels: Record<string, string> = {
@@ -72,7 +74,6 @@ export const columnasCuentas: ColumnDef<CuentaVehiculo>[] = [
         </Badge>
       )
     },
-    enableSorting: false,
   },
   {
     accessorKey: 'creado_en',

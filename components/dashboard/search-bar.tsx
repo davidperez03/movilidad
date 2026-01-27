@@ -25,7 +25,6 @@ export function SearchBar({ placeholder = "Buscar por placa...", onSearch }: Sea
     if (onSearch) {
       onSearch(query.trim())
     } else {
-      // Default behavior: navigate to vehicle page
       router.push(`/movilidad/vehiculos/${query.trim().toUpperCase()}`)
     }
 
@@ -35,28 +34,23 @@ export function SearchBar({ placeholder = "Buscar por placa...", onSearch }: Sea
   return (
     <form onSubmit={handleSearch} className="flex gap-2">
       <div className="relative flex-1">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/60" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
           type="text"
           placeholder={placeholder}
           value={query}
           onChange={(e) => setQuery(e.target.value.toUpperCase())}
-          className="pl-9 bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:bg-white/20 focus:border-white/40"
+          className="pl-9"
         />
       </div>
       <Button
         type="submit"
         disabled={!query.trim() || isSearching}
-        variant="secondary"
-        className="bg-white text-blue-600 hover:bg-white/90"
       >
         {isSearching ? (
-          <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Buscando...
-          </>
+          <Loader2 className="h-4 w-4 animate-spin" />
         ) : (
-          "Buscar"
+          <Search className="h-4 w-4" />
         )}
       </Button>
     </form>
