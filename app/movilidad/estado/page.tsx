@@ -1,8 +1,5 @@
 import { createClient } from "@/lib/supabase/server"
 import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import Link from "next/link"
-import { ArrowLeft } from "lucide-react"
 import { VehicleTable } from "@/components/dashboard/vehicle-table"
 
 export default async function EstadoVehiculosPage() {
@@ -30,19 +27,9 @@ export default async function EstadoVehiculosPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Estado de Vehículos</h1>
-          <p className="text-muted-foreground">
-            Vista general de todos los vehículos y sus procesos activos
-          </p>
-        </div>
-        <Button asChild variant="outline">
-          <Link href="/movilidad">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Volver al Dashboard
-          </Link>
-        </Button>
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight">Estado General</h1>
+        <p className="text-muted-foreground">Estado de vehículos y procesos</p>
       </div>
 
       <Card>

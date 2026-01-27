@@ -1,12 +1,7 @@
-// =====================================================
-// CARD DE TIPO DE REPORTE
-// Card clicable para navegar a cada tipo de reporte
-// =====================================================
-
 import Link from 'next/link'
-import { LucideIcon } from 'lucide-react'
-import { Badge } from '@/components/ui/badge'
+import { ChevronRight, LucideIcon } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
+import { cn } from '@/lib/utils'
 
 interface CardTipoReporteProps {
   icono: LucideIcon
@@ -17,11 +12,31 @@ interface CardTipoReporteProps {
   color?: 'blue' | 'green' | 'orange' | 'purple'
 }
 
-const coloresIcono = {
-  blue: 'bg-blue-100 text-blue-600',
-  green: 'bg-green-100 text-green-600',
-  orange: 'bg-orange-100 text-orange-600',
-  purple: 'bg-purple-100 text-purple-600',
+const colorConfig = {
+  blue: {
+    bg: 'bg-blue-100',
+    icon: 'text-blue-600',
+    border: 'hover:border-blue-300',
+    badge: 'bg-blue-100 text-blue-700',
+  },
+  green: {
+    bg: 'bg-green-100',
+    icon: 'text-green-600',
+    border: 'hover:border-green-300',
+    badge: 'bg-green-100 text-green-700',
+  },
+  orange: {
+    bg: 'bg-orange-100',
+    icon: 'text-orange-600',
+    border: 'hover:border-orange-300',
+    badge: 'bg-orange-100 text-orange-700',
+  },
+  purple: {
+    bg: 'bg-purple-100',
+    icon: 'text-purple-600',
+    border: 'hover:border-purple-300',
+    badge: 'bg-purple-100 text-purple-700',
+  },
 }
 
 export function CardTipoReporte({
@@ -32,32 +47,28 @@ export function CardTipoReporte({
   contador,
   color = 'blue',
 }: CardTipoReporteProps) {
+  const colors = colorConfig[color]
+
   return (
-    <Link href={href} className="block">
-      <Card className="group cursor-pointer transition-all hover:shadow-lg hover:border-primary">
-        <CardContent className="p-6">
-          <div className="flex items-start justify-between">
-            <div className="flex items-start gap-4 flex-1">
-              {/* Icono */}
-              <div className={`rounded-full p-3 ${coloresIcono[color]}`}>
-                <Icono className="h-6 w-6" />
-              </div>
-
-              {/* Contenido */}
-              <div className="flex-1">
-                <h3 className="font-semibold text-lg group-hover:text-primary transition-colors">
-                  {titulo}
-                </h3>
-                <p className="text-sm text-muted-foreground mt-1">{descripcion}</p>
-              </div>
+    <Link href={href} className="group block">
+      <Card className={cn("transition-all hover:shadow-md", colors.border)}>
+        <CardContent className="p-4">
+          <div className="flex items-center gap-3">
+            <div className={cn("rounded-lg p-2", colors.bg)}>
+              <Icono className={cn("h-5 w-5", colors.icon)} />
             </div>
-
-            {/* Contador */}
-            {contador !== undefined && (
-              <Badge variant="secondary" className="ml-2">
-                {contador}
-              </Badge>
-            )}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <p className="font-medium text-sm">{titulo}</p>
+                {contador !== undefined && (
+                  <span className={cn("text-xs font-medium px-1.5 py-0.5 rounded", colors.badge)}>
+                    {contador}
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground truncate">{descripcion}</p>
+            </div>
+            <ChevronRight className={cn("h-4 w-4 text-muted-foreground transition-colors", `group-hover:${colors.icon}`)} />
           </div>
         </CardContent>
       </Card>

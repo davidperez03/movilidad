@@ -81,22 +81,20 @@ export function ReporteWrapper({
   }, [tipoReporte])
 
   return (
-    <div className="container mx-auto py-8 px-4 max-w-7xl">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <div className="flex items-center gap-2 mb-2">
-            <Button variant="ghost" size="sm" asChild>
-              <Link href="/movilidad/reportes">
-                <ArrowLeft className="h-4 w-4 mr-1" />
-                Volver
-              </Link>
-            </Button>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" asChild>
+            <Link href="/movilidad/reportes">
+              <ArrowLeft className="h-4 w-4" />
+            </Link>
+          </Button>
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">{titulo}</h1>
+            <p className="text-muted-foreground">{descripcion}</p>
           </div>
-          <h1 className="text-3xl font-bold">{titulo}</h1>
-          <p className="text-muted-foreground">{descripcion}</p>
         </div>
-
         <BotonesExportacion
           datos={datosFiltrados}
           tipoReporte={tipoReporte}
@@ -106,19 +104,17 @@ export function ReporteWrapper({
       </div>
 
       {/* Filtros */}
-      <div className="mb-6">
-        <FiltrosReporteComponent
-          filtros={filtros}
-          onFilterChange={setFiltros}
-          tipoReporte={tipoReporte}
-          organismos={organismos}
-          responsables={responsables}
-        />
-      </div>
+      <FiltrosReporteComponent
+        filtros={filtros}
+        onFilterChange={setFiltros}
+        tipoReporte={tipoReporte}
+        organismos={organismos}
+        responsables={responsables}
+      />
 
       {/* Estadísticas */}
       {estadisticasComponent || (
-        <div className="mb-6 p-4 bg-muted rounded-lg">
+        <div className="p-4 bg-muted rounded-lg">
           <p className="text-sm">
             <strong>Total de registros:</strong> {datosFiltrados.length}
           </p>

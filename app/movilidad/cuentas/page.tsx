@@ -32,7 +32,7 @@ export default async function CuentasPage() {
     logger.error("Error al cargar cuentas", errorCuentas)
     return (
       <div className="space-y-6">
-        <h1 className="text-3xl font-bold">Cuentas de Vehículos</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Cuentas</h1>
         <Card className="border-destructive">
           <CardContent className="pt-6">
             <div className="flex items-center gap-3 text-destructive">
@@ -78,10 +78,8 @@ export default async function CuentasPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Cuentas de Vehículos</h1>
-          <p className="text-muted-foreground">
-            Gestiona todas las cuentas de vehículos registradas
-          </p>
+          <h1 className="text-2xl font-bold tracking-tight">Cuentas</h1>
+          <p className="text-muted-foreground">Gestión de cuentas</p>
         </div>
         <BotonNuevaCuenta permisos={permisos} />
       </div>
