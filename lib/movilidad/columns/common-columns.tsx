@@ -70,7 +70,7 @@ export function crearColumnaNumeroCuenta<T extends { mov_cuentas_vehiculos?: Cue
       <DataTableColumnHeader column={column} title="N° Cuenta" />
     ),
     cell: ({ row }) => (
-      <div className="text-sm text-muted-foreground">{row.original.mov_cuentas_vehiculos?.numero_cuenta}</div>
+      <div className="font-mono font-medium text-sm">{row.original.mov_cuentas_vehiculos?.numero_cuenta}</div>
     ),
   }
 }

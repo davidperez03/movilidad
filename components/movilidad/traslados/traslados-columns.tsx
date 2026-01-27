@@ -76,11 +76,12 @@ const columnaTransporte: ColumnDef<TrasladoData> = {
 // Columna de estado (para traslados)
 const columnaEstado: ColumnDef<TrasladoData> = {
   accessorKey: 'estado',
-  header: 'Estado',
-  cell: ({ row }) => (
-    <BadgeEstadoProceso estado={row.getValue('estado')} tipoProceso="traslado" />
+  header: ({ column }) => (
+    <DataTableColumnHeader column={column} title="Estado" />
   ),
-  enableSorting: false,
+  cell: ({ row }) => (
+    <BadgeEstadoProceso estado={row.getValue('estado')} />
+  ),
 }
 
 // Columna de acciones con descarga de remisión
@@ -113,50 +114,47 @@ const columnaAccionesConRemision: ColumnDef<TrasladoData> = {
 
 // Columnas para traslados activos
 export const columnasTraslados: ColumnDef<TrasladoData>[] = [
-  crearColumnaPlaca(),
   crearColumnaNumeroCuenta(),
-  crearColumnaOrganismo('Organismo Destino'),
-  crearColumnaFechaTramite(),
+  crearColumnaPlaca(),
+  crearColumnaOrganismo('Destino'),
   columnaVencimientoConDias,
-  columnaTransporte,
   columnaEstado,
-  crearColumnaCreador(),
+  columnaTransporte,
   columnaAccionesConRemision,
 ]
 
+// Columna fecha completado
+const columnaFechaCompletado: ColumnDef<TrasladoData> = {
+  accessorKey: 'fecha_completado',
+  header: ({ column }) => (
+    <DataTableColumnHeader column={column} title="Completado" />
+  ),
+  cell: ({ row }) => (
+    <div className="text-sm whitespace-nowrap">
+      {row.getValue('fecha_completado') ? formatDateForDisplay(row.getValue('fecha_completado')) : '-'}
+    </div>
+  ),
+  sortingFn: 'datetime',
+}
+
 // Columnas para traslados completados
 export const columnasTrasladosCompletados: ColumnDef<TrasladoData>[] = [
-  crearColumnaPlaca(),
   crearColumnaNumeroCuenta(),
-  crearColumnaOrganismo('Organismo Destino'),
-  crearColumnaFechaTramite(),
-  {
-    accessorKey: 'fecha_completado',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Fecha Completado" />
-    ),
-    cell: ({ row }) => (
-      <div className="text-sm whitespace-nowrap">
-        {row.getValue('fecha_completado') ? formatDateForDisplay(row.getValue('fecha_completado')) : '-'}
-      </div>
-    ),
-    sortingFn: 'datetime',
-  },
-  columnaTransporte,
+  crearColumnaPlaca(),
+  crearColumnaOrganismo('Destino'),
+  columnaFechaCompletado,
   columnaEstado,
-  crearColumnaCreador(),
+  columnaTransporte,
   {
     id: 'acciones',
     header: () => <div className="text-right">Acciones</div>,
     cell: ({ row }) => {
       const traslado = row.original
-
       return (
         <div className="text-right flex gap-1.5 justify-end">
           <Button variant="ghost" size="sm" asChild>
             <Link href={`/movilidad/vehiculos/${traslado.mov_cuentas_vehiculos?.placa}`}>
-              <Eye className="h-4 w-4 mr-1" />
-              Ver
+              <Eye className="h-4 w-4" />
             </Link>
           </Button>
           <BotonDescargarRemision
