@@ -71,7 +71,7 @@ export function ItemTraslado({ traslado, placa }: ItemTrasladoProps) {
           </div>
         )}
       </div>
-      {(traslado.estado === "enviado_organismo" || traslado.estado === "trasladado") && (
+      {(traslado.estado === "aprobado" || traslado.estado === "enviado_organismo" || traslado.estado === "trasladado") && (
         <div className="mt-2">
           <BotonDescargarRemision
             trasladoId={traslado.id}

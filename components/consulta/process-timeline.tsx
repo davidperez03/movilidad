@@ -18,6 +18,7 @@ interface ProcessTimelineProps {
 const FLUJO_TRASLADO: TimelineStep[] = [
   { value: "sin_asignar", label: "Registrado" },
   { value: "revisado", label: "Revisado" },
+  { value: "aprobado", label: "Aprobado" },
   { value: "enviado_organismo", label: "Enviado" },
   { value: "trasladado", label: "Trasladado" },
 ]
