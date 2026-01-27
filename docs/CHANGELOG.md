@@ -5,6 +5,33 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.2.0] - 2026-01-27
+
+### Mejoras UI Dashboard y Tablas
+
+#### Agregado
+- Estado General: nueva vista consolidada de procesos activos con stats
+- TablaProcesosActivos: tabla unificada de traslados y radicaciones
+- Stats en Estado General: total, vencidos, por vencer, en proceso
+
+#### Cambiado
+- N° Cuenta como primera columna en todas las tablas
+- Ordenamiento por N° Cuenta (desc) por defecto en todas las tablas
+- Dashboard con diseño más compacto y limpio
+- StatCards horizontales con colores por tipo
+- Quick actions siguiendo orden del nav
+- Headers estandarizados (text-2xl font-bold tracking-tight)
+- Descripciones simplificadas en todas las páginas
+- BadgeEstadoProceso usa colores de ESTADOS_CONFIG
+- CardTipoReporte más compacto con ChevronRight
+- Columnas de tablas simplificadas y consistentes
+
+#### Eliminado
+- Botón "Volver al Dashboard" en páginas (redundante con nav)
+- Descripciones largas innecesarias
+
+---
+
 ## [1.1.0] - 2026-01-27
 
 ### Estado Aprobado para Traslados
