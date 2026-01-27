@@ -28,37 +28,26 @@
 
 ### Ejecutar Migraciones
 
-Las migraciones deben ejecutarse en orden desde el SQL Editor de Supabase:
+Las migraciones deben ejecutarse en orden desde el SQL Editor de Supabase.
+
+**Ver documentación completa en:** `scripts/README.md`
 
 ```bash
-# Orden de ejecución
+# Estructura de scripts
 scripts/
-├── 00_configuracion/
-│   ├── 001_timezone_colombia.sql      # 1. Timezone
-│   └── 002_limpiar_bd.sql             # 2. Limpiar (opcional)
-│
-├── 01_sistema-usuarios/
-│   ├── 001_tabla_perfiles.sql         # 3. Perfiles
-│   ├── 002_trigger_nuevo_usuario.sql  # 4. Trigger de usuarios
-│   ├── 003_roles_permisos.sql         # 5. Sistema de roles
-│   ├── 004_tabla_sesiones.sql         # 6. Sesiones
-│   ├── 005_tabla_auditoria.sql        # 7. Auditoría
-│   └── 006_rls_perfiles.sql           # 8. RLS de perfiles
-│
-├── 03_modulo-movilidad/
-│   ├── 001_tabla_organismos.sql       # 9. Organismos
-│   ├── 002_tabla_cuentas.sql          # 10. Cuentas
-│   ├── 003_tabla_traslados.sql        # 11. Traslados
-│   ├── 004_tabla_radicaciones.sql     # 12. Radicaciones
-│   ├── 005_tabla_novedades.sql        # 13. Novedades
-│   ├── 006_tabla_transiciones.sql     # 14. Transiciones
-│   ├── 007_tabla_empresas_transporte.sql  # 15. Empresas
-│   ├── 008_dias_habiles.sql           # 16. Días hábiles
-│   └── 009_rls_movilidad.sql          # 17. RLS movilidad
-│
-└── 99_vistas_finales/
-    └── 001_vista_auditoria_completa.sql  # 18. Vista auditoría
+├── 00_configuracion/       # Configuración inicial
+├── 01_sistema-usuarios/    # Autenticación y permisos
+├── 02_modulo-movilidad/    # Módulo principal
+│   ├── 01_tables/          # Tablas
+│   ├── 02_functions/       # Funciones
+│   ├── 03_triggers/        # Triggers
+│   ├── 04_policies/        # RLS
+│   ├── 05_data/            # Datos iniciales
+│   └── 06_views/           # Vistas
+└── 99_vistas_finales/      # Vistas consolidadas
 ```
+
+**Orden de ejecución:** Ejecutar cada carpeta en orden numérico, y dentro de cada subcarpeta ejecutar los archivos en orden.
 
 ### Verificar Migraciones
 
