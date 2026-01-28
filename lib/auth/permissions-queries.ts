@@ -8,7 +8,7 @@ interface UsuarioRolRow {
     nombre: string
     permisos: string[]
     nivel: number
-  }
+  } | null
 }
 
 export async function cargarPermisosUsuario(): Promise<{
@@ -55,13 +55,15 @@ export async function cargarPermisosUsuario(): Promise<{
 
   if (rolesError) throw rolesError
 
-  const roles = ((rolesData || []) as UsuarioRolRow[]).map((r) => ({
-    modulo_id: r.modulo_id,
-    rol_codigo: r.roles_modulo.codigo,
-    rol_nombre: r.roles_modulo.nombre,
-    permisos: r.roles_modulo.permisos,
-    nivel: r.roles_modulo.nivel,
-  }))
+  const roles: RolUsuarioModulo[] = ((rolesData || []) as unknown as UsuarioRolRow[])
+    .filter((r) => r.roles_modulo)
+    .map((r) => ({
+      modulo_id: r.modulo_id,
+      rol_codigo: r.roles_modulo!.codigo,
+      rol_nombre: r.roles_modulo!.nombre,
+      permisos: (r.roles_modulo!.permisos || []).reduce((acc, p) => ({ ...acc, [p]: true }), {} as Record<string, boolean>),
+      nivel: r.roles_modulo!.nivel,
+    }))
 
   return { esSuperAdmin: false, roles }
 }

@@ -138,7 +138,7 @@ export async function obtenerDatosCompletados(
   // Transformar traslados
   if (traslados) {
     for (const traslado of traslados) {
-      const transformado = transformarTraslado(traslado)
+      const transformado = transformarTraslado(traslado as unknown as Parameters<typeof transformarTraslado>[0])
       if (transformado) {
         resultados.push(transformado)
       }
@@ -148,7 +148,7 @@ export async function obtenerDatosCompletados(
   // Transformar radicaciones
   if (radicaciones) {
     for (const radicacion of radicaciones) {
-      const transformado = transformarRadicacion(radicacion)
+      const transformado = transformarRadicacion(radicacion as unknown as Parameters<typeof transformarRadicacion>[0])
       if (transformado) {
         resultados.push(transformado)
       }

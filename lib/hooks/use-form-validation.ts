@@ -97,7 +97,7 @@ export function useFormValidation<T extends string>(fieldsConfig: FieldsConfig<T
     validateAll,
     reset,
     getFieldProps,
-    isValid: Object.values(fields).every(f => !f.error),
+    isValid: (Object.values(fields) as FieldState[]).every((f) => !f.error),
   }
 }
 

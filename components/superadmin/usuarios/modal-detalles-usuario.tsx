@@ -15,7 +15,7 @@ interface RolUsuarioRow {
   roles_modulo: {
     codigo: CodigoRol;
     nombre: string;
-  };
+  } | null;
 }
 
 interface Usuario {
@@ -107,11 +107,13 @@ export function ModalDetallesUsuario({ usuario, onCerrar }: ModalDetallesUsuario
 
       if (rolesError) throw rolesError;
 
-      const roles: RolAsignado[] = ((rolesData || []) as RolUsuarioRow[]).map((r) => ({
-        modulo_id: r.modulo_id,
-        rol_codigo: r.roles_modulo.codigo,
-        rol_nombre: r.roles_modulo.nombre,
-      }));
+      const roles: RolAsignado[] = ((rolesData || []) as unknown as RolUsuarioRow[])
+        .filter((r) => r.roles_modulo)
+        .map((r) => ({
+          modulo_id: r.modulo_id,
+          rol_codigo: r.roles_modulo!.codigo,
+          rol_nombre: r.roles_modulo!.nombre,
+        }));
 
       setRolesAsignados(roles);
 
