@@ -79,13 +79,18 @@ language plpgsql
 security definer
 set search_path = public
 as $$
+declare
+  v_placa text;
 begin
+  select placa into v_placa from public.mov_cuentas_vehiculos where id = new.cuenta_id;
+
   perform registrar_historial(
     new.cuenta_id,
     'traslado',
     new.id,
     'traslado_iniciado',
     jsonb_build_object(
+      'placa', v_placa,
       'organismo_destino_id', new.organismo_destino_id,
       'fecha_tramite', new.fecha_tramite,
       'fecha_vencimiento', new.fecha_vencimiento
@@ -103,13 +108,18 @@ language plpgsql
 security definer
 set search_path = public
 as $$
+declare
+  v_placa text;
 begin
+  select placa into v_placa from public.mov_cuentas_vehiculos where id = new.cuenta_id;
+
   perform registrar_historial(
     new.cuenta_id,
     'radicacion',
     new.id,
     'radicacion_iniciada',
     jsonb_build_object(
+      'placa', v_placa,
       'organismo_origen_id', new.organismo_origen_id,
       'fecha_tramite', new.fecha_tramite,
       'fecha_vencimiento', new.fecha_vencimiento
@@ -127,8 +137,12 @@ language plpgsql
 security definer
 set search_path = public
 as $$
+declare
+  v_placa text;
 begin
   if old.estado != new.estado then
+    select placa into v_placa from public.mov_cuentas_vehiculos where id = new.cuenta_id;
+
     perform registrar_historial(
       new.cuenta_id,
       'traslado',
@@ -138,7 +152,10 @@ begin
         when new.estado = 'devuelto' then 'proceso_devuelto'
         else 'estado_cambiado'
       end,
-      jsonb_build_object('observaciones', new.observaciones),
+      jsonb_build_object(
+        'placa', v_placa,
+        'observaciones', new.observaciones
+      ),
       old.estado,
       new.estado
     );
@@ -153,8 +170,12 @@ language plpgsql
 security definer
 set search_path = public
 as $$
+declare
+  v_placa text;
 begin
   if old.estado != new.estado then
+    select placa into v_placa from public.mov_cuentas_vehiculos where id = new.cuenta_id;
+
     perform registrar_historial(
       new.cuenta_id,
       'radicacion',
@@ -164,7 +185,10 @@ begin
         when new.estado = 'devuelto' then 'proceso_devuelto'
         else 'estado_cambiado'
       end,
-      jsonb_build_object('observaciones', new.observaciones),
+      jsonb_build_object(
+        'placa', v_placa,
+        'observaciones', new.observaciones
+      ),
       old.estado,
       new.estado
     );
@@ -253,7 +277,6 @@ language sql
 security definer
 set search_path = public
 as $$
-  -- Obtener todos los traslados
   select
     'traslado'::text as proceso_tipo,
     t.id as proceso_id,
@@ -271,7 +294,6 @@ as $$
 
   union all
 
-  -- Obtener todas las radicaciones
   select
     'radicacion'::text as proceso_tipo,
     r.id as proceso_id,

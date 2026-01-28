@@ -2,7 +2,7 @@
 // TIPOS Y INTERFACES PARA MÓDULO DE REPORTES
 // =====================================================
 
-export type TipoReporte = 'activos' | 'completados' | 'por-vencer'
+export type TipoReporte = 'activos' | 'completados' | 'por-vencer' | 'auditoria'
 
 // =====================================================
 // FILTROS
@@ -156,5 +156,12 @@ export const REPORTES_CONFIG: Record<TipoReporte, ConfigReporte> = {
     descripcion: 'Alertas de vencimientos próximos',
     icono: 'Clock',
     color: 'orange',
+  },
+  auditoria: {
+    tipo: 'auditoria',
+    titulo: 'Auditoría',
+    descripcion: 'Registro de actividad del sistema',
+    icono: 'Shield',
+    color: 'purple',
   },
 }

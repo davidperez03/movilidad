@@ -16,7 +16,8 @@ export async function generarPDFReporte(
 ): Promise<void> {
   try {
     // Generar blob del PDF
-    const blob = await pdf(componentePDF).toBlob()
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const blob = await pdf(componentePDF as any).toBlob()
 
     // Crear URL y descargar
     const url = URL.createObjectURL(blob)

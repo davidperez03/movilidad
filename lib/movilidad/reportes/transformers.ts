@@ -52,7 +52,7 @@ export function transformarTraslado(traslado: TrasladoData): DatosReporteComplet
     duracion_dias: duracionDias,
     organismo: traslado.organismo_destino.nombre,
     responsable: traslado.creado_por_perfil.nombre_completo,
-    observaciones: traslado.observaciones,
+    observaciones: traslado.observaciones ?? undefined,
     creado_en: traslado.creado_en,
   }
 }
@@ -77,7 +77,7 @@ export function transformarRadicacion(radicacion: RadicacionData): DatosReporteC
     duracion_dias: duracionDias,
     organismo: radicacion.organismo_origen.nombre,
     responsable: radicacion.creado_por_perfil.nombre_completo,
-    observaciones: radicacion.observaciones,
+    observaciones: radicacion.observaciones ?? undefined,
     creado_en: radicacion.creado_en,
   }
 }

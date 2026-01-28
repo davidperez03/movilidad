@@ -14,6 +14,7 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { History, Loader2, ArrowRightLeft, ArrowDownToLine, Calendar, Building2 } from "lucide-react"
 import { ESTADOS_CONFIG } from "@/lib/movilidad/config"
+import { toast } from "sonner"
 import { formatDateShort, formatDateForDisplay } from "@/lib/utils"
 
 interface HistorialProcesoDialogProps {
@@ -46,7 +47,7 @@ export function HistorialProcesoDialog({ cuentaId, placa }: HistorialProcesoDial
       .rpc('obtener_historial_procesos_vehiculo', { p_cuenta_id: cuentaId })
 
     if (error) {
-      console.error('Error al cargar historial:', error)
+      toast.error('Error al cargar historial')
     } else {
       setHistorial(data || [])
     }
