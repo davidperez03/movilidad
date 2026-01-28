@@ -23,22 +23,27 @@ function renderDetallesActividad(item: ActividadReciente): React.ReactNode {
     return null
   }
 
+  // Helper para obtener valores como string
+  const str = (key: string): string => String(detalles[key] || '')
+  // Helper para verificar si existe
+  const has = (key: string): boolean => Boolean(detalles[key])
+
   switch (accion) {
     case 'usuario_creado':
       return (
         <div className="flex items-center gap-2 flex-wrap text-xs mt-1">
-          {detalles.correo && <Badge>{detalles.correo}</Badge>}
-          {detalles.rol_global && <Badge variant="secondary">Rol: {detalles.rol_global}</Badge>}
+          {has('correo') && <Badge>{str('correo')}</Badge>}
+          {has('rol_global') && <Badge variant="secondary">Rol: {str('rol_global')}</Badge>}
         </div>
       )
 
-    case 'usuario_editado':
+    case 'usuario_editado': {
       const cambios: string[] = []
-      if (detalles.correo_anterior && detalles.correo_nuevo && detalles.correo_anterior !== detalles.correo_nuevo) {
-        cambios.push(`Correo: ${detalles.correo_anterior} → ${detalles.correo_nuevo}`)
+      if (has('correo_anterior') && has('correo_nuevo') && detalles.correo_anterior !== detalles.correo_nuevo) {
+        cambios.push(`Correo: ${str('correo_anterior')} → ${str('correo_nuevo')}`)
       }
-      if (detalles.nombre_anterior && detalles.nombre_nuevo && detalles.nombre_anterior !== detalles.nombre_nuevo) {
-        cambios.push(`Nombre: ${detalles.nombre_anterior} → ${detalles.nombre_nuevo}`)
+      if (has('nombre_anterior') && has('nombre_nuevo') && detalles.nombre_anterior !== detalles.nombre_nuevo) {
+        cambios.push(`Nombre: ${str('nombre_anterior')} → ${str('nombre_nuevo')}`)
       }
 
       return cambios.length > 0 ? (
@@ -49,31 +54,29 @@ function renderDetallesActividad(item: ActividadReciente): React.ReactNode {
         </div>
       ) : (
         <div className="flex items-center gap-2 flex-wrap text-xs mt-1">
-          {detalles.correo && <Badge>{detalles.correo}</Badge>}
+          {has('correo') && <Badge>{str('correo')}</Badge>}
         </div>
       )
+    }
 
     case 'usuario_activado':
     case 'usuario_desactivado':
       return (
         <div className="flex items-center gap-2 flex-wrap text-xs mt-1">
-          {detalles.correo && <Badge>{detalles.correo}</Badge>}
-          {detalles.razon_suspension && (
-            <span className="text-muted-foreground">Razón: {detalles.razon_suspension}</span>
+          {has('correo') && <Badge>{str('correo')}</Badge>}
+          {has('razon_suspension') && (
+            <span className="text-muted-foreground">Razón: {str('razon_suspension')}</span>
           )}
         </div>
       )
 
     case 'rol_global_cambiado':
-      const rolAnterior = detalles.rol_anterior
-      const rolNuevo = detalles.rol_nuevo || detalles.nuevo_rol
-
       return (
         <div className="flex items-center gap-2 flex-wrap text-xs mt-1">
-          {detalles.correo && <Badge>{detalles.correo}</Badge>}
-          {rolAnterior && rolNuevo && (
+          {has('correo') && <Badge>{str('correo')}</Badge>}
+          {has('rol_anterior') && (has('rol_nuevo') || has('nuevo_rol')) && (
             <span className="text-muted-foreground">
-              {rolAnterior} → {rolNuevo}
+              {str('rol_anterior')} → {has('rol_nuevo') ? str('rol_nuevo') : str('nuevo_rol')}
             </span>
           )}
         </div>
@@ -83,31 +86,31 @@ function renderDetallesActividad(item: ActividadReciente): React.ReactNode {
     case 'rol_modulo_removido':
       return (
         <div className="flex items-center gap-2 flex-wrap text-xs mt-1">
-          {(detalles.usuario_correo || detalles.correo) && (
-            <Badge>{detalles.usuario_correo || detalles.correo}</Badge>
+          {(has('usuario_correo') || has('correo')) && (
+            <Badge>{has('usuario_correo') ? str('usuario_correo') : str('correo')}</Badge>
           )}
-          {detalles.rol_nombre && (
-            <Badge variant="secondary">{detalles.rol_nombre}</Badge>
+          {has('rol_nombre') && (
+            <Badge variant="secondary">{str('rol_nombre')}</Badge>
           )}
-          {(detalles.modulo_id || detalles.modulo) && (
-            <span className="text-muted-foreground">en {detalles.modulo_id || detalles.modulo}</span>
+          {(has('modulo_id') || has('modulo')) && (
+            <span className="text-muted-foreground">en {has('modulo_id') ? str('modulo_id') : str('modulo')}</span>
           )}
         </div>
       )
 
     case 'login_exitoso':
-      return detalles.dispositivo ? (
+      return has('dispositivo') ? (
         <div className="text-xs text-muted-foreground mt-1">
-          Dispositivo: {detalles.dispositivo}
+          Dispositivo: {str('dispositivo')}
         </div>
       ) : null
 
     case 'cuenta_creada':
       return (
         <div className="flex items-center gap-2 flex-wrap text-xs mt-1">
-          {detalles.placa && <Badge>Placa: {detalles.placa}</Badge>}
-          {detalles.numero_cuenta && (
-            <span className="text-muted-foreground">Cuenta N°: {detalles.numero_cuenta}</span>
+          {has('placa') && <Badge>Placa: {str('placa')}</Badge>}
+          {has('numero_cuenta') && (
+            <span className="text-muted-foreground">Cuenta N°: {str('numero_cuenta')}</span>
           )}
         </div>
       )
@@ -115,12 +118,12 @@ function renderDetallesActividad(item: ActividadReciente): React.ReactNode {
     case 'traslado_iniciado':
       return (
         <div className="flex items-center gap-2 flex-wrap text-xs mt-1">
-          {detalles.placa && <Badge>Placa: {detalles.placa}</Badge>}
-          {detalles.numero_traslado && (
-            <span className="text-muted-foreground">Traslado N°: {detalles.numero_traslado}</span>
+          {has('placa') && <Badge>Placa: {str('placa')}</Badge>}
+          {has('numero_traslado') && (
+            <span className="text-muted-foreground">Traslado N°: {str('numero_traslado')}</span>
           )}
-          {detalles.organismo_destino && (
-            <span className="text-muted-foreground">→ {detalles.organismo_destino}</span>
+          {has('organismo_destino') && (
+            <span className="text-muted-foreground">→ {str('organismo_destino')}</span>
           )}
         </div>
       )
@@ -128,32 +131,29 @@ function renderDetallesActividad(item: ActividadReciente): React.ReactNode {
     case 'radicacion_iniciada':
       return (
         <div className="flex items-center gap-2 flex-wrap text-xs mt-1">
-          {detalles.placa && <Badge>Placa: {detalles.placa}</Badge>}
-          {detalles.numero_radicacion && (
-            <span className="text-muted-foreground">Radicación N°: {detalles.numero_radicacion}</span>
+          {has('placa') && <Badge>Placa: {str('placa')}</Badge>}
+          {has('numero_radicacion') && (
+            <span className="text-muted-foreground">Radicación N°: {str('numero_radicacion')}</span>
           )}
-          {detalles.organismo && (
-            <span className="text-muted-foreground">en {detalles.organismo}</span>
+          {has('organismo') && (
+            <span className="text-muted-foreground">en {str('organismo')}</span>
           )}
         </div>
       )
 
     case 'estado_cambiado':
-      const estadoAnterior = detalles.estado_anterior
-      const estadoNuevo = detalles.nuevo_estado
-
       return (
         <div className="flex items-center gap-2 flex-wrap text-xs mt-1">
-          {detalles.entidad && <Badge>{detalles.entidad}</Badge>}
-          {estadoAnterior && estadoNuevo && (
+          {has('entidad') && <Badge>{str('entidad')}</Badge>}
+          {has('estado_anterior') && has('nuevo_estado') && (
             <span className="text-muted-foreground">
-              {estadoAnterior} → {estadoNuevo}
+              {str('estado_anterior')} → {str('nuevo_estado')}
             </span>
           )}
         </div>
       )
 
-    default:
+    default: {
       const keys = Object.keys(detalles).filter(k =>
         !['usuario_id', 'id', 'created_at', 'updated_at'].includes(k)
       ).slice(0, 2)
@@ -169,6 +169,7 @@ function renderDetallesActividad(item: ActividadReciente): React.ReactNode {
           ))}
         </div>
       )
+    }
   }
 }
 

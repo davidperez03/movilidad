@@ -69,8 +69,7 @@ export function BotonesExportacion({
 
       await generarPDFReporte(componentePDF, nombreArchivo)
       toast.success('PDF generado exitosamente')
-    } catch (error) {
-      console.error('Error exportando PDF:', error)
+    } catch {
       toast.error('Error al generar el PDF')
     } finally {
       setLoadingPDF(false)
@@ -87,8 +86,7 @@ export function BotonesExportacion({
       setLoadingExcel(true)
       generarExcelReporte(datos, tipoReporte, filtros, nombreArchivo)
       toast.success('Excel generado exitosamente')
-    } catch (error) {
-      console.error('Error exportando Excel:', error)
+    } catch {
       toast.error('Error al generar el archivo Excel')
     } finally {
       setLoadingExcel(false)
@@ -105,8 +103,7 @@ export function BotonesExportacion({
       setLoadingCSV(true)
       generarCSVReporte(datos, tipoReporte, nombreArchivo)
       toast.success('CSV generado exitosamente')
-    } catch (error) {
-      console.error('Error exportando CSV:', error)
+    } catch {
       toast.error('Error al generar el archivo CSV')
     } finally {
       setLoadingCSV(false)
