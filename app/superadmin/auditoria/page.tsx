@@ -1,201 +1,217 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Search, RefreshCw } from 'lucide-react'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { RefreshCw, Download, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { DataTable } from '@/components/ui/data-table/data-table'
 import { columnasAuditoria, type RegistroAuditoria } from './auditoria-columns'
 
+const TIPOS = [
+  { value: 'todos', label: 'Todos' },
+  { value: 'usuario', label: 'Usuarios' },
+  { value: 'rol', label: 'Roles' },
+  { value: 'sesion', label: 'Sesiones' },
+  { value: 'movilidad', label: 'Movilidad' },
+]
+
+function getTipoAccion(accion: string): string {
+  if (accion.startsWith('usuario_')) return 'usuario'
+  if (accion.startsWith('rol_')) return 'rol'
+  if (accion.includes('login') || accion.includes('logout') || accion.includes('sesion') || accion.includes('token')) return 'sesion'
+  return 'movilidad'
+}
+
 export default function AuditoriaPage() {
-  const [registros, setRegistros] = useState<RegistroAuditoria[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [filtros, setFiltros] = useState({
-    accion: '',
-    busqueda: '',
-  });
+  const [registros, setRegistros] = useState<RegistroAuditoria[]>([])
+  const [loading, setLoading] = useState(true)
+  const [usuarios, setUsuarios] = useState<{ id: string; label: string }[]>([])
+
+  const [tipoFiltro, setTipoFiltro] = useState('todos')
+  const [usuarioFiltro, setUsuarioFiltro] = useState('todos')
+  const [fechaInicio, setFechaInicio] = useState('')
+  const [fechaFin, setFechaFin] = useState('')
 
   useEffect(() => {
-    cargarRegistros();
-  }, []);
+    cargarDatos()
+  }, [])
 
-  async function cargarRegistros() {
-    try {
-      setLoading(true);
-      const supabase = createClient();
+  async function cargarDatos() {
+    setLoading(true)
+    const supabase = createClient()
 
-      // Cargar desde vista unificada que incluye sistema y movilidad
-      let query = supabase
+    const [auditoriaRes, usuariosRes] = await Promise.all([
+      supabase
         .from('sys_vista_auditoria_completa')
         .select('*')
         .order('creado_en', { ascending: false })
-        .limit(100);
+        .limit(500),
+      supabase
+        .from('perfiles')
+        .select('id, nombre_completo, correo')
+        .order('nombre_completo'),
+    ])
 
-      // Aplicar filtros si existen
-      if (filtros.accion) {
-        query = query.eq('accion', filtros.accion);
-      }
-
-      const { data, error } = await query;
-
-      if (error) {
-        toast.error('Error al cargar los registros de auditoría');
-        return;
-      }
-
-      // Formatear datos (la vista ya trae usuario_correo y usuario_nombre)
-      const registrosFormateados = (data || []).map((item: any) => {
-        const detalles = item.detalles || {};
-
-        // La vista unificada ya trae usuario_correo y usuario_nombre directamente
-        // Si no hay usuario, intentar obtener del campo detalles (para logout/sesion_expirada)
-        const usuarioCorreo = item.usuario_correo || detalles.usuario_correo || 'Sistema';
-        const usuarioNombre = item.usuario_nombre || detalles.usuario_nombre || 'Sistema';
-
-        return {
-          id: item.id,
-          modulo: item.modulo || 'sistema',
-          accion: item.accion,
-          entidad_tipo: item.entidad_tipo,
-          entidad_id: item.entidad_id,
-          detalles,
-          valor_anterior: item.valor_anterior,
-          valor_nuevo: item.valor_nuevo,
-          usuario_id: item.usuario_id,
-          usuario_correo: usuarioCorreo,
-          usuario_nombre: usuarioNombre,
-          ip_address: item.ip_address,
-          creado_en: item.creado_en,
-        };
-      });
-
-      // Aplicar filtro de búsqueda localmente
-      let resultado = registrosFormateados;
-      if (filtros.busqueda) {
-        const busqueda = filtros.busqueda.toLowerCase();
-        resultado = registrosFormateados.filter((r: any) =>
-          r.usuario_correo.toLowerCase().includes(busqueda) ||
-          r.usuario_nombre.toLowerCase().includes(busqueda) ||
-          JSON.stringify(r.detalles).toLowerCase().includes(busqueda)
-        );
-      }
-
-      setRegistros(resultado);
-    } catch (error) {
-      toast.error('Error al procesar los registros de auditoría');
-    } finally {
-      setLoading(false);
+    if (auditoriaRes.error) {
+      toast.error('Error al cargar auditoría')
+      setLoading(false)
+      return
     }
+
+    const data: RegistroAuditoria[] = (auditoriaRes.data || []).map((item: Record<string, unknown>) => ({
+      id: String(item.id || ''),
+      modulo: String(item.modulo || 'sistema'),
+      accion: String(item.accion || ''),
+      entidad_tipo: String(item.entidad_tipo || ''),
+      entidad_id: String(item.entidad_id || ''),
+      detalles: (item.detalles as Record<string, unknown>) || {},
+      valor_anterior: item.valor_anterior ? String(item.valor_anterior) : null,
+      valor_nuevo: item.valor_nuevo ? String(item.valor_nuevo) : null,
+      usuario_id: String(item.usuario_id || ''),
+      usuario_correo: String(item.usuario_correo || ''),
+      usuario_nombre: String(item.usuario_nombre || 'Sistema'),
+      ip_address: item.ip_address ? String(item.ip_address) : null,
+      creado_en: String(item.creado_en || ''),
+      cuenta_id: item.cuenta_id ? String(item.cuenta_id) : null,
+      proceso_tipo: item.proceso_tipo ? String(item.proceso_tipo) : null,
+      placa: item.placa ? String(item.placa) : null,
+    }))
+
+    setRegistros(data)
+    setUsuarios(
+      (usuariosRes.data || []).map((u: { id: string; nombre_completo: string | null; correo: string }) => ({
+        id: u.id,
+        label: u.nombre_completo || u.correo,
+      }))
+    )
+    setLoading(false)
   }
 
-  function aplicarFiltros() {
-    cargarRegistros();
-  }
+  const registrosFiltrados = useMemo(() => {
+    return registros.filter((r) => {
+      if (tipoFiltro !== 'todos' && getTipoAccion(r.accion) !== tipoFiltro) return false
+      if (usuarioFiltro !== 'todos' && r.usuario_id !== usuarioFiltro) return false
+      if (fechaInicio && r.creado_en < fechaInicio) return false
+      if (fechaFin && r.creado_en.split('T')[0] > fechaFin) return false
+      return true
+    })
+  }, [registros, tipoFiltro, usuarioFiltro, fechaInicio, fechaFin])
+
+  const hayFiltros = tipoFiltro !== 'todos' || usuarioFiltro !== 'todos' || fechaInicio || fechaFin
 
   function limpiarFiltros() {
-    setFiltros({
-      accion: '',
-      busqueda: '',
-    });
-    setTimeout(() => cargarRegistros(), 100);
+    setTipoFiltro('todos')
+    setUsuarioFiltro('todos')
+    setFechaInicio('')
+    setFechaFin('')
   }
 
-  if (loading) {
-    return (
-      <div className="space-y-6">
-        <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
-          <div className="h-64 bg-gray-200 rounded"></div>
-        </div>
-      </div>
-    );
+  function exportarCSV() {
+    const csv = [
+      ['Fecha', 'Responsable', 'Tipo', 'Placa/Afectado', 'Acción'].join(','),
+      ...registrosFiltrados.map((r) => [
+        `"${new Date(r.creado_en).toLocaleString('es-CO')}"`,
+        `"${r.usuario_nombre}"`,
+        `"${getTipoAccion(r.accion)}"`,
+        `"${r.placa || ''}"`,
+        `"${r.accion.replace(/_/g, ' ')}"`,
+      ].join(',')),
+    ].join('\n')
+
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' })
+    const link = document.createElement('a')
+    link.href = URL.createObjectURL(blob)
+    link.download = `auditoria_${new Date().toISOString().split('T')[0]}.csv`
+    link.click()
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
+    <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Auditoría del Sistema</h1>
-          <p className="text-muted-foreground">
-            Historial completo de acciones en el sistema
-          </p>
+        <h1 className="text-2xl font-bold">Auditoría</h1>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={exportarCSV} disabled={registrosFiltrados.length === 0}>
+            <Download className="h-4 w-4 mr-1" /> CSV
+          </Button>
+          <Button size="sm" onClick={cargarDatos} disabled={loading}>
+            <RefreshCw className={`h-4 w-4 mr-1 ${loading ? 'animate-spin' : ''}`} />
+          </Button>
         </div>
-        <Button onClick={cargarRegistros}>
-          <RefreshCw className="h-4 w-4 mr-2" />
-          Actualizar
-        </Button>
       </div>
 
-      {/* Filtros */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="grid gap-4 md:grid-cols-3">
-            <select
-              value={filtros.accion}
-              onChange={(e) => setFiltros({ ...filtros, accion: e.target.value })}
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            >
-              <option value="">Todas las acciones</option>
-              <option value="usuario_creado">Usuario creado</option>
-              <option value="usuario_editado">Usuario editado</option>
-              <option value="usuario_activado">Usuario activado</option>
-              <option value="usuario_desactivado">Usuario desactivado</option>
-              <option value="rol_global_cambiado">Rol cambiado</option>
-              <option value="rol_modulo_asignado">Rol asignado</option>
-              <option value="rol_modulo_removido">Rol removido</option>
-              <option value="login_exitoso">Login exitoso</option>
-              <option value="login_fallido">Login fallido</option>
-              <option value="logout">Cierre de sesión</option>
-              <option value="cuenta_creada">Cuenta creada</option>
-              <option value="traslado_iniciado">Traslado iniciado</option>
-              <option value="radicacion_iniciada">Radicación iniciada</option>
-            </select>
+      <div className="flex flex-wrap gap-2 items-center p-3 bg-muted/50 rounded-lg">
+        <Select value={tipoFiltro} onValueChange={setTipoFiltro}>
+          <SelectTrigger className="w-[130px] h-9">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {TIPOS.map((t) => (
+              <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
-            <div className="relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Buscar por usuario, correo o detalles..."
-                value={filtros.busqueda}
-                onChange={(e) => setFiltros({ ...filtros, busqueda: e.target.value })}
-                className="pl-10"
-              />
-            </div>
+        <Select value={usuarioFiltro} onValueChange={setUsuarioFiltro}>
+          <SelectTrigger className="w-[180px] h-9">
+            <SelectValue placeholder="Responsable" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="todos">Todos</SelectItem>
+            {usuarios.map((u) => (
+              <SelectItem key={u.id} value={u.id}>{u.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
-            <div className="flex gap-2">
-              <Button onClick={aplicarFiltros} className="flex-1">
-                Aplicar
-              </Button>
-              <Button variant="outline" onClick={limpiarFiltros}>
-                Limpiar
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+        <Input
+          type="date"
+          value={fechaInicio}
+          onChange={(e) => setFechaInicio(e.target.value)}
+          className="w-[130px] h-9"
+        />
+        <Input
+          type="date"
+          value={fechaFin}
+          onChange={(e) => setFechaFin(e.target.value)}
+          className="w-[130px] h-9"
+        />
 
-      {/* Listado de registros */}
-      <Card>
-        <CardContent className="pt-6">
-          <DataTable
-            columns={columnasAuditoria}
-            data={registros}
-            enablePagination={true}
-            pageSize={50}
-            pageSizeOptions={[10, 20, 50, 100]}
-            enableSorting={true}
-            defaultSorting={[{ id: 'creado_en', desc: true }]}
-            emptyMessage={
-              filtros.accion || filtros.busqueda
-                ? 'No hay registros que coincidan con los filtros aplicados'
-                : 'No hay actividad registrada aún'
-            }
-          />
-        </CardContent>
-      </Card>
+        {hayFiltros && (
+          <Button variant="ghost" size="sm" onClick={limpiarFiltros}>
+            <X className="h-4 w-4" />
+          </Button>
+        )}
+
+        <span className="text-sm text-muted-foreground ml-auto">
+          {registrosFiltrados.length} registros
+        </span>
+      </div>
+
+      {loading ? (
+        <div className="h-64 flex items-center justify-center">
+          <RefreshCw className="h-6 w-6 animate-spin text-muted-foreground" />
+        </div>
+      ) : (
+        <DataTable
+          columns={columnasAuditoria}
+          data={registrosFiltrados}
+          enablePagination
+          pageSize={25}
+          pageSizeOptions={[25, 50, 100]}
+          enableSorting
+          defaultSorting={[{ id: 'creado_en', desc: true }]}
+          emptyMessage="Sin registros"
+        />
+      )}
     </div>
   )
 }
