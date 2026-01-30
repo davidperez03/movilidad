@@ -214,6 +214,7 @@ git push origin develop
 
 | Versión | Fecha | Descripción |
 |---------|-------|-------------|
+| 1.2.2 | 2026-01-28 | Fix: auditoría, TypeScript, console.error |
 | 1.2.1 | 2026-01-27 | Parche: login simplificado, fecha aprobación, estado aprobado en timeline |
 | 1.2.0 | 2026-01-27 | Mejoras UI dashboard y tablas |
 | 1.1.0 | 2026-01-27 | Estado aprobado para traslados |
