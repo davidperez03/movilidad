@@ -96,16 +96,23 @@ function LoginForm() {
           return
         }
 
-        // Verificar si tiene acceso a movilidad
-        const { data: rolMovilidad } = await supabase
+        // Verificar roles en módulos
+        const { data: rolesUsuario } = await supabase
           .from("usuarios_roles")
-          .select("id")
+          .select("modulo_id")
           .eq("usuario_id", data.user.id)
-          .eq("modulo_id", "movilidad")
-          .single()
 
-        if (rolMovilidad) {
+        const tieneMovilidad = rolesUsuario?.some(r => r.modulo_id === "movilidad")
+        const tieneParqueadero = rolesUsuario?.some(r => r.modulo_id === "parqueadero")
+
+        // Prioridad: movilidad > parqueadero
+        if (tieneMovilidad) {
           window.location.href = "/movilidad"
+          return
+        }
+
+        if (tieneParqueadero) {
+          window.location.href = "/parqueadero"
           return
         }
 
@@ -218,9 +225,6 @@ function LoginForm() {
             <h1 className="text-4xl font-bold tracking-tight">
               Sistema de Gestión de Movilidad
             </h1>
-            <p className="text-lg text-white/90">
-              Administración de traslados y radicaciones de vehículos
-            </p>
           </div>
         </div>
       </div>
