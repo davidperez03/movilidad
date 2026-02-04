@@ -100,6 +100,43 @@ export function getTodayForInput(): string {
 }
 
 /**
+ * Obtiene la fecha actual en zona horaria de Colombia en formato YYYY-MM-DD
+ * Usar para guardar fechas en la BD
+ */
+export function getNowDateColombia(): string {
+  const formatter = new Intl.DateTimeFormat('sv-SE', {
+    timeZone: COLOMBIA_TIMEZONE,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  })
+  return formatter.format(new Date())
+}
+
+/**
+ * Obtiene la hora actual en zona horaria de Colombia en formato HH:MM:SS
+ * Usar para guardar horas en la BD
+ */
+export function getNowTimeColombia(): string {
+  const formatter = new Intl.DateTimeFormat('en-GB', {
+    timeZone: COLOMBIA_TIMEZONE,
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+  })
+  return formatter.format(new Date())
+}
+
+/**
+ * Obtiene timestamp actual en zona horaria de Colombia
+ * Formato: YYYY-MM-DDTHH:MM:SS (sin zona horaria, se asume Colombia)
+ */
+export function getNowTimestampColombia(): string {
+  return `${getNowDateColombia()}T${getNowTimeColombia()}`
+}
+
+/**
  * Formatea una fecha de PostgreSQL para mostrar en formato local (dd/mm/yyyy)
  * Similar a formatDateShort pero sin conversión de timezone (para campos tipo DATE)
  *

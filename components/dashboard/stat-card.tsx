@@ -8,6 +8,10 @@ import {
   AlertTriangle,
   TrendingUp,
   Activity,
+  Truck,
+  ClipboardCheck,
+  CheckCircle,
+  XCircle,
   LucideIcon,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -16,8 +20,8 @@ interface StatCardProps {
   title: string
   value: number | string
   description?: string
-  iconName: "car" | "arrow-right-left" | "arrow-down-to-line" | "alert-triangle" | "trending-up" | "activity"
-  color?: "blue" | "purple" | "green" | "orange" | "red"
+  iconName: "car" | "arrow-right-left" | "arrow-down-to-line" | "alert-triangle" | "trending-up" | "activity" | "truck" | "clipboard-check" | "check-circle" | "x-circle"
+  color?: "blue" | "purple" | "green" | "orange" | "red" | "cyan"
   className?: string
 }
 
@@ -28,6 +32,10 @@ const iconMap: Record<string, LucideIcon> = {
   "alert-triangle": AlertTriangle,
   "trending-up": TrendingUp,
   "activity": Activity,
+  "truck": Truck,
+  "clipboard-check": ClipboardCheck,
+  "check-circle": CheckCircle,
+  "x-circle": XCircle,
 }
 
 const colorMap = {
@@ -55,6 +63,11 @@ const colorMap = {
     bg: "bg-red-100",
     icon: "text-red-600",
     value: "text-red-600",
+  },
+  cyan: {
+    bg: "bg-cyan-100",
+    icon: "text-cyan-600",
+    value: "text-cyan-600",
   },
 }
 

@@ -45,6 +45,13 @@ interface RolDisponible {
   descripcion: string | null;
 }
 
+interface ModuloInfo {
+  id: string;
+  nombre: string;
+  descripcion: string | null;
+  activo: boolean;
+}
+
 interface ModalDetallesUsuarioProps {
   usuario: Usuario;
   onCerrar: () => void;
@@ -53,6 +60,7 @@ interface ModalDetallesUsuarioProps {
 export function ModalDetallesUsuario({ usuario, onCerrar }: ModalDetallesUsuarioProps) {
   const [rolesAsignados, setRolesAsignados] = useState<RolAsignado[]>([]);
   const [rolesDisponibles, setRolesDisponibles] = useState<RolDisponible[]>([]);
+  const [modulos, setModulos] = useState<ModuloInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [rolGlobal, setRolGlobal] = useState(usuario.rol_global);
   const supabase = createClient();
@@ -86,26 +94,43 @@ export function ModalDetallesUsuario({ usuario, onCerrar }: ModalDetallesUsuario
   }, [handleKeyDown]);
 
   useEffect(() => {
-    cargarRoles();
+    cargarDatos();
   }, []);
 
-  async function cargarRoles() {
+  async function cargarDatos() {
     try {
       setLoading(true);
+
+      // Cargar módulos activos
+      const { data: modulosData, error: modulosError } = await supabase
+        .from('modulos')
+        .select('id, nombre, descripcion, activo')
+        .eq('activo', true)
+        .order('orden');
+
+      if (modulosError) {
+        logger.error('Error cargando módulos', modulosError);
+        throw modulosError;
+      }
+      setModulos(modulosData || []);
 
       // Cargar roles asignados al usuario
       const { data: rolesData, error: rolesError } = await supabase
         .from('usuarios_roles')
         .select(`
           modulo_id,
-          roles_modulo (
+          rol_id,
+          roles_modulo!inner (
             codigo,
             nombre
           )
         `)
         .eq('usuario_id', usuario.id);
 
-      if (rolesError) throw rolesError;
+      if (rolesError) {
+        logger.error('Error cargando roles asignados', rolesError);
+        throw rolesError;
+      }
 
       const roles: RolAsignado[] = ((rolesData || []) as unknown as RolUsuarioRow[])
         .filter((r) => r.roles_modulo)
@@ -124,11 +149,14 @@ export function ModalDetallesUsuario({ usuario, onCerrar }: ModalDetallesUsuario
         .order('modulo_id')
         .order('nivel');
 
-      if (rolesDispError) throw rolesDispError;
+      if (rolesDispError) {
+        logger.error('Error cargando roles disponibles', rolesDispError);
+        throw rolesDispError;
+      }
       setRolesDisponibles(rolesDisp || []);
     } catch (error) {
-      toast.error('Error al cargar roles del usuario');
-      logger.error('Error cargando roles', error);
+      toast.error('Error al cargar datos del usuario');
+      logger.error('Error cargando datos', error);
     } finally {
       setLoading(false);
     }
@@ -149,7 +177,7 @@ export function ModalDetallesUsuario({ usuario, onCerrar }: ModalDetallesUsuario
 
       if (error) throw error;
       toast.success('Rol asignado exitosamente');
-      await cargarRoles();
+      await cargarDatos();
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Error desconocido';
       toast.error('Error asignando rol: ' + message);
@@ -168,7 +196,7 @@ export function ModalDetallesUsuario({ usuario, onCerrar }: ModalDetallesUsuario
 
       if (error) throw error;
       toast.success('Rol eliminado exitosamente');
-      await cargarRoles();
+      await cargarDatos();
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Error desconocido';
       toast.error('Error eliminando rol: ' + message);
@@ -193,7 +221,13 @@ export function ModalDetallesUsuario({ usuario, onCerrar }: ModalDetallesUsuario
     }
   }
 
-  const rolMovilidad = rolesAsignados.find((r) => r.modulo_id === 'movilidad');
+  const getRolAsignado = (moduloId: string) => {
+    return rolesAsignados.find((r) => r.modulo_id === moduloId);
+  };
+
+  const getRolesModulo = (moduloId: string) => {
+    return rolesDisponibles.filter((r) => r.modulo_id === moduloId);
+  };
 
   return (
     <div
@@ -320,71 +354,94 @@ export function ModalDetallesUsuario({ usuario, onCerrar }: ModalDetallesUsuario
             ) : (
               <div>
                 <label className="text-sm font-medium text-muted-foreground mb-2 block">
-                  Roles de Módulos
+                  Roles por Módulo
                 </label>
                 <Card>
                   <CardContent className="pt-4">
                     <div className="space-y-4">
-                      {/* Módulo Movilidad */}
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1">
-                          <p className="font-medium">Movilidad</p>
-                          {rolGlobal === 'superadmin' ? (
-                            <p className="text-sm text-green-600">Acceso Total (SuperAdmin)</p>
-                          ) : rolMovilidad ? (
-                            <div className="flex items-center gap-2 mt-1">
-                              <Badge variant="outline">{rolMovilidad.rol_nombre}</Badge>
-                              <button
-                                onClick={() => eliminarRol('movilidad')}
-                                className="text-xs text-red-600 hover:text-red-800"
-                              >
-                                Eliminar
-                              </button>
+                      {modulos.map((modulo) => {
+                        const rolAsignado = getRolAsignado(modulo.id);
+                        const rolesModulo = getRolesModulo(modulo.id);
+
+                        return (
+                          <div key={modulo.id} className="flex items-center justify-between py-2 border-b last:border-b-0">
+                            <div className="flex-1">
+                              <p className="font-medium">{modulo.nombre}</p>
+                              <p className="text-xs text-muted-foreground">{modulo.descripcion}</p>
+                              {rolGlobal === 'superadmin' ? (
+                                <p className="text-sm text-green-600 mt-1">Acceso Total (SuperAdmin)</p>
+                              ) : rolAsignado ? (
+                                <div className="flex items-center gap-2 mt-1">
+                                  <Badge variant="outline">{rolAsignado.rol_nombre}</Badge>
+                                  <button
+                                    onClick={() => eliminarRol(modulo.id as Modulo)}
+                                    className="text-xs text-red-600 hover:text-red-800"
+                                  >
+                                    Eliminar
+                                  </button>
+                                </div>
+                              ) : (
+                                <select
+                                  onChange={(e) => {
+                                    if (e.target.value) {
+                                      asignarRol(modulo.id as Modulo, e.target.value);
+                                      e.target.value = '';
+                                    }
+                                  }}
+                                  className="mt-1 flex h-9 w-full max-w-xs rounded-md border border-input bg-background px-3 py-1 text-sm"
+                                >
+                                  <option value="">Asignar rol...</option>
+                                  {rolesModulo.map((rol) => (
+                                    <option key={rol.id} value={rol.id}>
+                                      {rol.nombre}
+                                    </option>
+                                  ))}
+                                </select>
+                              )}
                             </div>
-                          ) : (
-                            <select
-                              onChange={(e) => {
-                                if (e.target.value) {
-                                  asignarRol('movilidad', e.target.value);
-                                  e.target.value = '';
-                                }
-                              }}
-                              className="mt-1 flex h-9 w-full max-w-xs rounded-md border border-input bg-background px-3 py-1 text-sm"
-                            >
-                              <option value="">Asignar rol...</option>
-                              {rolesDisponibles
-                                .filter((r) => r.modulo_id === 'movilidad')
-                                .map((rol) => (
-                                  <option key={rol.id} value={rol.id}>
-                                    {rol.nombre}
-                                  </option>
-                                ))}
-                            </select>
-                          )}
-                        </div>
-                      </div>
+                          </div>
+                        );
+                      })}
+
+                      {modulos.length === 0 && (
+                        <p className="text-sm text-muted-foreground text-center py-4">
+                          No hay módulos activos disponibles
+                        </p>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
 
                 {/* Información de roles disponibles */}
-                <div className="mt-4">
-                  <details className="text-sm">
-                    <summary className="cursor-pointer text-muted-foreground hover:text-foreground">
-                      Ver descripción de roles disponibles
-                    </summary>
-                    <div className="mt-2 space-y-2 pl-4">
-                      {rolesDisponibles
-                        .filter((r) => r.modulo_id === 'movilidad')
-                        .map((rol) => (
-                          <div key={rol.id} className="border-l-2 border-primary pl-3">
-                            <p className="font-medium">{rol.nombre}</p>
-                            <p className="text-xs text-muted-foreground">{rol.descripcion}</p>
-                          </div>
-                        ))}
-                    </div>
-                  </details>
-                </div>
+                {modulos.length > 0 && (
+                  <div className="mt-4">
+                    <details className="text-sm">
+                      <summary className="cursor-pointer text-muted-foreground hover:text-foreground">
+                        Ver descripción de roles disponibles
+                      </summary>
+                      <div className="mt-2 space-y-4 pl-4">
+                        {modulos.map((modulo) => {
+                          const rolesModulo = getRolesModulo(modulo.id);
+                          if (rolesModulo.length === 0) return null;
+
+                          return (
+                            <div key={modulo.id}>
+                              <p className="font-medium text-sm mb-2">{modulo.nombre}</p>
+                              <div className="space-y-2">
+                                {rolesModulo.map((rol) => (
+                                  <div key={rol.id} className="border-l-2 border-primary pl-3">
+                                    <p className="font-medium">{rol.nombre}</p>
+                                    <p className="text-xs text-muted-foreground">{rol.descripcion}</p>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </details>
+                  </div>
+                )}
               </div>
             )}
           </div>

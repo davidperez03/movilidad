@@ -5,6 +5,31 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.2.2] - 2026-01-28
+
+### Correcciones
+
+#### Corregido
+- Errores TypeScript en componentes
+- Eliminado console.error en producción
+
+#### Cambiado
+- Mejorada visualización del historial de auditoría
+- Agregada placa de vehículo en historial de acciones
+
+---
+
+## [1.2.1] - 2026-01-27
+
+### Parche
+
+#### Cambiado
+- Login simplificado
+- Fecha de aprobación visible en traslados
+- Estado aprobado en timeline de consulta pública
+
+---
+
 ## [1.2.0] - 2026-01-27
 
 ### Mejoras UI Dashboard y Tablas
