@@ -13,21 +13,39 @@ import { useState, useEffect, Suspense } from "react"
 import { Car, Loader2 } from "lucide-react"
 import { AlertBox } from "@/components/ui/alert-box"
 
+function traducirErrorAuth(message: string): string {
+  const traducciones: Record<string, string> = {
+    "Invalid login credentials": "Correo o contraseña incorrectos",
+    "Email not confirmed": "Tu cuenta aún no ha sido confirmada por un administrador",
+    "Invalid Refresh Token: Refresh Token Not Found": "Tu sesión ha expirado. Inicia sesión nuevamente.",
+    "User not found": "Correo o contraseña incorrectos",
+    "Too many requests": "Demasiados intentos. Espera unos minutos e intenta de nuevo.",
+    "Email rate limit exceeded": "Demasiados intentos. Espera unos minutos e intenta de nuevo.",
+  }
+  for (const [eng, esp] of Object.entries(traducciones)) {
+    if (message.includes(eng)) return esp
+  }
+  return message
+}
+
 function LoginForm() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [timeoutMessage, setTimeoutMessage] = useState(false)
+  const [successMessage, setSuccessMessage] = useState<string | null>(null)
   const router = useRouter()
   const searchParams = useSearchParams()
 
-  // Detectar si viene de timeout
   useEffect(() => {
     if (searchParams?.get("timeout") === "true") {
       setTimeoutMessage(true)
-      // Ocultar mensaje después de 5 segundos
       setTimeout(() => setTimeoutMessage(false), 5000)
+    }
+    if (searchParams?.get("message") === "password_updated") {
+      setSuccessMessage("Contraseña actualizada exitosamente. Inicia sesión con tu nueva contraseña.")
+      setTimeout(() => setSuccessMessage(null), 5000)
     }
   }, [searchParams])
 
@@ -44,8 +62,13 @@ function LoginForm() {
       })
       if (error) throw error
 
-      // Verificar estado del usuario
       if (data.user) {
+        // Verificar si debe cambiar contraseña
+        if (data.user.user_metadata?.debe_cambiar_password) {
+          router.push("/auth/cambiar-password")
+          return
+        }
+
         const { data: profile, error: profileError } = await supabase
           .from("perfiles")
           .select("rol_global, activo, suspendido_hasta, razon_suspension")
@@ -96,16 +119,23 @@ function LoginForm() {
           return
         }
 
-        // Verificar si tiene acceso a movilidad
-        const { data: rolMovilidad } = await supabase
+        // Verificar roles en módulos
+        const { data: rolesUsuario } = await supabase
           .from("usuarios_roles")
-          .select("id")
+          .select("modulo_id")
           .eq("usuario_id", data.user.id)
-          .eq("modulo_id", "movilidad")
-          .single()
 
-        if (rolMovilidad) {
+        const tieneMovilidad = rolesUsuario?.some(r => r.modulo_id === "movilidad")
+        const tieneParqueadero = rolesUsuario?.some(r => r.modulo_id === "parqueadero")
+
+        // Prioridad: movilidad > parqueadero
+        if (tieneMovilidad) {
           window.location.href = "/movilidad"
+          return
+        }
+
+        if (tieneParqueadero) {
+          window.location.href = "/parqueadero"
           return
         }
 
@@ -113,7 +143,8 @@ function LoginForm() {
         window.location.href = "/sin-acceso"
       }
     } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : "Error al iniciar sesión")
+      const msg = error instanceof Error ? error.message : "Error al iniciar sesión"
+      setError(traducirErrorAuth(msg))
     } finally {
       setIsLoading(false)
     }
@@ -134,10 +165,15 @@ function LoginForm() {
             </h2>
           </div>
 
-          {/* Mensaje de timeout */}
           {timeoutMessage && (
             <AlertBox variant="warning" title="Sesión cerrada por inactividad">
               Tu sesión se cerró después de 10 minutos de inactividad. Por favor, inicia sesión nuevamente.
+            </AlertBox>
+          )}
+
+          {successMessage && (
+            <AlertBox variant="success" title="Contraseña actualizada">
+              {successMessage}
             </AlertBox>
           )}
 
@@ -218,9 +254,6 @@ function LoginForm() {
             <h1 className="text-4xl font-bold tracking-tight">
               Sistema de Gestión de Movilidad
             </h1>
-            <p className="text-lg text-white/90">
-              Administración de traslados y radicaciones de vehículos
-            </p>
           </div>
         </div>
       </div>

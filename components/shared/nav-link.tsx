@@ -8,9 +8,17 @@ interface NavLinkProps {
   href: string
   children: React.ReactNode
   exact?: boolean
+  activeClass?: string
+  inactiveHoverClass?: string
 }
 
-export function NavLink({ href, children, exact = false }: NavLinkProps) {
+export function NavLink({
+  href,
+  children,
+  exact = false,
+  activeClass = "border-primary text-foreground",
+  inactiveHoverClass = "hover:border-primary/50",
+}: NavLinkProps) {
   const pathname = usePathname()
   const isActive = exact ? pathname === href : pathname.startsWith(href)
 
@@ -20,8 +28,8 @@ export function NavLink({ href, children, exact = false }: NavLinkProps) {
       className={cn(
         "flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-medium transition-colors",
         isActive
-          ? "border-primary text-foreground"
-          : "border-transparent text-muted-foreground hover:border-primary/50 hover:text-foreground"
+          ? activeClass
+          : cn("border-transparent text-muted-foreground hover:text-foreground", inactiveHoverClass)
       )}
     >
       {children}

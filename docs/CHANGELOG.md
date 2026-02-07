@@ -5,6 +5,87 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.3.0] - 2026-02-07
+
+### Gestión Completa de Usuarios, Emails, PWA, Parqueadero y Refactorización DRY/SOLID
+
+#### Agregado
+
+**Gestión de Usuarios**
+- Flujo completo de aprobación: admin crea → pendiente → aprueba → email con contraseña temporal
+- Endpoint `POST /api/admin/aprobar-usuario` para aprobar usuarios pendientes
+- Endpoint `POST /api/admin/resetear-password` para resetear contraseñas
+- Endpoint `POST /api/admin/eliminar-usuario` para eliminar usuarios
+- Endpoint `POST /api/admin/cerrar-sesion` para cerrar sesión de un usuario
+- Endpoint `POST /api/admin/limpiar-sesiones` para limpiar sesiones inactivas
+- Generador de contraseñas temporales seguras (`lib/utils/generate-password.ts`)
+- Flag `debe_cambiar_password` en metadata para forzar cambio en primer login
+- Sign-up público con flujo de aprobación (mismo que creación por admin)
+
+**Sistema de Email (Nodemailer)**
+- Configuración SMTP con Nodemailer (`lib/email/transporter.ts`)
+- Templates HTML para emails en español (`lib/email/templates.ts`)
+- Función de envío reutilizable (`lib/email/send-email.ts`)
+- Email de cuenta aprobada con contraseña temporal
+- Email de reseteo de contraseña
+
+**Páginas de Auth nuevas**
+- `/auth/forgot-password` — Solicitar recuperación de contraseña
+- `/auth/reset-password` — Establecer nueva contraseña (via link de email)
+- `/auth/cambiar-password` — Cambio obligatorio en primer login
+- `/auth/confirm` — Callback para intercambio de tokens de email
+- `/auth/sign-up-success` — Confirmación de solicitud enviada
+
+**Módulo Parqueadero**
+- Inspecciones preoperacionales completas con items configurables
+- Gestión de vehículos del parqueadero
+- Gestión de personal
+- Navegación independiente con colores cyan
+
+**PWA (Progressive Web App)**
+- `manifest.json` con nombre, iconos y colores del tema
+- Iconos en 192px, 512px y SVG
+- `apple-touch-icon` para iOS
+- Modo `standalone` display
+
+**Componentes compartidos**
+- `NavLink` compartido con color configurable (`components/shared/nav-link.tsx`)
+- `ConfirmDialog` reutilizable (`components/shared/confirm-dialog.tsx`)
+- `MobileNav` hamburguesa responsive (`components/shared/mobile-nav.tsx`)
+- `EmptyState` para estados vacíos (`components/shared/empty-state.tsx`)
+- `PasswordRequirements` validación visual de contraseña
+
+#### Cambiado
+
+**Refactorización DRY/SOLID**
+- Middleware compartido `requireSuperAdmin()` en todas las API routes admin (~70 líneas eliminadas)
+- Tipos centralizados en `lib/types/usuario.ts` (`Usuario`, `ConfirmState`, `FiltrosUsuarios`, `CONFIRM_INITIAL`)
+- NavLink unificado (eliminados `movilidad/nav-link.tsx` y `parqueadero/nav-link.tsx`)
+- Logger estructurado (`lib/logger.ts`) reemplaza `console.error` en rutas de servidor
+- Cliente admin reutilizable (`lib/supabase/admin.ts`)
+
+**Creación de usuario por admin**
+- Ya no pide contraseña al crear (se genera al aprobar)
+- Solo requiere email + nombre completo
+- Usuario queda como pendiente de aprobación
+
+**Login**
+- Detecta `debe_cambiar_password` y redirige a `/auth/cambiar-password`
+- Manejo de query param `?message=password_updated` para confirmación
+
+#### Seguridad
+- Prevención de enumeración de emails en sign-up (respuesta genérica para email duplicado)
+- Traducción de errores Supabase Auth de inglés a español en todas las páginas auth
+- No se exponen mensajes internos al usuario final
+- Variables de entorno validadas con Zod (`lib/env.ts`)
+
+#### Eliminado
+- Componentes NavLink duplicados (`movilidad/nav-link.tsx`, `parqueadero/nav-link.tsx`)
+- Interfaces locales duplicadas de `Usuario`, `ConfirmState`, `Filtros` en múltiples archivos
+- `console.error` directo en rutas API de servidor
+
+---
+
 ## [1.2.2] - 2026-01-28
 
 ### Correcciones
@@ -201,6 +282,25 @@ sin_asignar → revisado → aprobado → enviado_organismo → trasladado
 - Mejoras de accesibilidad (ARIA, navegación por teclado)
 - Optimización de rendimiento (React.memo, lazy loading)
 - Refactorización de código duplicado
+
+### Fase 5: Gestión de Usuarios y Email (Febrero 2026)
+- Flujo completo de aprobación de usuarios
+- Sistema de email con Nodemailer
+- Cambio obligatorio de contraseña temporal
+- Recuperación de contraseña por email
+- Reseteo de contraseña por admin
+
+### Fase 6: Parqueadero y PWA (Febrero 2026)
+- Módulo completo de parqueadero (inspecciones, vehículos, personal)
+- Progressive Web App (manifest, iconos, standalone)
+- Navegación responsive con hamburguesa
+
+### Fase 7: Refactorización DRY/SOLID (Febrero 2026)
+- Middleware compartido de autenticación
+- Tipos centralizados
+- Componentes compartidos (NavLink, ConfirmDialog, MobileNav)
+- Logger estructurado
+- Seguridad: prevención de enumeración de emails, traducción de errores
 
 ---
 

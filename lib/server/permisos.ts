@@ -1,6 +1,24 @@
 import { createClient } from '@/lib/supabase/server'
-import type { PermisosModulo } from '@/lib/types/permissions'
+import type { PermisosModulo, PermisoParqueadero } from '@/lib/types/permissions'
 import { PERMISOS_COMPLETOS, PERMISOS_VACIOS } from '@/lib/types/permissions'
+
+const PERMISOS_PARQUEADERO_COMPLETOS: Record<PermisoParqueadero, boolean> = {
+  ver: true,
+  crear_inspecciones: true,
+  editar_inspecciones: true,
+  eliminar_inspecciones: true,
+  gestionar_vehiculos: true,
+  configurar: true,
+}
+
+const PERMISOS_PARQUEADERO_VACIOS: Record<PermisoParqueadero, boolean> = {
+  ver: false,
+  crear_inspecciones: false,
+  editar_inspecciones: false,
+  eliminar_inspecciones: false,
+  gestionar_vehiculos: false,
+  configurar: false,
+}
 
 export async function obtenerPermisosUsuario() {
   try {
@@ -11,6 +29,7 @@ export async function obtenerPermisosUsuario() {
       return {
         esSuperadmin: false,
         movilidad: PERMISOS_VACIOS,
+        parqueadero: PERMISOS_PARQUEADERO_VACIOS,
       }
     }
 
@@ -28,6 +47,7 @@ export async function obtenerPermisosUsuario() {
       return {
         esSuperadmin: true,
         movilidad: PERMISOS_COMPLETOS,
+        parqueadero: PERMISOS_PARQUEADERO_COMPLETOS,
       }
     }
 
@@ -46,15 +66,21 @@ export async function obtenerPermisosUsuario() {
     const rolMovilidad = rolesUsuario?.find(r => r.modulo_id === 'movilidad')
     const permisosMovilidad = (rolMovilidad?.roles_modulo as any)?.permisos as PermisosModulo | null
 
+    // Extraer permisos de parqueadero
+    const rolParqueadero = rolesUsuario?.find(r => r.modulo_id === 'parqueadero')
+    const permisosParqueadero = (rolParqueadero?.roles_modulo as any)?.permisos as Record<PermisoParqueadero, boolean> | null
+
     return {
       esSuperadmin: false,
       movilidad: permisosMovilidad || PERMISOS_VACIOS,
+      parqueadero: permisosParqueadero || PERMISOS_PARQUEADERO_VACIOS,
     }
 
   } catch (error) {
     return {
       esSuperadmin: false,
       movilidad: PERMISOS_VACIOS,
+      parqueadero: PERMISOS_PARQUEADERO_VACIOS,
     }
   }
 }

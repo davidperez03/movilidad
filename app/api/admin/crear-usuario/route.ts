@@ -1,76 +1,69 @@
-import { createClient } from '@supabase/supabase-js';
-import { NextRequest, NextResponse } from 'next/server';
-import { createClient as createServerClient } from '@/lib/supabase/server';
-import { z } from 'zod';
-import { logger } from '@/lib/logger';
+import { NextRequest, NextResponse } from 'next/server'
+import { createAdminClient } from '@/lib/supabase/admin'
+import { requireSuperAdmin } from '@/lib/api/require-superadmin'
+import { z } from 'zod'
+import { logger } from '@/lib/logger'
 
 const crearUsuarioSchema = z.object({
   email: z.string().min(1, 'Email requerido').email('Email inválido'),
-  password: z
-    .string()
-    .min(8, 'Mínimo 8 caracteres')
-    .regex(/[A-Z]/, 'Requiere una mayúscula')
-    .regex(/[a-z]/, 'Requiere una minúscula')
-    .regex(/[0-9]/, 'Requiere un número'),
-  nombreCompleto: z.string().min(3).max(100).optional().default('')
-});
+  nombreCompleto: z.string().min(3, 'Nombre debe tener al menos 3 caracteres').max(100),
+})
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createServerClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const auth = await requireSuperAdmin()
+    if (auth.response) return auth.response
 
-    if (authError || !user) {
-      return NextResponse.json({ error: 'No autenticado' }, { status: 401 });
-    }
-
-    const { data: perfil } = await supabase
-      .from('perfiles')
-      .select('rol_global')
-      .eq('id', user.id)
-      .single();
-
-    if (perfil?.rol_global !== 'superadmin') {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 403 });
-    }
-
-    const body = await request.json();
-    const validacion = crearUsuarioSchema.safeParse(body);
+    const body = await request.json()
+    const validacion = crearUsuarioSchema.safeParse(body)
 
     if (!validacion.success) {
       return NextResponse.json({
         error: 'Datos inválidos',
-        detalles: validacion.error.errors.map(e => e.message)
-      }, { status: 400 });
+        detalles: validacion.error.errors.map(e => e.message),
+      }, { status: 400 })
     }
 
-    const { email, password, nombreCompleto } = validacion.data;
+    const { email, nombreCompleto } = validacion.data
 
-    const supabaseAdmin = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
-      { auth: { autoRefreshToken: false, persistSession: false } }
-    );
+    const supabaseAdmin = createAdminClient()
 
+    // Crear usuario pendiente de aprobación (sin confirmar email, password random)
     const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
       email,
-      password,
-      email_confirm: true,
-      user_metadata: { nombre_completo: nombreCompleto, rol_global: 'usuario' }
-    });
+      password: crypto.randomUUID() + 'A1!',
+      email_confirm: false,
+      user_metadata: {
+        nombre_completo: nombreCompleto,
+        rol_global: 'usuario',
+        pendiente_aprobacion: true,
+      },
+    })
 
     if (createError) {
-      const status = createError.message.includes('already registered') ? 409 : 400;
-      return NextResponse.json({ error: createError.message }, { status });
+      if (createError.message.includes('already registered')) {
+        return NextResponse.json(
+          { error: 'Este correo electrónico ya está registrado en el sistema' },
+          { status: 409 }
+        )
+      }
+      return NextResponse.json({ error: createError.message }, { status: 400 })
+    }
+
+    // Asegurar que el perfil quede inactivo
+    if (newUser.user) {
+      await supabaseAdmin
+        .from('perfiles')
+        .update({ activo: false })
+        .eq('id', newUser.user.id)
     }
 
     return NextResponse.json({
       success: true,
-      user: { id: newUser.user?.id, email: newUser.user?.email }
-    });
-
+      user: { id: newUser.user?.id, email: newUser.user?.email },
+    })
   } catch (error) {
-    logger.error('Error en crear-usuario', error);
-    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 });
+    logger.error('Error en crear-usuario', error)
+    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
   }
 }
