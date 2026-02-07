@@ -100,7 +100,7 @@ export function cuentaAprobadaTemplate(nombre: string, email: string, tempCred: 
     ${stepsList([
       'Ingrese al sistema con su correo y la clave temporal',
       'El sistema le pedira establecer una nueva clave',
-      'Cree una clave segura (minimo 8 caracteres, una mayuscula, una minuscula y un numero)',
+      'Cree una clave segura (minimo 8 caracteres, una mayuscula, una minuscula, un numero y un caracter especial)',
       'Listo, ya puede usar el sistema normalmente',
     ])}
   `)
