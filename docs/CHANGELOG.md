@@ -185,7 +185,7 @@ sin_asignar → revisado → aprobado → enviado_organismo → trasladado
 
 ## [1.0.0] - 2026-01-21
 
-### Primera versión estable del Sistema de Movilidad
+### Primera versión estable de Movilidad
 
 #### Agregado
 

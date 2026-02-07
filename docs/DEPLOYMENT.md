@@ -79,7 +79,7 @@ SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
 SMTP_USER=tu-correo@gmail.com
 SMTP_PASS=tu-app-password
-SMTP_FROM=Sistema Movilidad <tu-correo@gmail.com>
+SMTP_FROM=Movilidad <tu-correo@gmail.com>
 ```
 
 ### Variables en Vercel (Producción)

@@ -2,7 +2,7 @@
 
 ## Vision General
 
-El Sistema de Movilidad es una aplicacion web moderna construida con Next.js 16 y React 19, utilizando Supabase como backend. Sigue una arquitectura de componentes con separacion clara de responsabilidades.
+Movilidad es una aplicacion web moderna construida con Next.js 16 y React 19, utilizando Supabase como backend. Sigue una arquitectura de componentes con separacion clara de responsabilidades.
 
 ```
 +---------------------------------------------------------+

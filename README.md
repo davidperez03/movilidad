@@ -1,4 +1,4 @@
-# Sistema de Movilidad
+# Movilidad
 
 ![Versión](https://img.shields.io/badge/versión-1.0.0-blue)
 ![Next.js](https://img.shields.io/badge/Next.js-16.1.0-black)

@@ -54,7 +54,7 @@ export function DocumentoCompletadosPDF({ datos }: DocumentoCompletadosPDFProps)
 
         {/* Footer */}
         <Text style={basePdfStyles.footer}>
-          Reporte generado por Sistema de Movilidad - Página 1 de 1
+          Reporte generado por Movilidad - Página 1 de 1
         </Text>
       </Page>
     </Document>

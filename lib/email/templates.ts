@@ -14,7 +14,7 @@ function baseLayout(content: string): string {
     <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
       <tr>
         <td>
-          <h1 style="margin:0;color:#ffffff;font-size:22px;font-weight:700;letter-spacing:-0.3px;">Sistema de Movilidad</h1>
+          <h1 style="margin:0;color:#ffffff;font-size:22px;font-weight:700;letter-spacing:-0.3px;">Movilidad</h1>
           <p style="margin:4px 0 0;color:#a3a3a3;font-size:13px;">Gestion de Transito y Transporte</p>
         </td>
         <td align="right" valign="middle">
@@ -33,7 +33,7 @@ function baseLayout(content: string): string {
   <tr><td style="padding:20px 36px;background-color:#fafafa;border-top:1px solid #e5e5e5;">
     <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
       <tr><td>
-        <p style="margin:0 0 4px;color:#a1a1aa;font-size:11px;text-align:center;">Este es un mensaje automatico del Sistema de Movilidad. No responda a este correo.</p>
+        <p style="margin:0 0 4px;color:#a1a1aa;font-size:11px;text-align:center;">Este es un mensaje automatico del Movilidad. No responda a este correo.</p>
         <p style="margin:0;color:#a1a1aa;font-size:11px;text-align:center;">Si tiene dudas, contacte al administrador del sistema.</p>
       </td></tr>
     </table>
@@ -89,7 +89,7 @@ function divider(): string {
 export function cuentaAprobadaTemplate(nombre: string, email: string, tempCred: string): string {
   return baseLayout(`
     <h2 style="margin:0 0 6px;color:#111827;font-size:20px;font-weight:700;">Bienvenido/a, ${nombre}</h2>
-    <p style="color:#6b7280;font-size:14px;line-height:1.6;margin:8px 0 0;">Su cuenta en el <strong>Sistema de Movilidad</strong> ha sido aprobada exitosamente. A continuacion encontrara sus credenciales de acceso.</p>
+    <p style="color:#6b7280;font-size:14px;line-height:1.6;margin:8px 0 0;">Su cuenta en el <strong>Movilidad</strong> ha sido aprobada exitosamente. A continuacion encontrara sus credenciales de acceso.</p>
     ${divider()}
     <p style="color:#374151;font-size:14px;font-weight:600;margin:0 0 8px;">Credenciales de acceso</p>
     ${credentialBox('Correo electronico', email)}
@@ -109,7 +109,7 @@ export function cuentaAprobadaTemplate(nombre: string, email: string, tempCred: 
 export function resetPasswordTemplate(nombre: string, email: string, tempCred: string): string {
   return baseLayout(`
     <h2 style="margin:0 0 6px;color:#111827;font-size:20px;font-weight:700;">Restablecimiento de clave</h2>
-    <p style="color:#6b7280;font-size:14px;line-height:1.6;margin:8px 0 0;">Hola <strong>${nombre}</strong>, el administrador ha restablecido la clave de su cuenta en el <strong>Sistema de Movilidad</strong>.</p>
+    <p style="color:#6b7280;font-size:14px;line-height:1.6;margin:8px 0 0;">Hola <strong>${nombre}</strong>, el administrador ha restablecido la clave de su cuenta en el <strong>Movilidad</strong>.</p>
     ${divider()}
     <p style="color:#374151;font-size:14px;font-weight:600;margin:0 0 8px;">Nuevas credenciales</p>
     ${credentialBox('Correo electronico', email)}

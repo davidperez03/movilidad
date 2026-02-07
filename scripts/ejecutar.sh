@@ -1,7 +1,7 @@
 
 #!/bin/bash
 # ============================================================================
-# SCRIPT DE MIGRACIONES - Sistema Movilidad
+# SCRIPT DE MIGRACIONES - Movilidad
 # ============================================================================
 #
 # DESCRIPCIÓN:
@@ -78,7 +78,7 @@ fi
 # Función para mostrar ayuda
 mostrar_ayuda() {
     echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-    echo -e "${GREEN}  Script de Migraciones - Sistema Movilidad${NC}"
+    echo -e "${GREEN}  Script de Migraciones - Movilidad${NC}"
     echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo ""
     echo -e "${BLUE}USO:${NC}"
