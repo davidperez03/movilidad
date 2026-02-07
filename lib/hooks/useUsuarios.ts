@@ -3,34 +3,15 @@
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
+import type { Usuario, FiltrosUsuarios } from '@/lib/types/usuario';
 
-interface Usuario {
-  id: string;
-  correo: string;
-  nombre_completo: string | null;
-  rol_global: 'usuario' | 'superadmin';
-  activo: boolean;
-  url_avatar: string | null;
-  suspendido_hasta: string | null;
-  razon_suspension: string | null;
-  ultima_conexion: string | null;
-  creado_en: string;
-}
-
-interface Filtros {
-  busqueda: string;
-  rol_global: string;
-  activo: string;
-  modulo: string;
-}
-
-export function useUsuarios(filtrosIniciales?: Filtros) {
+export function useUsuarios(filtrosIniciales?: FiltrosUsuarios) {
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [usuariosFiltrados, setUsuariosFiltrados] = useState<Usuario[]>([]);
   const [usuariosConModulos, setUsuariosConModulos] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
 
-  const [filtros, setFiltros] = useState<Filtros>(
+  const [filtros, setFiltros] = useState<FiltrosUsuarios>(
     filtrosIniciales || {
       busqueda: '',
       rol_global: '',

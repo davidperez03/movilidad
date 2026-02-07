@@ -1,9 +1,10 @@
 'use client'
 
+import React from 'react'
 import { Loader2, LucideIcon } from 'lucide-react'
-import { Button, ButtonProps } from '@/components/ui/button'
+import { Button } from '@/components/ui/button'
 
-interface SubmitButtonProps extends Omit<ButtonProps, 'type'> {
+interface SubmitButtonProps extends Omit<React.ComponentProps<typeof Button>, 'type'> {
   loading: boolean
   loadingText?: string
   icon?: LucideIcon

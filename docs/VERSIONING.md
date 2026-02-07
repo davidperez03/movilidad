@@ -214,6 +214,7 @@ git push origin develop
 
 | Versión | Fecha | Descripción |
 |---------|-------|-------------|
+| 1.3.0 | 2026-02-07 | Gestión de usuarios, emails, PWA, parqueadero, refactorización DRY/SOLID |
 | 1.2.2 | 2026-01-28 | Fix: mejorar visualización auditoría y agregar placa a historial |
 | 1.2.1 | 2026-01-27 | Parche: login simplificado, fecha aprobación, estado aprobado en timeline |
 | 1.2.0 | 2026-01-27 | Mejoras UI dashboard y tablas |

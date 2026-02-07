@@ -3,7 +3,8 @@ import { redirect } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
 import { Truck, User } from "lucide-react"
 import { BotonCerrarSesion } from "@/components/logout-button"
-import { NavTabsParqueadero } from "@/components/parqueadero/nav-tabs"
+import { NavTabsParqueadero, parqueaderoNavItems } from "@/components/parqueadero/nav-tabs"
+import { MobileNav } from "@/components/shared/mobile-nav"
 import { SkipLink } from "@/components/ui/skip-link"
 import { getNowDateColombia } from "@/lib/utils/date"
 
@@ -109,19 +110,20 @@ export default async function ParqueaderoLayout({
           {/* Top bar */}
           <div className="flex h-16 items-center justify-between">
             <div className="flex items-center gap-3">
+              <MobileNav title="Parqueadero" items={parqueaderoNavItems} />
               <div className="flex items-center gap-2">
                 <div className="rounded-lg bg-cyan-600/10 p-2">
                   <Truck className="h-5 w-5 text-cyan-600" />
                 </div>
                 <div>
                   <h1 className="text-lg font-bold leading-none">Parqueadero</h1>
-                  <p className="text-xs text-muted-foreground">Inspecciones de Grúas</p>
+                  <p className="text-xs text-muted-foreground hidden sm:block">Inspecciones de Grúas</p>
                 </div>
               </div>
             </div>
 
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2">
+              <div className="hidden sm:flex items-center gap-2">
                 <User className="h-4 w-4 text-muted-foreground" />
                 <div className="text-right">
                   <p className="text-sm font-medium leading-none">{perfil?.nombre_completo || perfil?.correo}</p>

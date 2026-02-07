@@ -74,20 +74,29 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 SUPABASE_JWT_SECRET=your-jwt-secret
 
-# URLs de redirección
-NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL=http://localhost:3000/movilidad
+# Email (SMTP - Nodemailer)
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=tu-correo@gmail.com
+SMTP_PASS=tu-app-password
+SMTP_FROM=Sistema Movilidad <tu-correo@gmail.com>
 ```
 
 ### Variables en Vercel (Producción)
 
 Configurar en: Project Settings → Environment Variables
 
-| Variable | Entorno |
-|----------|---------|
-| `NEXT_PUBLIC_SUPABASE_URL` | Production, Preview |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Production, Preview |
-| `SUPABASE_SERVICE_ROLE_KEY` | Production |
-| `SUPABASE_JWT_SECRET` | Production |
+| Variable | Entorno | Descripción |
+|----------|---------|-------------|
+| `NEXT_PUBLIC_SUPABASE_URL` | Production, Preview | URL del proyecto Supabase |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Production, Preview | Clave pública anon |
+| `SUPABASE_SERVICE_ROLE_KEY` | Production | Clave de servicio (admin) |
+| `SUPABASE_JWT_SECRET` | Production | Secreto JWT |
+| `SMTP_HOST` | Production | Servidor SMTP (ej: smtp.gmail.com) |
+| `SMTP_PORT` | Production | Puerto SMTP (ej: 587) |
+| `SMTP_USER` | Production | Usuario SMTP |
+| `SMTP_PASS` | Production | Contraseña SMTP / App Password |
+| `SMTP_FROM` | Production | Remitente (ej: Sistema <correo>) |
 
 ## Despliegue Local
 
@@ -158,7 +167,11 @@ En Supabase Dashboard → Authentication → Settings:
 Site URL: https://tu-dominio.vercel.app
 Redirect URLs:
   - https://tu-dominio.vercel.app/movilidad
+  - https://tu-dominio.vercel.app/auth/confirm
+  - https://tu-dominio.vercel.app/auth/reset-password
+  - https://tu-dominio.vercel.app/auth/cambiar-password
   - http://localhost:3000/movilidad (desarrollo)
+  - http://localhost:3000/auth/confirm (desarrollo)
 ```
 
 ### 2. Row-Level Security
@@ -196,12 +209,22 @@ supabase functions deploy
 
 - [ ] Página de login carga correctamente
 - [ ] Login con credenciales funciona
-- [ ] Redirección post-login correcta
+- [ ] Redirección post-login correcta según rol
 - [ ] Dashboard muestra datos
 - [ ] CRUD de cuentas funciona
 - [ ] Generación de PDF funciona
-- [ ] Consulta pública accesible
+- [ ] Consulta pública accesible sin auth
 - [ ] Auditoría registra acciones
+- [ ] Crear usuario desde admin → queda pendiente
+- [ ] Aprobar usuario → recibe email con contraseña temporal
+- [ ] Login con contraseña temporal → redirige a cambiar contraseña
+- [ ] Cambiar contraseña → acceso normal al módulo
+- [ ] Resetear contraseña desde admin → email con nueva temporal
+- [ ] Olvidé contraseña → email con link → nueva contraseña
+- [ ] Sign-up público → pendiente de aprobación
+- [ ] PWA instalable desde navegador
+- [ ] Navegación responsive (hamburguesa en móvil)
+- [ ] Variables SMTP configuradas y emails se envían
 
 ### Monitoreo
 

@@ -3,7 +3,8 @@ import { redirect } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
 import { Car, User } from "lucide-react"
 import { BotonCerrarSesion } from "@/components/logout-button"
-import { NavTabs } from "@/components/movilidad/nav-tabs"
+import { NavTabs, movilidadNavItems } from "@/components/movilidad/nav-tabs"
+import { MobileNav } from "@/components/shared/mobile-nav"
 import { SkipLink } from "@/components/ui/skip-link"
 
 export const revalidate = 60
@@ -105,19 +106,20 @@ export default async function MovilidadLayout({
           {/* Top bar */}
           <div className="flex h-16 items-center justify-between">
             <div className="flex items-center gap-3">
+              <MobileNav title="Movilidad" items={movilidadNavItems} />
               <div className="flex items-center gap-2">
                 <div className="rounded-lg bg-primary/10 p-2">
                   <Car className="h-5 w-5 text-primary" />
                 </div>
                 <div>
                   <h1 className="text-lg font-bold leading-none">Movilidad</h1>
-                  <p className="text-xs text-muted-foreground">Traslados y Radicaciones</p>
+                  <p className="text-xs text-muted-foreground hidden sm:block">Traslados y Radicaciones</p>
                 </div>
               </div>
             </div>
 
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2">
+              <div className="hidden sm:flex items-center gap-2">
                 <User className="h-4 w-4 text-muted-foreground" />
                 <div className="text-right">
                   <p className="text-sm font-medium leading-none">{perfil.nombre_completo || perfil.correo}</p>

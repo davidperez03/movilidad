@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { logger } from '@/lib/logger'
 
 /**
  * API Route: Cerrar sesión cuando se cierra la ventana
@@ -33,7 +34,7 @@ export async function POST(request: NextRequest) {
     })
 
     if (error) {
-      console.error('Error cerrando sesión:', error)
+      logger.error('Error cerrando sesión', error)
       return NextResponse.json(
         { error: 'Error al cerrar sesión' },
         { status: 500 }
@@ -43,7 +44,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true })
 
   } catch (error) {
-    console.error('Error en close-session:', error)
+    logger.error('Error en close-session', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }

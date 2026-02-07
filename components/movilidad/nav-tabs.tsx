@@ -2,7 +2,17 @@
 
 import { Badge } from "@/components/ui/badge"
 import { LayoutDashboard, Activity, FileText, ArrowRightLeft, ArrowDownToLine, FileBarChart } from "lucide-react"
-import { NavLink } from "./nav-link"
+import { NavLink } from "@/components/shared/nav-link"
+import type { NavItem } from "@/components/shared/mobile-nav"
+
+export const movilidadNavItems: NavItem[] = [
+  { href: "/movilidad", label: "Dashboard", icon: LayoutDashboard, exact: true },
+  { href: "/movilidad/estado", label: "Estado General", icon: Activity },
+  { href: "/movilidad/cuentas", label: "Cuentas", icon: FileText },
+  { href: "/movilidad/traslados", label: "Traslados", icon: ArrowRightLeft },
+  { href: "/movilidad/radicaciones", label: "Radicaciones", icon: ArrowDownToLine },
+  { href: "/movilidad/reportes", label: "Reportes", icon: FileBarChart },
+]
 
 interface NavTabsProps {
   trasladosActivos: number | null
@@ -12,7 +22,7 @@ interface NavTabsProps {
 
 export function NavTabs({ trasladosActivos, radicacionesActivas, novedadesPendientes }: NavTabsProps) {
   return (
-    <nav className="flex gap-1 -mb-px" role="navigation" aria-label="Navegación principal de Movilidad">
+    <nav className="hidden md:flex gap-1 -mb-px" role="navigation" aria-label="Navegación principal de Movilidad">
       <NavLink href="/movilidad" exact>
         <LayoutDashboard className="h-4 w-4" />
         Dashboard
