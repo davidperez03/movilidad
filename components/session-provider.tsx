@@ -169,8 +169,8 @@ export function SessionProvider({ children }: SessionProviderProps) {
         router.push("/auth/login")
       }
 
-      // Solo resetear timer cuando el usuario inicia sesión manualmente
-      if (event === "SIGNED_IN") {
+      // Solo resetear timer cuando el usuario inicia sesión manualmente en rutas privadas
+      if (event === "SIGNED_IN" && !isPublicRoute) {
         updateActivity()
       }
 
