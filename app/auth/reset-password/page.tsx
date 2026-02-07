@@ -8,26 +8,57 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { PasswordRequirements, validatePassword } from "@/components/auth/password-requirements"
 import Link from "next/link"
-import { useState } from "react"
-import { Loader2, CheckCircle } from "lucide-react"
+import { useState, useEffect } from "react"
+import { Loader2, CheckCircle, AlertTriangle } from "lucide-react"
 
 export default function ResetPasswordPage() {
-  const [password, setPassword] = useState("")
-  const [confirmPassword, setConfirmPassword] = useState("")
+  const [newPwd, setNewPwd] = useState("")
+  const [confirmPwd, setConfirmPwd] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [success, setSuccess] = useState(false)
+  const [sessionReady, setSessionReady] = useState(false)
+  const [exchanging, setExchanging] = useState(true)
+
+  // Intercambiar código PKCE si viene en la URL (email de Supabase)
+  useEffect(() => {
+    const exchangeCode = async () => {
+      const supabase = createClient()
+      const params = new URLSearchParams(window.location.search)
+      const code = params.get("code")
+
+      if (code) {
+        const { error } = await supabase.auth.exchangeCodeForSession(code)
+        if (!error) {
+          // Limpiar URL para que no se reuse el código
+          window.history.replaceState({}, "", "/auth/reset-password")
+          setSessionReady(true)
+          setExchanging(false)
+          return
+        }
+      }
+
+      // Si no hay código, verificar si ya hay sesión activa (viene de /auth/confirm)
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session) {
+        setSessionReady(true)
+      }
+      setExchanging(false)
+    }
+
+    exchangeCode()
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
 
-    if (!validatePassword(password)) {
-      setError("La contraseña no cumple con los requisitos mínimos")
+    if (!validatePassword(newPwd)) {
+      setError("La contraseña no cumple con los requisitos minimos")
       return
     }
 
-    if (password !== confirmPassword) {
+    if (newPwd !== confirmPwd) {
       setError("Las contraseñas no coinciden")
       return
     }
@@ -36,11 +67,10 @@ export default function ResetPasswordPage() {
 
     try {
       const supabase = createClient()
-      const { error } = await supabase.auth.updateUser({ password })
+      const { error } = await supabase.auth.updateUser({ password: newPwd })
 
       if (error) throw error
 
-      // Cerrar sesión para que inicie con la nueva contraseña
       await supabase.auth.signOut()
       setSuccess(true)
     } catch (error: unknown) {
@@ -55,6 +85,41 @@ export default function ResetPasswordPage() {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  // Cargando mientras se intercambia el código
+  if (exchanging) {
+    return (
+      <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    )
+  }
+
+  // No hay sesión válida
+  if (!sessionReady) {
+    return (
+      <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
+        <div className="w-full max-w-sm">
+          <Card>
+            <CardHeader className="text-center">
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-amber-100">
+                <AlertTriangle className="h-6 w-6 text-amber-600" />
+              </div>
+              <CardTitle className="text-2xl">Enlace invalido</CardTitle>
+              <CardDescription>
+                Este enlace de recuperacion ha expirado o ya fue utilizado. Solicita uno nuevo.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button asChild className="w-full">
+                <Link href="/auth/forgot-password">Solicitar nuevo enlace</Link>
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    )
   }
 
   if (success) {
@@ -73,7 +138,7 @@ export default function ResetPasswordPage() {
             </CardHeader>
             <CardContent>
               <Button asChild className="w-full">
-                <Link href="/auth/login?message=password_updated">Iniciar sesión</Link>
+                <Link href="/auth/login?message=password_updated">Iniciar sesion</Link>
               </Button>
             </CardContent>
           </Card>
@@ -96,26 +161,26 @@ export default function ResetPasswordPage() {
             <form onSubmit={handleSubmit}>
               <div className="flex flex-col gap-4">
                 <div className="grid gap-2">
-                  <Label htmlFor="password">Nueva contraseña</Label>
+                  <Label htmlFor="newPwd">Nueva contraseña</Label>
                   <Input
-                    id="password"
+                    id="newPwd"
                     type="password"
                     required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    value={newPwd}
+                    onChange={(e) => setNewPwd(e.target.value)}
                     disabled={isLoading}
                   />
-                  <PasswordRequirements password={password} />
+                  <PasswordRequirements password={newPwd} />
                 </div>
 
                 <div className="grid gap-2">
-                  <Label htmlFor="confirmPassword">Confirmar contraseña</Label>
+                  <Label htmlFor="confirmPwd">Confirmar contraseña</Label>
                   <Input
-                    id="confirmPassword"
+                    id="confirmPwd"
                     type="password"
                     required
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    value={confirmPwd}
+                    onChange={(e) => setConfirmPwd(e.target.value)}
                     disabled={isLoading}
                   />
                 </div>
@@ -124,7 +189,7 @@ export default function ResetPasswordPage() {
                   <p className="text-sm text-destructive">{error}</p>
                 )}
 
-                <Button type="submit" className="w-full" disabled={isLoading || !validatePassword(password)}>
+                <Button type="submit" className="w-full" disabled={isLoading || !validatePassword(newPwd)}>
                   {isLoading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />

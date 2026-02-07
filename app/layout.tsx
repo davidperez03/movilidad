@@ -45,6 +45,17 @@ export default function RootLayout({
         </SessionProvider>
         <Toaster position="top-right" richColors closeButton />
         <Analytics />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                  navigator.serviceWorker.register('/sw.js')
+                })
+              }
+            `,
+          }}
+        />
       </body>
     </html>
   )

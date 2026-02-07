@@ -1,4 +1,4 @@
-# GitFlow - Sistema de Movilidad
+# GitFlow - Movilidad
 
 Guía de flujo de trabajo con Git para el proyecto.
 

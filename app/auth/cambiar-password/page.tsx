@@ -12,8 +12,8 @@ import { useState } from "react"
 import { Loader2, ShieldAlert } from "lucide-react"
 
 export default function CambiarPasswordPage() {
-  const [password, setPassword] = useState("")
-  const [confirmPassword, setConfirmPassword] = useState("")
+  const [newPwd, setNewPwd] = useState("")
+  const [confirmPwd, setConfirmPwd] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
 
@@ -21,12 +21,12 @@ export default function CambiarPasswordPage() {
     e.preventDefault()
     setError(null)
 
-    if (!validatePassword(password)) {
+    if (!validatePassword(newPwd)) {
       setError("La contraseña no cumple con los requisitos mínimos")
       return
     }
 
-    if (password !== confirmPassword) {
+    if (newPwd !== confirmPwd) {
       setError("Las contraseñas no coinciden")
       return
     }
@@ -38,7 +38,7 @@ export default function CambiarPasswordPage() {
 
       // Actualizar contraseña y quitar flag
       const { error } = await supabase.auth.updateUser({
-        password,
+        password: newPwd,
         data: { debe_cambiar_password: false },
       })
 
@@ -113,24 +113,24 @@ export default function CambiarPasswordPage() {
                 <div className="grid gap-2">
                   <Label htmlFor="password">Nueva contraseña</Label>
                   <Input
-                    id="password"
+                    id="newPwd"
                     type="password"
                     required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    value={newPwd}
+                    onChange={(e) => setNewPwd(e.target.value)}
                     disabled={isLoading}
                   />
-                  <PasswordRequirements password={password} />
+                  <PasswordRequirements password={newPwd} />
                 </div>
 
                 <div className="grid gap-2">
                   <Label htmlFor="confirmPassword">Confirmar contraseña</Label>
                   <Input
-                    id="confirmPassword"
+                    id="confirmPwd"
                     type="password"
                     required
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    value={confirmPwd}
+                    onChange={(e) => setConfirmPwd(e.target.value)}
                     disabled={isLoading}
                   />
                 </div>
@@ -139,7 +139,7 @@ export default function CambiarPasswordPage() {
                   <p className="text-sm text-destructive">{error}</p>
                 )}
 
-                <Button type="submit" className="w-full" disabled={isLoading || !validatePassword(password)}>
+                <Button type="submit" className="w-full" disabled={isLoading || !validatePassword(newPwd)}>
                   {isLoading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
