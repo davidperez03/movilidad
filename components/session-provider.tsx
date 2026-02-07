@@ -34,8 +34,7 @@ export function SessionProvider({ children }: SessionProviderProps) {
   const warningTimerRef = useRef<NodeJS.Timeout | null>(null)
 
   // Rutas públicas que no necesitan gestión de sesión
-  const publicRoutes = ["/auth/login", "/auth/sign-up", "/consulta", "/auth/error"]
-  const isPublicRoute = publicRoutes.some(route => pathname?.startsWith(route))
+  const isPublicRoute = pathname?.startsWith("/auth") || pathname?.startsWith("/consulta") || pathname === "/"
 
   // Refrescar token de Supabase
   const refreshToken = async () => {

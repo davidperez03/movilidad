@@ -37,9 +37,6 @@ export default function ForgotPasswordPage() {
     try {
       const supabase = createClient()
 
-      // Cerrar sesion si hay una activa (el usuario puede llegar aqui logueado)
-      await supabase.auth.signOut()
-
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/auth/confirm?next=/auth/reset-password`,
       })
