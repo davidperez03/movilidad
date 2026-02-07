@@ -33,8 +33,8 @@ function baseLayout(content: string): string {
   <tr><td style="padding:20px 36px;background-color:#fafafa;border-top:1px solid #e5e5e5;">
     <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
       <tr><td>
-        <p style="margin:0 0 4px;color:#a1a1aa;font-size:11px;text-align:center;">Este es un mensaje automatico del Sistema de Movilidad.</p>
-        <p style="margin:0;color:#a1a1aa;font-size:11px;text-align:center;">No responda a este correo. Si tiene dudas, contacte al administrador del sistema.</p>
+        <p style="margin:0 0 4px;color:#a1a1aa;font-size:11px;text-align:center;">Este es un mensaje automatico del Sistema de Movilidad. No responda a este correo.</p>
+        <p style="margin:0;color:#a1a1aa;font-size:11px;text-align:center;">Si tiene dudas, contacte al administrador del sistema.</p>
       </td></tr>
     </table>
   </td></tr>
