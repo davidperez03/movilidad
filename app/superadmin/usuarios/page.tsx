@@ -7,24 +7,14 @@ import { UserPlus } from 'lucide-react';
 import { toast } from 'sonner';
 import { useUsuarios } from '@/lib/hooks/useUsuarios';
 import { EstadisticasUsuarios } from '@/components/superadmin/usuarios/estadisticas-usuarios';
-import { FiltrosUsuarios } from '@/components/superadmin/usuarios/filtros-usuarios';
+import { FiltrosUsuarios as FiltrosUsuariosComponent } from '@/components/superadmin/usuarios/filtros-usuarios';
 import { ListaUsuarios } from '@/components/superadmin/usuarios/lista-usuarios';
 import { ModalCrearUsuario } from '@/components/superadmin/usuarios/modal-crear-usuario';
 import { ModalEditarUsuario } from '@/components/superadmin/usuarios/modal-editar-usuario';
 import { ModalDetallesUsuario } from '@/components/superadmin/usuarios/modal-detalles-usuario';
-
-interface Usuario {
-  id: string;
-  correo: string;
-  nombre_completo: string | null;
-  rol_global: 'usuario' | 'superadmin';
-  activo: boolean;
-  url_avatar: string | null;
-  suspendido_hasta: string | null;
-  razon_suspension: string | null;
-  ultima_conexion: string | null;
-  creado_en: string;
-}
+import { ConfirmDialog } from '@/components/shared/confirm-dialog';
+import type { Usuario, ConfirmState } from '@/lib/types/usuario';
+import { CONFIRM_INITIAL } from '@/lib/types/usuario';
 
 export default function UsuariosPage() {
   const searchParams = useSearchParams();
@@ -42,11 +32,12 @@ export default function UsuariosPage() {
   const [modalEditar, setModalEditar] = useState(false);
   const [modalDetalles, setModalDetalles] = useState(false);
   const [usuarioSeleccionado, setUsuarioSeleccionado] = useState<Usuario | null>(null);
+  const [confirmLoading, setConfirmLoading] = useState(false);
 
-  // Formularios
+  const [confirmState, setConfirmState] = useState<ConfirmState>(CONFIRM_INITIAL);
+
   const [formCrear, setFormCrear] = useState({
     correo: '',
-    password: '',
     nombre_completo: '',
   });
 
@@ -56,7 +47,6 @@ export default function UsuariosPage() {
   });
 
   useEffect(() => {
-    // Aplicar filtros basados en query params
     const filtroParam = searchParams.get('filtro');
     if (filtroParam) {
       switch (filtroParam) {
@@ -77,13 +67,13 @@ export default function UsuariosPage() {
   }, []);
 
   async function crearUsuario() {
-    if (!formCrear.correo || !formCrear.password) {
-      toast.error('Correo y contraseña son obligatorios');
+    if (!formCrear.correo || !formCrear.nombre_completo) {
+      toast.error('Correo y nombre completo son obligatorios');
       return;
     }
 
-    if (formCrear.password.length < 6) {
-      toast.error('La contraseña debe tener al menos 6 caracteres');
+    if (formCrear.nombre_completo.length < 3) {
+      toast.error('El nombre debe tener al menos 3 caracteres');
       return;
     }
 
@@ -93,8 +83,7 @@ export default function UsuariosPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email: formCrear.correo,
-          password: formCrear.password,
-          nombreCompleto: formCrear.nombre_completo || null,
+          nombreCompleto: formCrear.nombre_completo,
         }),
       });
 
@@ -104,9 +93,9 @@ export default function UsuariosPage() {
         throw new Error(data.error || 'Error al crear usuario');
       }
 
-      toast.success('Usuario creado exitosamente');
+      toast.success('Usuario creado. Pendiente de aprobación.');
       setModalCrear(false);
-      setFormCrear({ correo: '', password: '', nombre_completo: '' });
+      setFormCrear({ correo: '', nombre_completo: '' });
       cargarUsuarios();
     } catch (error: any) {
       toast.error(error.message || 'Error al crear usuario');
@@ -133,7 +122,7 @@ export default function UsuariosPage() {
       toast.success('Usuario actualizado exitosamente');
       setModalEditar(false);
       cargarUsuarios();
-    } catch (error) {
+    } catch {
       toast.error('Error al actualizar usuario');
     }
   }
@@ -152,6 +141,104 @@ export default function UsuariosPage() {
     setModalDetalles(true);
   }
 
+  function solicitarAprobar(usuario: Usuario) {
+    setConfirmState({
+      open: true,
+      title: 'Aprobar usuario',
+      description: `Se aprobará la cuenta de ${usuario.correo}. Se generará una contraseña temporal y se enviará por correo electrónico.`,
+      confirmLabel: 'Aprobar',
+      variant: 'default',
+      action: async () => {
+        const res = await fetch('/api/admin/aprobar-usuario', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: usuario.id }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+        if (data.emailSent) {
+          toast.success('Usuario aprobado y email enviado');
+        } else {
+          toast.warning('Usuario aprobado. No se pudo enviar el email (verificar config SMTP)');
+        }
+        cargarUsuarios();
+      },
+    });
+  }
+
+  function solicitarResetearPassword(usuario: Usuario) {
+    setConfirmState({
+      open: true,
+      title: 'Resetear contraseña',
+      description: `Se generará una nueva contraseña temporal para ${usuario.correo} y se enviará por correo electrónico.`,
+      confirmLabel: 'Resetear',
+      variant: 'default',
+      action: async () => {
+        const res = await fetch('/api/admin/resetear-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: usuario.id }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+        if (data.emailSent) {
+          toast.success('Contraseña restablecida y email enviado');
+        } else {
+          toast.warning('Contraseña restablecida. No se pudo enviar el email (verificar config SMTP)');
+        }
+      },
+    });
+  }
+
+  function solicitarEliminar(usuario: Usuario) {
+    setConfirmState({
+      open: true,
+      title: 'Eliminar usuario',
+      description: `Se eliminará permanentemente a ${usuario.correo} del sistema. Esta acción no se puede deshacer.`,
+      confirmLabel: 'Eliminar',
+      variant: 'destructive',
+      action: async () => {
+        const res = await fetch('/api/admin/eliminar-usuario', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: usuario.id }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+        toast.success('Usuario eliminado');
+        cargarUsuarios();
+      },
+    });
+  }
+
+  function solicitarCambiarEstado(usuario: Usuario, nuevoEstado: boolean) {
+    setConfirmState({
+      open: true,
+      title: nuevoEstado ? 'Activar usuario' : 'Desactivar usuario',
+      description: nuevoEstado
+        ? `Se activará la cuenta de ${usuario.correo}. Podrá iniciar sesión nuevamente.`
+        : `Se desactivará la cuenta de ${usuario.correo}. No podrá iniciar sesión.`,
+      confirmLabel: nuevoEstado ? 'Activar' : 'Desactivar',
+      variant: nuevoEstado ? 'default' : 'destructive',
+      action: async () => {
+        await cambiarEstadoUsuario(usuario, nuevoEstado);
+      },
+    });
+  }
+
+  async function ejecutarConfirm() {
+    if (!confirmState.action) return;
+    setConfirmLoading(true);
+    try {
+      await confirmState.action();
+    } catch (error: any) {
+      toast.error(error.message || 'Error al ejecutar la acción');
+    } finally {
+      setConfirmLoading(false);
+      setConfirmState(prev => ({ ...prev, open: false }));
+    }
+  }
+
   if (loading) {
     return (
       <div className="space-y-6">
@@ -167,7 +254,6 @@ export default function UsuariosPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Gestión de Usuarios</h1>
@@ -181,23 +267,21 @@ export default function UsuariosPage() {
         </Button>
       </div>
 
-      {/* Estadísticas */}
       <EstadisticasUsuarios usuarios={usuarios} />
+      <FiltrosUsuariosComponent filtros={filtros} onFiltrosChange={setFiltros} />
 
-      {/* Filtros */}
-      <FiltrosUsuarios filtros={filtros} onFiltrosChange={setFiltros} />
-
-      {/* Listado de usuarios */}
       <ListaUsuarios
         usuarios={usuariosFiltrados}
         hayFiltrosActivos={hayFiltrosActivos}
         onAbrirModalCrear={() => setModalCrear(true)}
         onAbrirModalEditar={abrirModalEditar}
         onAbrirModalDetalles={abrirModalDetalles}
-        onCambiarEstado={cambiarEstadoUsuario}
+        onCambiarEstado={solicitarCambiarEstado}
+        onAprobarUsuario={solicitarAprobar}
+        onResetearPassword={solicitarResetearPassword}
+        onEliminarUsuario={solicitarEliminar}
       />
 
-      {/* Modales */}
       {modalCrear && (
         <ModalCrearUsuario
           form={formCrear}
@@ -205,7 +289,7 @@ export default function UsuariosPage() {
           onCrear={crearUsuario}
           onCerrar={() => {
             setModalCrear(false);
-            setFormCrear({ correo: '', password: '', nombre_completo: '' });
+            setFormCrear({ correo: '', nombre_completo: '' });
           }}
         />
       )}
@@ -231,6 +315,17 @@ export default function UsuariosPage() {
           }}
         />
       )}
+
+      <ConfirmDialog
+        open={confirmState.open}
+        onOpenChange={(open) => setConfirmState(prev => ({ ...prev, open }))}
+        title={confirmState.title}
+        description={confirmState.description}
+        confirmLabel={confirmState.confirmLabel}
+        variant={confirmState.variant}
+        onConfirm={ejecutarConfirm}
+        isLoading={confirmLoading}
+      />
     </div>
   );
 }

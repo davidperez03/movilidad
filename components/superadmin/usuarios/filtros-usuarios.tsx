@@ -4,17 +4,11 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
-
-interface Filtros {
-  busqueda: string;
-  rol_global: string;
-  activo: string;
-  modulo: string;
-}
+import type { FiltrosUsuarios } from '@/lib/types/usuario';
 
 interface FiltrosUsuariosProps {
-  filtros: Filtros;
-  onFiltrosChange: (filtros: Filtros) => void;
+  filtros: FiltrosUsuarios;
+  onFiltrosChange: (filtros: FiltrosUsuarios) => void;
 }
 
 export function FiltrosUsuarios({ filtros, onFiltrosChange }: FiltrosUsuariosProps) {

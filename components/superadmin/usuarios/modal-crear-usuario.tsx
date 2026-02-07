@@ -7,7 +7,6 @@ import { Input } from '@/components/ui/input';
 interface ModalCrearUsuarioProps {
   form: {
     correo: string;
-    password: string;
     nombre_completo: string;
   };
   setForm: (form: any) => void;
@@ -21,7 +20,9 @@ export function ModalCrearUsuario({ form, setForm, onCrear, onCerrar }: ModalCre
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>Crear Nuevo Usuario</CardTitle>
-          <CardDescription>Ingresa los datos del nuevo usuario del sistema</CardDescription>
+          <CardDescription>
+            El usuario quedará pendiente de aprobación. Al aprobarlo se le generará una contraseña temporal y se le enviará por correo.
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
@@ -37,18 +38,7 @@ export function ModalCrearUsuario({ form, setForm, onCrear, onCerrar }: ModalCre
           </div>
           <div className="space-y-2">
             <label className="text-sm font-medium">
-              Contraseña * (mínimo 6 caracteres)
-            </label>
-            <Input
-              type="password"
-              placeholder="••••••"
-              value={form.password}
-              onChange={(e) => setForm({ ...form, password: e.target.value })}
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium">
-              Nombre Completo
+              Nombre Completo *
             </label>
             <Input
               type="text"

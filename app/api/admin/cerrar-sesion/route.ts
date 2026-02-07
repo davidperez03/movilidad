@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { logger } from '@/lib/logger'
 
 /**
  * API Route: Cerrar sesión manualmente (Superadmin)
@@ -36,7 +37,7 @@ export async function POST(request: NextRequest) {
     })
 
     if (error) {
-      console.error('Error cerrando sesión:', error)
+      logger.error('Error cerrando sesión', error)
       return NextResponse.json(
         { error: error.message },
         { status: 500 }
@@ -53,7 +54,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true })
 
   } catch (error) {
-    console.error('Error en cerrar-sesion:', error)
+    logger.error('Error en cerrar-sesion', error)
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }

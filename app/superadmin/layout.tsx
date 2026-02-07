@@ -6,6 +6,8 @@ import { usePathname } from 'next/navigation';
 import { ShieldCheck, LayoutDashboard, Users, FileText, ChevronDown, Activity } from 'lucide-react';
 import { useState } from 'react';
 import { BotonCerrarSesion } from '@/components/logout-button';
+import { MobileNav } from '@/components/shared/mobile-nav';
+import type { NavItem } from '@/components/shared/mobile-nav';
 
 export default function SuperAdminLayout({
   children,
@@ -44,13 +46,20 @@ function SuperAdminNav() {
         {/* Top bar */}
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center gap-3">
+            <MobileNav
+              title="SuperAdmin"
+              items={[
+                ...navItems.map(i => ({ href: i.href, label: i.label, icon: i.icon, exact: i.href === '/superadmin/dashboard' })),
+                ...modulos.map(m => ({ href: m.href, label: m.label })),
+              ] as NavItem[]}
+            />
             <div className="flex items-center gap-2">
               <div className="rounded-lg bg-primary/10 p-2">
                 <ShieldCheck className="h-5 w-5 text-primary" />
               </div>
               <div>
                 <h1 className="text-lg font-bold leading-none">SuperAdmin</h1>
-                <p className="text-xs text-muted-foreground">Panel de administración</p>
+                <p className="text-xs text-muted-foreground hidden sm:block">Panel de administración</p>
               </div>
             </div>
           </div>
@@ -58,7 +67,7 @@ function SuperAdminNav() {
         </div>
 
         {/* Navigation tabs */}
-        <nav className="flex gap-1 -mb-px">
+        <nav className="hidden md:flex gap-1 -mb-px">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = pathname === item.href;
