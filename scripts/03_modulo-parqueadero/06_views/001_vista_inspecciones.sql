@@ -25,4 +25,6 @@ from public.parq_inspecciones i
 join public.parq_vehiculos v on v.id = i.vehiculo_id
 left join public.parq_datos_personal dp on dp.perfil_id = i.operador_id;
 
+alter view public.parq_vista_inspecciones set (security_invoker = true);
+
 comment on view public.parq_vista_inspecciones is 'Vista consolidada de inspecciones con datos de vehículo, operador e inspector (usa snapshots históricos)';

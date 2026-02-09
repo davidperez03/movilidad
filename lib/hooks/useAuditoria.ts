@@ -10,6 +10,7 @@ export interface FiltrosAuditoria {
   usuario: string
   fechaInicio: string
   fechaFin: string
+  busqueda: string
 }
 
 const FILTROS_INITIAL: FiltrosAuditoria = {
@@ -17,13 +18,14 @@ const FILTROS_INITIAL: FiltrosAuditoria = {
   usuario: 'todos',
   fechaInicio: '',
   fechaFin: '',
+  busqueda: '',
 }
 
 export function getTipoAccion(accion: string): string {
   if (accion.startsWith('usuario_')) return 'usuario'
   if (accion.startsWith('rol_')) return 'rol'
   if (accion.includes('login') || accion.includes('logout') || accion.includes('sesion') || accion.includes('token')) return 'sesion'
-  if (accion.includes('inspeccion') || accion.includes('parq_') || accion.includes('vehiculo_parq') || accion.includes('personal_')) return 'parqueadero'
+  if (accion.startsWith('parq_')) return 'parqueadero'
   return 'movilidad'
 }
 
@@ -42,7 +44,7 @@ export function useAuditoria() {
         .from('sys_vista_auditoria_completa')
         .select('*')
         .order('creado_en', { ascending: false })
-        .limit(500),
+        .limit(1000),
       supabase
         .from('perfiles')
         .select('id, nombre_completo, correo')
@@ -68,6 +70,7 @@ export function useAuditoria() {
       usuario_correo: String(item.usuario_correo || ''),
       usuario_nombre: String(item.usuario_nombre || 'Sistema'),
       ip_address: item.ip_address ? String(item.ip_address) : null,
+      user_agent: item.user_agent ? String(item.user_agent) : null,
       creado_en: String(item.creado_en || ''),
       cuenta_id: item.cuenta_id ? String(item.cuenta_id) : null,
       proceso_tipo: item.proceso_tipo ? String(item.proceso_tipo) : null,
@@ -89,16 +92,35 @@ export function useAuditoria() {
   }, [cargarDatos])
 
   const registrosFiltrados = useMemo(() => {
+    const busquedaLower = filtros.busqueda.toLowerCase()
+
     return registros.filter((r) => {
       if (filtros.tipo !== 'todos' && getTipoAccion(r.accion) !== filtros.tipo) return false
       if (filtros.usuario !== 'todos' && r.usuario_id !== filtros.usuario) return false
       if (filtros.fechaInicio && r.creado_en < filtros.fechaInicio) return false
       if (filtros.fechaFin && r.creado_en.split('T')[0] > filtros.fechaFin) return false
+
+      if (busquedaLower) {
+        const textos = [
+          r.accion,
+          r.usuario_nombre,
+          r.usuario_correo,
+          r.placa,
+          r.ip_address,
+          r.entidad_tipo,
+          r.valor_anterior,
+          r.valor_nuevo,
+          JSON.stringify(r.detalles),
+        ].filter(Boolean).join(' ').toLowerCase()
+
+        if (!textos.includes(busquedaLower)) return false
+      }
+
       return true
     })
   }, [registros, filtros])
 
-  const hayFiltros = filtros.tipo !== 'todos' || filtros.usuario !== 'todos' || filtros.fechaInicio || filtros.fechaFin
+  const hayFiltros = filtros.tipo !== 'todos' || filtros.usuario !== 'todos' || !!filtros.fechaInicio || !!filtros.fechaFin || !!filtros.busqueda
 
   const limpiarFiltros = useCallback(() => {
     setFiltros(FILTROS_INITIAL)
@@ -106,14 +128,18 @@ export function useAuditoria() {
 
   const exportarCSV = useCallback(() => {
     const csv = [
-      ['Fecha', 'Responsable', 'Tipo', 'Afectado', 'Acción', 'IP'].join(','),
+      ['Fecha', 'Responsable', 'Correo', 'Tipo', 'Acción', 'Afectado/Placa', 'Estado Anterior', 'Estado Nuevo', 'IP', 'Módulo'].join(','),
       ...registrosFiltrados.map((r) => [
         `"${new Date(r.creado_en).toLocaleString('es-CO')}"`,
         `"${r.usuario_nombre}"`,
+        `"${r.usuario_correo}"`,
         `"${getTipoAccion(r.accion)}"`,
-        `"${r.placa || ''}"`,
         `"${r.accion.replace(/_/g, ' ')}"`,
+        `"${r.placa || ''}"`,
+        `"${r.valor_anterior || ''}"`,
+        `"${r.valor_nuevo || ''}"`,
         `"${r.ip_address || ''}"`,
+        `"${r.modulo}"`,
       ].join(',')),
     ].join('\n')
 
@@ -126,6 +152,7 @@ export function useAuditoria() {
 
   return {
     registros: registrosFiltrados,
+    registrosTodos: registros,
     totalRegistros: registros.length,
     loading,
     usuarios,

@@ -18,4 +18,6 @@ join public.perfiles p on p.id = dp.perfil_id
 where dp.licencia_vencimiento is not null and dp.licencia_vencimiento <= current_date + 30
 order by fecha_vencimiento;
 
+alter view public.parq_vista_alertas_vencimientos set (security_invoker = true);
+
 comment on view public.parq_vista_alertas_vencimientos is 'Alertas de documentos próximos a vencer o vencidos';

@@ -15,4 +15,6 @@ join public.perfiles p on ur.usuario_id = p.id
 left join public.parq_datos_personal dp on dp.perfil_id = p.id
 where ur.modulo_id = 'parqueadero';
 
+alter view public.parq_vista_personal set (security_invoker = true);
+
 comment on view public.parq_vista_personal is 'Vista del personal de parqueadero con estado de licencia';

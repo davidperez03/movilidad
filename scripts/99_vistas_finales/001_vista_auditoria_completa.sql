@@ -1,6 +1,6 @@
 -- Vista unificada de auditoría del sistema
--- Combina sys_auditoria (sistema) y mov_historial_acciones (movilidad)
--- Incluye la placa del vehículo para registros de movilidad
+-- Combina sys_auditoria (sistema), mov_historial_acciones (movilidad)
+-- y parq_historial_acciones (parqueadero)
 
 CREATE OR REPLACE VIEW sys_vista_auditoria_completa AS
 SELECT
@@ -55,7 +55,38 @@ FROM public.mov_historial_acciones m
 LEFT JOIN public.perfiles p ON m.realizado_por = p.id
 LEFT JOIN public.mov_cuentas_vehiculos cv ON m.cuenta_id = cv.id
 
+UNION ALL
+
+SELECT
+  ph.id,
+  'parqueadero' AS modulo,
+  ph.accion,
+  CASE
+    WHEN ph.inspeccion_id IS NOT NULL THEN 'inspeccion'
+    WHEN ph.vehiculo_id IS NOT NULL THEN 'vehiculo'
+    ELSE 'personal'
+  END AS entidad_tipo,
+  COALESCE(ph.inspeccion_id, ph.vehiculo_id) AS entidad_id,
+  ph.detalles,
+  ph.valor_anterior,
+  ph.valor_nuevo,
+  ph.realizado_por AS usuario_id,
+  p.correo AS usuario_correo,
+  p.nombre_completo AS usuario_nombre,
+  NULL::INET AS ip_address,
+  NULL::TEXT AS user_agent,
+  ph.creado_en,
+  NULL::UUID AS cuenta_id,
+  NULL::TEXT AS proceso_tipo,
+  NULL::UUID AS proceso_id,
+  COALESCE(v.placa, ph.detalles->>'placa') AS placa
+FROM public.parq_historial_acciones ph
+LEFT JOIN public.perfiles p ON ph.realizado_por = p.id
+LEFT JOIN public.parq_vehiculos v ON ph.vehiculo_id = v.id
+
 ORDER BY creado_en DESC;
 
+ALTER VIEW sys_vista_auditoria_completa SET (security_invoker = true);
+
 COMMENT ON VIEW sys_vista_auditoria_completa IS
-  'Vista unificada de toda la auditoría del sistema. Incluye la placa del vehículo para registros de movilidad.';
+  'Vista unificada de toda la auditoría del sistema. Combina sistema, movilidad y parqueadero.';

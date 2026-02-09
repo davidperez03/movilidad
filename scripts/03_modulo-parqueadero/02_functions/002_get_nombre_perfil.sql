@@ -3,6 +3,7 @@ returns text
 language sql
 security definer
 stable
+set search_path = public
 as $$
   select nombre_completo from public.perfiles where id = perfil_id;
 $$;

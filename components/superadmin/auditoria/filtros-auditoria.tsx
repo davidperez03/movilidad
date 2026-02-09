@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { X } from 'lucide-react'
+import { X, Search } from 'lucide-react'
 import type { FiltrosAuditoria } from '@/lib/hooks/useAuditoria'
 
 const TIPOS = [
@@ -41,54 +41,66 @@ export function FiltrosAuditoriaComponent({
   onLimpiar,
 }: FiltrosAuditoriaProps) {
   return (
-    <div className="flex flex-wrap gap-2 items-center p-3 bg-muted/50 rounded-lg">
-      <Select value={filtros.tipo} onValueChange={(v) => onFiltrosChange({ ...filtros, tipo: v })}>
-        <SelectTrigger className="w-[150px] h-9">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {TIPOS.map((t) => (
-            <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+    <div className="space-y-2">
+      {/* Búsqueda global */}
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          placeholder="Buscar por nombre, correo, placa, IP, acción..."
+          value={filtros.busqueda}
+          onChange={(e) => onFiltrosChange({ ...filtros, busqueda: e.target.value })}
+          className="pl-9 h-10"
+        />
+      </div>
 
-      <Select value={filtros.usuario} onValueChange={(v) => onFiltrosChange({ ...filtros, usuario: v })}>
-        <SelectTrigger className="w-[180px] h-9">
-          <SelectValue placeholder="Responsable" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="todos">Todos</SelectItem>
-          {usuarios.map((u) => (
-            <SelectItem key={u.id} value={u.id}>{u.label}</SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      {/* Filtros avanzados */}
+      <div className="flex flex-wrap gap-2 items-center p-3 bg-muted/50 rounded-lg">
+        <Select value={filtros.tipo} onValueChange={(v) => onFiltrosChange({ ...filtros, tipo: v })}>
+          <SelectTrigger className="w-[150px] h-9">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {TIPOS.map((t) => (
+              <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
-      <Input
-        type="date"
-        value={filtros.fechaInicio}
-        onChange={(e) => onFiltrosChange({ ...filtros, fechaInicio: e.target.value })}
-        className="w-[140px] h-9"
-        placeholder="Desde"
-      />
-      <Input
-        type="date"
-        value={filtros.fechaFin}
-        onChange={(e) => onFiltrosChange({ ...filtros, fechaFin: e.target.value })}
-        className="w-[140px] h-9"
-        placeholder="Hasta"
-      />
+        <Select value={filtros.usuario} onValueChange={(v) => onFiltrosChange({ ...filtros, usuario: v })}>
+          <SelectTrigger className="w-[180px] h-9">
+            <SelectValue placeholder="Responsable" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="todos">Todos</SelectItem>
+            {usuarios.map((u) => (
+              <SelectItem key={u.id} value={u.id}>{u.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
-      {hayFiltros && (
-        <Button variant="ghost" size="sm" onClick={onLimpiar}>
-          <X className="h-4 w-4" />
-        </Button>
-      )}
+        <Input
+          type="date"
+          value={filtros.fechaInicio}
+          onChange={(e) => onFiltrosChange({ ...filtros, fechaInicio: e.target.value })}
+          className="w-[140px] h-9"
+        />
+        <Input
+          type="date"
+          value={filtros.fechaFin}
+          onChange={(e) => onFiltrosChange({ ...filtros, fechaFin: e.target.value })}
+          className="w-[140px] h-9"
+        />
 
-      <span className="text-sm text-muted-foreground ml-auto">
-        {registrosFiltrados}{hayFiltros ? ` de ${totalRegistros}` : ''} registros
-      </span>
+        {hayFiltros && (
+          <Button variant="ghost" size="sm" onClick={onLimpiar}>
+            <X className="h-4 w-4 mr-1" /> Limpiar
+          </Button>
+        )}
+
+        <span className="text-sm text-muted-foreground ml-auto">
+          {registrosFiltrados}{hayFiltros ? ` de ${totalRegistros}` : ''} registros
+        </span>
+      </div>
     </div>
   )
 }

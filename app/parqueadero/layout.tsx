@@ -111,7 +111,7 @@ export default async function ParqueaderoLayout({
           {/* Top bar */}
           <div className="flex h-16 items-center justify-between">
             <div className="flex items-center gap-3">
-              <MobileNav title="Parqueadero" items={esSuperAdmin ? [{ href: '/superadmin/dashboard', label: 'Panel Admin' }, ...parqueaderoNavItems] : parqueaderoNavItems} />
+              <MobileNav title="Parqueadero" items={parqueaderoNavItems} />
               <div className="flex items-center gap-2">
                 <div className="rounded-lg bg-cyan-600/10 p-2">
                   <Truck className="h-5 w-5 text-cyan-600" />
@@ -139,7 +139,7 @@ export default async function ParqueaderoLayout({
               {esSuperAdmin && (
                 <Link
                   href="/superadmin/dashboard"
-                  className="hidden sm:flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors rounded-md border px-2.5 py-1.5"
+                  className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors rounded-md border px-2.5 py-1.5"
                 >
                   <ShieldCheck className="h-3.5 w-3.5" />
                   Panel Admin

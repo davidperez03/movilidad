@@ -9,4 +9,6 @@ select
   (select max(fecha) from parq_inspecciones i where i.vehiculo_id = v.id) as ultima_inspeccion
 from public.parq_vehiculos v;
 
+alter view public.parq_vista_vehiculos set (security_invoker = true);
+
 comment on view public.parq_vista_vehiculos is 'Vista de vehículos con estado de documentos y estadísticas';

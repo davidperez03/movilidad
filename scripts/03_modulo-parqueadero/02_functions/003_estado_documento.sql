@@ -3,6 +3,7 @@ create or replace function public.parq_estado_documento(fecha_venc date)
 returns text
 language sql
 stable
+set search_path = public
 as $$
   select case
     when fecha_venc is null then 'sin_datos'
@@ -19,6 +20,7 @@ create or replace function public.parq_estado_documento(fecha_venc date, fecha_r
 returns text
 language sql
 immutable
+set search_path = public
 as $$
   select case
     when fecha_venc is null then 'sin_datos'
