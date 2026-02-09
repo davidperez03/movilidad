@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -10,20 +9,6 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { Loader2 } from "lucide-react"
-
-function traducirErrorAuth(message: string): string {
-  const traducciones: Record<string, string> = {
-    "A user with this email address has already been registered": "No se pudo completar el registro. Intenta de nuevo o inicia sesion si ya tienes cuenta.",
-    "User already registered": "No se pudo completar el registro. Intenta de nuevo o inicia sesion si ya tienes cuenta.",
-    "Too many requests": "Demasiados intentos. Espera unos minutos e intenta de nuevo.",
-    "Email rate limit exceeded": "Demasiados intentos. Espera unos minutos e intenta de nuevo.",
-    "Signup requires a valid password": "Error al procesar la solicitud. Intenta de nuevo.",
-  }
-  for (const [eng, esp] of Object.entries(traducciones)) {
-    if (message.includes(eng)) return esp
-  }
-  return message
-}
 
 export default function SignUpPage() {
   const [email, setEmail] = useState("")
@@ -34,7 +19,6 @@ export default function SignUpPage() {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault()
-    const supabase = createClient()
     setIsLoading(true)
     setError(null)
 
@@ -45,38 +29,21 @@ export default function SignUpPage() {
     }
 
     try {
-      // Generar password aleatorio (el usuario nunca lo usará, el admin genera uno al aprobar)
-      const randomPassword = crypto.randomUUID() + "A1!"
-
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password: randomPassword,
-        options: {
-          data: {
-            nombre_completo: fullName,
-            rol_global: "usuario",
-            pendiente_aprobacion: true,
-          },
-        },
+      const res = await fetch("/api/auth/sign-up", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, nombreCompleto: fullName }),
       })
 
-      if (error) throw error
-
-      // Detectar email duplicado (Supabase no lanza error, retorna user con identities vacío)
-      // No revelamos si el email existe o no (seguridad: prevenir enumeración de emails)
-      if (data.user && data.user.identities && data.user.identities.length === 0) {
-        await supabase.auth.signOut()
-        router.push("/auth/sign-up-success")
-        return
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || "Error al registrarse")
       }
-
-      // Cerrar sesión inmediatamente (el usuario no debe quedar logueado)
-      await supabase.auth.signOut()
 
       router.push("/auth/sign-up-success")
     } catch (error: unknown) {
       const msg = error instanceof Error ? error.message : "Error al registrarse"
-      setError(traducirErrorAuth(msg))
+      setError(msg)
     } finally {
       setIsLoading(false)
     }
@@ -133,7 +100,7 @@ export default function SignUpPage() {
               </div>
               <div className="mt-4 text-center text-sm">
                 ¿Ya tienes una cuenta?{" "}
-                <Link href="/auth/login" className="underline underline-offset-4">
+                <Link href="/auth/login" className="text-primary hover:underline">
                   Inicia sesión
                 </Link>
               </div>

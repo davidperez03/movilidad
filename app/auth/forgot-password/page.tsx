@@ -1,14 +1,14 @@
 "use client"
 
 import type React from "react"
-import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { BackToLogin } from "@/components/auth/back-to-login"
 import Link from "next/link"
 import { useState } from "react"
-import { Loader2, Mail, ArrowLeft } from "lucide-react"
+import { Loader2, Mail } from "lucide-react"
 
 function traducirErrorAuth(message: string): string {
   const traducciones: Record<string, string> = {
@@ -35,13 +35,17 @@ export default function ForgotPasswordPage() {
     setError(null)
 
     try {
-      const supabase = createClient()
-
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth/confirm?next=/auth/reset-password`,
+      const res = await fetch("/api/auth/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
       })
 
-      if (error) throw error
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || "Error al enviar el correo")
+      }
+
       setSent(true)
     } catch (error: unknown) {
       const msg = error instanceof Error ? error.message : "Error al enviar el correo"
@@ -70,10 +74,7 @@ export default function ForgotPasswordPage() {
                 Si no ves el correo, revisa tu carpeta de spam.
               </p>
               <Button asChild variant="outline" className="w-full">
-                <Link href="/auth/login">
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Volver al inicio de sesión
-                </Link>
+                <Link href="/auth/login">Volver al inicio de sesión</Link>
               </Button>
             </CardContent>
           </Card>
@@ -124,12 +125,7 @@ export default function ForgotPasswordPage() {
                 </Button>
               </div>
 
-              <div className="mt-4 text-center text-sm">
-                <Link href="/auth/login" className="text-primary hover:underline">
-                  <ArrowLeft className="inline mr-1 h-3 w-3" />
-                  Volver al inicio de sesión
-                </Link>
-              </div>
+              <BackToLogin />
             </form>
           </CardContent>
         </Card>

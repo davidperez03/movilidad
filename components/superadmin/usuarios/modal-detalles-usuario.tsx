@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { capitalizeName } from '@/lib/utils/capitalize';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -195,7 +196,7 @@ export function ModalDetallesUsuario({ usuario, onCerrar }: ModalDetallesUsuario
               </div>
               <div className="space-y-1">
                 <p className="text-sm text-muted-foreground">Nombre</p>
-                <p className="font-medium">{usuario.nombre_completo || 'Sin nombre'}</p>
+                <p className="font-medium">{capitalizeName(usuario.nombre_completo) || 'Sin nombre'}</p>
               </div>
               <div className="space-y-1">
                 <p className="text-sm text-muted-foreground">Estado</p>

@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge'
 import { XCircle, Monitor, Smartphone, Tablet } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
+import { capitalizeName } from '@/lib/utils/capitalize'
 import type { Sesion } from '@/lib/hooks/useSesiones'
 
 interface ListaSesionesProps {
@@ -65,7 +66,7 @@ export function ListaSesiones({ sesiones, onCerrarSesion, procesando }: ListaSes
 
                   <div className="flex-1 space-y-1">
                     <div className="flex items-center gap-2">
-                      <span className="font-medium">{sesion.nombre_completo || 'Sin nombre'}</span>
+                      <span className="font-medium">{capitalizeName(sesion.nombre_completo) || 'Sin nombre'}</span>
                       {tokenExpirado && (
                         <Badge variant="destructive" className="text-xs">
                           Token expirado

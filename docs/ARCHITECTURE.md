@@ -27,6 +27,10 @@ Movilidad es una aplicacion web moderna construida con Next.js 16 y React 19, ut
 |  |  eliminar-usuario | cerrar-sesion | limpiar-sesiones |  |
 |  +----------------------------------------------------+  |
 |  +----------------------------------------------------+  |
+|  |              API Routes (/api/auth/*)                |  |
+|  |  forgot-password | sign-up | update-password         |  |
+|  +----------------------------------------------------+  |
+|  +----------------------------------------------------+  |
 |  |              Servicios Compartidos                   |  |
 |  |  Email (Nodemailer) | Auth Middleware | Logger       |  |
 |  +----------------------------------------------------+  |
@@ -72,6 +76,10 @@ sistema-movilidad/
 |   |   |   |-- eliminar-usuario/ # Eliminar usuario
 |   |   |   |-- limpiar-sesiones/ # Limpiar sesiones inactivas
 |   |   |   +-- resetear-password/# Resetear contrasena
+|   |   |-- auth/                  # Auth sin emails de Supabase
+|   |   |   |-- forgot-password/  # Recuperar (admin.generateLink + SMTP)
+|   |   |   |-- sign-up/          # Registro (admin.createUser, sin email)
+|   |   |   +-- update-password/  # Cambiar (admin.updateUserById, sin email)
 |   |   |-- client-info/          # Info del cliente
 |   |   +-- close-session/        # Cierre de sesion (beacon)
 |   |-- auth/                     # Autenticacion
@@ -111,6 +119,9 @@ sistema-movilidad/
 |   |   +-- empty-state.tsx       # Estado vacio reutilizable
 |   |-- auth/                     # Componentes de autenticacion
 |   |   |-- password-requirements.tsx  # Validacion visual de contrasena
+|   |   |-- password-input.tsx    # Input con toggle de visibilidad (ojito)
+|   |   |-- password-form.tsx     # Formulario compartido de contrasena
+|   |   |-- back-to-login.tsx     # Link "Volver al inicio de sesion"
 |   |   +-- RequirePermission.tsx # Guard de permisos
 |   |-- movilidad/                # Componentes del modulo
 |   |-- parqueadero/              # Componentes del modulo
@@ -127,7 +138,12 @@ sistema-movilidad/
 |   |   +-- require-superadmin.ts # Middleware compartido de auth
 |   |-- email/                    # Sistema de email
 |   |   |-- transporter.ts        # Configuracion SMTP (Nodemailer)
-|   |   |-- templates.ts          # Templates HTML de email
+|   |   |-- templates/            # Templates HTML de email
+|   |   |   |-- base.ts           # Layout base, credentialBox, alertBox
+|   |   |   |-- cuenta-aprobada.ts # Template aprobacion de cuenta
+|   |   |   |-- recuperar-password.ts # Template recuperacion
+|   |   |   |-- reset-password.ts # Template reset por admin
+|   |   |   +-- index.ts          # Barrel export
 |   |   +-- send-email.ts         # Funcion de envio
 |   |-- types/                    # Tipos TypeScript globales
 |   |   |-- usuario.ts            # Usuario, ConfirmState, FiltrosUsuarios
@@ -217,10 +233,22 @@ logger.error('Error en ruta', error)
    -> envia email
 
 6. Usuario puede recuperar contrasena
-   -> /auth/forgot-password -> email con link
-   -> /auth/confirm intercambia token
-   -> /auth/reset-password -> nueva contrasena
+   -> /auth/forgot-password -> API genera link (admin.generateLink)
+   -> Email via SMTP propio (no Supabase)
+   -> /auth/reset-password -> verifyOtp(token_hash) -> nueva contrasena
+
+7. Sign-up publico
+   -> /auth/sign-up -> API crea usuario (admin.createUser, sin email)
+   -> Mismo flujo de aprobacion que #1
 ```
+
+## Independencia de Emails de Supabase
+
+El sistema NO usa emails de Supabase para ninguna operacion:
+- **Sign-up**: `admin.createUser()` en vez de `auth.signUp()` (no envia email)
+- **Recovery**: `admin.generateLink()` + SMTP propio (no `resetPasswordForEmail()`)
+- **Password change**: `admin.updateUserById()` (no `updateUser()` que notifica)
+- **Reset por admin**: Genera temp password + email via SMTP
 
 ## Flujo de Autenticacion
 

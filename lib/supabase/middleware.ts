@@ -44,7 +44,7 @@ export async function updateSession(request: NextRequest) {
   // Rutas públicas que no requieren autenticación
   const publicRoutes = ["/", "/consulta"]
   const isPublicRoute = publicRoutes.includes(request.nextUrl.pathname)
-  const isAuthRoute = request.nextUrl.pathname.startsWith("/auth")
+  const isAuthRoute = request.nextUrl.pathname.startsWith("/auth") || request.nextUrl.pathname.startsWith("/api/auth")
 
   if (user && !isPublicRoute && !isAuthRoute) {
     try {

@@ -7,6 +7,7 @@ import { SessionManager } from "@/lib/session-manager"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { PasswordInput } from "@/components/auth/password-input"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useState, useEffect, Suspense } from "react"
@@ -56,6 +57,9 @@ function LoginForm() {
     setError(null)
 
     try {
+      // Limpiar cookie stale de sesiones anteriores
+      document.cookie = 'session_registered=; path=/; max-age=0'
+
       const { error, data } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -204,9 +208,8 @@ function LoginForm() {
                     ¿Olvidaste tu contraseña?
                   </Link>
                 </div>
-                <Input
+                <PasswordInput
                   id="password"
-                  type="password"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { requireSuperAdmin } from '@/lib/api/require-superadmin'
+import { capitalizeName } from '@/lib/utils/capitalize'
 import { z } from 'zod'
 import { logger } from '@/lib/logger'
 
@@ -34,7 +35,7 @@ export async function POST(request: NextRequest) {
       password: crypto.randomUUID() + 'A1!',
       email_confirm: false,
       user_metadata: {
-        nombre_completo: nombreCompleto,
+        nombre_completo: capitalizeName(nombreCompleto),
         rol_global: 'usuario',
         pendiente_aprobacion: true,
       },

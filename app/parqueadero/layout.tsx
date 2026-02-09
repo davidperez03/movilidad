@@ -1,8 +1,9 @@
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
-import { Truck, User } from "lucide-react"
+import { Truck, User, ShieldCheck } from "lucide-react"
 import { BotonCerrarSesion } from "@/components/logout-button"
+import Link from "next/link"
 import { NavTabsParqueadero, parqueaderoNavItems } from "@/components/parqueadero/nav-tabs"
 import { MobileNav } from "@/components/shared/mobile-nav"
 import { SkipLink } from "@/components/ui/skip-link"
@@ -110,7 +111,7 @@ export default async function ParqueaderoLayout({
           {/* Top bar */}
           <div className="flex h-16 items-center justify-between">
             <div className="flex items-center gap-3">
-              <MobileNav title="Parqueadero" items={parqueaderoNavItems} />
+              <MobileNav title="Parqueadero" items={esSuperAdmin ? [{ href: '/superadmin/dashboard', label: 'Panel Admin' }, ...parqueaderoNavItems] : parqueaderoNavItems} />
               <div className="flex items-center gap-2">
                 <div className="rounded-lg bg-cyan-600/10 p-2">
                   <Truck className="h-5 w-5 text-cyan-600" />
@@ -135,6 +136,15 @@ export default async function ParqueaderoLayout({
                   </Badge>
                 </div>
               </div>
+              {esSuperAdmin && (
+                <Link
+                  href="/superadmin/dashboard"
+                  className="hidden sm:flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors rounded-md border px-2.5 py-1.5"
+                >
+                  <ShieldCheck className="h-3.5 w-3.5" />
+                  Panel Admin
+                </Link>
+              )}
               <div className="h-8 w-px bg-border" />
               <BotonCerrarSesion />
             </div>

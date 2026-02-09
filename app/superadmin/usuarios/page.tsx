@@ -15,6 +15,7 @@ import { ModalDetallesUsuario } from '@/components/superadmin/usuarios/modal-det
 import { ConfirmDialog } from '@/components/shared/confirm-dialog';
 import type { Usuario, ConfirmState } from '@/lib/types/usuario';
 import { CONFIRM_INITIAL } from '@/lib/types/usuario';
+import { capitalizeName } from '@/lib/utils/capitalize';
 
 export default function UsuariosPage() {
   const searchParams = useSearchParams();
@@ -112,7 +113,7 @@ export default function UsuariosPage() {
       const { error } = await supabase
         .from('perfiles')
         .update({
-          nombre_completo: formEditar.nombre_completo || null,
+          nombre_completo: capitalizeName(formEditar.nombre_completo) || null,
           correo: formEditar.correo,
         })
         .eq('id', usuarioSeleccionado.id);

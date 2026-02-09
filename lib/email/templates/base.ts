@@ -1,4 +1,4 @@
-function baseLayout(content: string): string {
+export function baseLayout(content: string): string {
   return `<!DOCTYPE html>
 <html lang="es">
 <head>
@@ -33,7 +33,7 @@ function baseLayout(content: string): string {
   <tr><td style="padding:20px 36px;background-color:#fafafa;border-top:1px solid #e5e5e5;">
     <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
       <tr><td>
-        <p style="margin:0 0 4px;color:#a1a1aa;font-size:11px;text-align:center;">Este es un mensaje automatico del Movilidad. No responda a este correo.</p>
+        <p style="margin:0 0 4px;color:#a1a1aa;font-size:11px;text-align:center;">Este es un mensaje automatico de Movilidad. No responda a este correo.</p>
         <p style="margin:0;color:#a1a1aa;font-size:11px;text-align:center;">Si tiene dudas, contacte al administrador del sistema.</p>
       </td></tr>
     </table>
@@ -45,7 +45,7 @@ function baseLayout(content: string): string {
 </html>`
 }
 
-function credentialBox(label: string, value: string): string {
+export function credentialBox(label: string, value: string): string {
   return `<table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="margin:8px 0;">
     <tr>
       <td style="padding:12px 16px;background-color:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;">
@@ -56,7 +56,7 @@ function credentialBox(label: string, value: string): string {
   </table>`
 }
 
-function alertBox(type: 'warning' | 'info', text: string): string {
+export function alertBox(type: 'warning' | 'info', text: string): string {
   const colors = {
     warning: { bg: '#fef2f2', border: '#ef4444', text: '#991b1b', icon: '&#9888;&#65039;' },
     info: { bg: '#eff6ff', border: '#3b82f6', text: '#1e40af', icon: '&#8505;&#65039;' },
@@ -69,7 +69,7 @@ function alertBox(type: 'warning' | 'info', text: string): string {
   </table>`
 }
 
-function stepsList(steps: string[]): string {
+export function stepsList(steps: string[]): string {
   return `<table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="margin:20px 0;">
     ${steps.map((step, i) => `<tr>
       <td width="32" valign="top" style="padding:8px 0;">
@@ -82,46 +82,6 @@ function stepsList(steps: string[]): string {
   </table>`
 }
 
-function divider(): string {
+export function divider(): string {
   return `<hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0;">`
-}
-
-export function cuentaAprobadaTemplate(nombre: string, email: string, tempCred: string): string {
-  return baseLayout(`
-    <h2 style="margin:0 0 6px;color:#111827;font-size:20px;font-weight:700;">Bienvenido/a, ${nombre}</h2>
-    <p style="color:#6b7280;font-size:14px;line-height:1.6;margin:8px 0 0;">Su cuenta en el <strong>Movilidad</strong> ha sido aprobada exitosamente. A continuacion encontrara sus credenciales de acceso.</p>
-    ${divider()}
-    <p style="color:#374151;font-size:14px;font-weight:600;margin:0 0 8px;">Credenciales de acceso</p>
-    ${credentialBox('Correo electronico', email)}
-    ${credentialBox('Clave temporal', tempCred)}
-    ${alertBox('warning', 'Por seguridad, debera cambiar esta clave en su primer inicio de sesion. La clave temporal dejara de funcionar despues del cambio.')}
-    ${divider()}
-    <p style="color:#374151;font-size:14px;font-weight:600;margin:0 0 4px;">Pasos para acceder</p>
-    ${stepsList([
-      'Ingrese al sistema con su correo y la clave temporal',
-      'El sistema le pedira establecer una nueva clave',
-      'Cree una clave segura (minimo 8 caracteres, una mayuscula, una minuscula, un numero y un caracter especial)',
-      'Listo, ya puede usar el sistema normalmente',
-    ])}
-  `)
-}
-
-export function resetPasswordTemplate(nombre: string, email: string, tempCred: string): string {
-  return baseLayout(`
-    <h2 style="margin:0 0 6px;color:#111827;font-size:20px;font-weight:700;">Restablecimiento de clave</h2>
-    <p style="color:#6b7280;font-size:14px;line-height:1.6;margin:8px 0 0;">Hola <strong>${nombre}</strong>, el administrador ha restablecido la clave de su cuenta en el <strong>Movilidad</strong>.</p>
-    ${divider()}
-    <p style="color:#374151;font-size:14px;font-weight:600;margin:0 0 8px;">Nuevas credenciales</p>
-    ${credentialBox('Correo electronico', email)}
-    ${credentialBox('Nueva clave temporal', tempCred)}
-    ${alertBox('warning', 'Debera cambiar esta clave en su proximo inicio de sesion.')}
-    ${alertBox('info', 'Si usted no solicito este cambio, contacte al administrador del sistema inmediatamente.')}
-    ${divider()}
-    <p style="color:#374151;font-size:14px;font-weight:600;margin:0 0 4px;">Pasos para acceder</p>
-    ${stepsList([
-      'Ingrese al sistema con su correo y la nueva clave temporal',
-      'El sistema le pedira establecer una clave personal',
-      'Cree una clave segura y continue usando el sistema',
-    ])}
-  `)
 }

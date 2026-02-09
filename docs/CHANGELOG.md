@@ -5,6 +5,50 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.4.0] - 2026-02-09
+
+### Emails Independientes de Supabase, UX y Reestructuración
+
+#### Agregado
+
+**Independencia Total de Emails de Supabase**
+- Endpoint `POST /api/auth/forgot-password` — usa `admin.generateLink()` + SMTP propio
+- Endpoint `POST /api/auth/sign-up` — usa `admin.createUser()` sin email de verificación
+- Endpoint `POST /api/auth/update-password` — usa `admin.updateUserById()` sin email de notificación
+- Template de recuperación de contraseña (`recuperar-password.ts`)
+- Supabase ya NO envía ningún email (sign-up, recovery, password changed)
+
+**Componentes Auth Compartidos**
+- `PasswordInput` — Input con toggle de visibilidad (ojito) en login, reset y cambiar contraseña
+- `PasswordForm` — Formulario compartido entre reset-password y cambiar-password
+- `BackToLogin` — Link "Volver al inicio de sesión" en todas las páginas auth
+
+**UX y Navegación**
+- Botón "Panel Admin" en movilidad y parqueadero para superadmins (desktop y mobile)
+- Página `/sin-acceso` muestra todos los módulos del sistema con links directos
+- Nombres de usuarios capitalizados automáticamente al guardar (David Perez, no david perez)
+- `capitalizeName` aplicado en displays: lista usuarios, detalles, sesiones, auditoría
+
+**Auditoría Reestructurada**
+- Hook `useAuditoria` extrae lógica de datos, filtros y exportación
+- Componente `FiltrosAuditoriaComponent` separado
+- Categoría "Parqueadero" agregada al filtro de tipos
+- Acciones de sesión: `sesion_cerrada_por_admin`, `sesiones_token_expirado`
+
+#### Cambiado
+- Templates de email separados en archivos individuales (`lib/email/templates/`)
+- Reset-password usa `verifyOtp(token_hash)` en vez de PKCE `exchangeCodeForSession`
+- Cambiar-password ahora cierra sesión y redirige a login (más robusto)
+- Middleware permite `/api/auth/*` como rutas auth (acceso sin sesión)
+
+#### Corregido
+- Password recovery: enlace inválido por falta de `code_verifier` cookie (PKCE)
+- Doble submit en formularios de contraseña (200 + 401)
+- Sesión inválida al cambiar contraseña: token se pasa directamente en body
+- Cookie `session_registered` stale causaba redirect a session_closed
+
+---
+
 ## [1.3.0] - 2026-02-07
 
 ### Gestión Completa de Usuarios, Emails, PWA, Parqueadero y Refactorización DRY/SOLID

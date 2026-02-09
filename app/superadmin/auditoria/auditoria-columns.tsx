@@ -4,6 +4,7 @@ import { ColumnDef } from '@tanstack/react-table'
 import { DataTableColumnHeader } from '@/components/ui/data-table/data-table-column-header'
 import { Badge } from '@/components/ui/badge'
 import { ESTADOS_CONFIG } from '@/lib/movilidad/config'
+import { capitalizeName } from '@/lib/utils/capitalize'
 
 export interface RegistroAuditoria {
   id: string
@@ -47,6 +48,10 @@ function getCat(accion: string): { label: string; color: string } {
   // Sesiones (incluyendo token_expirado y similares)
   if (accion.includes('login') || accion.includes('logout') || accion.includes('sesion') || accion.includes('token')) {
     return { label: 'Sesión', color: 'bg-slate-100 text-slate-700' }
+  }
+  // Parqueadero
+  if (accion.includes('inspeccion') || accion.includes('parq_') || accion.includes('vehiculo_parq') || accion.includes('personal_')) {
+    return { label: 'Parqueadero', color: 'bg-cyan-100 text-cyan-800' }
   }
   // Movilidad
   if (accion === 'cuenta_creada') return { label: 'Cuenta', color: 'bg-teal-100 text-teal-800' }
@@ -127,6 +132,14 @@ function getDescripcion(r: RegistroAuditoria): string {
     case 'login_fallido': return s(r, 'razon') || 'Credenciales inválidas'
     case 'logout': return 'Cerró sesión'
     case 'sesion_expirada': return 'Sesión expirada por inactividad'
+    case 'sesion_cerrada_por_admin': {
+      const admin = s(r, 'admin_id')
+      return admin ? 'Cerrada por administrador' : 'Cerrada forzosamente'
+    }
+    case 'sesiones_token_expirado': {
+      const n = s(r, 'sesiones_cerradas')
+      return n ? `${n} sesiones cerradas por token expirado` : 'Sesiones cerradas por token expirado'
+    }
 
     // === MOVILIDAD - CUENTAS ===
     case 'cuenta_creada': {
@@ -199,7 +212,7 @@ export const columnasAuditoria: ColumnDef<RegistroAuditoria>[] = [
     id: 'responsable',
     accessorKey: 'usuario_nombre',
     header: ({ column }) => <DataTableColumnHeader column={column} title="Responsable" />,
-    cell: ({ row }) => <span className="text-sm font-medium">{row.original.usuario_nombre || 'Sistema'}</span>,
+    cell: ({ row }) => <span className="text-sm font-medium">{capitalizeName(row.original.usuario_nombre) || 'Sistema'}</span>,
   },
   {
     id: 'tipo',

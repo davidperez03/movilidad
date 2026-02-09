@@ -1,8 +1,9 @@
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
-import { Car, User } from "lucide-react"
+import { Car, User, ShieldCheck } from "lucide-react"
 import { BotonCerrarSesion } from "@/components/logout-button"
+import Link from "next/link"
 import { NavTabs, movilidadNavItems } from "@/components/movilidad/nav-tabs"
 import { MobileNav } from "@/components/shared/mobile-nav"
 import { SkipLink } from "@/components/ui/skip-link"
@@ -106,7 +107,7 @@ export default async function MovilidadLayout({
           {/* Top bar */}
           <div className="flex h-16 items-center justify-between">
             <div className="flex items-center gap-3">
-              <MobileNav title="Movilidad" items={movilidadNavItems} />
+              <MobileNav title="Movilidad" items={esSuperAdmin ? [{ href: '/superadmin/dashboard', label: 'Panel Admin' }, ...movilidadNavItems] : movilidadNavItems} />
               <div className="flex items-center gap-2">
                 <div className="rounded-lg bg-primary/10 p-2">
                   <Car className="h-5 w-5 text-primary" />
@@ -131,6 +132,15 @@ export default async function MovilidadLayout({
                   </Badge>
                 </div>
               </div>
+              {esSuperAdmin && (
+                <Link
+                  href="/superadmin/dashboard"
+                  className="hidden sm:flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors rounded-md border px-2.5 py-1.5"
+                >
+                  <ShieldCheck className="h-3.5 w-3.5" />
+                  Panel Admin
+                </Link>
+              )}
               <div className="h-8 w-px bg-border" />
               <BotonCerrarSesion />
             </div>
