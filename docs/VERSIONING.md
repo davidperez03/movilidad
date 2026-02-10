@@ -214,6 +214,9 @@ git push origin develop
 
 | Versión | Fecha | Descripción |
 |---------|-------|-------------|
+| 1.4.1 | 2026-02-10 | Fix: URL email recovery, templates, parqueadero roles, capitalize |
+| 1.4.0 | 2026-02-09 | Emails independientes, UX auth, auditoria completa, parqueadero audit |
+| 1.3.1 | 2026-02-08 | Fix: reset password PKCE, PWA, branding Movilidad |
 | 1.3.0 | 2026-02-07 | Gestión de usuarios, emails, PWA, parqueadero, refactorización DRY/SOLID |
 | 1.2.2 | 2026-01-28 | Fix: mejorar visualización auditoría y agregar placa a historial |
 | 1.2.1 | 2026-01-27 | Parche: login simplificado, fecha aprobación, estado aprobado en timeline |
