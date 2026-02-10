@@ -98,8 +98,8 @@ export default function UsuariosPage() {
       setModalCrear(false);
       setFormCrear({ correo: '', nombre_completo: '' });
       cargarUsuarios();
-    } catch (error: any) {
-      toast.error(error.message || 'Error al crear usuario');
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Error al crear usuario');
     }
   }
 
@@ -232,8 +232,8 @@ export default function UsuariosPage() {
     setConfirmLoading(true);
     try {
       await confirmState.action();
-    } catch (error: any) {
-      toast.error(error.message || 'Error al ejecutar la acción');
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Error al ejecutar la acción');
     } finally {
       setConfirmLoading(false);
       setConfirmState(prev => ({ ...prev, open: false }));

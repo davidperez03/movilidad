@@ -86,9 +86,9 @@ export function BotonDescargarInspeccion({
           estado: item.estado,
           observacion: item.observacion,
           foto_url: item.foto_url,
-          item_nombre: item.item_nombre || (item.item_catalogo as any)?.nombre || "Sin nombre",
-          item_categoria: item.item_categoria || (item.item_catalogo as any)?.categoria || "otros",
-          item_orden: item.item_orden ?? (item.item_catalogo as any)?.orden ?? 0,
+          item_nombre: item.item_nombre || (item.item_catalogo as { nombre?: string; categoria?: string; orden?: number } | null)?.nombre || "Sin nombre",
+          item_categoria: item.item_categoria || (item.item_catalogo as { nombre?: string; categoria?: string; orden?: number } | null)?.categoria || "otros",
+          item_orden: item.item_orden ?? (item.item_catalogo as { nombre?: string; categoria?: string; orden?: number } | null)?.orden ?? 0,
           subsanado: item.subsanado,
           subsanado_observacion: item.subsanado_observacion,
         }))

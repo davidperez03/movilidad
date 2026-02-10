@@ -9,7 +9,7 @@ interface ModalCrearUsuarioProps {
     correo: string;
     nombre_completo: string;
   };
-  setForm: (form: any) => void;
+  setForm: (form: { correo: string; nombre_completo: string }) => void;
   onCrear: () => void;
   onCerrar: () => void;
 }

@@ -160,8 +160,8 @@ export function FormularioInspeccion({
               observacion: n.observacion,
               inspeccion_id: n.inspeccion_id,
               fecha_inspeccion: ultimaInspeccion.fecha,
-              item_nombre: (n.item_catalogo as any)?.nombre || "",
-              item_categoria: (n.item_catalogo as any)?.categoria || "",
+              item_nombre: (n.item_catalogo as { nombre?: string; categoria?: string } | null)?.nombre || "",
+              item_categoria: (n.item_catalogo as { nombre?: string; categoria?: string } | null)?.categoria || "",
             }))
           )
           // Inicializar estado de resolución

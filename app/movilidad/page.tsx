@@ -69,11 +69,22 @@ export default async function MovilidadDashboard() {
     .order("creado_en", { ascending: false })
     .limit(5)
 
-  const activities = actividadReciente?.map((item: any) => {
+  interface ActividadItem {
+    id: string
+    accion: string
+    estado_anterior: string | null
+    estado_nuevo: string | null
+    creado_en: string
+    cuenta: { placa: string } | null
+    usuario: { nombre_completo: string | null } | null
+  }
+
+  const activities = (actividadReciente as ActividadItem[] | null)?.map((item) => {
     const usuario = item.usuario?.nombre_completo?.split(' ')[0] || "Usuario"
     const placa = item.cuenta?.placa || ""
 
-    const accionMap: Record<string, any> = {
+    type TipoActividad = "cuenta_creada" | "traslado_iniciado" | "radicacion_iniciada" | "estado_cambiado" | "novedad_agregada"
+    const accionMap: Record<string, { type: TipoActividad; title: string; description: string }> = {
       cuenta_creada: { type: "cuenta_creada", title: `${placa} - Cuenta creada`, description: `Por ${usuario}` },
       traslado_iniciado: { type: "traslado_iniciado", title: `${placa} - Traslado iniciado`, description: `Por ${usuario}` },
       radicacion_iniciada: { type: "radicacion_iniciada", title: `${placa} - Radicación iniciada`, description: `Por ${usuario}` },

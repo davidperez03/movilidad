@@ -3,12 +3,24 @@
 // Función para generar archivos CSV con encoding UTF-8
 // =====================================================
 
-import type { TipoReporte } from './tipos'
+import type { TipoReporte, DatosReporteActivos, DatosReporteCompletados, DatosReportePorVencer } from './tipos'
+
+interface DatosAuditoria {
+  creado_en: string
+  modulo: string
+  accion: string
+  entidad_tipo: string
+  usuario_nombre: string
+  usuario_correo: string
+  valor_anterior: string | null
+  valor_nuevo: string | null
+}
 
 // =====================================================
 // FUNCIÓN PRINCIPAL
 // =====================================================
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function generarCSVReporte(datos: any[], tipoReporte: TipoReporte, nombreArchivo: string): void {
   if (!datos || datos.length === 0) {
     throw new Error('No hay datos para exportar')
@@ -19,16 +31,16 @@ export function generarCSVReporte(datos: any[], tipoReporte: TipoReporte, nombre
 
   switch (tipoReporte) {
     case 'activos':
-      csvContent = generarCSVActivos(datos)
+      csvContent = generarCSVActivos(datos as unknown as DatosReporteActivos[])
       break
     case 'completados':
-      csvContent = generarCSVCompletados(datos)
+      csvContent = generarCSVCompletados(datos as unknown as DatosReporteCompletados[])
       break
     case 'por-vencer':
-      csvContent = generarCSVPorVencer(datos)
+      csvContent = generarCSVPorVencer(datos as unknown as DatosReportePorVencer[])
       break
     case 'auditoria':
-      csvContent = generarCSVAuditoria(datos)
+      csvContent = generarCSVAuditoria(datos as unknown as DatosAuditoria[])
       break
     default:
       throw new Error(`Tipo de reporte no soportado: ${tipoReporte}`)
@@ -52,7 +64,7 @@ export function generarCSVReporte(datos: any[], tipoReporte: TipoReporte, nombre
 // FUNCIONES ESPECÍFICAS POR TIPO DE REPORTE
 // =====================================================
 
-function generarCSVActivos(datos: any[]): string {
+function generarCSVActivos(datos: DatosReporteActivos[]): string {
   const headers = [
     'Placa',
     'N° Cuenta',
@@ -80,7 +92,7 @@ function generarCSVActivos(datos: any[]): string {
   return convertirACSV(headers, rows)
 }
 
-function generarCSVCompletados(datos: any[]): string {
+function generarCSVCompletados(datos: DatosReporteCompletados[]): string {
   const headers = [
     'Placa',
     'N° Cuenta',
@@ -108,7 +120,7 @@ function generarCSVCompletados(datos: any[]): string {
   return convertirACSV(headers, rows)
 }
 
-function generarCSVPorVencer(datos: any[]): string {
+function generarCSVPorVencer(datos: DatosReportePorVencer[]): string {
   const headers = [
     'Placa',
     'N° Cuenta',
@@ -134,7 +146,7 @@ function generarCSVPorVencer(datos: any[]): string {
   return convertirACSV(headers, rows)
 }
 
-function generarCSVAuditoria(datos: any[]): string {
+function generarCSVAuditoria(datos: DatosAuditoria[]): string {
   const headers = [
     'Fecha/Hora',
     'Módulo',
