@@ -116,7 +116,7 @@ export default async function MovilidadLayout({
     rolColor: rolColors[rolModulo.codigo] || rolColors.sin_rol,
     esSuperAdmin,
     otrosModulos: tieneParqueadero
-      ? [{ href: '/parqueadero', label: 'Parqueadero', icon: Truck }]
+      ? [{ href: '/parqueadero', label: 'Parqueadero', iconName: 'Truck' }]
       : [],
   }
 
