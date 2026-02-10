@@ -214,6 +214,7 @@ git push origin develop
 
 | Versión | Fecha | Descripción |
 |---------|-------|-------------|
+| 1.4.2 | 2026-02-10 | Nav móvil completa, alternancia módulos, capitalización nombre |
 | 1.4.1 | 2026-02-10 | Fix: URL email recovery, templates, parqueadero roles, capitalize |
 | 1.4.0 | 2026-02-09 | Emails independientes, UX auth, auditoria completa, parqueadero audit |
 | 1.3.1 | 2026-02-08 | Fix: reset password PKCE, PWA, branding Movilidad |
