@@ -5,6 +5,16 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.4.3] - 2026-02-10
+
+### Hotfix: Serialización de iconos server→client
+
+#### Corregido
+- Error en producción por pasar componentes React (iconos Lucide) desde server components a client components
+- Iconos de módulos en MobileNav ahora se resuelven por nombre (string) en el cliente
+
+---
+
 ## [1.4.2] - 2026-02-10
 
 ### Mejoras: Navegación móvil, alternancia de módulos y capitalización

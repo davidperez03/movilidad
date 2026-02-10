@@ -3,12 +3,14 @@
 import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Menu, User, ShieldCheck } from "lucide-react"
+import { Menu, User, ShieldCheck, Car, Truck } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { Badge } from "@/components/ui/badge"
 import { BotonCerrarSesion } from "@/components/logout-button"
 import type { LucideIcon } from "lucide-react"
+
+const iconMap: Record<string, LucideIcon> = { Car, Truck }
 
 export interface NavItem {
   href: string
@@ -22,7 +24,7 @@ export interface MobileUserInfo {
   nombre: string
   rol: string
   rolColor: string
-  otrosModulos?: { href: string; label: string; icon?: LucideIcon }[]
+  otrosModulos?: { href: string; label: string; iconName?: string }[]
   esSuperAdmin?: boolean
 }
 
@@ -87,7 +89,7 @@ export function MobileNav({ title, items, userInfo }: MobileNavProps) {
                 <div>
                   <p className="px-3 mb-1 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Ir a</p>
                   {userInfo.otrosModulos.map((m) => {
-                    const Icon = m.icon
+                    const Icon = m.iconName ? iconMap[m.iconName] : null
                     return (
                       <Link
                         key={m.href}
