@@ -11,6 +11,7 @@ import type { VistaPersonal } from "@/lib/parqueadero/types"
 import { ESTADOS_DOCUMENTO } from "@/lib/parqueadero/config"
 import { formatearFechaCorta } from "@/lib/parqueadero/utils"
 import { ModalDatosPersonal } from "./modal-datos-personal"
+import { capitalizeName } from "@/lib/utils/capitalize"
 
 interface TablaPersonalProps {
   personal: VistaPersonal[]
@@ -26,7 +27,7 @@ export function TablaPersonal({ personal, puedeEditar }: TablaPersonalProps) {
       header: ({ column }) => <DataTableColumnHeader column={column} title="Nombre" />,
       cell: ({ row }) => (
         <div>
-          <p className="font-medium">{row.getValue("nombre_completo")}</p>
+          <p className="font-medium">{capitalizeName(row.getValue("nombre_completo"))}</p>
           <p className="text-xs text-muted-foreground">{row.original.correo}</p>
         </div>
       ),

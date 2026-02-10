@@ -25,6 +25,7 @@ import { Loader2 } from "lucide-react"
 import { toast } from "sonner"
 import type { VistaPersonal } from "@/lib/parqueadero/types"
 import { OPCIONES_CATEGORIA_LICENCIA, OPCIONES_TIPO_DOCUMENTO } from "@/lib/parqueadero/config"
+import { capitalizeName } from "@/lib/utils/capitalize"
 
 interface ModalDatosPersonalProps {
   persona: VistaPersonal
@@ -125,7 +126,7 @@ export function ModalDatosPersonal({ persona, onCerrar }: ModalDatosPersonalProp
             {requiereLicencia(persona.rol_codigo) ? "Datos del Conductor" : "Datos del Personal"}
           </DialogTitle>
           <DialogDescription>
-            {persona.nombre_completo} - {persona.rol_nombre}
+            {capitalizeName(persona.nombre_completo)} - {persona.rol_nombre}
           </DialogDescription>
         </DialogHeader>
 

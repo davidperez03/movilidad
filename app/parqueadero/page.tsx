@@ -18,6 +18,7 @@ import { obtenerPermisosUsuario } from "@/lib/server/permisos"
 import { Badge } from "@/components/ui/badge"
 import { formatearFechaCorta } from "@/lib/parqueadero/utils"
 import { getNowDateColombia } from "@/lib/utils/date"
+import { capitalizeName } from "@/lib/utils/capitalize"
 
 export default async function ParqueaderoDashboard() {
   const supabase = await createClient()
@@ -171,7 +172,7 @@ export default async function ParqueaderoDashboard() {
                       <div>
                         <p className="font-medium text-sm">{inspeccion.placa}</p>
                         <p className="text-xs text-muted-foreground">
-                          {inspeccion.operador_nombre} - {inspeccion.hora}
+                          {capitalizeName(inspeccion.operador_nombre)} - {inspeccion.hora}
                         </p>
                       </div>
                     </div>
