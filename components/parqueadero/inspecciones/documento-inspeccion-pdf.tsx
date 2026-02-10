@@ -1,6 +1,7 @@
 "use client"
 
 import { Document, Page, Text, View, StyleSheet, Image } from "@react-pdf/renderer"
+import { capitalizeName } from "@/lib/utils/capitalize"
 
 // Estilos del PDF - diseño limpio y profesional
 const styles = StyleSheet.create({
@@ -463,7 +464,7 @@ export function DocumentoInspeccionPDF({ inspeccion, items }: DocumentoInspeccio
             </View>
             <View style={styles.infoItem}>
               <Text style={styles.infoLabel}>Operador</Text>
-              <Text style={styles.infoValue}>{inspeccion.operador_nombre}</Text>
+              <Text style={styles.infoValue}>{capitalizeName(inspeccion.operador_nombre)}</Text>
             </View>
             <View style={styles.infoItem}>
               <Text style={styles.infoLabel}>Turno</Text>
@@ -474,12 +475,12 @@ export function DocumentoInspeccionPDF({ inspeccion, items }: DocumentoInspeccio
             {inspeccion.auxiliar_nombre && (
               <View style={styles.infoItem}>
                 <Text style={styles.infoLabel}>Auxiliar</Text>
-                <Text style={styles.infoValue}>{inspeccion.auxiliar_nombre}</Text>
+                <Text style={styles.infoValue}>{capitalizeName(inspeccion.auxiliar_nombre)}</Text>
               </View>
             )}
             <View style={styles.infoItem}>
               <Text style={styles.infoLabel}>Inspector</Text>
-              <Text style={styles.infoValue}>{inspeccion.inspector_nombre}</Text>
+              <Text style={styles.infoValue}>{capitalizeName(inspeccion.inspector_nombre)}</Text>
             </View>
           </View>
         </View>
@@ -605,7 +606,7 @@ export function DocumentoInspeccionPDF({ inspeccion, items }: DocumentoInspeccio
                 <View style={{ height: 50, marginBottom: 8 }} />
               )}
               <View style={styles.firmaLinea} />
-              <Text style={styles.firmaNombre}>{inspeccion.operador_nombre}</Text>
+              <Text style={styles.firmaNombre}>{capitalizeName(inspeccion.operador_nombre)}</Text>
               <Text style={styles.firmaLabel}>Operador</Text>
             </View>
             <View style={styles.firmaBox}>
@@ -615,7 +616,7 @@ export function DocumentoInspeccionPDF({ inspeccion, items }: DocumentoInspeccio
                 <View style={{ height: 50, marginBottom: 8 }} />
               )}
               <View style={styles.firmaLinea} />
-              <Text style={styles.firmaNombre}>{inspeccion.inspector_nombre}</Text>
+              <Text style={styles.firmaNombre}>{capitalizeName(inspeccion.inspector_nombre)}</Text>
               <Text style={styles.firmaLabel}>Inspector</Text>
             </View>
           </View>

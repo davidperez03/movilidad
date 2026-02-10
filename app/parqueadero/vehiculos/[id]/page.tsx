@@ -14,6 +14,7 @@ import {
 } from "lucide-react"
 import { TIPOS_VEHICULO, ESTADOS_DOCUMENTO } from "@/lib/parqueadero/config"
 import { formatearFecha, formatearFechaCorta, formatearHora } from "@/lib/parqueadero/utils"
+import { capitalizeName } from "@/lib/utils/capitalize"
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -187,7 +188,7 @@ export default async function VehiculoDetallePage({ params }: PageProps) {
                         {formatearFecha(inspeccion.fecha)} - {formatearHora(inspeccion.hora)}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        Operador: {inspeccion.operador_nombre}
+                        Operador: {capitalizeName(inspeccion.operador_nombre)}
                       </p>
                     </div>
                   </div>
