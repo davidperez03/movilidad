@@ -1,13 +1,15 @@
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
-import { Truck, User, ShieldCheck } from "lucide-react"
+import { Car, Truck, User, ShieldCheck } from "lucide-react"
 import { BotonCerrarSesion } from "@/components/logout-button"
 import Link from "next/link"
 import { NavTabsParqueadero, parqueaderoNavItems } from "@/components/parqueadero/nav-tabs"
 import { MobileNav } from "@/components/shared/mobile-nav"
+import type { MobileUserInfo } from "@/components/shared/mobile-nav"
 import { SkipLink } from "@/components/ui/skip-link"
 import { getNowDateColombia } from "@/lib/utils/date"
+import { capitalizeName } from "@/lib/utils/capitalize"
 
 export const revalidate = 60
 
@@ -101,6 +103,27 @@ export default async function ParqueaderoLayout({
     sin_rol: "bg-gray-100 text-gray-500 border-gray-300",
   }
 
+  // Obtener todos los módulos del usuario para alternancia
+  const { data: todosLosRoles } = await supabase
+    .from('usuarios_roles')
+    .select('modulo_id')
+    .eq('usuario_id', user.id)
+
+  const modulosUsuario = new Set(todosLosRoles?.map(r => r.modulo_id) || [])
+  const tieneMovilidad = esSuperAdmin || modulosUsuario.has('movilidad')
+
+  const nombreCapitalizado = capitalizeName(perfil?.nombre_completo) || perfil?.correo || ''
+
+  const mobileUserInfo: MobileUserInfo = {
+    nombre: nombreCapitalizado,
+    rol: rolModulo.nombre,
+    rolColor: rolColors[rolModulo.codigo] || rolColors.sin_rol,
+    esSuperAdmin,
+    otrosModulos: tieneMovilidad
+      ? [{ href: '/movilidad', label: 'Movilidad', icon: Car }]
+      : [],
+  }
+
   return (
     <div className="min-h-screen bg-muted/30">
       <SkipLink href="#main-content">Saltar al contenido principal</SkipLink>
@@ -111,7 +134,7 @@ export default async function ParqueaderoLayout({
           {/* Top bar */}
           <div className="flex h-16 items-center justify-between">
             <div className="flex items-center gap-3">
-              <MobileNav title="Parqueadero" items={parqueaderoNavItems} />
+              <MobileNav title="Parqueadero" items={parqueaderoNavItems} userInfo={mobileUserInfo} />
               <div className="flex items-center gap-2">
                 <div className="rounded-lg bg-cyan-600/10 p-2">
                   <Truck className="h-5 w-5 text-cyan-600" />
@@ -123,11 +146,11 @@ export default async function ParqueaderoLayout({
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
-              <div className="hidden sm:flex items-center gap-2">
+            <div className="hidden sm:flex items-center gap-3">
+              <div className="flex items-center gap-2">
                 <User className="h-4 w-4 text-muted-foreground" />
                 <div className="text-right">
-                  <p className="text-sm font-medium leading-none">{perfil?.nombre_completo || perfil?.correo}</p>
+                  <p className="text-sm font-medium leading-none">{nombreCapitalizado}</p>
                   <Badge
                     variant="outline"
                     className={`mt-1 text-xs ${rolColors[rolModulo.codigo as keyof typeof rolColors]}`}
@@ -136,6 +159,15 @@ export default async function ParqueaderoLayout({
                   </Badge>
                 </div>
               </div>
+              {tieneMovilidad && (
+                <Link
+                  href="/movilidad"
+                  className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors rounded-md border px-2.5 py-1.5"
+                >
+                  <Car className="h-3.5 w-3.5" />
+                  Movilidad
+                </Link>
+              )}
               {esSuperAdmin && (
                 <Link
                   href="/superadmin/dashboard"
