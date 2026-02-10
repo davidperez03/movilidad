@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Eye, CheckCircle, XCircle, MoreHorizontal } from "lucide-react"
 import Link from "next/link"
 import type { VistaInspeccion } from "@/lib/parqueadero/types"
+import { capitalizeName } from "@/lib/utils/capitalize"
 import type { PermisoParqueadero } from "@/lib/types/permissions"
 import { TURNOS } from "@/lib/parqueadero/config"
 import { formatearFecha, formatearHora } from "@/lib/parqueadero/utils"
@@ -60,7 +61,7 @@ export function TablaInspecciones({ inspecciones, permisos }: TablaInspeccionesP
     {
       accessorKey: "operador_nombre",
       header: ({ column }) => <DataTableColumnHeader column={column} title="Operador" />,
-      cell: ({ row }) => row.getValue("operador_nombre") || "-",
+      cell: ({ row }) => capitalizeName(row.getValue("operador_nombre")) || "-",
     },
     {
       accessorKey: "es_apto",
