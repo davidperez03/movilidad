@@ -3,10 +3,11 @@
 import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Menu } from "lucide-react"
+import { Menu, User, ShieldCheck } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { Badge } from "@/components/ui/badge"
+import { BotonCerrarSesion } from "@/components/logout-button"
 import type { LucideIcon } from "lucide-react"
 
 export interface NavItem {
@@ -17,12 +18,21 @@ export interface NavItem {
   exact?: boolean
 }
 
+export interface MobileUserInfo {
+  nombre: string
+  rol: string
+  rolColor: string
+  otrosModulos?: { href: string; label: string; icon?: LucideIcon }[]
+  esSuperAdmin?: boolean
+}
+
 interface MobileNavProps {
   title: string
   items: NavItem[]
+  userInfo?: MobileUserInfo
 }
 
-export function MobileNav({ title, items }: MobileNavProps) {
+export function MobileNav({ title, items, userInfo }: MobileNavProps) {
   const [open, setOpen] = useState(false)
   const pathname = usePathname()
 
@@ -39,7 +49,7 @@ export function MobileNav({ title, items }: MobileNavProps) {
             <Menu className="h-5 w-5" />
           </Button>
         </SheetTrigger>
-        <SheetContent side="left" className="w-72">
+        <SheetContent side="left" className="w-72 flex flex-col">
           <SheetHeader>
             <SheetTitle>{title}</SheetTitle>
           </SheetHeader>
@@ -69,6 +79,57 @@ export function MobileNav({ title, items }: MobileNavProps) {
               )
             })}
           </nav>
+
+          {userInfo && (
+            <div className="mt-auto border-t pt-4 pb-2 space-y-3">
+              {/* Otros módulos */}
+              {userInfo.otrosModulos && userInfo.otrosModulos.length > 0 && (
+                <div>
+                  <p className="px-3 mb-1 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Ir a</p>
+                  {userInfo.otrosModulos.map((m) => {
+                    const Icon = m.icon
+                    return (
+                      <Link
+                        key={m.href}
+                        href={m.href}
+                        onClick={() => setOpen(false)}
+                        className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                      >
+                        {Icon && <Icon className="h-4 w-4" />}
+                        {m.label}
+                      </Link>
+                    )
+                  })}
+                </div>
+              )}
+
+              {userInfo.esSuperAdmin && (
+                <Link
+                  href="/superadmin/dashboard"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                >
+                  <ShieldCheck className="h-4 w-4" />
+                  Panel Admin
+                </Link>
+              )}
+
+              {/* Info usuario */}
+              <div className="flex items-center gap-2 px-3 py-2">
+                <User className="h-4 w-4 text-muted-foreground shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-sm font-medium truncate">{userInfo.nombre}</p>
+                  <Badge variant="outline" className={`mt-0.5 text-xs ${userInfo.rolColor}`}>
+                    {userInfo.rol}
+                  </Badge>
+                </div>
+              </div>
+
+              <div className="px-3">
+                <BotonCerrarSesion className="w-full" />
+              </div>
+            </div>
+          )}
         </SheetContent>
       </Sheet>
     </div>
