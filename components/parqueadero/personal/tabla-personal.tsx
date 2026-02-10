@@ -11,6 +11,7 @@ import type { VistaPersonal } from "@/lib/parqueadero/types"
 import { ESTADOS_DOCUMENTO } from "@/lib/parqueadero/config"
 import { formatearFechaCorta } from "@/lib/parqueadero/utils"
 import { ModalDatosPersonal } from "./modal-datos-personal"
+import { capitalizeName } from "@/lib/utils/capitalize"
 
 interface TablaPersonalProps {
   personal: VistaPersonal[]
@@ -26,7 +27,7 @@ export function TablaPersonal({ personal, puedeEditar }: TablaPersonalProps) {
       header: ({ column }) => <DataTableColumnHeader column={column} title="Nombre" />,
       cell: ({ row }) => (
         <div>
-          <p className="font-medium">{row.getValue("nombre_completo")}</p>
+          <p className="font-medium">{capitalizeName(row.getValue("nombre_completo"))}</p>
           <p className="text-xs text-muted-foreground">{row.original.correo}</p>
         </div>
       ),
@@ -43,7 +44,7 @@ export function TablaPersonal({ personal, puedeEditar }: TablaPersonalProps) {
       header: ({ column }) => <DataTableColumnHeader column={column} title="Licencia" />,
       cell: ({ row }) => {
         // Auxiliares no requieren licencia
-        if (row.original.rol_codigo === "parq_auxiliar") {
+        if (row.original.rol_codigo === "parq_auxiliar" || row.original.rol_codigo === "parq_administrador") {
           return <span className="text-muted-foreground text-sm">N/A</span>
         }
         const categoria = row.getValue("licencia_categoria") as string | null
@@ -66,7 +67,7 @@ export function TablaPersonal({ personal, puedeEditar }: TablaPersonalProps) {
       accessorKey: "licencia_vencimiento",
       header: ({ column }) => <DataTableColumnHeader column={column} title="Vencimiento" />,
       cell: ({ row }) => {
-        if (row.original.rol_codigo === "parq_auxiliar") {
+        if (row.original.rol_codigo === "parq_auxiliar" || row.original.rol_codigo === "parq_administrador") {
           return <span className="text-muted-foreground text-sm">-</span>
         }
         return formatearFechaCorta(row.getValue("licencia_vencimiento"))
@@ -77,7 +78,7 @@ export function TablaPersonal({ personal, puedeEditar }: TablaPersonalProps) {
       header: ({ column }) => <DataTableColumnHeader column={column} title="Estado" />,
       cell: ({ row }) => {
         // Auxiliares no requieren licencia
-        if (row.original.rol_codigo === "parq_auxiliar") {
+        if (row.original.rol_codigo === "parq_auxiliar" || row.original.rol_codigo === "parq_administrador") {
           return <span className="text-muted-foreground text-sm">-</span>
         }
         const estado = row.getValue("estado_licencia") as string

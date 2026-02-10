@@ -5,6 +5,17 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.4.4] - 2026-02-10
+
+### Fix: Permisos modulares, licencias admins y capitalización
+
+#### Corregido
+- **Bug crítico**: Permisos de usuarios no-superadmin no funcionaban (admins, operadores, usuarios no podían crear cuentas ni acceder a funciones). Causa: `permissions-queries.ts` trataba `permisos` JSONB como `string[]`, `.reduce()` fallaba silenciosamente
+- Admins de parqueadero excluidos de alertas y validación de licencias (igual que auxiliares)
+- Nombres sin capitalizar en: dashboard parqueadero, detalle inspección, firmas, tabla personal, modal datos, detalle vehículo y PDF de inspección
+
+---
+
 ## [1.4.3] - 2026-02-10
 
 ### Hotfix: Serialización de iconos server→client

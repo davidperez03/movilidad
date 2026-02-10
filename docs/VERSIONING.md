@@ -214,6 +214,7 @@ git push origin develop
 
 | Versión | Fecha | Descripción |
 |---------|-------|-------------|
+| 1.4.4 | 2026-02-10 | Fix: permisos modulares, licencias admins, capitalización parqueadero |
 | 1.4.3 | 2026-02-10 | Fix: serialización iconos server→client en nav móvil |
 | 1.4.2 | 2026-02-10 | Nav móvil completa, alternancia módulos, capitalización nombre |
 | 1.4.1 | 2026-02-10 | Fix: URL email recovery, templates, parqueadero roles, capitalize |

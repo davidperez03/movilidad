@@ -25,6 +25,7 @@ import { Loader2 } from "lucide-react"
 import { toast } from "sonner"
 import type { VistaPersonal } from "@/lib/parqueadero/types"
 import { OPCIONES_CATEGORIA_LICENCIA, OPCIONES_TIPO_DOCUMENTO } from "@/lib/parqueadero/config"
+import { capitalizeName } from "@/lib/utils/capitalize"
 
 interface ModalDatosPersonalProps {
   persona: VistaPersonal
@@ -32,7 +33,7 @@ interface ModalDatosPersonalProps {
 }
 
 const requiereLicencia = (rolCodigo: string) => {
-  return rolCodigo !== "parq_auxiliar"
+  return rolCodigo !== "parq_auxiliar" && rolCodigo !== "parq_administrador"
 }
 
 export function ModalDatosPersonal({ persona, onCerrar }: ModalDatosPersonalProps) {
@@ -125,7 +126,7 @@ export function ModalDatosPersonal({ persona, onCerrar }: ModalDatosPersonalProp
             {requiereLicencia(persona.rol_codigo) ? "Datos del Conductor" : "Datos del Personal"}
           </DialogTitle>
           <DialogDescription>
-            {persona.nombre_completo} - {persona.rol_nombre}
+            {capitalizeName(persona.nombre_completo)} - {persona.rol_nombre}
           </DialogDescription>
         </DialogHeader>
 
@@ -187,7 +188,7 @@ export function ModalDatosPersonal({ persona, onCerrar }: ModalDatosPersonalProp
             </div>
           ) : (
             <p className="text-sm text-muted-foreground bg-muted/50 p-3 rounded">
-              El rol de Auxiliar no requiere licencia
+              Este rol no requiere licencia de conducción
             </p>
           )}
 

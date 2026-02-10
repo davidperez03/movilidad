@@ -6,7 +6,7 @@ interface UsuarioRolRow {
   roles_modulo: {
     codigo: CodigoRol
     nombre: string
-    permisos: string[]
+    permisos: Record<string, boolean>
     nivel: number
   } | null
 }
@@ -61,7 +61,7 @@ export async function cargarPermisosUsuario(): Promise<{
       modulo_id: r.modulo_id,
       rol_codigo: r.roles_modulo!.codigo,
       rol_nombre: r.roles_modulo!.nombre,
-      permisos: (r.roles_modulo!.permisos || []).reduce((acc, p) => ({ ...acc, [p]: true }), {} as Record<string, boolean>),
+      permisos: (r.roles_modulo!.permisos || {}) as Record<string, boolean>,
       nivel: r.roles_modulo!.nivel,
     }))
 

@@ -23,6 +23,7 @@ import { formatearFecha, formatearFechaLarga, formatearFechaHora, formatearFecha
 import { SeccionNovedades } from "@/components/parqueadero/inspecciones/seccion-novedades"
 import { BotonDescargarInspeccion } from "@/components/parqueadero/inspecciones/boton-descargar-inspeccion"
 import { cn } from "@/lib/utils"
+import { capitalizeName } from "@/lib/utils/capitalize"
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -159,10 +160,10 @@ export default async function InspeccionDetallePage({ params }: PageProps) {
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Operador</p>
-              <p className="font-semibold">{inspeccion.operador_nombre}</p>
+              <p className="font-semibold">{capitalizeName(inspeccion.operador_nombre)}</p>
               {inspeccion.auxiliar_nombre && (
                 <p className="text-xs text-muted-foreground">
-                  Aux: {inspeccion.auxiliar_nombre}
+                  Aux: {capitalizeName(inspeccion.auxiliar_nombre)}
                 </p>
               )}
             </div>
@@ -436,7 +437,7 @@ export default async function InspeccionDetallePage({ params }: PageProps) {
                   </div>
                 )}
                 <div className="mt-2 pt-2 border-t">
-                  <p className="font-medium">{inspeccion.operador_nombre}</p>
+                  <p className="font-medium">{capitalizeName(inspeccion.operador_nombre)}</p>
                   <p className="text-xs text-muted-foreground">Operador</p>
                 </div>
               </div>
@@ -455,7 +456,7 @@ export default async function InspeccionDetallePage({ params }: PageProps) {
                   </div>
                 )}
                 <div className="mt-2 pt-2 border-t">
-                  <p className="font-medium">{inspeccion.inspector_nombre}</p>
+                  <p className="font-medium">{capitalizeName(inspeccion.inspector_nombre)}</p>
                   <p className="text-xs text-muted-foreground">Inspector</p>
                 </div>
               </div>
@@ -469,7 +470,7 @@ export default async function InspeccionDetallePage({ params }: PageProps) {
         <CardContent className="py-4">
           <p className="text-sm text-muted-foreground">
             Inspección realizada por{" "}
-            <span className="font-medium">{inspeccion.inspector_nombre}</span> el{" "}
+            <span className="font-medium">{capitalizeName(inspeccion.inspector_nombre)}</span> el{" "}
             {formatearFechaHora(inspeccion.creado_en)}
           </p>
         </CardContent>
