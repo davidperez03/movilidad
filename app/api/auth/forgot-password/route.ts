@@ -31,9 +31,16 @@ export async function POST(request: Request) {
     }
 
     const tokenHash = data.properties.hashed_token
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
-      || (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : null)
-      || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : '')
+
+    // Derivar URL base: variable de entorno > header Host del request
+    const host = request.headers.get('host') || ''
+    const protocol = host.startsWith('localhost') ? 'http' : 'https'
+    const siteUrl = (
+      process.env.NEXT_PUBLIC_SITE_URL
+      || (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : '')
+      || `${protocol}://${host}`
+    ).replace(/\/+$/, '') // quitar trailing slashes
+
     const resetUrl = `${siteUrl}/auth/reset-password?token_hash=${tokenHash}&type=recovery`
 
     // Obtener nombre del perfil

@@ -32,14 +32,14 @@ export default async function NuevaInspeccionPage() {
     .from("parq_vista_personal")
     .select("*")
 
-  // Filtrar operadores (pueden ser operarios o administradores)
+  // Filtrar operadores (solo operarios)
   const operadores: VistaPersonal[] = (personalParqueadero || []).filter(
-    (u) => u.rol_codigo === "parq_operario" || u.rol_codigo === "parq_administrador"
+    (u) => u.rol_codigo === "parq_operario"
   )
 
-  // Filtrar auxiliares (pueden ser auxiliares o administradores)
+  // Filtrar auxiliares (solo auxiliares)
   const auxiliares: VistaPersonal[] = (personalParqueadero || []).filter(
-    (u) => u.rol_codigo === "parq_auxiliar" || u.rol_codigo === "parq_administrador"
+    (u) => u.rol_codigo === "parq_auxiliar"
   )
 
   return (

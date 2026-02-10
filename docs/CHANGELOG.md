@@ -49,6 +49,28 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ---
 
+## [1.3.1] - 2026-02-08
+
+### Hotfix: PWA, Reset Password y Branding
+
+#### Corregido
+- Reset password: intercambiar codigo PKCE por verificacion `token_hash` via `verifyOtp`
+- Unificar requisitos de contraseña entre reset-password y cambiar-password
+- Evitar timeout de inactividad en rutas auth (reset-password, forgot-password)
+- Redirect a login en forgot/reset-password cuando no hay sesion
+- Confirm route: preservar cookies en redirect
+- Remitente de emails como "Do Not Reply - Movilidad"
+- Resolver alerta GitGuardian en templates de email
+- Service worker: no interceptar rutas auth
+
+#### Cambiado
+- Reemplazar "Sistema de Movilidad" por "Movilidad" en todo el proyecto
+
+#### Agregado
+- Service worker PWA basico
+
+---
+
 ## [1.3.0] - 2026-02-07
 
 ### Gestión Completa de Usuarios, Emails, PWA, Parqueadero y Refactorización DRY/SOLID
