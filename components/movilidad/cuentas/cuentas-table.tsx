@@ -7,7 +7,7 @@ import { CuentasFilters, CuentasFilterState } from './cuentas-filters'
 
 interface CuentasTableProps {
   cuentas: CuentaVehiculo[]
-  permisos: any
+  permisos: Record<string, boolean>
 }
 
 export function CuentasTable({ cuentas, permisos }: CuentasTableProps) {

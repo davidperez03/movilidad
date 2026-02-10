@@ -64,11 +64,13 @@ export async function obtenerPermisosUsuario() {
 
     // Extraer permisos de movilidad
     const rolMovilidad = rolesUsuario?.find(r => r.modulo_id === 'movilidad')
-    const permisosMovilidad = (rolMovilidad?.roles_modulo as any)?.permisos as PermisosModulo | null
+    const rolMovData = rolMovilidad?.roles_modulo as unknown as { permisos: PermisosModulo } | null
+    const permisosMovilidad = rolMovData?.permisos ?? null
 
     // Extraer permisos de parqueadero
     const rolParqueadero = rolesUsuario?.find(r => r.modulo_id === 'parqueadero')
-    const permisosParqueadero = (rolParqueadero?.roles_modulo as any)?.permisos as Record<PermisoParqueadero, boolean> | null
+    const rolParqData = rolParqueadero?.roles_modulo as unknown as { permisos: Record<PermisoParqueadero, boolean> } | null
+    const permisosParqueadero = rolParqData?.permisos ?? null
 
     return {
       esSuperadmin: false,

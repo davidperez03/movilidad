@@ -4,12 +4,24 @@
 // =====================================================
 
 import * as XLSX from 'xlsx'
-import type { TipoReporte, FiltrosReporte } from './tipos'
+import type { TipoReporte, FiltrosReporte, DatosReporteActivos, DatosReporteCompletados, DatosReportePorVencer } from './tipos'
+
+interface DatosAuditoria {
+  creado_en: string
+  modulo: string
+  accion: string
+  entidad_tipo: string
+  usuario_nombre: string
+  usuario_correo: string
+  valor_anterior: string | null
+  valor_nuevo: string | null
+}
 
 // =====================================================
 // FUNCIÓN PRINCIPAL
 // =====================================================
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function generarExcelReporte(
   datos: any[],
   tipoReporte: TipoReporte,
@@ -28,16 +40,16 @@ export function generarExcelReporte(
 
   switch (tipoReporte) {
     case 'activos':
-      wsDatos = generarHojaActivos(datos)
+      wsDatos = generarHojaActivos(datos as unknown as DatosReporteActivos[])
       break
     case 'completados':
-      wsDatos = generarHojaCompletados(datos)
+      wsDatos = generarHojaCompletados(datos as unknown as DatosReporteCompletados[])
       break
     case 'por-vencer':
-      wsDatos = generarHojaPorVencer(datos)
+      wsDatos = generarHojaPorVencer(datos as unknown as DatosReportePorVencer[])
       break
     case 'auditoria':
-      wsDatos = generarHojaAuditoria(datos)
+      wsDatos = generarHojaAuditoria(datos as unknown as DatosAuditoria[])
       break
     default:
       throw new Error(`Tipo de reporte no soportado: ${tipoReporte}`)
@@ -58,7 +70,7 @@ export function generarExcelReporte(
 // HOJAS DE DATOS POR TIPO DE REPORTE
 // =====================================================
 
-function generarHojaActivos(datos: any[]): XLSX.WorkSheet {
+function generarHojaActivos(datos: DatosReporteActivos[]): XLSX.WorkSheet {
   const datosFormateados = datos.map((d) => ({
     Placa: d.placa,
     'N° Cuenta': d.numero_cuenta,
@@ -89,7 +101,7 @@ function generarHojaActivos(datos: any[]): XLSX.WorkSheet {
   return ws
 }
 
-function generarHojaCompletados(datos: any[]): XLSX.WorkSheet {
+function generarHojaCompletados(datos: DatosReporteCompletados[]): XLSX.WorkSheet {
   const datosFormateados = datos.map((d) => ({
     Placa: d.placa,
     'N° Cuenta': d.numero_cuenta,
@@ -119,7 +131,7 @@ function generarHojaCompletados(datos: any[]): XLSX.WorkSheet {
   return ws
 }
 
-function generarHojaPorVencer(datos: any[]): XLSX.WorkSheet {
+function generarHojaPorVencer(datos: DatosReportePorVencer[]): XLSX.WorkSheet {
   const datosFormateados = datos.map((d) => ({
     Placa: d.placa,
     'N° Cuenta': d.numero_cuenta,
@@ -149,7 +161,7 @@ function generarHojaPorVencer(datos: any[]): XLSX.WorkSheet {
   return ws
 }
 
-function generarHojaAuditoria(datos: any[]): XLSX.WorkSheet {
+function generarHojaAuditoria(datos: DatosAuditoria[]): XLSX.WorkSheet {
   const datosFormateados = datos.map((d) => ({
     'Fecha/Hora': formatearFechaHora(d.creado_en),
     Módulo: d.modulo,

@@ -139,7 +139,7 @@ export function FiltrosReporteComponent({
             <Label htmlFor="tipoProceso">Tipo de Proceso</Label>
             <Select
               value={filtros.tipoProceso}
-              onValueChange={(value) => onFilterChange({ ...filtros, tipoProceso: value as any })}
+              onValueChange={(value) => onFilterChange({ ...filtros, tipoProceso: value as FiltrosReporte['tipoProceso'] })}
             >
               <SelectTrigger id="tipoProceso">
                 <SelectValue />

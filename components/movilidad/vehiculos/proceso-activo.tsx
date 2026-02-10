@@ -10,9 +10,42 @@ import { AgregarNovedad } from "@/components/movilidad/procesos/agregar-novedad"
 import { AgregarDatosTransporte } from "@/components/movilidad/procesos/agregar-datos-transporte"
 import { ResolverNovedad } from "@/components/movilidad/procesos/resolver-novedad"
 
+interface Perfil {
+  nombre_completo: string | null
+}
+
+interface ProcesoActivo {
+  proceso_id: string
+  proceso_tipo: string
+  proceso_estado: string
+  ciudad: string
+  fecha_tramite: string | null
+  fecha_vencimiento: string | null
+  dias_restantes: number | null
+  observaciones: string | null
+  actualizado_en: string
+  numero_guia: string | null
+  empresa_transportadora_id: string | null
+  empresa_transporte: { nombre: string } | null
+  creador: Perfil | null
+  actualizador: Perfil | null
+}
+
+interface Novedad {
+  id: string
+  tipo_novedad: string
+  prioridad: string
+  estado: string
+  descripcion: string
+  solucion: string | null
+  creado_en: string
+  creador: Perfil | null
+  resolutor: Perfil | null
+}
+
 interface ProcesoActivoProps {
-  proceso: any
-  novedades: any[]
+  proceso: ProcesoActivo | null
+  novedades: Novedad[]
   placa: string
 }
 
@@ -90,7 +123,7 @@ export function ProcesoActivo({ proceso, novedades, placa }: ProcesoActivoProps)
             <div>
               <p className="text-sm text-muted-foreground">Fecha trámite</p>
               <p className="font-medium">
-                {formatDateForDisplay(proceso.fecha_tramite)}
+                {proceso.fecha_tramite ? formatDateForDisplay(proceso.fecha_tramite) : '—'}
               </p>
             </div>
           )}
