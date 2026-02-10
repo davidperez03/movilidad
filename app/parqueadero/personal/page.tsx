@@ -23,8 +23,8 @@ export default async function PersonalPage() {
     )
   }
 
-  // Contar alertas de licencias (excluir auxiliares que no requieren licencia)
-  const personalConLicencia = personal?.filter(p => p.rol_codigo !== 'parq_auxiliar') || []
+  // Contar alertas de licencias (excluir auxiliares y admins que no requieren licencia)
+  const personalConLicencia = personal?.filter(p => p.rol_codigo !== 'parq_auxiliar' && p.rol_codigo !== 'parq_administrador') || []
   const licenciasVencidas = personalConLicencia.filter(p => p.estado_licencia === 'vencido').length
   const licenciasPorVencer = personalConLicencia.filter(p => p.estado_licencia === 'por_vencer').length
   const sinDatosLicencia = personalConLicencia.filter(p => p.estado_licencia === 'sin_datos').length
