@@ -5,6 +5,21 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.4.2] - 2026-02-10
+
+### Mejoras: Navegación móvil, alternancia de módulos y capitalización
+
+#### Agregado
+- Alternancia directa entre módulos para usuarios con acceso a movilidad y parqueadero
+- Menú móvil completo: info de usuario (nombre, rol), módulos disponibles y cerrar sesión
+- Descripciones detalladas en items del catálogo de inspección preoperacional
+
+#### Corregido
+- Nombre del usuario sin capitalizar en header de movilidad y parqueadero
+- En móvil no se mostraba nombre de usuario, rol ni botón de cerrar sesión
+
+---
+
 ## [1.4.1] - 2026-02-10
 
 ### Hotfix: Email, Templates, Parqueadero y Auditoría
