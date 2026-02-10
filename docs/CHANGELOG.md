@@ -5,6 +5,22 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.4.1] - 2026-02-10
+
+### Hotfix: Email, Templates, Parqueadero y Auditoría
+
+#### Corregido
+- Email de recuperacion enviaba URL con `localhost:3000` en produccion (ahora usa Host header)
+- Trailing slash en `NEXT_PUBLIC_SITE_URL` generaba doble `/` en enlaces
+- Admins de parqueadero aparecian como operarios/auxiliares en inspecciones
+- Nombres sin capitalizar en formulario y tabla de inspecciones
+
+#### Cambiado
+- Templates de email simplificados: menos decoracion, mas directos y profesionales
+- CHANGELOG: agregada entrada faltante de v1.3.1
+
+---
+
 ## [1.4.0] - 2026-02-09
 
 ### Emails Independientes de Supabase, UX y Reestructuración
