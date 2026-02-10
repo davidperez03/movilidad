@@ -5,38 +5,18 @@ export function baseLayout(content: string): string {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
 </head>
-<body style="margin:0;padding:0;background-color:#f4f4f5;font-family:'Segoe UI',Roboto,Arial,Helvetica,sans-serif;-webkit-font-smoothing:antialiased;">
-<table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background-color:#f4f4f5;padding:40px 16px;">
+<body style="margin:0;padding:0;background-color:#f4f4f5;font-family:'Segoe UI',Roboto,Arial,Helvetica,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background-color:#f4f4f5;padding:32px 16px;">
 <tr><td align="center">
-<table width="520" cellpadding="0" cellspacing="0" role="presentation" style="background-color:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 4px 6px -1px rgba(0,0,0,0.07),0 2px 4px -2px rgba(0,0,0,0.05);max-width:520px;width:100%;">
-  <!-- Header -->
-  <tr><td style="background:linear-gradient(135deg,#171717 0%,#262626 100%);padding:28px 36px;">
-    <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
-      <tr>
-        <td>
-          <h1 style="margin:0;color:#ffffff;font-size:22px;font-weight:700;letter-spacing:-0.3px;">Movilidad</h1>
-          <p style="margin:4px 0 0;color:#a3a3a3;font-size:13px;">Gestion de Transito y Transporte</p>
-        </td>
-        <td align="right" valign="middle">
-          <div style="width:40px;height:40px;background-color:rgba(255,255,255,0.1);border-radius:10px;text-align:center;line-height:40px;">
-            <span style="font-size:20px;">&#128663;</span>
-          </div>
-        </td>
-      </tr>
-    </table>
+<table width="480" cellpadding="0" cellspacing="0" role="presentation" style="background-color:#ffffff;border-radius:8px;overflow:hidden;border:1px solid #e5e5e5;max-width:480px;width:100%;">
+  <tr><td style="background-color:#171717;padding:20px 28px;">
+    <h1 style="margin:0;color:#ffffff;font-size:18px;font-weight:600;">Movilidad</h1>
   </td></tr>
-  <!-- Body -->
-  <tr><td style="padding:36px;">
+  <tr><td style="padding:28px;">
     ${content}
   </td></tr>
-  <!-- Footer -->
-  <tr><td style="padding:20px 36px;background-color:#fafafa;border-top:1px solid #e5e5e5;">
-    <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
-      <tr><td>
-        <p style="margin:0 0 4px;color:#a1a1aa;font-size:11px;text-align:center;">Este es un mensaje automatico de Movilidad. No responda a este correo.</p>
-        <p style="margin:0;color:#a1a1aa;font-size:11px;text-align:center;">Si tiene dudas, contacte al administrador del sistema.</p>
-      </td></tr>
-    </table>
+  <tr><td style="padding:16px 28px;border-top:1px solid #e5e5e5;">
+    <p style="margin:0;color:#a1a1aa;font-size:11px;text-align:center;">Mensaje automatico — No responder a este correo.</p>
   </td></tr>
 </table>
 </td></tr>
@@ -46,11 +26,11 @@ export function baseLayout(content: string): string {
 }
 
 export function credentialBox(label: string, value: string): string {
-  return `<table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="margin:8px 0;">
+  return `<table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="margin:6px 0;">
     <tr>
-      <td style="padding:12px 16px;background-color:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;">
-        <p style="margin:0 0 2px;color:#6b7280;font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:0.5px;">${label}</p>
-        <p style="margin:0;color:#111827;font-size:15px;font-weight:600;font-family:'Courier New',monospace;letter-spacing:0.5px;">${value}</p>
+      <td style="padding:10px 14px;background-color:#f9fafb;border:1px solid #e5e7eb;border-radius:6px;">
+        <p style="margin:0 0 2px;color:#6b7280;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;">${label}</p>
+        <p style="margin:0;color:#111827;font-size:14px;font-weight:600;font-family:'Courier New',monospace;">${value}</p>
       </td>
     </tr>
   </table>`
@@ -58,30 +38,17 @@ export function credentialBox(label: string, value: string): string {
 
 export function alertBox(type: 'warning' | 'info', text: string): string {
   const colors = {
-    warning: { bg: '#fef2f2', border: '#ef4444', text: '#991b1b', icon: '&#9888;&#65039;' },
-    info: { bg: '#eff6ff', border: '#3b82f6', text: '#1e40af', icon: '&#8505;&#65039;' },
+    warning: { bg: '#fef2f2', border: '#ef4444', text: '#991b1b' },
+    info: { bg: '#eff6ff', border: '#3b82f6', text: '#1e40af' },
   }
   const c = colors[type]
-  return `<table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="margin:20px 0;">
-    <tr><td style="background-color:${c.bg};border-left:4px solid ${c.border};padding:14px 18px;border-radius:0 8px 8px 0;">
-      <p style="margin:0;color:${c.text};font-size:13px;font-weight:500;line-height:1.5;">${c.icon} ${text}</p>
+  return `<table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="margin:16px 0;">
+    <tr><td style="background-color:${c.bg};border-left:3px solid ${c.border};padding:10px 14px;border-radius:0 6px 6px 0;">
+      <p style="margin:0;color:${c.text};font-size:12px;line-height:1.5;">${text}</p>
     </td></tr>
   </table>`
 }
 
-export function stepsList(steps: string[]): string {
-  return `<table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="margin:20px 0;">
-    ${steps.map((step, i) => `<tr>
-      <td width="32" valign="top" style="padding:8px 0;">
-        <div style="width:26px;height:26px;background-color:#171717;border-radius:50%;text-align:center;line-height:26px;">
-          <span style="color:#ffffff;font-size:13px;font-weight:700;">${i + 1}</span>
-        </div>
-      </td>
-      <td style="padding:10px 0 10px 12px;color:#374151;font-size:14px;line-height:1.5;border-bottom:${i < steps.length - 1 ? '1px solid #f3f4f6' : 'none'};">${step}</td>
-    </tr>`).join('')}
-  </table>`
-}
-
 export function divider(): string {
-  return `<hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0;">`
+  return `<hr style="border:none;border-top:1px solid #e5e7eb;margin:20px 0;">`
 }

@@ -31,6 +31,7 @@ import { getNowDateColombia, getNowTimeColombia, getNowTimestampColombia } from 
 import type { ItemCatalogo, VistaPersonal, VistaVehiculo, EstadoDocumento } from "@/lib/parqueadero/types"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
+import { capitalizeName } from "@/lib/utils/capitalize"
 import { CapturaFirma, VistaFirma } from "./captura-firma"
 import { CapturaFoto, VistaFoto } from "./captura-foto"
 
@@ -497,7 +498,7 @@ export function FormularioInspeccion({
                 {operadores.map((o) => (
                   <SelectItem key={o.id} value={o.id}>
                     <div className="flex items-center gap-2">
-                      <span>{o.nombre_completo || o.correo}</span>
+                      <span>{capitalizeName(o.nombre_completo) || o.correo}</span>
                       {o.estado_licencia === "vencido" && (
                         <Badge variant="destructive" className="text-xs px-1">
                           Lic. vencida
@@ -536,7 +537,7 @@ export function FormularioInspeccion({
                 <SelectItem value="__none__">Sin auxiliar</SelectItem>
                 {auxiliares.map((a) => (
                   <SelectItem key={a.id} value={a.id}>
-                    {a.nombre_completo || a.correo}
+                    {capitalizeName(a.nombre_completo) || a.correo}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -898,7 +899,7 @@ export function FormularioInspeccion({
         onClose={() => setModalFirma(null)}
         onSave={(firma) => setFirmaOperador(firma)}
         titulo="Firma del Operador"
-        descripcion={operadorSeleccionado ? `${operadorSeleccionado.nombre_completo || operadorSeleccionado.correo}` : "Operador"}
+        descripcion={operadorSeleccionado ? `${capitalizeName(operadorSeleccionado.nombre_completo) || operadorSeleccionado.correo}` : "Operador"}
       />
       <CapturaFirma
         open={modalFirma === "inspector"}
