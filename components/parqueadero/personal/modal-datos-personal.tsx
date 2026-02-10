@@ -32,7 +32,7 @@ interface ModalDatosPersonalProps {
 }
 
 const requiereLicencia = (rolCodigo: string) => {
-  return rolCodigo !== "parq_auxiliar"
+  return rolCodigo !== "parq_auxiliar" && rolCodigo !== "parq_administrador"
 }
 
 export function ModalDatosPersonal({ persona, onCerrar }: ModalDatosPersonalProps) {
@@ -187,7 +187,7 @@ export function ModalDatosPersonal({ persona, onCerrar }: ModalDatosPersonalProp
             </div>
           ) : (
             <p className="text-sm text-muted-foreground bg-muted/50 p-3 rounded">
-              El rol de Auxiliar no requiere licencia
+              Este rol no requiere licencia de conducción
             </p>
           )}
 

@@ -43,7 +43,7 @@ export function TablaPersonal({ personal, puedeEditar }: TablaPersonalProps) {
       header: ({ column }) => <DataTableColumnHeader column={column} title="Licencia" />,
       cell: ({ row }) => {
         // Auxiliares no requieren licencia
-        if (row.original.rol_codigo === "parq_auxiliar") {
+        if (row.original.rol_codigo === "parq_auxiliar" || row.original.rol_codigo === "parq_administrador") {
           return <span className="text-muted-foreground text-sm">N/A</span>
         }
         const categoria = row.getValue("licencia_categoria") as string | null
@@ -66,7 +66,7 @@ export function TablaPersonal({ personal, puedeEditar }: TablaPersonalProps) {
       accessorKey: "licencia_vencimiento",
       header: ({ column }) => <DataTableColumnHeader column={column} title="Vencimiento" />,
       cell: ({ row }) => {
-        if (row.original.rol_codigo === "parq_auxiliar") {
+        if (row.original.rol_codigo === "parq_auxiliar" || row.original.rol_codigo === "parq_administrador") {
           return <span className="text-muted-foreground text-sm">-</span>
         }
         return formatearFechaCorta(row.getValue("licencia_vencimiento"))
@@ -77,7 +77,7 @@ export function TablaPersonal({ personal, puedeEditar }: TablaPersonalProps) {
       header: ({ column }) => <DataTableColumnHeader column={column} title="Estado" />,
       cell: ({ row }) => {
         // Auxiliares no requieren licencia
-        if (row.original.rol_codigo === "parq_auxiliar") {
+        if (row.original.rol_codigo === "parq_auxiliar" || row.original.rol_codigo === "parq_administrador") {
           return <span className="text-muted-foreground text-sm">-</span>
         }
         const estado = row.getValue("estado_licencia") as string

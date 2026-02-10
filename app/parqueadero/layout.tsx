@@ -68,12 +68,12 @@ export default async function ParqueaderoLayout({
     .select("*", { count: "exact", head: true })
     .eq("activo", true)
 
-  // Contar licencias con problemas (vencidas o por vencer, excluyendo auxiliares)
+  // Contar licencias con problemas (vencidas o por vencer, excluyendo auxiliares y admins)
   const { data: personalConAlertas } = await supabase
     .from("parq_vista_personal")
     .select("estado_licencia, rol_codigo")
     .in("estado_licencia", ["vencido", "por_vencer"])
-    .neq("rol_codigo", "parq_auxiliar")
+    .not("rol_codigo", "in", "(parq_auxiliar,parq_administrador)")
 
   const alertasLicencias = personalConAlertas?.length || 0
 
