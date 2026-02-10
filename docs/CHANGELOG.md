@@ -5,6 +5,29 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.4.5] - 2026-02-10
+
+### Chore: Calidad de código, seguridad y dependencias
+
+#### Seguridad
+- `npm audit fix` — lodash prototype pollution corregido
+- Next.js actualizado a 16.1.6 (3 vulnerabilidades DoS corregidas)
+- Removido `@types/xlsx` innecesario
+
+#### Configuración
+- Removido `eslint.ignoreDuringBuilds` de `next.config.mjs`
+- Removido `typescript.ignoreBuildErrors` — tsc compila limpio
+
+#### Tipos
+- ~30 instancias de `any` reemplazadas con tipos propios en 20+ archivos
+- Interfaces explícitas para procesos, novedades, permisos, reportes y auditoría
+- `catch (error: any)` → `catch (error)` + `instanceof Error`
+
+#### Dependencias
+- Actualización semver-safe: Supabase, Tailwind, React types, Vercel analytics, etc.
+
+---
+
 ## [1.4.4] - 2026-02-10
 
 ### Fix: Permisos modulares, licencias admins y capitalización

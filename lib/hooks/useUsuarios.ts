@@ -121,8 +121,8 @@ export function useUsuarios(filtrosIniciales?: FiltrosUsuarios) {
 
       toast.success(`Usuario ${nuevoEstado ? 'activado' : 'desactivado'} exitosamente`);
       cargarUsuarios();
-    } catch (error: any) {
-      toast.error(`Error: ${error.message || 'No se pudo cambiar el estado'}`);
+    } catch (error) {
+      toast.error(`Error: ${error instanceof Error ? error.message : 'No se pudo cambiar el estado'}`);
     }
   }
 

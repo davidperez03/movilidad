@@ -14,14 +14,17 @@ import { BotonesExportacion } from './botones-exportacion'
 import { FILTROS_INICIALES } from '@/lib/movilidad/reportes/tipos'
 import type { FiltrosReporte, TipoReporte, Organismo, Responsable } from '@/lib/movilidad/reportes/tipos'
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type DatoReporte = any
+
 interface ReporteWrapperProps {
   titulo: string
   descripcion: string
   tipoReporte: TipoReporte
-  datos: any[]
+  datos: DatoReporte[]
   organismos: Organismo[]
   responsables: Responsable[]
-  tablaComponent: React.ComponentType<{ datos: any[]; filtros: FiltrosReporte }>
+  tablaComponent: React.ComponentType<{ datos: DatoReporte[]; filtros: FiltrosReporte }>
   estadisticasComponent?: React.ReactNode
 }
 
@@ -39,7 +42,7 @@ export function ReporteWrapper({
 
   // Filtrar datos según filtros aplicados
   const datosFiltrados = useMemo(() => {
-    return datos.filter((d: any) => {
+    return datos.filter((d: DatoReporte) => {
       // Filtro por fecha inicio
       if (filtros.fechaInicio) {
         const fechaDato = d.fecha_tramite || d.fecha_completado || d.creado_en

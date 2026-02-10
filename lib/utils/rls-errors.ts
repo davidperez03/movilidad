@@ -3,7 +3,12 @@
  * para mostrar mensajes amigables al usuario
  */
 
-export function esErrorRLS(error: any): boolean {
+interface SupabaseError {
+  message?: string
+  code?: string
+}
+
+export function esErrorRLS(error: SupabaseError): boolean {
   if (!error) return false
 
   const mensaje = error.message?.toLowerCase() || ''
@@ -18,7 +23,7 @@ export function esErrorRLS(error: any): boolean {
   )
 }
 
-export function obtenerMensajeRLS(error: any, operacion: 'crear' | 'editar' | 'eliminar' | 'ver' = 'crear'): string {
+export function obtenerMensajeRLS(error: SupabaseError, operacion: 'crear' | 'editar' | 'eliminar' | 'ver' = 'crear'): string {
   if (!esErrorRLS(error)) {
     return error.message || 'Error desconocido'
   }
@@ -37,7 +42,7 @@ export function obtenerMensajeRLS(error: any, operacion: 'crear' | 'editar' | 'e
  * Maneja errores de Supabase y devuelve un mensaje amigable
  */
 export function manejarErrorSupabase(
-  error: any,
+  error: SupabaseError,
   operacion: 'crear' | 'editar' | 'eliminar' | 'ver' = 'crear',
   recurso: string = 'este recurso'
 ): string {

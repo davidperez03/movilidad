@@ -68,7 +68,7 @@ export default async function InspeccionDetallePage({ params }: PageProps) {
 
   // Helper para obtener datos del item (snapshot o catálogo como fallback)
   const getItemData = (item: ItemInspeccionConCatalogo) => {
-    const catalogo = item.item_catalogo as any
+    const catalogo = item.item_catalogo as { nombre?: string; categoria?: string; orden?: number } | null
     return {
       nombre: item.item_nombre || catalogo?.nombre || "Sin nombre",
       categoria: item.item_categoria || catalogo?.categoria || "otros",

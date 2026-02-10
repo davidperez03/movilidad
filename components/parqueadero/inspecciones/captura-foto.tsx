@@ -101,9 +101,9 @@ export function CapturaFoto({
       limpiar()
       onClose()
       toast.success("Foto guardada")
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error al subir foto:", error)
-      toast.error(error.message || "Error al subir la foto")
+      toast.error(error instanceof Error ? error.message : "Error al subir la foto")
     } finally {
       setLoading(false)
     }

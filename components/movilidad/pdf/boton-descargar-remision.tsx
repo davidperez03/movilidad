@@ -86,8 +86,8 @@ export function BotonDescargarRemision({
             creado_en: traslado.creado_en,
           }}
           organismoOrigen={otYopal}
-          organismoDestino={traslado.organismo_destino as any}
-          vehiculo={traslado.cuenta as any}
+          organismoDestino={traslado.organismo_destino as unknown as { id: string; nombre: string; tipo: string; telefono?: string; direccion?: string; municipio: string; departamento: string }}
+          vehiculo={traslado.cuenta as unknown as { placa: string; numero_cuenta: string; tipo_servicio: string }}
         />
       )
 

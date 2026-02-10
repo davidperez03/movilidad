@@ -157,8 +157,8 @@ export function ModalDetallesUsuario({ usuario, onCerrar }: ModalDetallesUsuario
     setConfirmLoading(true);
     try {
       await confirmState.action();
-    } catch (error: any) {
-      toast.error(error.message || 'Error');
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Error');
     } finally {
       setConfirmLoading(false);
       setConfirmState(prev => ({ ...prev, open: false }));
