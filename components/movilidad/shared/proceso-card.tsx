@@ -57,7 +57,7 @@ export const ProcesoCard = memo(function ProcesoCard({
           <div className="space-y-1">
             <CardTitle className="flex items-center gap-2">
               <Icono className="h-5 w-5" />
-              {proceso.mov_cuentas_vehiculos?.placa}
+              <span className="font-plate">{proceso.mov_cuentas_vehiculos?.placa}</span>
             </CardTitle>
             <CardDescription>
               {proceso.mov_cuentas_vehiculos?.numero_cuenta}

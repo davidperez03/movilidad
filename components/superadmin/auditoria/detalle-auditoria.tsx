@@ -89,7 +89,7 @@ export function DetalleAuditoria({ registro, open, onClose }: DetalleAuditoriaPr
             </div>
             <p className="text-sm text-muted-foreground">{getDescripcion(registro)}</p>
             {registro.placa && (
-              <p className="text-xl font-bold tracking-wide">{registro.placa}</p>
+              <p className="text-xl font-plate">{registro.placa}</p>
             )}
           </div>
 

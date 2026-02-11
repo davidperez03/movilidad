@@ -57,7 +57,7 @@ export function crearColumnaPlaca<T extends { mov_cuentas_vehiculos?: Cuenta }>(
       <DataTableColumnHeader column={column} title="Placa" />
     ),
     cell: ({ row }) => (
-      <div className="font-medium">{row.original.mov_cuentas_vehiculos?.placa}</div>
+      <div className="font-plate">{row.original.mov_cuentas_vehiculos?.placa}</div>
     ),
   }
 }
