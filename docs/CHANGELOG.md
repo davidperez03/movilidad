@@ -5,6 +5,22 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.5.0] - 2026-02-11
+
+### Feat: Tipografía profesional del sistema
+
+#### Agregado
+- **Plus Jakarta Sans** como fuente principal (UI general), reemplaza Geist
+- **JetBrains Mono** para datos técnicos/monospace (numero_cuenta, IPs, guías)
+- **Share Tech Mono** + clase `.font-plate` para placas vehiculares (estilo industrial/estampado)
+- Variable CSS `--font-plate` y clase utilitaria con uppercase, letter-spacing y bold
+
+#### Cambiado
+- 16 ubicaciones de placas vehiculares actualizadas con tipografía consistente (`font-plate`)
+- Todas las fuentes cargadas via `next/font/google` (optimización automática)
+
+---
+
 ## [1.4.5] - 2026-02-10
 
 ### Chore: Calidad de código, seguridad y dependencias
