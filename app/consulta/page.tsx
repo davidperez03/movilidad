@@ -118,7 +118,7 @@ export default function ConsultaPublicaPage() {
                       value={placa}
                       onChange={(e) => setPlaca(e.target.value.toUpperCase())}
                       disabled={loading}
-                      className="text-lg font-mono uppercase"
+                      className="text-lg font-plate"
                       maxLength={10}
                       required
                     />
@@ -157,7 +157,7 @@ export default function ConsultaPublicaPage() {
                   <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 mb-3">
                     <Car className="h-6 w-6 text-primary" />
                   </div>
-                  <p className="text-2xl font-bold font-mono tracking-wide">{resultado.placa}</p>
+                  <p className="text-2xl font-bold font-plate">{resultado.placa}</p>
                   <p className="text-sm text-muted-foreground mt-1">
                     Cuenta: <span className="font-mono font-medium text-foreground">{resultado.numero_cuenta}</span>
                   </p>

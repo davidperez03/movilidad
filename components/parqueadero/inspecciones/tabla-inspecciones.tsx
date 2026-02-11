@@ -41,7 +41,7 @@ export function TablaInspecciones({ inspecciones, permisos }: TablaInspeccionesP
       accessorKey: "placa",
       header: ({ column }) => <DataTableColumnHeader column={column} title="Placa" />,
       cell: ({ row }) => (
-        <span className="font-mono font-medium">{row.getValue("placa")}</span>
+        <span className="font-plate">{row.getValue("placa")}</span>
       ),
     },
     {
