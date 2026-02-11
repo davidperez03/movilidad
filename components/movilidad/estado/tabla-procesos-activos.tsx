@@ -47,7 +47,7 @@ const columnas: ColumnDef<ProcesoActivo>[] = [
       <DataTableColumnHeader column={column} title="Placa" />
     ),
     cell: ({ row }) => (
-      <div className="font-medium">{row.getValue('placa')}</div>
+      <div className="font-plate">{row.getValue('placa')}</div>
     ),
   },
   {

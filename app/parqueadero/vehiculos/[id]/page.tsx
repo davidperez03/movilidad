@@ -59,7 +59,7 @@ export default async function VehiculoDetallePage({ params }: PageProps) {
         </Button>
         <div className="flex-1">
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold tracking-tight font-mono">
+            <h1 className="text-2xl font-bold tracking-tight font-plate">
               {vehiculo.placa}
             </h1>
             <Badge variant={vehiculo.activo ? "default" : "secondary"}>

@@ -61,7 +61,7 @@ export default async function DetalleVehiculoPage({
           <div>
             <h1 className="text-3xl font-bold flex items-center gap-2">
               <Car className="h-8 w-8" />
-              {cuenta.placa}
+              <span className="font-plate">{cuenta.placa}</span>
             </h1>
             <p className="text-muted-foreground">
               Cuenta: {cuenta.numero_cuenta}
