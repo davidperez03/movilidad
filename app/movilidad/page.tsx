@@ -13,6 +13,7 @@ import {
 } from "lucide-react"
 import { ESTADOS_CONFIG } from "@/lib/movilidad/config"
 import { formatearEstadoProceso } from "@/lib/movilidad/formatters"
+import { obtenerNivelUrgenciaPorVencer } from "@/lib/movilidad/reportes/urgencia"
 import { StatCard } from "@/components/dashboard/stat-card"
 import { AlertCard } from "@/components/dashboard/alert-card"
 import { ActivityTimeline } from "@/components/dashboard/activity-timeline"
@@ -36,17 +37,28 @@ export default async function MovilidadDashboard() {
     supabase.from("mov_novedades").select("*", { count: "exact", head: true }).neq("estado", "resuelta"),
   ])
 
-  // Procesos por vencer
-  const { data: procesosPorVencer } = await supabase
-    .from("mov_vista_procesos_por_vencer")
+  // Procesos para alertas prioritarias (urgencia media y vence hoy)
+  const { data: procesosConAlerta } = await supabase
+    .from("mov_vista_proceso_activo")
     .select("*")
+    .not("proceso_tipo", "is", null)
+    .not("dias_restantes", "is", null)
+    .gte("dias_restantes", 0)
+    .lte("dias_restantes", 10)
     .order("dias_restantes", { ascending: true })
-    .limit(10)
+    .limit(50)
 
-  const alerts = (procesosPorVencer || []).map((proceso) => {
+  const alerts = (procesosConAlerta || [])
+    .filter((proceso) => {
+      const nivel = obtenerNivelUrgenciaPorVencer(proceso.dias_restantes)
+      return nivel === "vence_hoy" || nivel === "media"
+    })
+    .slice(0, 10)
+    .map((proceso) => {
     const daysRemaining = proceso.dias_restantes
+    const nivel = obtenerNivelUrgenciaPorVencer(daysRemaining)
     const severity: "critical" | "warning" | "info" =
-      daysRemaining < 0 ? "critical" : daysRemaining <= 2 ? "warning" : "info"
+      nivel === "vence_hoy" ? "warning" : "info"
 
     return {
       id: proceso.proceso_id,
@@ -54,7 +66,7 @@ export default async function MovilidadDashboard() {
       description: `${proceso.proceso_tipo === "traslado" ? "Destino" : "Origen"}: ${proceso.ciudad}`,
       severity,
       link: `/movilidad/vehiculos/${proceso.placa}`,
-      daysRemaining: Math.abs(daysRemaining),
+      daysRemaining,
     }
   })
 
@@ -227,7 +239,7 @@ export default async function MovilidadDashboard() {
         <AlertCard
           alerts={alerts}
           title="Alertas Prioritarias"
-          emptyMessage="No hay procesos próximos a vencer"
+          emptyMessage="No hay procesos de urgencia media ni que venzan hoy"
         />
         <ActivityTimeline
           activities={activities}

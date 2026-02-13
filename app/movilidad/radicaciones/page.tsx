@@ -9,7 +9,7 @@ import { RadicacionesTable } from "@/components/movilidad/radicaciones/radicacio
 export default async function RadicacionesPage() {
   const supabase = await createClient()
 
-  // Obtener datos de días hábiles desde la vista
+  // Obtener datos de vencimiento desde la vista
   const { data: vistaActivas } = await supabase
     .from("mov_vista_proceso_activo")
     .select("proceso_id, dias_restantes")
@@ -42,10 +42,29 @@ export default async function RadicacionesPage() {
     .not("estado", "in", "(radicado,devuelto)")
     .order("creado_en", { ascending: false })
 
+  const radicacionIds = radicacionesActivasRaw?.map((radicacion) => radicacion.id) || []
+  const { data: notificacionesData } = radicacionIds.length > 0
+    ? await supabase
+        .from("mov_notificaciones_radicacion")
+        .select("id, radicacion_id, solicitante_notificado, notificado_en, observaciones")
+        .in("radicacion_id", radicacionIds)
+    : { data: [] as Array<{
+      id: string
+      radicacion_id: string
+      solicitante_notificado: boolean
+      notificado_en: string | null
+      observaciones: string | null
+    }> }
+
+  const notificacionesPorRadicacion = new Map(
+    (notificacionesData || []).map((notificacion) => [notificacion.radicacion_id, notificacion])
+  )
+
   // Agregar días restantes a cada radicación
-  const radicacionesActivas = radicacionesActivasRaw?.map(radicacion => ({
+  const radicacionesActivas = radicacionesActivasRaw?.map((radicacion) => ({
     ...radicacion,
-    dias_restantes: diasPorProceso.get(radicacion.id) || null
+    dias_restantes: diasPorProceso.get(radicacion.id) ?? null,
+    notificacion_radicacion: notificacionesPorRadicacion.get(radicacion.id) ?? null,
   }))
 
   if (errorActivas) {

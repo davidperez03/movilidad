@@ -1,5 +1,42 @@
 import type { TipoProceso } from './config'
 
+const MILISEGUNDOS_DIA = 1000 * 60 * 60 * 24
+const ZONA_HORARIA_COLOMBIA = 'America/Bogota'
+
+function normalizarFecha(fecha: string | Date): Date | null {
+  if (fecha instanceof Date) {
+    if (Number.isNaN(fecha.getTime())) return null
+    return new Date(fecha.getFullYear(), fecha.getMonth(), fecha.getDate())
+  }
+
+  const valor = fecha.trim()
+  if (!valor) return null
+
+  const match = valor.match(/^(\d{4})-(\d{2})-(\d{2})/)
+  if (!match) {
+    const parsed = new Date(valor)
+    if (Number.isNaN(parsed.getTime())) return null
+    return new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate())
+  }
+
+  const year = Number(match[1])
+  const month = Number(match[2]) - 1
+  const day = Number(match[3])
+  const parsed = new Date(year, month, day)
+  return Number.isNaN(parsed.getTime()) ? null : parsed
+}
+
+function obtenerHoyColombia(): Date | null {
+  const hoyColombia = new Intl.DateTimeFormat('sv-SE', {
+    timeZone: ZONA_HORARIA_COLOMBIA,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(new Date())
+
+  return normalizarFecha(hoyColombia)
+}
+
 /**
  * Formatea el estado de un proceso para mostrar en UI
  * Convierte: "en_tramite" -> "En Tramite"
@@ -45,17 +82,34 @@ export function formatearFechaHora(fecha: string | Date): string {
  * Retorna número positivo si aún no ha vencido, negativo si ya venció
  */
 export function calcularDiasRestantes(fechaVencimiento: string): number {
-  const hoy = new Date()
-  hoy.setHours(0, 0, 0, 0) // Normalizar a medianoche
-
-  const vencimiento = new Date(fechaVencimiento)
-  vencimiento.setHours(0, 0, 0, 0) // Normalizar a medianoche
+  const hoy = obtenerHoyColombia()
+  const vencimiento = normalizarFecha(fechaVencimiento)
+  if (!hoy || !vencimiento) return 0
 
   const diferencia = Math.ceil(
-    (vencimiento.getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24)
+    (vencimiento.getTime() - hoy.getTime()) / MILISEGUNDOS_DIA
   )
 
   return diferencia
+}
+
+/**
+ * Calcula días calendario vencidos (no hábiles) a partir de la fecha de vencimiento.
+ * Retorna 0 si aún no está vencido o vence hoy.
+ */
+export function calcularDiasVencidosCalendario(fechaVencimiento: string | Date | null | undefined): number {
+  if (!fechaVencimiento) return 0
+
+  const hoy = obtenerHoyColombia()
+  const vencimiento = normalizarFecha(fechaVencimiento)
+  if (!hoy || !vencimiento) return 0
+
+  const diferencia = Math.floor((hoy.getTime() - vencimiento.getTime()) / MILISEGUNDOS_DIA)
+  return Math.max(diferencia, 0)
+}
+
+export function formatearVencidoHace(diasVencidos: number): string {
+  return diasVencidos <= 1 ? 'Vencido hace un día' : `Vencido hace ${diasVencidos} días`
 }
 
 /**
@@ -74,6 +128,7 @@ export function getVariantePorEstado(
     // En progreso avanzado
     case 'aprobado':
     case 'enviado_organismo':
+    case 'enviado_devolucion':
       return 'default'
 
     // En progreso inicial
@@ -123,7 +178,7 @@ export function getVariantePorVencimiento(
 export function formatearDiasRestantes(diasRestantes: number): string {
   if (diasRestantes < 0) {
     const diasVencidos = Math.abs(diasRestantes)
-    return diasVencidos === 1 ? 'Vencido hace 1 día' : `Vencido hace ${diasVencidos} días`
+    return formatearVencidoHace(diasVencidos)
   }
 
   if (diasRestantes === 0) {

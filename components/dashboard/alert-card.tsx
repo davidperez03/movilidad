@@ -39,7 +39,7 @@ const severityConfig = {
 }
 
 function formatDaysRemaining(days: number, severity: string): string {
-  if (severity === "critical") return "Vencido"
+  if (severity === "critical") return days === 1 ? "Vencido hace 1 día" : `Vencido hace ${days} días`
   if (days === 0) return "Vence hoy"
   if (days === 1) return "Vence mañana"
   return `${days} días`

@@ -124,12 +124,13 @@ begin
       array['recibido', 'con_novedades'],
       array['revisado', 'con_novedades'],
       array['revisado', 'pendiente_radicar'],
-      array['revisado', 'devuelto'],
+      array['revisado', 'enviado_devolucion'],
       array['con_novedades', 'revisado'],
       array['con_novedades', 'pendiente_radicar'],
-      array['con_novedades', 'devuelto'],
+      array['con_novedades', 'enviado_devolucion'],
       array['pendiente_radicar', 'radicado'],
-      array['pendiente_radicar', 'devuelto']
+      array['pendiente_radicar', 'enviado_devolucion'],
+      array['enviado_devolucion', 'devuelto']
     ];
   end if;
 
@@ -160,6 +161,15 @@ begin
         old.estado,
         estados_permitidos;
     end if;
+
+    -- Reglas de negocio: para finalizar una radicación como devuelta,
+    -- deben existir datos logísticos de devolución (empresa + guía).
+    if tg_table_name = 'mov_radicaciones' and new.estado = 'devuelto' then
+      if new.empresa_transportadora_id is null or nullif(btrim(new.numero_guia), '') is null then
+        raise exception 'Para marcar una radicación como devuelta debe registrar empresa transportadora y número de guía';
+      end if;
+    end if;
+
   end if;
 
   return new;
@@ -297,12 +307,13 @@ begin
       array['recibido', 'con_novedades'],
       array['revisado', 'con_novedades'],
       array['revisado', 'pendiente_radicar'],
-      array['revisado', 'devuelto'],
+      array['revisado', 'enviado_devolucion'],
       array['con_novedades', 'revisado'],
       array['con_novedades', 'pendiente_radicar'],
-      array['con_novedades', 'devuelto'],
+      array['con_novedades', 'enviado_devolucion'],
       array['pendiente_radicar', 'radicado'],
-      array['pendiente_radicar', 'devuelto']
+      array['pendiente_radicar', 'enviado_devolucion'],
+      array['enviado_devolucion', 'devuelto']
     ];
   end if;
 

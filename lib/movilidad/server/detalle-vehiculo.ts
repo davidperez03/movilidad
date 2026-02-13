@@ -33,22 +33,54 @@ export async function obtenerProcesoActivo(cuentaId: string) {
   }
 
   // Obtener detalles completos con usuarios
-  const tabla = procesoActivoData.proceso_tipo === "traslado" ? "mov_traslados" : "mov_radicaciones"
-  const { data: procesoDetalle } = await supabase
-    .from(tabla)
-    .select(`
-      *,
-      creador:perfiles!creado_por (nombre_completo),
-      actualizador:perfiles!actualizado_por (nombre_completo)
-    `)
-    .eq("id", procesoActivoData.proceso_id)
-    .single()
+  const { data: procesoDetalle } = procesoActivoData.proceso_tipo === "traslado"
+    ? await supabase
+        .from("mov_traslados")
+        .select(`
+          *,
+          creador:perfiles!creado_por (nombre_completo),
+          actualizador:perfiles!actualizado_por (nombre_completo),
+          empresa_transporte:mov_empresas_transporte!empresa_transportadora_id (id, nombre)
+        `)
+        .eq("id", procesoActivoData.proceso_id)
+        .single()
+    : await supabase
+        .from("mov_radicaciones")
+        .select(`
+          *,
+          creador:perfiles!creado_por (nombre_completo),
+          actualizador:perfiles!actualizado_por (nombre_completo),
+          empresa_transporte:mov_empresas_transporte!empresa_transportadora_id (id, nombre)
+        `)
+        .eq("id", procesoActivoData.proceso_id)
+        .single()
 
   if (procesoDetalle) {
-    return { ...procesoActivoData, ...procesoDetalle }
+    if (procesoActivoData.proceso_tipo === "radicacion") {
+      const { data: notificacionRadicacion } = await supabase
+        .from("mov_notificaciones_radicacion")
+        .select("id, solicitante_notificado, notificado_en, observaciones")
+        .eq("radicacion_id", procesoActivoData.proceso_id)
+        .maybeSingle()
+
+      return {
+        ...procesoActivoData,
+        ...procesoDetalle,
+        notificacion_radicacion: notificacionRadicacion ?? null,
+      }
+    }
+
+    return {
+      ...procesoActivoData,
+      ...procesoDetalle,
+      notificacion_radicacion: null,
+    }
   }
 
-  return procesoActivoData
+  return {
+    ...procesoActivoData,
+    notificacion_radicacion: null,
+  }
 }
 
 export async function obtenerHistorialTraslados(cuentaId: string) {
@@ -78,7 +110,8 @@ export async function obtenerHistorialRadicaciones(cuentaId: string) {
       *,
       creador:perfiles!creado_por (nombre_completo),
       actualizador:perfiles!actualizado_por (nombre_completo),
-      organismo:mov_organismos_transito!organismo_origen_id (nombre, municipio, departamento)
+      organismo:mov_organismos_transito!organismo_origen_id (nombre, municipio, departamento),
+      empresa_transporte:mov_empresas_transporte!empresa_transportadora_id (id, nombre)
     `)
     .eq("cuenta_id", cuentaId)
     .order("creado_en", { ascending: false })

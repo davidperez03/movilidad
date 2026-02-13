@@ -2,7 +2,6 @@
 
 import { DataTable } from '@/components/ui/data-table/data-table'
 import { columnasTablaActivos } from './tabla-activos-columns'
-import { useFiltrosReporte } from '@/lib/movilidad/reportes/use-filtros-reporte'
 import type { DatosReporteActivos, FiltrosReporte } from '@/lib/movilidad/reportes/tipos'
 
 interface TablaActivosProps {
@@ -10,13 +9,11 @@ interface TablaActivosProps {
   filtros: FiltrosReporte
 }
 
-export function TablaActivos({ datos, filtros }: TablaActivosProps) {
-  const datosFiltrados = useFiltrosReporte(datos, filtros, 'fecha_tramite')
-
+export function TablaActivos({ datos, filtros: _filtros }: TablaActivosProps) {
   return (
     <DataTable
       columns={columnasTablaActivos}
-      data={datosFiltrados}
+      data={datos}
       enablePagination={true}
       pageSize={20}
       pageSizeOptions={[10, 20, 50, 100]}

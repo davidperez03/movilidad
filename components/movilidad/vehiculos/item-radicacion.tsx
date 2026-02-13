@@ -36,6 +36,18 @@ export function ItemRadicacion({ radicacion }: ItemRadicacionProps) {
         {radicacion.fecha_completado && (
           <p><strong>Completado:</strong> {formatDateForDisplay(radicacion.fecha_completado)}</p>
         )}
+        {radicacion.estado === "devuelto" && (
+          <>
+            <p>
+              <strong>Transportadora:</strong>{" "}
+              {radicacion.empresa_transporte?.nombre || "Sin información"}
+            </p>
+            <p>
+              <strong>Número de guía:</strong>{" "}
+              {radicacion.numero_guia || "Sin información"}
+            </p>
+          </>
+        )}
         {radicacion.observaciones && (
           <div className={`mt-2 p-2 rounded ${
             radicacion.estado === "devuelto"

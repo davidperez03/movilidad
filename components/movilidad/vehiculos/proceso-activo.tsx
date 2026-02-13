@@ -4,10 +4,15 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { ArrowRightLeft, ArrowDownToLine, AlertTriangle } from "lucide-react"
 import { formatDateForDisplay, formatDateShort } from "@/lib/utils"
-import { formatearEstadoProceso } from "@/lib/movilidad/formatters"
+import {
+  formatearEstadoProceso,
+  calcularDiasVencidosCalendario,
+  formatearVencidoHace,
+} from "@/lib/movilidad/formatters"
 import { CambiarEstado } from "@/components/movilidad/procesos/cambiar-estado"
 import { AgregarNovedad } from "@/components/movilidad/procesos/agregar-novedad"
 import { AgregarDatosTransporte } from "@/components/movilidad/procesos/agregar-datos-transporte"
+import { AgregarNotificacionRadicacion } from "@/components/movilidad/procesos/agregar-notificacion-radicacion"
 import { ResolverNovedad } from "@/components/movilidad/procesos/resolver-novedad"
 
 interface Perfil {
@@ -27,6 +32,12 @@ interface ProcesoActivo {
   numero_guia: string | null
   empresa_transportadora_id: string | null
   empresa_transporte: { nombre: string } | null
+  notificacion_radicacion: {
+    id: string
+    solicitante_notificado: boolean
+    notificado_en: string | null
+    observaciones: string | null
+  } | null
   creador: Perfil | null
   actualizador: Perfil | null
 }
@@ -86,6 +97,12 @@ export function ProcesoActivo({ proceso, novedades, placa }: ProcesoActivoProps)
     )
   }
 
+  const diasVencidosCalendario = proceso.fecha_vencimiento
+    ? calcularDiasVencidosCalendario(proceso.fecha_vencimiento)
+    : 0
+  const diasHabilesRestantes = proceso.dias_restantes
+  const estadoFinalizado = ["trasladado", "radicado", "devuelto"].includes(proceso.proceso_estado)
+
   return (
     <Card className="border-2 border-primary">
       <CardHeader>
@@ -127,36 +144,52 @@ export function ProcesoActivo({ proceso, novedades, placa }: ProcesoActivoProps)
               </p>
             </div>
           )}
-          <div>
-            <p className="text-sm text-muted-foreground">Vencimiento</p>
-            {proceso.fecha_vencimiento ? (
-              <p className={`font-medium ${
-                (proceso.dias_restantes ?? 0) < 7 ? "text-orange-600" : ""
-              }`}>
-                {formatDateForDisplay(proceso.fecha_vencimiento)}
-              </p>
-            ) : (
-              <p className="font-medium text-muted-foreground">
-                Pendiente de aprobación
-              </p>
-            )}
-          </div>
-          <div>
-            <p className="text-sm text-muted-foreground">Días hábiles restantes</p>
-            {proceso.fecha_vencimiento ? (
-              <p className={`font-medium ${
-                (proceso.dias_restantes ?? 0) < 7
-                  ? "text-orange-600"
-                  : "text-green-600"
-              }`}>
-                {proceso.dias_restantes ?? 0} días
-              </p>
-            ) : (
-              <p className="font-medium text-muted-foreground">
-                —
-              </p>
-            )}
-          </div>
+          {!estadoFinalizado && (
+            <div>
+              <p className="text-sm text-muted-foreground">Vencimiento</p>
+              {proceso.fecha_vencimiento ? (
+                diasHabilesRestantes !== null ? (
+                <p className={`font-medium ${
+                  diasHabilesRestantes < 0
+                    ? "text-red-600"
+                    : diasHabilesRestantes < 7
+                      ? "text-orange-600"
+                      : ""
+                }`}>
+                  {formatDateForDisplay(proceso.fecha_vencimiento)}
+                </p>
+                ) : (
+                  <p className="font-medium">{formatDateForDisplay(proceso.fecha_vencimiento)}</p>
+                )
+              ) : (
+                <p className="font-medium text-muted-foreground">
+                  Pendiente de aprobación
+                </p>
+              )}
+            </div>
+          )}
+          {!estadoFinalizado && (
+            <div>
+              <p className="text-sm text-muted-foreground">Días restantes</p>
+              {proceso.fecha_vencimiento && diasHabilesRestantes !== null ? (
+                <p className={`font-medium ${
+                  diasHabilesRestantes < 0
+                    ? "text-red-600"
+                    : diasHabilesRestantes < 7
+                    ? "text-orange-600"
+                    : "text-green-600"
+                }`}>
+                  {diasHabilesRestantes < 0
+                    ? formatearVencidoHace(Math.max(diasVencidosCalendario, 1))
+                    : `${diasHabilesRestantes} días hábiles`}
+                </p>
+              ) : (
+                <p className="font-medium text-muted-foreground">
+                  —
+                </p>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Información de auditoría */}
@@ -205,9 +238,86 @@ export function ProcesoActivo({ proceso, novedades, placa }: ProcesoActivoProps)
                 </div>
               </div>
               <AgregarDatosTransporte
-                trasladoId={proceso.proceso_id}
+                procesoId={proceso.proceso_id}
                 empresaActualId={proceso.empresa_transportadora_id}
                 numeroGuiaActual={proceso.numero_guia}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Datos de devolución - Solo para radicaciones en envío de devolución */}
+        {proceso.proceso_tipo === "radicacion" && proceso.proceso_estado === "enviado_devolucion" && (
+          <div className="p-3 bg-red-50 border border-red-200 rounded-md">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-red-900 mb-1">Información de Envío de Devolución</p>
+                <div className="text-sm text-red-700 space-y-1">
+                  {proceso.empresa_transporte?.nombre && (
+                    <p><strong>Empresa:</strong> {proceso.empresa_transporte.nombre}</p>
+                  )}
+                  {proceso.numero_guia && (
+                    <p><strong>Número de guía:</strong> {proceso.numero_guia}</p>
+                  )}
+                  {!proceso.empresa_transporte && !proceso.numero_guia && (
+                    <p className="text-red-600 italic">No se han agregado datos de devolución</p>
+                  )}
+                </div>
+              </div>
+              <AgregarDatosTransporte
+                procesoId={proceso.proceso_id}
+                procesoTipo="radicacion"
+                empresaActualId={proceso.empresa_transportadora_id}
+                numeroGuiaActual={proceso.numero_guia}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Datos de devolución final - Solo lectura para radicaciones devueltas */}
+        {proceso.proceso_tipo === "radicacion" && proceso.proceso_estado === "devuelto" && (
+          <div className="p-3 bg-red-50 border border-red-200 rounded-md">
+            <p className="text-sm font-medium text-red-900 mb-1">Información de Devolución</p>
+            <div className="text-sm text-red-700 space-y-1">
+              {proceso.empresa_transporte?.nombre && (
+                <p><strong>Empresa:</strong> {proceso.empresa_transporte.nombre}</p>
+              )}
+              {proceso.numero_guia && (
+                <p><strong>Número de guía:</strong> {proceso.numero_guia}</p>
+              )}
+              {!proceso.empresa_transporte && !proceso.numero_guia && (
+                <p className="text-red-600 italic">No hay datos logísticos registrados</p>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Notificación al solicitante - Solo para radicaciones en estado pendiente_radicar */}
+        {proceso.proceso_tipo === "radicacion" && proceso.proceso_estado === "pendiente_radicar" && (
+          <div className="p-3 bg-amber-50 border border-amber-200 rounded-md">
+            <div className="flex items-center justify-between gap-4">
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-amber-900">Notificación al Solicitante</p>
+                <p className="text-sm text-amber-700">
+                  Estado: {proceso.notificacion_radicacion?.solicitante_notificado ? "Notificado" : "Pendiente por notificar"}
+                </p>
+                {proceso.notificacion_radicacion?.notificado_en && (
+                  <p className="text-xs text-amber-700">
+                    Notificado el: {formatDateShort(proceso.notificacion_radicacion.notificado_en)}
+                  </p>
+                )}
+                {proceso.notificacion_radicacion?.observaciones && (
+                  <p className="text-xs text-amber-800">
+                    Observación: {proceso.notificacion_radicacion.observaciones}
+                  </p>
+                )}
+              </div>
+              <AgregarNotificacionRadicacion
+                radicacionId={proceso.proceso_id}
+                notificacionIdActual={proceso.notificacion_radicacion?.id}
+                notificadoActual={proceso.notificacion_radicacion?.solicitante_notificado}
+                notificadoEnActual={proceso.notificacion_radicacion?.notificado_en}
+                observacionesActual={proceso.notificacion_radicacion?.observaciones}
               />
             </div>
           </div>

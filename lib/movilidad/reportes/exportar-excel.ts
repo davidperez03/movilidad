@@ -4,7 +4,15 @@
 // =====================================================
 
 import * as XLSX from 'xlsx'
-import type { TipoReporte, FiltrosReporte, DatosReporteActivos, DatosReporteCompletados, DatosReportePorVencer } from './tipos'
+import type {
+  TipoReporte,
+  FiltrosReporte,
+  DatosReporteActivos,
+  DatosReporteCompletados,
+  DatosReportePorVencer,
+  DatosReporteVencidos,
+} from './tipos'
+import { obtenerEtiquetaUrgenciaPorVencer } from './urgencia'
 
 interface DatosAuditoria {
   creado_en: string
@@ -47,6 +55,9 @@ export function generarExcelReporte(
       break
     case 'por-vencer':
       wsDatos = generarHojaPorVencer(datos as unknown as DatosReportePorVencer[])
+      break
+    case 'vencidos':
+      wsDatos = generarHojaVencidos(datos as unknown as DatosReporteVencidos[])
       break
     case 'auditoria':
       wsDatos = generarHojaAuditoria(datos as unknown as DatosAuditoria[])
@@ -140,7 +151,7 @@ function generarHojaPorVencer(datos: DatosReportePorVencer[]): XLSX.WorkSheet {
     Organismo: d.ciudad,
     'Fecha Vencimiento': formatearFecha(d.fecha_vencimiento),
     'Días Restantes': d.dias_restantes,
-    Urgencia: calcularUrgencia(d.dias_restantes),
+    Urgencia: obtenerEtiquetaUrgenciaPorVencer(d.dias_restantes),
     Responsable: d.responsable,
   }))
 
@@ -184,6 +195,36 @@ function generarHojaAuditoria(datos: DatosAuditoria[]): XLSX.WorkSheet {
     { wch: 30 },
     { wch: 18 },
     { wch: 18 },
+  ]
+
+  return ws
+}
+
+function generarHojaVencidos(datos: DatosReporteVencidos[]): XLSX.WorkSheet {
+  const datosFormateados = datos.map((d) => ({
+    Placa: d.placa,
+    'N° Cuenta': d.numero_cuenta,
+    'Tipo Proceso': d.proceso_tipo,
+    Estado: d.estado,
+    Organismo: d.ciudad,
+    'Fecha Vencimiento': formatearFecha(d.fecha_vencimiento),
+    'Días Restantes': d.dias_restantes,
+    'Días Vencidos': d.dias_vencidos,
+    Responsable: d.responsable,
+  }))
+
+  const ws = XLSX.utils.json_to_sheet(datosFormateados)
+
+  ws['!cols'] = [
+    { wch: 10 },
+    { wch: 15 },
+    { wch: 15 },
+    { wch: 20 },
+    { wch: 30 },
+    { wch: 18 },
+    { wch: 15 },
+    { wch: 15 },
+    { wch: 25 },
   ]
 
   return ws
@@ -259,18 +300,12 @@ function formatearFechaHora(fecha: string | null | undefined): string {
   }
 }
 
-function calcularUrgencia(diasRestantes: number): string {
-  if (diasRestantes < 0) return 'Vencido'
-  if (diasRestantes <= 2) return 'Alta'
-  if (diasRestantes <= 7) return 'Media'
-  return 'Baja'
-}
-
 function obtenerTituloReporte(tipo: TipoReporte): string {
   const titulos: Record<TipoReporte, string> = {
     activos: 'Procesos Activos',
     completados: 'Procesos Completados',
     'por-vencer': 'Procesos por Vencer',
+    vencidos: 'Procesos Vencidos',
     auditoria: 'Auditoría Completa',
   }
 

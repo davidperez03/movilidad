@@ -4,9 +4,11 @@ import { ColumnDef } from '@tanstack/react-table'
 import Link from 'next/link'
 import { Eye } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import { DataTableColumnHeader } from '@/components/ui/data-table/data-table-column-header'
 import { BadgeEstadoProceso } from '@/components/movilidad/shared/badge-estado-proceso'
 import { formatDateForDisplay } from '@/lib/utils'
+import { calcularDiasVencidosCalendario, formatearVencidoHace } from '@/lib/movilidad/formatters'
 import {
   type ProcesoBase,
   crearColumnaPlaca,
@@ -18,9 +20,15 @@ import {
 
 export interface RadicacionData extends ProcesoBase {
   dias_restantes?: number | null
+  notificacion_radicacion?: {
+    id: string
+    solicitante_notificado: boolean
+    notificado_en: string | null
+    observaciones: string | null
+  } | null
 }
 
-// Columna de vencimiento con días hábiles restantes
+// Columna de vencimiento: hábiles para vigentes, calendario para vencidos
 const columnaVencimientoConDias: ColumnDef<RadicacionData> = {
   accessorKey: 'fecha_vencimiento',
   header: ({ column }) => (
@@ -29,14 +37,22 @@ const columnaVencimientoConDias: ColumnDef<RadicacionData> = {
   cell: ({ row }) => {
     const fecha = row.getValue('fecha_vencimiento') as string
     const dias = row.original.dias_restantes
+    const diasVencidosCalendario = calcularDiasVencidosCalendario(fecha)
+    const vencidoSinCalculoHabil = (dias === null || dias === undefined) && diasVencidosCalendario > 0
+    const estaVencido = (dias !== null && dias !== undefined && dias < 0) || vencidoSinCalculoHabil
+    const diasNoVencidos = dias ?? Number.POSITIVE_INFINITY
     return (
       <div className="text-sm whitespace-nowrap">
         <div>{formatDateForDisplay(fecha)}</div>
-        {dias !== null && dias !== undefined && (
+        {(dias !== null && dias !== undefined || vencidoSinCalculoHabil) && (
           <div className={`text-xs ${
-            dias < 0 ? 'text-red-600' : dias <= 7 ? 'text-orange-600' : 'text-green-600'
+            estaVencido ? 'text-red-600' : diasNoVencidos <= 7 ? 'text-orange-600' : 'text-green-600'
           }`}>
-            {dias < 0 ? `Vencido hace ${Math.abs(dias)} días hábiles` : `${dias} días hábiles`}
+            {estaVencido
+              ? formatearVencidoHace(Math.max(diasVencidosCalendario, 1))
+              : dias === 0
+                ? 'Vence hoy'
+                : `${dias} días hábiles`}
           </div>
         )}
       </div>
@@ -56,13 +72,40 @@ const columnaEstado: ColumnDef<RadicacionData> = {
   ),
 }
 
+// Columna de notificación al solicitante
+const columnaNotificacionSolicitante: ColumnDef<RadicacionData> = {
+  id: 'notificacion_solicitante',
+  header: ({ column }) => (
+    <DataTableColumnHeader column={column} title="Solicitante" />
+  ),
+  accessorFn: (row) => {
+    if (row.estado !== 'pendiente_radicar') return 'no_aplica'
+    return row.notificacion_radicacion?.solicitante_notificado ? 'notificado' : 'pendiente'
+  },
+  cell: ({ row }) => {
+    if (row.original.estado !== 'pendiente_radicar') {
+      return <span className="text-sm text-muted-foreground">No aplica</span>
+    }
+
+    const notificado = row.original.notificacion_radicacion?.solicitante_notificado
+    return (
+      <Badge
+        variant={notificado ? 'default' : 'outline'}
+        className={notificado ? 'bg-green-100 text-green-800 hover:bg-green-100' : 'text-amber-700 border-amber-300'}
+      >
+        {notificado ? 'Notificado' : 'Pendiente'}
+      </Badge>
+    )
+  },
+}
+
 // Columna de acciones
 const columnaAcciones: ColumnDef<RadicacionData> = {
   id: 'acciones',
   header: () => <div className="text-right">Acciones</div>,
   cell: ({ row }) => (
     <div className="text-right">
-      <Button variant="ghost" size="sm" asChild>
+      <Button variant="ghost" size="sm" className="whitespace-nowrap" asChild>
         <Link href={`/movilidad/vehiculos/${row.original.mov_cuentas_vehiculos?.placa}`}>
           <Eye className="h-4 w-4 mr-1" />
           Ver
@@ -71,6 +114,7 @@ const columnaAcciones: ColumnDef<RadicacionData> = {
     </div>
   ),
   enableSorting: false,
+  enableColumnFilter: false,
 }
 
 // Columna fecha completado
@@ -93,6 +137,7 @@ export const columnasRadicaciones: ColumnDef<RadicacionData>[] = [
   crearColumnaPlaca(),
   crearColumnaOrganismo('Origen'),
   columnaVencimientoConDias,
+  columnaNotificacionSolicitante,
   columnaEstado,
   columnaAcciones,
 ]

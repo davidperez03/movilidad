@@ -5,10 +5,12 @@ import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { formatDateLong, formatDateForDisplay } from "@/lib/utils"
-import { Car, Search, Loader2, AlertCircle, Calendar, MapPin, Clock, FileText, Truck, Package } from "lucide-react"
+import { calcularDiasVencidosCalendario, formatearEstadoProceso, formatearVencidoHace } from "@/lib/movilidad/formatters"
+import { Car, Search, Loader2, AlertCircle, Calendar, MapPin, Clock, Truck, Package, CheckCircle2, XCircle } from "lucide-react"
 import Link from "next/link"
 import { ProcessTimeline } from "@/components/consulta/process-timeline"
 
@@ -24,6 +26,8 @@ interface ProcesoInfo {
   dias_restantes: number | null
   ciudad: string | null
   observaciones: string | null
+  solicitante_notificado: boolean | null
+  notificado_en: string | null
   empresa_transporte: string | null
   numero_guia: string | null
 }
@@ -67,6 +71,54 @@ export default function ConsultaPublicaPage() {
       setLoading(false)
     }
   }
+
+  const diasHabilesRestantes = resultado?.dias_restantes ?? null
+
+  const diasVencidosCalendario = resultado?.fecha_vencimiento
+    ? Math.max(calcularDiasVencidosCalendario(resultado.fecha_vencimiento), 1)
+    : Math.max(Math.abs(resultado?.dias_restantes ?? 0), 1)
+
+  const estadoFinalizado = Boolean(
+    resultado?.proceso_estado &&
+    ["trasladado", "radicado", "devuelto"].includes(resultado.proceso_estado)
+  )
+
+  const mensajeEstado = (() => {
+    if (!resultado?.proceso_estado) return null
+    if (resultado.fecha_completado) {
+      return {
+        titulo: "Trámite finalizado",
+        detalle: "Este proceso ya fue completado exitosamente.",
+        clase: "bg-green-50 border-green-200 text-green-800 dark:bg-green-950 dark:border-green-800 dark:text-green-200",
+      }
+    }
+    if (resultado.proceso_estado === "devuelto") {
+      return {
+        titulo: "Trámite devuelto",
+        detalle: "El proceso fue devuelto. Revisa los detalles para conocer el motivo y la guía de envío.",
+        clase: "bg-red-50 border-red-200 text-red-800 dark:bg-red-950 dark:border-red-800 dark:text-red-200",
+      }
+    }
+    if (resultado.proceso_estado === "enviado_devolucion") {
+      return {
+        titulo: "Enviado para devolución",
+        detalle: "El proceso está en etapa de devolución. Verifica empresa transportadora y número de guía.",
+        clase: "bg-rose-50 border-rose-200 text-rose-800 dark:bg-rose-950 dark:border-rose-800 dark:text-rose-200",
+      }
+    }
+    if (resultado.proceso_estado === "con_novedades") {
+      return {
+        titulo: "Proceso con novedades",
+        detalle: "El trámite tiene novedades pendientes de gestión.",
+        clase: "bg-orange-50 border-orange-200 text-orange-800 dark:bg-orange-950 dark:border-orange-800 dark:text-orange-200",
+      }
+    }
+    return {
+      titulo: "Proceso en curso",
+      detalle: "Tu trámite continúa en gestión.",
+      clase: "bg-blue-50 border-blue-200 text-blue-800 dark:bg-blue-950 dark:border-blue-800 dark:text-blue-200",
+    }
+  })()
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
@@ -161,7 +213,24 @@ export default function ConsultaPublicaPage() {
                   <p className="text-sm text-muted-foreground mt-1">
                     Cuenta: <span className="font-mono font-medium text-foreground">{resultado.numero_cuenta}</span>
                   </p>
+                  {resultado.proceso_tipo && resultado.proceso_estado && (
+                    <div className="mt-3 flex items-center justify-center gap-2">
+                      <Badge variant="outline" className="capitalize">
+                        Último proceso: {resultado.proceso_tipo}
+                      </Badge>
+                      <Badge>
+                        {formatearEstadoProceso(resultado.proceso_estado)}
+                      </Badge>
+                    </div>
+                  )}
                 </div>
+
+                {mensajeEstado && (
+                  <div className={`rounded-lg border px-4 py-3 ${mensajeEstado.clase}`}>
+                    <p className="text-sm font-semibold">{mensajeEstado.titulo}</p>
+                    <p className="text-xs mt-1 opacity-90">{mensajeEstado.detalle}</p>
+                  </div>
+                )}
 
                 {/* Info básica en grid */}
                 <div className="grid grid-cols-2 gap-4">
@@ -183,7 +252,6 @@ export default function ConsultaPublicaPage() {
                   <>
                     <Separator />
 
-                    {/* Timeline del proceso */}
                     <div>
                       <p className="text-sm font-medium mb-4">Estado del Proceso</p>
                       <ProcessTimeline
@@ -192,74 +260,10 @@ export default function ConsultaPublicaPage() {
                       />
                     </div>
 
-                    <Separator />
-
-                    {/* Información del trámite */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      {resultado.ciudad && (
-                        <div className="flex items-start gap-3 p-3 border rounded-lg">
-                          <MapPin className="h-5 w-5 text-primary mt-0.5" />
-                          <div>
-                            <p className="text-xs text-muted-foreground">
-                              {resultado.proceso_tipo === "traslado" ? "Destino" : "Origen"}
-                            </p>
-                            <p className="font-medium">{resultado.ciudad}</p>
-                          </div>
-                        </div>
-                      )}
-
-                      {resultado.fecha_tramite && (
-                        <div className="flex items-start gap-3 p-3 border rounded-lg">
-                          <Calendar className="h-5 w-5 text-primary mt-0.5" />
-                          <div>
-                            <p className="text-xs text-muted-foreground">Fecha Trámite</p>
-                            <p className="font-medium">{formatDateForDisplay(resultado.fecha_tramite)}</p>
-                          </div>
-                        </div>
-                      )}
-
-                      {resultado.fecha_vencimiento && !resultado.fecha_completado && (
-                        <div className="flex items-start gap-3 p-3 border rounded-lg">
-                          <Clock className="h-5 w-5 text-primary mt-0.5" />
-                          <div>
-                            <p className="text-xs text-muted-foreground">Vencimiento</p>
-                            <p className="font-medium">{formatDateForDisplay(resultado.fecha_vencimiento)}</p>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Información de transporte (solo para traslados enviados) */}
-                    {resultado.proceso_tipo === "traslado" &&
-                     resultado.proceso_estado === "enviado_organismo" &&
-                     (resultado.empresa_transporte || resultado.numero_guia) && (
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {resultado.empresa_transporte && (
-                          <div className="flex items-start gap-3 p-3 border rounded-lg">
-                            <Truck className="h-5 w-5 text-primary mt-0.5" />
-                            <div>
-                              <p className="text-xs text-muted-foreground">Empresa Transportadora</p>
-                              <p className="font-medium">{resultado.empresa_transporte}</p>
-                            </div>
-                          </div>
-                        )}
-                        {resultado.numero_guia && (
-                          <div className="flex items-start gap-3 p-3 border rounded-lg">
-                            <Package className="h-5 w-5 text-primary mt-0.5" />
-                            <div>
-                              <p className="text-xs text-muted-foreground">Número de Guía</p>
-                              <p className="font-medium font-mono">{resultado.numero_guia}</p>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Días restantes o completado */}
                     {resultado.fecha_completado ? (
                       <div className="flex items-center justify-center gap-3 p-4 bg-green-50 dark:bg-green-950 rounded-lg border border-green-200 dark:border-green-800">
                         <div className="text-center">
-                          <p className="text-lg font-semibold text-green-700 dark:text-green-300">
+                          <p className="text-base font-semibold text-green-700 dark:text-green-300">
                             Proceso Completado
                           </p>
                           <p className="text-sm text-green-600 dark:text-green-400">
@@ -267,41 +271,168 @@ export default function ConsultaPublicaPage() {
                           </p>
                         </div>
                       </div>
-                    ) : resultado.dias_restantes !== null && resultado.proceso_estado !== "con_novedades" && resultado.proceso_estado !== "devuelto" && (
+                    ) : !estadoFinalizado && diasHabilesRestantes !== null && (
                       <div className={`flex items-center justify-between p-4 rounded-lg border ${
-                        resultado.dias_restantes <= 7
+                        diasHabilesRestantes < 0
+                          ? "bg-red-50 dark:bg-red-950 border-red-300 dark:border-red-700"
+                          : diasHabilesRestantes <= 7
                           ? "bg-red-50 dark:bg-red-950 border-red-200 dark:border-red-800"
-                          : resultado.dias_restantes <= 15
+                          : diasHabilesRestantes <= 15
                           ? "bg-yellow-50 dark:bg-yellow-950 border-yellow-200 dark:border-yellow-800"
                           : "bg-muted/50 border-border"
                       }`}>
                         <div>
                           <p className={`text-sm ${
-                            resultado.dias_restantes <= 7
+                            diasHabilesRestantes < 0
+                              ? "text-red-700 dark:text-red-300"
+                              : diasHabilesRestantes <= 7
                               ? "text-red-600 dark:text-red-400"
-                              : resultado.dias_restantes <= 15
+                              : diasHabilesRestantes <= 15
                               ? "text-yellow-600 dark:text-yellow-400"
                               : "text-muted-foreground"
                           }`}>
-                            Tiempo restante para vencimiento
+                            {diasHabilesRestantes < 0 ? "Proceso vencido" : "Tiempo restante para vencimiento"}
                           </p>
-                          {resultado.dias_restantes <= 7 && (
-                            <p className="text-xs text-red-500 mt-1">Se requiere atención urgente</p>
+                          {diasHabilesRestantes < 0 && (
+                            <p className="text-xs text-red-600 mt-1">
+                              {formatearVencidoHace(diasVencidosCalendario)}
+                            </p>
                           )}
                         </div>
-                        <div className={`text-4xl font-bold ${
-                          resultado.dias_restantes <= 7
+                        <div className={`text-2xl font-bold ${
+                          diasHabilesRestantes < 0
+                            ? "text-red-800 dark:text-red-200"
+                            : diasHabilesRestantes <= 7
                             ? "text-red-700 dark:text-red-300"
-                            : resultado.dias_restantes <= 15
+                            : diasHabilesRestantes <= 15
                             ? "text-yellow-700 dark:text-yellow-300"
                             : "text-foreground"
                         }`}>
-                          {resultado.dias_restantes} <span className="text-lg font-normal">días</span>
+                          {diasHabilesRestantes < 0 ? diasVencidosCalendario : diasHabilesRestantes}{' '}
+                          <span className="text-sm font-normal">{diasHabilesRestantes < 0 ? 'días' : 'días hábiles'}</span>
                         </div>
                       </div>
                     )}
 
-                    {/* Observaciones */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {resultado.ciudad && (
+                        <div className="flex items-start gap-3 p-3 border rounded-lg">
+                          <MapPin className="h-4 w-4 text-primary mt-0.5" />
+                          <div>
+                            <p className="text-xs text-muted-foreground">
+                              {resultado.proceso_tipo === "traslado" ? "Destino" : "Origen"}
+                            </p>
+                            <p className="font-medium text-sm">{resultado.ciudad}</p>
+                          </div>
+                        </div>
+                      )}
+
+                      {resultado.fecha_tramite && (
+                        <div className="flex items-start gap-3 p-3 border rounded-lg">
+                          <Calendar className="h-4 w-4 text-primary mt-0.5" />
+                          <div>
+                            <p className="text-xs text-muted-foreground">Fecha Trámite</p>
+                            <p className="font-medium text-sm">{formatDateForDisplay(resultado.fecha_tramite)}</p>
+                          </div>
+                        </div>
+                      )}
+
+                      {resultado.proceso_tipo === "radicacion" && (
+                        <div className="sm:col-span-2 rounded-xl border bg-card/80 p-3 shadow-sm">
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-2">
+                              {resultado.solicitante_notificado ? (
+                                <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                              ) : (
+                                <XCircle className="h-4 w-4 text-muted-foreground" />
+                              )}
+                              <p className="text-xs font-medium text-muted-foreground">Notificación al solicitante</p>
+                            </div>
+                            <Badge variant={resultado.solicitante_notificado ? "secondary" : "outline"}>
+                              {resultado.solicitante_notificado ? "Notificado" : "Pendiente"}
+                            </Badge>
+                          </div>
+
+                          <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                            <div className="rounded-md border bg-muted/30 px-3 py-2">
+                              <p className="text-[11px] text-muted-foreground">Estado</p>
+                              <p className="text-sm font-medium">
+                                {resultado.solicitante_notificado ? "Sí" : "No"}
+                              </p>
+                            </div>
+                            <div className="rounded-md border bg-muted/30 px-3 py-2">
+                              <p className="text-[11px] text-muted-foreground">Fecha de notificación</p>
+                              <p className="text-sm font-medium">
+                                {resultado.notificado_en
+                                  ? formatDateLong(resultado.notificado_en)
+                                  : "Sin fecha registrada"}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {resultado.fecha_vencimiento && !estadoFinalizado && (
+                      <div className="flex items-start gap-3 p-3 border rounded-lg">
+                        <Clock className="h-4 w-4 text-primary mt-0.5" />
+                        <div>
+                          <p className="text-xs text-muted-foreground">Vencimiento</p>
+                          <p className="font-medium text-sm">{formatDateForDisplay(resultado.fecha_vencimiento)}</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {resultado.proceso_tipo === "traslado" &&
+                     resultado.proceso_estado === "enviado_organismo" &&
+                     (resultado.empresa_transporte || resultado.numero_guia) && (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {resultado.empresa_transporte && (
+                          <div className="flex items-start gap-3 p-3 border rounded-lg">
+                            <Truck className="h-4 w-4 text-primary mt-0.5" />
+                            <div>
+                              <p className="text-xs text-muted-foreground">Empresa Transportadora</p>
+                              <p className="font-medium text-sm">{resultado.empresa_transporte}</p>
+                            </div>
+                          </div>
+                        )}
+                        {resultado.numero_guia && (
+                          <div className="flex items-start gap-3 p-3 border rounded-lg">
+                            <Package className="h-4 w-4 text-primary mt-0.5" />
+                            <div>
+                              <p className="text-xs text-muted-foreground">Número de Guía</p>
+                              <p className="font-medium font-mono text-sm">{resultado.numero_guia}</p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {resultado.proceso_tipo === "radicacion" &&
+                     (resultado.proceso_estado === "enviado_devolucion" || resultado.proceso_estado === "devuelto") &&
+                     (resultado.empresa_transporte || resultado.numero_guia) && (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {resultado.empresa_transporte && (
+                          <div className="flex items-start gap-3 p-3 border rounded-lg">
+                            <Truck className="h-4 w-4 text-primary mt-0.5" />
+                            <div>
+                              <p className="text-xs text-muted-foreground">Empresa Transportadora</p>
+                              <p className="font-medium text-sm">{resultado.empresa_transporte}</p>
+                            </div>
+                          </div>
+                        )}
+                        {resultado.numero_guia && (
+                          <div className="flex items-start gap-3 p-3 border rounded-lg">
+                            <Package className="h-4 w-4 text-primary mt-0.5" />
+                            <div>
+                              <p className="text-xs text-muted-foreground">Número de Guía</p>
+                              <p className="font-medium font-mono text-sm">{resultado.numero_guia}</p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
                     {resultado.observaciones && (
                       <div className="p-4 bg-blue-50 dark:bg-blue-950 rounded-lg border border-blue-200 dark:border-blue-800">
                         <p className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-2">

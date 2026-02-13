@@ -1,5 +1,10 @@
 alter table public.mov_cuentas_vehiculos enable row level security;
 
+drop policy if exists "Todos pueden ver cuentas" on public.mov_cuentas_vehiculos;
+drop policy if exists "Crear cuentas según permisos modulares" on public.mov_cuentas_vehiculos;
+drop policy if exists "Actualizar cuentas según permisos modulares" on public.mov_cuentas_vehiculos;
+drop policy if exists "Eliminar cuentas según permisos modulares" on public.mov_cuentas_vehiculos;
+
 create policy "Todos pueden ver cuentas"
   on public.mov_cuentas_vehiculos for select
   using (true);

@@ -137,7 +137,7 @@ export const ProcesoCard = memo(function ProcesoCard({
                 </div>
               </div>
               <AgregarDatosTransporte
-                trasladoId={proceso.id}
+                procesoId={proceso.id}
                 empresaActualId={proceso.empresa_transportadora_id}
                 numeroGuiaActual={proceso.numero_guia}
               />

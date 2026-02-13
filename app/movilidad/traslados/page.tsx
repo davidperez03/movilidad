@@ -9,7 +9,7 @@ import { TrasladosTable } from "@/components/movilidad/traslados/traslados-table
 export default async function TrasladosPage() {
   const supabase = await createClient()
 
-  // Obtener datos de días hábiles desde la vista
+  // Obtener datos de vencimiento desde la vista
   const { data: vistaActivos } = await supabase
     .from("mov_vista_proceso_activo")
     .select("proceso_id, dias_restantes")
@@ -49,7 +49,7 @@ export default async function TrasladosPage() {
   // Agregar días restantes a cada traslado
   const trasladosActivos = trasladosActivosRaw?.map(traslado => ({
     ...traslado,
-    dias_restantes: diasPorProceso.get(traslado.id) || null
+    dias_restantes: diasPorProceso.get(traslado.id) ?? null
   }))
 
   if (errorActivos) {

@@ -10,7 +10,6 @@ import {
   useReactTable,
   type SortingState,
   type PaginationState,
-  type ColumnFiltersState,
 } from '@tanstack/react-table'
 import {
   Table,
@@ -23,6 +22,7 @@ import {
 import { DataTablePagination } from './data-table-pagination'
 import { DataTableToolbar } from './data-table-toolbar'
 import type { DataTableProps } from './types'
+import { cn } from '@/lib/utils'
 
 export function DataTable<TData, TValue>({
   columns,
@@ -37,6 +37,7 @@ export function DataTable<TData, TValue>({
   onRowClick,
   emptyMessage = 'No se encontraron resultados',
   className,
+  tableLayout = 'fixed',
   toolbarActions,
 }: DataTableProps<TData, TValue>) {
   // State management
@@ -45,13 +46,13 @@ export function DataTable<TData, TValue>({
     pageIndex: 0,
     pageSize,
   })
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [globalFilter, setGlobalFilter] = useState('')
 
   // Initialize table
   const table = useReactTable({
     data,
     columns,
+    enableGlobalFilter,
     getCoreRowModel: getCoreRowModel(),
 
     // Sorting
@@ -63,7 +64,6 @@ export function DataTable<TData, TValue>({
     getPaginationRowModel: enablePagination ? getPaginationRowModel() : undefined,
 
     // Filtering
-    onColumnFiltersChange: setColumnFilters,
     onGlobalFilterChange: setGlobalFilter,
     getFilteredRowModel: getFilteredRowModel(),
 
@@ -71,7 +71,6 @@ export function DataTable<TData, TValue>({
     state: {
       sorting,
       pagination,
-      columnFilters,
       globalFilter,
     },
   })
@@ -90,7 +89,14 @@ export function DataTable<TData, TValue>({
 
       {/* Table */}
       <div className="rounded-lg border">
-        <Table className={className}>
+        <Table
+          className={cn(
+            tableLayout === 'fixed'
+              ? 'table-fixed [&_th:last-child]:w-[190px] [&_td:last-child]:whitespace-nowrap'
+              : 'table-auto',
+            className
+          )}
+        >
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>

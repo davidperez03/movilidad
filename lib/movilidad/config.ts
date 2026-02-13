@@ -56,6 +56,11 @@ export const ESTADOS_CONFIG: Record<string, ConfigEstado> = {
     label: "Pendiente radicar",
     color: "bg-yellow-100 text-yellow-700 border-yellow-300",
   },
+  enviado_devolucion: {
+    value: "enviado_devolucion",
+    label: "Enviado devolución",
+    color: "bg-rose-100 text-rose-700 border-rose-300",
+  },
   trasladado: {
     value: "trasladado",
     label: "Trasladado",
@@ -89,6 +94,7 @@ export const ESTADOS_RADICACION: OpcionEstado[] = [
   { value: "revisado", label: "Revisado" },
   { value: "con_novedades", label: "Con novedades" },
   { value: "pendiente_radicar", label: "Pendiente radicar" },
+  { value: "enviado_devolucion", label: "Enviado devolución" },
   { value: "radicado", label: "Radicado" },
   { value: "devuelto", label: "Devuelto" },
 ]

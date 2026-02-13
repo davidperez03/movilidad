@@ -2,7 +2,7 @@
 // TIPOS Y INTERFACES PARA MÓDULO DE REPORTES
 // =====================================================
 
-export type TipoReporte = 'activos' | 'completados' | 'por-vencer' | 'auditoria'
+export type TipoReporte = 'activos' | 'completados' | 'por-vencer' | 'vencidos' | 'auditoria'
 
 // =====================================================
 // FILTROS
@@ -76,6 +76,22 @@ export interface DatosReportePorVencer {
   fecha_vencimiento: string
   dias_restantes: number
   responsable: string
+  organismo_id?: string
+}
+
+export interface DatosReporteVencidos {
+  proceso_tipo: 'traslado' | 'radicacion'
+  proceso_id: string
+  cuenta_id: string
+  placa: string
+  numero_cuenta: string
+  ciudad: string
+  estado: string
+  fecha_vencimiento: string
+  dias_restantes: number
+  dias_vencidos: number
+  responsable: string
+  organismo_id?: string
 }
 
 // =====================================================
@@ -156,6 +172,13 @@ export const REPORTES_CONFIG: Record<TipoReporte, ConfigReporte> = {
     descripcion: 'Alertas de vencimientos próximos',
     icono: 'Clock',
     color: 'orange',
+  },
+  vencidos: {
+    tipo: 'vencidos',
+    titulo: 'Procesos Vencidos',
+    descripcion: 'Procesos con fecha de vencimiento superada',
+    icono: 'AlertTriangle',
+    color: 'red',
   },
   auditoria: {
     tipo: 'auditoria',

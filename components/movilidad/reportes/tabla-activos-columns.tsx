@@ -28,15 +28,18 @@ export const columnasTablaActivos: ColumnDef<DatosReporteActivos>[] = [
   },
   {
     accessorKey: 'tipo_servicio',
-    header: 'Tipo Servicio',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Tipo Servicio" />
+    ),
     cell: ({ row }) => (
       <Badge variant="outline">{row.getValue('tipo_servicio')}</Badge>
     ),
-    enableSorting: false,
   },
   {
     accessorKey: 'proceso_tipo',
-    header: 'Tipo Proceso',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Tipo Proceso" />
+    ),
     cell: ({ row }) => {
       const tipo = row.getValue('proceso_tipo') as string
       return (
@@ -45,15 +48,15 @@ export const columnasTablaActivos: ColumnDef<DatosReporteActivos>[] = [
         </Badge>
       )
     },
-    enableSorting: false,
   },
   {
     accessorKey: 'proceso_estado',
-    header: 'Estado',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Estado" />
+    ),
     cell: ({ row }) => (
       <BadgeEstadoProceso estado={row.getValue('proceso_estado')} />
     ),
-    enableSorting: false,
   },
   {
     accessorKey: 'ciudad',
@@ -100,5 +103,6 @@ export const columnasTablaActivos: ColumnDef<DatosReporteActivos>[] = [
       </div>
     ),
     enableSorting: false,
+    enableColumnFilter: false,
   },
 ]
