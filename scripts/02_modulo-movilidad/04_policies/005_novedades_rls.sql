@@ -11,7 +11,7 @@ drop policy if exists "Eliminar adjuntos según permisos modulares" on public.mo
 
 create policy "Usuarios pueden ver todas las novedades"
   on public.mov_novedades for select
-  using (true);
+  using (tiene_acceso_modulo(auth.uid(), 'movilidad'));
 
 create policy "Crear novedades según permisos modulares"
   on public.mov_novedades for insert
@@ -40,7 +40,7 @@ create policy "Eliminar novedades según permisos modulares"
 
 create policy "Usuarios pueden ver adjuntos de novedades"
   on public.mov_adjuntos_novedades for select
-  using (true);
+  using (tiene_acceso_modulo(auth.uid(), 'movilidad'));
 
 create policy "Subir adjuntos según permisos modulares"
   on public.mov_adjuntos_novedades for insert

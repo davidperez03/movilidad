@@ -34,6 +34,7 @@ export const columnasTablaCompletados: ColumnDef<DatosReporteCompletados>[] = [
     cell: ({ row }) => (
       <Badge variant="outline">{row.getValue('tipo_servicio')}</Badge>
     ),
+    meta: { className: 'hidden md:table-cell' },
   },
   {
     accessorKey: 'proceso_tipo',
@@ -66,6 +67,7 @@ export const columnasTablaCompletados: ColumnDef<DatosReporteCompletados>[] = [
     cell: ({ row }) => (
       <div className="max-w-[200px] truncate">{row.getValue('organismo')}</div>
     ),
+    meta: { className: 'hidden lg:table-cell' },
   },
   {
     accessorKey: 'fecha_completado',
@@ -84,6 +86,7 @@ export const columnasTablaCompletados: ColumnDef<DatosReporteCompletados>[] = [
       <Badge variant="outline">{row.getValue('duracion_dias')}</Badge>
     ),
     sortingFn: 'basic',
+    meta: { className: 'hidden md:table-cell' },
   },
   {
     accessorKey: 'responsable',
@@ -93,6 +96,7 @@ export const columnasTablaCompletados: ColumnDef<DatosReporteCompletados>[] = [
     cell: ({ row }) => (
       <div className="max-w-[150px] truncate">{row.getValue('responsable')}</div>
     ),
+    meta: { className: 'hidden md:table-cell' },
   },
   {
     id: 'acciones',

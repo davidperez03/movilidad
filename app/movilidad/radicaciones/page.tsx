@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server"
+import { logger } from "@/lib/logger"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import Link from "next/link"
@@ -68,6 +69,7 @@ export default async function RadicacionesPage() {
   }))
 
   if (errorActivas) {
+    logger.error("Error cargando radicaciones activas", { error: errorActivas })
   }
 
   // Obtener radicaciones completadas

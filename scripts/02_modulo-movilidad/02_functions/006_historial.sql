@@ -313,3 +313,13 @@ as $$
 $$;
 
 comment on function obtener_historial_procesos_vehiculo is 'Obtiene TODO el historial de procesos (traslados y radicaciones) de un vehículo específico';
+
+-- Restringir EXECUTE en funciones SECURITY DEFINER
+REVOKE ALL ON FUNCTION registrar_historial(uuid, text, uuid, text, jsonb, text, text, uuid) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION registrar_historial(uuid, text, uuid, text, jsonb, text, text, uuid) TO authenticated;
+
+REVOKE ALL ON FUNCTION obtener_ultimos_procesos_completados() FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION obtener_ultimos_procesos_completados() TO authenticated;
+
+REVOKE ALL ON FUNCTION obtener_historial_procesos_vehiculo(uuid) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION obtener_historial_procesos_vehiculo(uuid) TO authenticated;

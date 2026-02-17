@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { logger } from '@/lib/logger'
 import type { PermisosModulo, PermisoParqueadero } from '@/lib/types/permissions'
 import { PERMISOS_COMPLETOS, PERMISOS_VACIOS } from '@/lib/types/permissions'
 
@@ -79,6 +80,7 @@ export async function obtenerPermisosUsuario() {
     }
 
   } catch (error) {
+    logger.error("Error obteniendo permisos de usuario", { error })
     return {
       esSuperadmin: false,
       movilidad: PERMISOS_VACIOS,

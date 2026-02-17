@@ -34,6 +34,7 @@ export const columnasTablaActivos: ColumnDef<DatosReporteActivos>[] = [
     cell: ({ row }) => (
       <Badge variant="outline">{row.getValue('tipo_servicio')}</Badge>
     ),
+    meta: { className: 'hidden md:table-cell' },
   },
   {
     accessorKey: 'proceso_tipo',
@@ -66,6 +67,7 @@ export const columnasTablaActivos: ColumnDef<DatosReporteActivos>[] = [
     cell: ({ row }) => (
       <div className="max-w-[200px] truncate">{row.getValue('ciudad')}</div>
     ),
+    meta: { className: 'hidden lg:table-cell' },
   },
   {
     accessorKey: 'fecha_tramite',
@@ -74,6 +76,7 @@ export const columnasTablaActivos: ColumnDef<DatosReporteActivos>[] = [
     ),
     cell: ({ row }) => formatearFecha(row.getValue('fecha_tramite')),
     sortingFn: 'datetime',
+    meta: { className: 'hidden md:table-cell' },
   },
   {
     accessorKey: 'dias_restantes',

@@ -1,7 +1,6 @@
 "use client"
 
-import { useState } from "react"
-import { createClient } from "@/lib/supabase/client"
+import { useState, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -10,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Separator } from "@/components/ui/separator"
 import { formatDateLong, formatDateForDisplay } from "@/lib/utils"
 import { calcularDiasVencidosCalendario, formatearEstadoProceso, formatearVencidoHace } from "@/lib/movilidad/formatters"
-import { Car, Search, Loader2, AlertCircle, Calendar, MapPin, Clock, Truck, Package, CheckCircle2, XCircle } from "lucide-react"
+import { Car, Search, Loader2, AlertCircle, Calendar, MapPin, Clock, Truck, Package, CheckCircle2, XCircle, SearchX, RotateCcw } from "lucide-react"
 import Link from "next/link"
 import { ProcessTimeline } from "@/components/consulta/process-timeline"
 
@@ -37,7 +36,7 @@ export default function ConsultaPublicaPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [resultado, setResultado] = useState<ProcesoInfo | null>(null)
-  const supabase = createClient()
+  const inputRef = useRef<HTMLInputElement>(null)
 
   const handleConsulta = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -48,24 +47,22 @@ export default function ConsultaPublicaPage() {
     try {
       const placaLimpia = placa.trim().toUpperCase()
 
-      // Buscar en la vista pública de consultas
-      const { data, error: queryError } = await supabase
-        .from("mov_vista_consulta_publica")
-        .select("*")
-        .eq("placa", placaLimpia)
-        .single()
+      const res = await fetch("/api/consulta", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ placa: placaLimpia }),
+      })
 
-      if (queryError) {
-        if (queryError.code === "PGRST116") {
-          setError("No se encontró ningún vehículo con esa placa")
-        } else {
-          setError("Error al consultar: " + queryError.message)
-        }
+      const json = await res.json()
+
+      if (!res.ok) {
+        setError(json.error || "Error al consultar")
         return
       }
 
-      setResultado(data as ProcesoInfo)
+      setResultado(json.data as ProcesoInfo)
     } catch (err) {
+      console.error("Error en consulta pública:", err)
       setError("Error inesperado al realizar la consulta")
     } finally {
       setLoading(false)
@@ -142,7 +139,7 @@ export default function ConsultaPublicaPage() {
         <div className="mx-auto max-w-2xl">
           {/* Title Section */}
           <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold tracking-tight mb-3">
+            <h1 className="text-2xl sm:text-4xl font-bold tracking-tight mb-3">
               Consulta el Estado de tu Trámite
             </h1>
             <p className="text-lg text-muted-foreground">
@@ -162,8 +159,9 @@ export default function ConsultaPublicaPage() {
               <form onSubmit={handleConsulta} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="placa">Placa del Vehículo</Label>
-                  <div className="flex gap-2">
+                  <div className="flex flex-col sm:flex-row gap-2">
                     <Input
+                      ref={inputRef}
                       id="placa"
                       type="text"
                       placeholder="Ej: ABC123"
@@ -174,7 +172,7 @@ export default function ConsultaPublicaPage() {
                       maxLength={10}
                       required
                     />
-                    <Button type="submit" disabled={loading} size="lg">
+                    <Button type="submit" disabled={loading} size="lg" className="w-full sm:w-auto">
                       {loading ? (
                         <Loader2 className="h-5 w-5 animate-spin" />
                       ) : (
@@ -191,14 +189,94 @@ export default function ConsultaPublicaPage() {
           </Card>
 
           {/* Error Message */}
-          {error && (
-            <Card className="border-destructive bg-destructive/5 mb-8">
-              <CardContent className="flex items-center gap-3 pt-6">
-                <AlertCircle className="h-5 w-5 text-destructive" />
-                <p className="text-sm text-destructive">{error}</p>
-              </CardContent>
-            </Card>
-          )}
+          {error && (() => {
+            const isRegisteredNoProcesses = error.includes("registrado pero no tiene")
+            const isNotFound = error.includes("No se encontró")
+            const isServerError = !isRegisteredNoProcesses && !isNotFound
+
+            const config = isRegisteredNoProcesses
+              ? {
+                  icon: Car,
+                  secondIcon: CheckCircle2,
+                  title: "Vehículo sin trámites",
+                  subtitle: "El vehículo está registrado pero no tiene procesos en curso ni completados.",
+                  suggestion: "Si esperas un trámite activo, acércate a nuestras oficinas.",
+                  bgClass: "from-blue-50 to-sky-50 dark:from-blue-950/50 dark:to-sky-950/50",
+                  borderClass: "border-blue-200 dark:border-blue-800",
+                  iconBgClass: "bg-blue-100 dark:bg-blue-900",
+                  iconClass: "text-blue-600 dark:text-blue-400",
+                  titleClass: "text-blue-900 dark:text-blue-100",
+                  textClass: "text-blue-700 dark:text-blue-300",
+                }
+              : isNotFound
+              ? {
+                  icon: SearchX,
+                  secondIcon: null,
+                  title: "Vehículo no encontrado",
+                  subtitle: "No encontramos ningún vehículo con esa placa en nuestro sistema.",
+                  suggestion: "Verifica que la placa esté escrita correctamente, sin espacios ni guiones.",
+                  bgClass: "from-amber-50 to-orange-50 dark:from-amber-950/50 dark:to-orange-950/50",
+                  borderClass: "border-amber-200 dark:border-amber-800",
+                  iconBgClass: "bg-amber-100 dark:bg-amber-900",
+                  iconClass: "text-amber-600 dark:text-amber-400",
+                  titleClass: "text-amber-900 dark:text-amber-100",
+                  textClass: "text-amber-700 dark:text-amber-300",
+                }
+              : {
+                  icon: AlertCircle,
+                  secondIcon: null,
+                  title: "Error en la consulta",
+                  subtitle: error,
+                  suggestion: "Intenta de nuevo en unos momentos. Si el problema persiste, contacta soporte.",
+                  bgClass: "from-red-50 to-rose-50 dark:from-red-950/50 dark:to-rose-950/50",
+                  borderClass: "border-red-200 dark:border-red-800",
+                  iconBgClass: "bg-red-100 dark:bg-red-900",
+                  iconClass: "text-red-600 dark:text-red-400",
+                  titleClass: "text-red-900 dark:text-red-100",
+                  textClass: "text-red-700 dark:text-red-300",
+                }
+
+            const Icon = config.icon
+            const SecondIcon = config.secondIcon
+
+            return (
+              <div className={`mb-8 rounded-xl border ${config.borderClass} bg-gradient-to-br ${config.bgClass} p-6 animate-in fade-in slide-in-from-bottom-4 duration-300`}>
+                <div className="flex flex-col items-center text-center">
+                  <div className={`relative mb-4 flex h-16 w-16 items-center justify-center rounded-full ${config.iconBgClass}`}>
+                    <Icon className={`h-8 w-8 ${config.iconClass}`} />
+                    {SecondIcon && (
+                      <div className={`absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full bg-white dark:bg-gray-800 shadow-sm`}>
+                        <SecondIcon className={`h-4 w-4 ${config.iconClass}`} />
+                      </div>
+                    )}
+                  </div>
+                  <h3 className={`text-lg font-semibold ${config.titleClass}`}>
+                    {config.title}
+                  </h3>
+                  <p className={`mt-1 text-sm ${config.textClass}`}>
+                    {config.subtitle}
+                  </p>
+                  <p className={`mt-2 text-xs ${config.textClass} opacity-75`}>
+                    {config.suggestion}
+                  </p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="mt-4"
+                    onClick={() => {
+                      setPlaca("")
+                      setError(null)
+                      setResultado(null)
+                      setTimeout(() => inputRef.current?.focus(), 100)
+                    }}
+                  >
+                    <RotateCcw className="mr-2 h-4 w-4" />
+                    Intentar de nuevo
+                  </Button>
+                </div>
+              </div>
+            )
+          })()}
 
           {/* Results */}
           {resultado && (
@@ -233,7 +311,7 @@ export default function ConsultaPublicaPage() {
                 )}
 
                 {/* Info básica en grid */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="text-center p-4 rounded-lg border">
                     <p className="text-xs text-muted-foreground mb-1">Tipo de Servicio</p>
                     <p className="font-semibold capitalize">{resultado.tipo_servicio}</p>

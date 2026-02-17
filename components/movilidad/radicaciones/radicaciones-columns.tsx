@@ -75,6 +75,7 @@ const columnaEstado: ColumnDef<RadicacionData> = {
 // Columna de notificación al solicitante
 const columnaNotificacionSolicitante: ColumnDef<RadicacionData> = {
   id: 'notificacion_solicitante',
+  meta: { className: 'hidden md:table-cell' },
   header: ({ column }) => (
     <DataTableColumnHeader column={column} title="Solicitante" />
   ),
