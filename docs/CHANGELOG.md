@@ -5,6 +5,30 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.6.0] - 2026-02-17
+
+### Feat: Reportes vencidos, radicaciones y mejoras parqueadero
+
+#### Agregado
+- Vista y reporte de procesos vencidos (movilidad)
+- Notificaciones de radicación con formulario de registro
+- Exportación CSV/Excel/PDF para reportes de vencidos
+- Utilidad `humanize()` para convertir valores snake_case a texto legible
+- Filtros avanzados en reportes (por vencer, vencidos, activos, completados)
+
+#### Cambiado
+- Dashboard parqueadero: últimas inspecciones muestran fecha + hora completa
+- Formulario inspección: opción "Mejoró" reemplazada por "Se mantiene"
+- PDF inspección: tipo de vehículo humanizado
+- Modal personal: selects muestran label descriptivo en vez de código interno
+- Consulta pública: vista mejorada con más datos del proceso
+- Columnas de radicaciones y traslados ampliadas con información adicional
+
+#### Corregido
+- Valores snake_case visibles al usuario en UI y PDFs
+
+---
+
 ## [1.5.0] - 2026-02-11
 
 ### Feat: Tipografía profesional del sistema
