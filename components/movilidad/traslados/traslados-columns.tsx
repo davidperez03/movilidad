@@ -68,6 +68,7 @@ const columnaTransporte: ColumnDef<TrasladoData> = {
     return `${empresa} ${guia}`.trim()
   },
   id: 'transporte',
+  meta: { className: 'hidden md:table-cell' },
   header: ({ column }) => (
     <DataTableColumnHeader column={column} title="Transporte" />
   ),

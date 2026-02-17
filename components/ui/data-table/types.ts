@@ -3,7 +3,15 @@ import type {
   SortingState,
   Table,
   Column,
+  RowData,
 } from '@tanstack/react-table'
+
+// Extend TanStack Table meta to support className per column
+declare module '@tanstack/react-table' {
+  interface ColumnMeta<TData extends RowData, TValue> {
+    className?: string
+  }
+}
 
 export interface DataTableProps<TData, TValue = unknown> {
   columns: ColumnDef<TData, TValue>[]

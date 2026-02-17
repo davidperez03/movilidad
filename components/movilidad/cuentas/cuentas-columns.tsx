@@ -86,6 +86,7 @@ export const columnasCuentas: ColumnDef<CuentaVehiculo>[] = [
       </div>
     ),
     sortingFn: 'datetime',
+    meta: { className: 'hidden md:table-cell' },
   },
   {
     accessorFn: (row) => {
@@ -103,6 +104,7 @@ export const columnasCuentas: ColumnDef<CuentaVehiculo>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Último Proceso" />
     ),
+    meta: { className: 'hidden md:table-cell' },
     cell: ({ row }) => {
       const procesoActivo = row.original.procesoActivo
       const ultimoCompletado = row.original.ultimo_proceso_completado

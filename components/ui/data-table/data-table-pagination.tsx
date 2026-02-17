@@ -21,8 +21,8 @@ export function DataTablePagination({
   pageSizeOptions = [10, 20, 50, 100],
 }: DataTablePaginationProps) {
   return (
-    <div className="flex items-center justify-between px-2">
-      <div className="flex-1 text-sm text-muted-foreground">
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between px-2">
+      <div className="text-sm text-muted-foreground text-center sm:text-left">
         Mostrando{' '}
         <span className="font-medium">
           {table.getState().pagination.pageIndex *
@@ -43,8 +43,8 @@ export function DataTablePagination({
         </span>{' '}
         resultados
       </div>
-      <div className="flex items-center space-x-6 lg:space-x-8">
-        <div className="flex items-center space-x-2">
+      <div className="flex items-center justify-center gap-4 sm:gap-6 lg:gap-8">
+        <div className="hidden sm:flex items-center space-x-2">
           <p className="text-sm font-medium">Filas por página</p>
           <Select
             value={`${table.getState().pagination.pageSize}`}

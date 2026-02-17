@@ -88,9 +88,10 @@ export function DataTable<TData, TValue>({
       )}
 
       {/* Table */}
-      <div className="rounded-lg border">
+      <div className="rounded-lg border overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
         <Table
           className={cn(
+            'min-w-[600px]',
             tableLayout === 'fixed'
               ? 'table-fixed [&_th:last-child]:w-[190px] [&_td:last-child]:whitespace-nowrap'
               : 'table-auto',
@@ -101,7 +102,10 @@ export function DataTable<TData, TValue>({
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
+                  <TableHead
+                    key={header.id}
+                    className={(header.column.columnDef.meta as Record<string, string> | undefined)?.className}
+                  >
                     {header.isPlaceholder
                       ? null
                       : flexRender(
@@ -123,7 +127,10 @@ export function DataTable<TData, TValue>({
                   className={onRowClick ? 'cursor-pointer' : undefined}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell
+                      key={cell.id}
+                      className={(cell.column.columnDef.meta as Record<string, string> | undefined)?.className}
+                    >
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
