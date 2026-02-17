@@ -172,7 +172,7 @@ export default async function ParqueaderoDashboard() {
                       <div>
                         <p className="font-plate text-sm">{inspeccion.placa}</p>
                         <p className="text-xs text-muted-foreground">
-                          {capitalizeName(inspeccion.operador_nombre)} - {inspeccion.hora}
+                          {capitalizeName(inspeccion.operador_nombre)} · {formatearFechaCorta(inspeccion.fecha)} {String(inspeccion.hora || "").slice(0, 5)}
                         </p>
                       </div>
                     </div>

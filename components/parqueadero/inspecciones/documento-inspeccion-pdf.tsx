@@ -1,7 +1,7 @@
 "use client"
 
 import { Document, Page, Text, View, StyleSheet, Image } from "@react-pdf/renderer"
-import { capitalizeName } from "@/lib/utils/capitalize"
+import { capitalizeName, humanize } from "@/lib/utils/capitalize"
 
 // Estilos del PDF - diseño limpio y profesional
 const styles = StyleSheet.create({
@@ -460,7 +460,7 @@ export function DocumentoInspeccionPDF({ inspeccion, items }: DocumentoInspeccio
             </View>
             <View style={styles.infoItem}>
               <Text style={styles.infoLabel}>Tipo</Text>
-              <Text style={styles.infoValue}>{inspeccion.vehiculo_tipo || "-"}</Text>
+              <Text style={styles.infoValue}>{humanize(inspeccion.vehiculo_tipo)}</Text>
             </View>
             <View style={styles.infoItem}>
               <Text style={styles.infoLabel}>Operador</Text>

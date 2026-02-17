@@ -85,8 +85,8 @@ export function FormularioInspeccion({
 
   // Novedades pendientes de inspecciones anteriores
   const [novedadesPendientes, setNovedadesPendientes] = useState<NovedadPendiente[]>([])
-  // Estado de resolución: 'subsanado' | 'mejoro' | 'empeoro' | null
-  const [novedadesResolucion, setNovedadesResolucion] = useState<Record<string, { estado: 'subsanado' | 'mejoro' | 'empeoro' | null; observacion: string }>>({})
+  // Estado de resolución: 'subsanado' | 'se_mantiene' | 'empeoro' | null
+  const [novedadesResolucion, setNovedadesResolucion] = useState<Record<string, { estado: 'subsanado' | 'se_mantiene' | 'empeoro' | null; observacion: string }>>({})
 
   // Inicializar items sin estado seleccionado
   const [items, setItems] = useState<Record<string, ItemInspeccion>>(
@@ -165,7 +165,7 @@ export function FormularioInspeccion({
             }))
           )
           // Inicializar estado de resolución
-          const inicial: Record<string, { estado: 'subsanado' | 'mejoro' | 'empeoro' | null; observacion: string }> = {}
+          const inicial: Record<string, { estado: 'subsanado' | 'se_mantiene' | 'empeoro' | null; observacion: string }> = {}
           novedades.forEach((n) => {
             inicial[n.id] = { estado: null, observacion: "" }
           })
@@ -213,7 +213,7 @@ export function FormularioInspeccion({
     }))
   }
 
-  const handleResolucionChange = (novedadId: string, estado: 'subsanado' | 'mejoro' | 'empeoro' | null, itemCatalogoId: string) => {
+  const handleResolucionChange = (novedadId: string, estado: 'subsanado' | 'se_mantiene' | 'empeoro' | null, itemCatalogoId: string) => {
     setNovedadesResolucion((prev) => ({
       ...prev,
       [novedadId]: { ...prev[novedadId], estado },
@@ -221,9 +221,10 @@ export function FormularioInspeccion({
 
     // También establecer el estado del item para la nueva inspección
     if (estado) {
+      const novedadOriginal = novedadesPendientes.find((n) => n.item_catalogo_id === itemCatalogoId)
       const nuevoEstado: EstadoItem =
         estado === 'subsanado' ? 'bueno' :
-        estado === 'mejoro' ? 'regular' : 'malo'
+        estado === 'se_mantiene' ? (novedadOriginal?.estado as EstadoItem || 'regular') : 'malo'
 
       setItems((prev) => ({
         ...prev,
@@ -360,7 +361,7 @@ export function FormularioInspeccion({
         const resolucion = novedadesResolucion[novedad.id]
         if (resolucion?.estado) {
           // Solo marcar como subsanado si el estado es 'subsanado'
-          // Para 'mejoro' y 'empeoro' guardamos la observación pero no marcamos como subsanado
+          // Para 'se_mantiene' y 'empeoro' guardamos la observación pero no marcamos como subsanado
           await supabase
             .from("parq_items_inspeccion")
             .update({
@@ -670,7 +671,7 @@ export function FormularioInspeccion({
                         novedadPendiente && !resolucion?.estado && novedadPendiente.estado === "malo" && "border-l-red-500 bg-red-50/30",
                         novedadPendiente && !resolucion?.estado && novedadPendiente.estado === "regular" && "border-l-yellow-500 bg-yellow-50/30",
                         novedadPendiente && resolucion?.estado === 'subsanado' && "border-l-4 border-l-green-500 bg-green-50/30",
-                        novedadPendiente && resolucion?.estado === 'mejoro' && "border-l-4 border-l-blue-500 bg-blue-50/30",
+                        novedadPendiente && resolucion?.estado === 'se_mantiene' && "border-l-4 border-l-yellow-500 bg-yellow-50/30",
                         novedadPendiente && resolucion?.estado === 'empeoro' && "border-l-4 border-l-red-600 bg-red-100/50"
                       )}
                     >
@@ -714,7 +715,7 @@ export function FormularioInspeccion({
                           "p-3 rounded-lg border",
                           !resolucion?.estado && "bg-orange-50 border-orange-200",
                           resolucion?.estado === 'subsanado' && "bg-green-50 border-green-200",
-                          resolucion?.estado === 'mejoro' && "bg-blue-50 border-blue-200",
+                          resolucion?.estado === 'se_mantiene' && "bg-yellow-50 border-yellow-200",
                           resolucion?.estado === 'empeoro' && "bg-red-100 border-red-300"
                         )}>
                           <div className="space-y-2">
@@ -753,12 +754,12 @@ export function FormularioInspeccion({
                                   size="sm"
                                   className={cn(
                                     "text-xs h-7",
-                                    resolucion?.estado === 'mejoro' && "bg-blue-100 border-blue-500 text-blue-700"
+                                    resolucion?.estado === 'se_mantiene' && "bg-yellow-100 border-yellow-500 text-yellow-700"
                                   )}
-                                  onClick={() => handleResolucionChange(novedadPendiente.id, resolucion?.estado === 'mejoro' ? null : 'mejoro', item.id)}
+                                  onClick={() => handleResolucionChange(novedadPendiente.id, resolucion?.estado === 'se_mantiene' ? null : 'se_mantiene', item.id)}
                                 >
                                   <AlertCircle className="h-3 w-3 mr-1" />
-                                  Mejoró
+                                  Se mantiene
                                 </Button>
                                 <Button
                                   type="button"
