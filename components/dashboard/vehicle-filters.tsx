@@ -30,6 +30,7 @@ const estadoOptions = [
   { label: "Revisado", value: "revisado", icon: CheckCircle2 },
   { label: "Con novedades", value: "con_novedades", icon: AlertTriangle },
   { label: "Pendiente radicar", value: "pendiente_radicar", icon: Clock },
+  { label: "Enviado devolución", value: "enviado_devolucion", icon: AlertTriangle },
   { label: "Trasladado", value: "trasladado", icon: CheckCircle2 },
   { label: "Radicado", value: "radicado", icon: CheckCircle2 },
   { label: "Devuelto", value: "devuelto", icon: XCircle },

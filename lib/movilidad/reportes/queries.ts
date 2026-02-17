@@ -5,6 +5,7 @@ import type {
   DatosReporteActivos,
   DatosReporteCompletados,
   DatosReportePorVencer,
+  DatosReporteVencidos,
   Organismo,
   Responsable,
 } from './tipos'
@@ -183,12 +184,28 @@ export async function obtenerDatosPorVencer(
     .order('dias_restantes', { ascending: true })
 
   // Aplicar filtros
+  if (filtros.fechaInicio) {
+    query = query.gte('fecha_vencimiento', filtros.fechaInicio)
+  }
+
+  if (filtros.fechaFin) {
+    query = query.lte('fecha_vencimiento', filtros.fechaFin)
+  }
+
   if (filtros.estado !== 'todos') {
     query = query.eq('estado', filtros.estado)
   }
 
   if (filtros.tipoProceso !== 'todos') {
     query = query.eq('proceso_tipo', filtros.tipoProceso)
+  }
+
+  if (filtros.organismoId !== 'todos') {
+    query = query.eq('organismo_id', filtros.organismoId)
+  }
+
+  if (filtros.responsable !== 'todos') {
+    query = query.eq('responsable', filtros.responsable)
   }
 
   const { data, error } = await query
@@ -199,6 +216,50 @@ export async function obtenerDatosPorVencer(
   }
 
   return data as DatosReportePorVencer[]
+}
+
+export async function obtenerDatosVencidos(
+  filtros: FiltrosReporte
+): Promise<DatosReporteVencidos[]> {
+  const supabase = await createClient()
+
+  let query = supabase
+    .from('mov_vista_procesos_vencidos')
+    .select('*')
+    .order('dias_vencidos', { ascending: false })
+
+  if (filtros.fechaInicio) {
+    query = query.gte('fecha_vencimiento', filtros.fechaInicio)
+  }
+
+  if (filtros.fechaFin) {
+    query = query.lte('fecha_vencimiento', filtros.fechaFin)
+  }
+
+  if (filtros.estado !== 'todos') {
+    query = query.eq('estado', filtros.estado)
+  }
+
+  if (filtros.tipoProceso !== 'todos') {
+    query = query.eq('proceso_tipo', filtros.tipoProceso)
+  }
+
+  if (filtros.organismoId !== 'todos') {
+    query = query.eq('organismo_id', filtros.organismoId)
+  }
+
+  if (filtros.responsable !== 'todos') {
+    query = query.eq('responsable', filtros.responsable)
+  }
+
+  const { data, error } = await query
+
+  if (error) {
+    logger.error('Error obteniendo datos vencidos:', error)
+    return []
+  }
+
+  return data as DatosReporteVencidos[]
 }
 
 export async function obtenerOrganismos(): Promise<Organismo[]> {
@@ -247,6 +308,10 @@ export async function obtenerContadores() {
     .from('mov_vista_procesos_por_vencer')
     .select('*', { count: 'exact', head: true })
 
+  const { count: vencidos } = await supabase
+    .from('mov_vista_procesos_vencidos')
+    .select('*', { count: 'exact', head: true })
+
   // Contar procesos completados (últimos 30 días)
   const hace30Dias = new Date()
   hace30Dias.setDate(hace30Dias.getDate() - 30)
@@ -269,5 +334,6 @@ export async function obtenerContadores() {
     activos: activos || 0,
     completados: completados || 0,
     porVencer: porVencer || 0,
+    vencidos: vencidos || 0,
   }
 }

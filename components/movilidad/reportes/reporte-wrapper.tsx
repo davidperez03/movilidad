@@ -11,24 +11,41 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { FiltrosReporteComponent } from './filtros-reporte'
 import { BotonesExportacion } from './botones-exportacion'
+import { aplicarFiltrosReporte } from '@/lib/movilidad/reportes/aplicar-filtros'
 import { FILTROS_INICIALES } from '@/lib/movilidad/reportes/tipos'
 import type { FiltrosReporte, TipoReporte, Organismo, Responsable } from '@/lib/movilidad/reportes/tipos'
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type DatoReporte = any
+interface DatoReporte {
+  fecha_tramite?: string | null
+  fecha_completado?: string | null
+  fecha_vencimiento?: string | null
+  creado_en?: string | null
+  estado?: string | null
+  proceso_estado?: string | null
+  proceso_tipo?: string | null
+  organismo_id?: string | null
+  responsable?: string | null
+}
 
-interface ReporteWrapperProps {
+interface ReporteWrapperProps<T extends DatoReporte> {
   titulo: string
   descripcion: string
   tipoReporte: TipoReporte
-  datos: DatoReporte[]
+  datos: T[]
   organismos: Organismo[]
   responsables: Responsable[]
-  tablaComponent: React.ComponentType<{ datos: DatoReporte[]; filtros: FiltrosReporte }>
-  estadisticasComponent?: React.ReactNode
+  tablaComponent: React.ComponentType<{ datos: T[]; filtros: FiltrosReporte }>
+  estadisticasItems?: Array<{
+    id: string
+    titulo: string
+    valor: number
+    claseContenedor?: string
+    claseTitulo?: string
+    claseValor?: string
+  }>
 }
 
-export function ReporteWrapper({
+export function ReporteWrapper<T extends DatoReporte>({
   titulo,
   descripcion,
   tipoReporte,
@@ -36,47 +53,21 @@ export function ReporteWrapper({
   organismos,
   responsables,
   tablaComponent: TablaComponent,
-  estadisticasComponent,
-}: ReporteWrapperProps) {
+  estadisticasItems,
+}: ReporteWrapperProps<T>) {
   const [filtros, setFiltros] = useState<FiltrosReporte>(FILTROS_INICIALES)
+
+  const campoFecha = useMemo<'fecha_tramite' | 'fecha_completado' | 'fecha_vencimiento' | 'creado_en'>(() => {
+    if (tipoReporte === 'completados') return 'fecha_completado'
+    if (tipoReporte === 'por-vencer' || tipoReporte === 'vencidos') return 'fecha_vencimiento'
+    if (tipoReporte === 'auditoria') return 'creado_en'
+    return 'fecha_tramite'
+  }, [tipoReporte])
 
   // Filtrar datos según filtros aplicados
   const datosFiltrados = useMemo(() => {
-    return datos.filter((d: DatoReporte) => {
-      // Filtro por fecha inicio
-      if (filtros.fechaInicio) {
-        const fechaDato = d.fecha_tramite || d.fecha_completado || d.creado_en
-        if (fechaDato && fechaDato < filtros.fechaInicio) {
-          return false
-        }
-      }
-
-      // Filtro por fecha fin
-      if (filtros.fechaFin) {
-        const fechaDato = d.fecha_tramite || d.fecha_completado || d.creado_en
-        if (fechaDato && fechaDato > filtros.fechaFin) {
-          return false
-        }
-      }
-
-      // Filtro por estado
-      if (filtros.estado !== 'todos') {
-        const estadoDato = d.estado || d.proceso_estado
-        if (estadoDato && estadoDato !== filtros.estado) {
-          return false
-        }
-      }
-
-      // Filtro por tipo de proceso
-      if (filtros.tipoProceso !== 'todos') {
-        if (d.proceso_tipo && d.proceso_tipo !== filtros.tipoProceso) {
-          return false
-        }
-      }
-
-      return true
-    })
-  }, [datos, filtros])
+    return aplicarFiltrosReporte(datos, filtros, campoFecha)
+  }, [datos, filtros, campoFecha])
 
   const nombreArchivo = useMemo(() => {
     const fecha = new Date().toISOString().split('T')[0]
@@ -116,7 +107,16 @@ export function ReporteWrapper({
       />
 
       {/* Estadísticas */}
-      {estadisticasComponent || (
+      {estadisticasItems && estadisticasItems.length > 0 ? (
+        <div className="mb-6 grid gap-4 md:grid-cols-4">
+          {estadisticasItems.map((item) => (
+            <div key={item.id} className={item.claseContenedor || 'p-4 bg-muted rounded-lg'}>
+              <p className={item.claseTitulo || 'text-sm text-muted-foreground'}>{item.titulo}</p>
+              <p className={item.claseValor || 'text-2xl font-bold'}>{item.valor}</p>
+            </div>
+          ))}
+        </div>
+      ) : (
         <div className="p-4 bg-muted rounded-lg">
           <p className="text-sm">
             <strong>Total de registros:</strong> {datosFiltrados.length}

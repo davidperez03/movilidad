@@ -1,7 +1,21 @@
-create or replace view public.mov_vista_procesos_por_vencer
+drop view if exists public.mov_vista_procesos_vencidos;
+
+create or replace view public.mov_vista_procesos_vencidos
 with (security_invoker = true)
 as
-select *
+select
+  procesos.proceso_tipo,
+  procesos.proceso_id,
+  procesos.cuenta_id,
+  procesos.placa,
+  procesos.numero_cuenta,
+  procesos.ciudad,
+  procesos.estado,
+  procesos.fecha_vencimiento,
+  procesos.dias_restantes,
+  (current_date - procesos.fecha_vencimiento::date)::int as dias_vencidos,
+  procesos.responsable,
+  procesos.organismo_id
 from (
   select
     'traslado' as proceso_tipo,
@@ -43,8 +57,7 @@ from (
   where r.estado not in ('radicado', 'devuelto')
     and r.fecha_vencimiento is not null
 ) procesos
-where procesos.fecha_vencimiento::date >= current_date
-  and procesos.dias_restantes between 0 and 10
-order by procesos.dias_restantes asc;
+where procesos.fecha_vencimiento::date < current_date
+order by dias_vencidos desc;
 
-comment on view public.mov_vista_procesos_por_vencer is 'Procesos activos que vencen hoy o en los próximos 10 días hábiles';
+comment on view public.mov_vista_procesos_vencidos is 'Procesos activos cuya fecha de vencimiento ya fue superada';

@@ -45,19 +45,25 @@ interface UpdateTransporteData {
 }
 
 interface AgregarDatosTransporteProps {
-  trasladoId: string
+  procesoId: string
+  procesoTipo?: "traslado" | "radicacion"
   empresaActualId?: string | null
   numeroGuiaActual?: string | null
 }
 
 export function AgregarDatosTransporte({
-  trasladoId,
+  procesoId,
+  procesoTipo = "traslado",
   empresaActualId,
   numeroGuiaActual
 }: AgregarDatosTransporteProps) {
   const supabase = createClient()
+  const esRadicacion = procesoTipo === "radicacion"
+  const tablaDestino = esRadicacion ? "mov_radicaciones" : "mov_traslados"
   const { open, setOpen, loading, handleSubmit } = useDialogForm({
-    successMessage: "Datos de transporte actualizados exitosamente",
+    successMessage: esRadicacion
+      ? "Datos de devolución actualizados exitosamente"
+      : "Datos de transporte actualizados exitosamente",
   })
 
   const [empresas, setEmpresas] = useState<Empresa[]>([])
@@ -147,9 +153,9 @@ export function AgregarDatosTransporte({
       }
 
       const { error } = await supabase
-        .from("mov_traslados")
+        .from(tablaDestino)
         .update(updateData)
-        .eq("id", trasladoId)
+        .eq("id", procesoId)
 
       if (error) {
         throw error
@@ -158,7 +164,9 @@ export function AgregarDatosTransporte({
       // Reset form after successful submission
       setOpen(false)
     }, {
-      errorMessage: "Error al actualizar los datos de transporte"
+      errorMessage: esRadicacion
+        ? "Error al actualizar los datos de devolución"
+        : "Error al actualizar los datos de transporte"
     })
   }
 
@@ -171,14 +179,18 @@ export function AgregarDatosTransporte({
       <DialogTrigger asChild>
         <Button size="sm" variant={yaHayDatos ? "outline" : "default"}>
           <Truck className="h-4 w-4 mr-2" />
-          {yaHayDatos ? "Editar Datos de Transporte" : "Agregar Datos de Transporte"}
+          {esRadicacion
+            ? (yaHayDatos ? "Editar Datos de Devolución" : "Agregar Datos de Devolución")
+            : (yaHayDatos ? "Editar Datos de Transporte" : "Agregar Datos de Transporte")}
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Datos de Transporte</DialogTitle>
+          <DialogTitle>{esRadicacion ? "Datos de Devolución" : "Datos de Transporte"}</DialogTitle>
           <DialogDescription>
-            Ingrese la información de la empresa transportadora y el número de guía del envío
+            {esRadicacion
+              ? "Ingrese la empresa transportadora y el número de guía para la devolución"
+              : "Ingrese la información de la empresa transportadora y el número de guía del envío"}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={onSubmit} className="space-y-4">
@@ -302,7 +314,7 @@ export function AgregarDatosTransporte({
           </div>
 
           <AlertBox variant="info" title="Nota">
-            Puede ingresar uno o ambos campos. Esta información será visible en el detalle del traslado.
+            Puede ingresar uno o ambos campos. Esta información será visible en el detalle del proceso.
           </AlertBox>
 
           <div className="flex justify-end gap-2">

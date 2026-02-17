@@ -38,8 +38,14 @@ export const columnasVehicleTable: ColumnDef<VehicleData>[] = [
     ),
   },
   {
+    accessorFn: (row) => {
+      if (!row.proceso_tipo) return 'sin-proceso'
+      return `${row.proceso_tipo}-${row.proceso_estado || ''}`
+    },
     id: 'proceso',
-    header: 'Proceso / Estado',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Proceso / Estado" />
+    ),
     cell: ({ row }) => {
       const procesoTipo = row.original.proceso_tipo
       const procesoEstado = row.original.proceso_estado
@@ -63,7 +69,6 @@ export const columnasVehicleTable: ColumnDef<VehicleData>[] = [
         </div>
       )
     },
-    enableSorting: false,
   },
   {
     accessorKey: 'ciudad',
@@ -105,8 +110,16 @@ export const columnasVehicleTable: ColumnDef<VehicleData>[] = [
     sortingFn: 'basic',
   },
   {
+    accessorFn: (row) => {
+      if (!row.proceso_tipo) return -1
+      if (row.proceso_estado === 'con_novedades') return 1000
+      if (row.dias_restantes === null || row.dias_restantes === undefined) return 0
+      return -row.dias_restantes
+    },
     id: 'prioridad',
-    header: 'Prioridad',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Prioridad" />
+    ),
     cell: ({ row }) => {
       const dias = row.original.dias_restantes
       const estado = row.original.proceso_estado
@@ -145,14 +158,13 @@ export const columnasVehicleTable: ColumnDef<VehicleData>[] = [
 
       return <Badge variant="outline" className="border-green-600 text-green-600">Baja</Badge>
     },
-    enableSorting: false,
   },
   {
     id: 'acciones',
     header: () => <div className="text-right">Acciones</div>,
     cell: ({ row }) => (
       <div className="text-right">
-        <Button asChild size="sm" variant="outline">
+        <Button asChild size="sm" variant="outline" className="whitespace-nowrap">
           <Link href={`/movilidad/vehiculos/${row.original.placa}`}>
             <Eye className="h-4 w-4 mr-1.5" />
             Ver
@@ -161,5 +173,6 @@ export const columnasVehicleTable: ColumnDef<VehicleData>[] = [
       </div>
     ),
     enableSorting: false,
+    enableColumnFilter: false,
   },
 ]

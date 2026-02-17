@@ -10,11 +10,33 @@ import { es } from 'date-fns/locale';
  */
 const COLOMBIA_TIMEZONE = 'America/Bogota';
 
+function parseDateInput(date: string | Date): Date | null {
+  if (date instanceof Date) {
+    return Number.isNaN(date.getTime()) ? null : date;
+  }
+
+  const value = date.trim();
+  if (!value) return null;
+
+  const parsed = new Date(value);
+  if (!Number.isNaN(parsed.getTime())) {
+    return parsed;
+  }
+
+  // Fallback para fechas tipo YYYY-MM-DD sin zona
+  const isoDateOnly = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!isoDateOnly) return null;
+
+  const fallback = new Date(`${isoDateOnly[1]}-${isoDateOnly[2]}-${isoDateOnly[3]}T00:00:00`);
+  return Number.isNaN(fallback.getTime()) ? null : fallback;
+}
+
 /**
  * Convierte una fecha UTC a hora de Colombia
  */
-export function toColombiaTime(date: string | Date): Date {
-  const d = typeof date === 'string' ? new Date(date) : date;
+export function toColombiaTime(date: string | Date): Date | null {
+  const d = parseDateInput(date);
+  if (!d) return null;
 
   // Crear un formatter con la zona horaria de Colombia
   const formatter = new Intl.DateTimeFormat('es-CO', {
@@ -35,9 +57,10 @@ export function toColombiaTime(date: string | Date): Date {
     values[type] = value;
   });
 
-  return new Date(
+  const result = new Date(
     `${values.year}-${values.month}-${values.day}T${values.hour}:${values.minute}:${values.second}`
   );
+  return Number.isNaN(result.getTime()) ? null : result;
 }
 
 /**
@@ -47,7 +70,12 @@ export function toColombiaTime(date: string | Date): Date {
 export function formatDateShort(date: string | Date | null | undefined): string {
   if (!date) return '-';
   const colombiaDate = toColombiaTime(date);
-  return format(colombiaDate, 'dd/MM/yyyy', { locale: es });
+  if (!colombiaDate) return '-';
+  try {
+    return format(colombiaDate, 'dd/MM/yyyy', { locale: es });
+  } catch {
+    return '-';
+  }
 }
 
 /**
@@ -57,7 +85,12 @@ export function formatDateShort(date: string | Date | null | undefined): string 
 export function formatDateLong(date: string | Date | null | undefined): string {
   if (!date) return '-';
   const colombiaDate = toColombiaTime(date);
-  return format(colombiaDate, "d 'de' MMMM 'de' yyyy", { locale: es });
+  if (!colombiaDate) return '-';
+  try {
+    return format(colombiaDate, "d 'de' MMMM 'de' yyyy", { locale: es });
+  } catch {
+    return '-';
+  }
 }
 
 /**
@@ -67,7 +100,12 @@ export function formatDateLong(date: string | Date | null | undefined): string {
 export function formatDateTime(date: string | Date | null | undefined): string {
   if (!date) return '-';
   const colombiaDate = toColombiaTime(date);
-  return format(colombiaDate, 'dd/MM/yyyy HH:mm', { locale: es });
+  if (!colombiaDate) return '-';
+  try {
+    return format(colombiaDate, 'dd/MM/yyyy HH:mm', { locale: es });
+  } catch {
+    return '-';
+  }
 }
 
 
@@ -144,13 +182,16 @@ export function getNowTimestampColombia(): string {
  * @returns Fecha formateada para mostrar (ej: "28/01/2025")
  */
 export function formatDateForDisplay(dbDate: string | Date): string {
-  if (!dbDate) return ''
+  if (!dbDate) return '-'
 
   let dateStr: string
   if (typeof dbDate === 'string') {
+    const clean = dbDate.trim()
+    if (!clean) return '-'
     // Extraer solo la parte de la fecha (YYYY-MM-DD)
-    dateStr = dbDate.substring(0, 10)
+    dateStr = clean.substring(0, 10)
   } else {
+    if (Number.isNaN(dbDate.getTime())) return '-'
     // Si es un objeto Date, convertirlo a YYYY-MM-DD
     const year = dbDate.getFullYear()
     const month = String(dbDate.getMonth() + 1).padStart(2, '0')
@@ -160,6 +201,7 @@ export function formatDateForDisplay(dbDate: string | Date): string {
 
   // Separar año, mes, día
   const [year, month, day] = dateStr.split('-')
+  if (!year || !month || !day) return '-'
 
   // Devolver en formato dd/mm/yyyy
   return `${day}/${month}/${year}`

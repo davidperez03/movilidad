@@ -1,3 +1,5 @@
+drop trigger if exists before_update_empresa_transporte on public.mov_empresas_transporte;
+
 CREATE TRIGGER before_update_empresa_transporte
   BEFORE UPDATE ON public.mov_empresas_transporte
   FOR EACH ROW

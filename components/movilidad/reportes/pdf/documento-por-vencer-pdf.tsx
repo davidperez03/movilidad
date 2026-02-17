@@ -1,6 +1,10 @@
 import { Document, Page, Text, View } from '@react-pdf/renderer'
 import { formatearFechaPDF, obtenerFechaGeneracion } from '@/lib/movilidad/reportes/exportar-pdf'
 import type { DatosReportePorVencer } from '@/lib/movilidad/reportes/tipos'
+import {
+  formatearUrgenciaPorVencer,
+  obtenerNivelUrgenciaPorVencer,
+} from '@/lib/movilidad/reportes/urgencia'
 import { basePdfStyles } from './base-pdf-styles'
 import { PdfHeader } from './pdf-header'
 import { PdfTableHeader } from './pdf-table-header'
@@ -18,13 +22,6 @@ const columnas = [
   { texto: 'F. Vencimiento', ancho: '12%' },
   { texto: 'Días Rest.', ancho: '10%' },
 ]
-
-function calcularUrgencia(diasRestantes: number): string {
-  if (diasRestantes < 0) return 'Vencido'
-  if (diasRestantes <= 2) return 'Alta'
-  if (diasRestantes <= 7) return 'Media'
-  return 'Baja'
-}
 
 export function DocumentoPorVencerPDF({ datos }: DocumentoPorVencerPDFProps) {
   return (
@@ -44,19 +41,29 @@ export function DocumentoPorVencerPDF({ datos }: DocumentoPorVencerPDFProps) {
           <PdfTableHeader columnas={columnas} />
 
           {/* Filas de datos */}
-          {datos.map((d, index) => (
-            <View key={index} style={basePdfStyles.tableRow}>
-              <Text style={{ width: columnas[0].ancho }}>{d.placa}</Text>
-              <Text style={{ width: columnas[1].ancho }}>{d.numero_cuenta}</Text>
-              <Text style={{ width: columnas[2].ancho }}>{d.proceso_tipo}</Text>
-              <Text style={{ width: columnas[3].ancho }}>{d.estado}</Text>
-              <Text style={{ width: columnas[4].ancho }}>{d.ciudad}</Text>
-              <Text style={{ width: columnas[5].ancho }}>{formatearFechaPDF(d.fecha_vencimiento)}</Text>
-              <Text style={[{ width: columnas[6].ancho }, d.dias_restantes < 0 ? basePdfStyles.vencido : d.dias_restantes <= 2 ? basePdfStyles.urgente : {}]}>
-                {d.dias_restantes} ({calcularUrgencia(d.dias_restantes)})
-              </Text>
-            </View>
-          ))}
+          {datos.map((d, index) => {
+            const nivelUrgencia = obtenerNivelUrgenciaPorVencer(d.dias_restantes)
+            const estiloUrgencia =
+              nivelUrgencia === 'vencido'
+                ? basePdfStyles.vencido
+                : nivelUrgencia === 'vence_hoy' || nivelUrgencia === 'alta'
+                  ? basePdfStyles.urgente
+                  : {}
+
+            return (
+              <View key={index} style={basePdfStyles.tableRow}>
+                <Text style={{ width: columnas[0].ancho }}>{d.placa}</Text>
+                <Text style={{ width: columnas[1].ancho }}>{d.numero_cuenta}</Text>
+                <Text style={{ width: columnas[2].ancho }}>{d.proceso_tipo}</Text>
+                <Text style={{ width: columnas[3].ancho }}>{d.estado}</Text>
+                <Text style={{ width: columnas[4].ancho }}>{d.ciudad}</Text>
+                <Text style={{ width: columnas[5].ancho }}>{formatearFechaPDF(d.fecha_vencimiento)}</Text>
+                <Text style={[{ width: columnas[6].ancho }, estiloUrgencia]}>
+                  {formatearUrgenciaPorVencer(d.dias_restantes)}
+                </Text>
+              </View>
+            )
+          })}
         </View>
 
         {/* Footer */}

@@ -1,9 +1,6 @@
 import type {
   ColumnDef,
   SortingState,
-  PaginationState,
-  ColumnFiltersState,
-  VisibilityState,
   Table,
   Column,
 } from '@tanstack/react-table'
@@ -29,6 +26,7 @@ export interface DataTableProps<TData, TValue = unknown> {
   onRowClick?: (row: TData) => void
   emptyMessage?: string
   className?: string
+  tableLayout?: 'auto' | 'fixed'
 
   // Acciones custom en toolbar
   toolbarActions?: React.ReactNode

@@ -1,6 +1,6 @@
 "use client"
 
-import { Check, Circle, AlertTriangle, XCircle } from "lucide-react"
+import { Check, Circle } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface TimelineStep {
@@ -33,7 +33,7 @@ const FLUJO_RADICACION: TimelineStep[] = [
 ]
 
 // Estados especiales (no son parte del flujo lineal)
-const ESTADOS_ESPECIALES = ["con_novedades", "devuelto"]
+const ESTADOS_ESPECIALES = ["con_novedades", "enviado_devolucion", "devuelto"]
 
 export function ProcessTimeline({ tipo, estadoActual, className }: ProcessTimelineProps) {
   const flujo = tipo === "traslado" ? FLUJO_TRASLADO : FLUJO_RADICACION
@@ -42,18 +42,15 @@ export function ProcessTimeline({ tipo, estadoActual, className }: ProcessTimeli
   // Encontrar el índice del estado actual en el flujo
   const indiceActual = flujo.findIndex(step => step.value === estadoActual)
 
-  // Si el estado es especial (novedades o devuelto), mostrar alerta
+  // Si el estado es especial, mostrar solo el flujo sin alerta textual
   if (esEstadoEspecial) {
     return (
-      <div className={cn("space-y-4", className)}>
-        {/* Timeline con estado de alerta */}
+      <div className={cn("space-y-2", className)}>
         <div className="relative">
-          {/* Línea de fondo - centrada con los círculos */}
           <div className="absolute top-4 left-4 right-4 h-0.5 -translate-y-1/2">
             <div className="h-full bg-gray-200 dark:bg-gray-700 rounded-full" />
           </div>
 
-          {/* Pasos */}
           <div className="relative flex justify-between">
             {flujo.map((step) => (
               <div key={step.value} className="flex flex-col items-center">
@@ -65,41 +62,6 @@ export function ProcessTimeline({ tipo, estadoActual, className }: ProcessTimeli
                 </span>
               </div>
             ))}
-          </div>
-        </div>
-
-        {/* Alerta de estado especial */}
-        <div className={cn(
-          "flex items-center gap-3 p-3 rounded-lg",
-          estadoActual === "devuelto"
-            ? "bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800"
-            : "bg-orange-50 dark:bg-orange-950 border border-orange-200 dark:border-orange-800"
-        )}>
-          {estadoActual === "devuelto" ? (
-            <XCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
-          ) : (
-            <AlertTriangle className="w-5 h-5 text-orange-500 flex-shrink-0" />
-          )}
-          <div>
-            <p className={cn(
-              "text-sm font-medium",
-              estadoActual === "devuelto"
-                ? "text-red-700 dark:text-red-300"
-                : "text-orange-700 dark:text-orange-300"
-            )}>
-              {estadoActual === "devuelto" ? "Proceso Devuelto" : "Proceso con Novedades"}
-            </p>
-            <p className={cn(
-              "text-xs",
-              estadoActual === "devuelto"
-                ? "text-red-600 dark:text-red-400"
-                : "text-orange-600 dark:text-orange-400"
-            )}>
-              {estadoActual === "devuelto"
-                ? "El trámite fue devuelto y requiere atención"
-                : "Existen novedades que deben ser resueltas"
-              }
-            </p>
           </div>
         </div>
       </div>
