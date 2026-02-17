@@ -675,16 +675,16 @@ export function FormularioInspeccion({
                         novedadPendiente && resolucion?.estado === 'empeoro' && "border-l-4 border-l-red-600 bg-red-100/50"
                       )}
                     >
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="font-medium">{item.nombre}</p>
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-sm sm:text-base">{item.nombre}</p>
                           {item.descripcion && (
                             <p className="text-xs text-muted-foreground">{item.descripcion}</p>
                           )}
                         </div>
                         {/* Solo mostrar botones de evaluación si NO hay novedad pendiente */}
                         {!novedadPendiente && (
-                          <div className="flex gap-1">
+                          <div className="flex gap-1 flex-shrink-0">
                             {(["bueno", "regular", "malo", "no_aplica"] as EstadoItem[]).map(
                               (estado) => {
                                 const IconComponent = ESTADO_ITEM_ICONS[estado]
@@ -695,12 +695,12 @@ export function FormularioInspeccion({
                                     variant="outline"
                                     size="sm"
                                     className={cn(
-                                      "w-10 h-10 p-0",
+                                      "w-8 h-8 sm:w-10 sm:h-10 p-0",
                                       items[item.id]?.estado === estado && ESTADO_ITEM_COLORS[estado].bg
                                     )}
                                     onClick={() => handleEstadoChange(item.id, estado)}
                                   >
-                                    <IconComponent className={cn("h-4 w-4", ESTADO_ITEM_COLORS[estado].icon)} />
+                                    <IconComponent className={cn("h-3 w-3 sm:h-4 sm:w-4", ESTADO_ITEM_COLORS[estado].icon)} />
                                   </Button>
                                 )
                               }
@@ -732,47 +732,50 @@ export function FormularioInspeccion({
                                 <span className="text-muted-foreground">- {novedadPendiente.observacion}</span>
                               )}
                             </div>
-                            <div className="flex items-center gap-2">
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                               <span className="text-xs text-muted-foreground">¿Qué pasó?</span>
-                              <div className="flex gap-1">
+                              <div className="flex gap-1 flex-wrap">
                                 <Button
                                   type="button"
                                   variant="outline"
                                   size="sm"
                                   className={cn(
-                                    "text-xs h-7",
+                                    "text-xs h-7 px-2 sm:px-3",
                                     resolucion?.estado === 'subsanado' && "bg-green-100 border-green-500 text-green-700"
                                   )}
                                   onClick={() => handleResolucionChange(novedadPendiente.id, resolucion?.estado === 'subsanado' ? null : 'subsanado', item.id)}
                                 >
                                   <CheckCircle className="h-3 w-3 mr-1" />
-                                  Subsanado
+                                  <span className="hidden sm:inline">Subsanado</span>
+                                  <span className="sm:hidden">Ok</span>
                                 </Button>
                                 <Button
                                   type="button"
                                   variant="outline"
                                   size="sm"
                                   className={cn(
-                                    "text-xs h-7",
+                                    "text-xs h-7 px-2 sm:px-3",
                                     resolucion?.estado === 'se_mantiene' && "bg-yellow-100 border-yellow-500 text-yellow-700"
                                   )}
                                   onClick={() => handleResolucionChange(novedadPendiente.id, resolucion?.estado === 'se_mantiene' ? null : 'se_mantiene', item.id)}
                                 >
                                   <AlertCircle className="h-3 w-3 mr-1" />
-                                  Se mantiene
+                                  <span className="hidden sm:inline">Se mantiene</span>
+                                  <span className="sm:hidden">Igual</span>
                                 </Button>
                                 <Button
                                   type="button"
                                   variant="outline"
                                   size="sm"
                                   className={cn(
-                                    "text-xs h-7",
+                                    "text-xs h-7 px-2 sm:px-3",
                                     resolucion?.estado === 'empeoro' && "bg-red-100 border-red-500 text-red-700"
                                   )}
                                   onClick={() => handleResolucionChange(novedadPendiente.id, resolucion?.estado === 'empeoro' ? null : 'empeoro', item.id)}
                                 >
                                   <XCircle className="h-3 w-3 mr-1" />
-                                  Empeoró
+                                  <span className="hidden sm:inline">Empeoró</span>
+                                  <span className="sm:hidden">Peor</span>
                                 </Button>
                               </div>
                             </div>
@@ -985,9 +988,9 @@ export function FormularioInspeccion({
           )}
 
           {/* Selector APTO/NO APTO */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <span className="font-medium">Resultado de la inspección:</span>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+              <span className="font-medium text-sm sm:text-base">Resultado:</span>
               <div className="flex gap-2">
                 <Button
                   type="button"
@@ -1012,7 +1015,7 @@ export function FormularioInspeccion({
                 </Button>
               </div>
             </div>
-            <Button type="submit" disabled={loading || porcentajeEvaluado < 100} size="lg">
+            <Button type="submit" disabled={loading || porcentajeEvaluado < 100} size="lg" className="w-full sm:w-auto">
               {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               <Save className="h-4 w-4 mr-2" />
               Guardar Inspección

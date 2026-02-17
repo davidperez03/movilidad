@@ -1,9 +1,8 @@
 insert into public.parq_items_catalogo (codigo, nombre, categoria, descripcion, orden) values
 -- Niveles
 ('NIV_COMBUSTIBLE', 'Combustible', 'niveles', 'Nivel suficiente para la operación del turno, sin testigos de reserva encendidos', 10),
-('NIV_ACEITE', 'Aceite motor', 'niveles', 'Nivel dentro del rango indicado en la varilla, sin presencia de fugas', 11),
+('NIV_ACEITE', 'Aceite motor', 'niveles', 'Nivel dentro del rango indicado en la varilla, sin presencia de fugas, VALIDAR CON TESTIGO', 11),
 ('NIV_REFRIGERANTE', 'Refrigerante', 'niveles', 'Nivel visible entre mínimo y máximo del depósito, sin fugas', 12),
-('NIV_FRENOS', 'Líquido de frenos', 'niveles', 'Nivel adecuado en depósito, sin disminución anormal', 13),
 ('NIV_HIDRAULICO', 'Aceite hidráulico', 'niveles', 'Nivel correcto en el depósito, sin fugas ni ruidos anómalos', 14),
 
 -- Luces
@@ -33,7 +32,6 @@ insert into public.parq_items_catalogo (codigo, nombre, categoria, descripcion, 
 
 -- Sistema de grúa
 ('GRU_PLATAFORMA', 'Plataforma de carga', 'grua', 'Estructura íntegra, sin grietas ni deformaciones', 50),
-('GRU_RAMPAS', 'Rampas de acceso', 'grua', 'Antideslizantes, bisagras firmes y seguras', 51),
 ('GRU_CABLE', 'Cable de acero', 'grua', 'Sin hilos rotos, correctamente lubricado', 52),
 ('GRU_WINCHE', 'Winche', 'grua', 'Operación fluida, sin ruidos ni fallas', 53),
 ('GRU_GANCHO', 'Gancho del winche', 'grua', 'Con seguro funcional, sin deformaciones', 54),
