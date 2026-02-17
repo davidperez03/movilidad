@@ -4,7 +4,7 @@
 // =====================================================
 
 import { redirect } from 'next/navigation'
-import { Activity, CheckCircle, Clock } from 'lucide-react'
+import { Activity, CheckCircle, Clock, AlertTriangle } from 'lucide-react'
 import { obtenerPermisosUsuario } from '@/lib/server/permisos'
 import { obtenerContadores } from '@/lib/movilidad/reportes/queries'
 import { CardTipoReporte } from '@/components/movilidad/reportes/card-tipo-reporte'
@@ -27,7 +27,7 @@ export default async function ReportesPage() {
         <p className="text-muted-foreground">Generación de reportes</p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <CardTipoReporte
           icono={Activity}
           titulo="Activos"
@@ -51,6 +51,14 @@ export default async function ReportesPage() {
           href="/movilidad/reportes/por-vencer"
           contador={contadores.porVencer}
           color="orange"
+        />
+        <CardTipoReporte
+          icono={AlertTriangle}
+          titulo="Vencidos"
+          descripcion="Procesos vencidos"
+          href="/movilidad/reportes/vencidos"
+          contador={contadores.vencidos}
+          color="red"
         />
       </div>
     </div>

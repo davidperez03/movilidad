@@ -147,7 +147,7 @@ export function ModalDatosPersonal({ persona, onCerrar }: ModalDatosPersonalProp
                     <SelectContent>
                       {OPCIONES_CATEGORIA_LICENCIA.map((cat) => (
                         <SelectItem key={cat.value} value={cat.value}>
-                          {cat.value}
+                          {cat.label}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -207,7 +207,7 @@ export function ModalDatosPersonal({ persona, onCerrar }: ModalDatosPersonalProp
                   <SelectContent>
                     {OPCIONES_TIPO_DOCUMENTO.map((tipo) => (
                       <SelectItem key={tipo.value} value={tipo.value}>
-                        {tipo.value}
+                        {tipo.label}
                       </SelectItem>
                     ))}
                   </SelectContent>

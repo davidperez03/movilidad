@@ -15,29 +15,29 @@ import { generarPDFReporte } from '@/lib/movilidad/reportes/exportar-pdf'
 import { DocumentoActivosPDF } from './pdf/documento-activos-pdf'
 import { DocumentoCompletadosPDF } from './pdf/documento-completados-pdf'
 import { DocumentoPorVencerPDF } from './pdf/documento-por-vencer-pdf'
+import { DocumentoVencidosPDF } from './pdf/documento-vencidos-pdf'
 import type {
   TipoReporte,
   FiltrosReporte,
   DatosReporteActivos,
   DatosReporteCompletados,
   DatosReportePorVencer,
+  DatosReporteVencidos,
 } from '@/lib/movilidad/reportes/tipos'
 
-type DatosReporte = DatosReporteActivos | DatosReporteCompletados | DatosReportePorVencer
-
-interface BotonesExportacionProps {
-  datos: DatosReporte[]
+interface BotonesExportacionProps<TDato = unknown> {
+  datos: TDato[]
   tipoReporte: TipoReporte
   filtros: FiltrosReporte
   nombreArchivo: string
 }
 
-export function BotonesExportacion({
+export function BotonesExportacion<TDato = unknown>({
   datos,
   tipoReporte,
   filtros,
   nombreArchivo,
-}: BotonesExportacionProps) {
+}: BotonesExportacionProps<TDato>) {
   const [loadingPDF, setLoadingPDF] = useState(false)
   const [loadingExcel, setLoadingExcel] = useState(false)
   const [loadingCSV, setLoadingCSV] = useState(false)
@@ -54,13 +54,16 @@ export function BotonesExportacion({
       let componentePDF
       switch (tipoReporte) {
         case 'activos':
-          componentePDF = <DocumentoActivosPDF datos={datos as DatosReporteActivos[]} />
+          componentePDF = <DocumentoActivosPDF datos={datos as unknown as DatosReporteActivos[]} />
           break
         case 'completados':
-          componentePDF = <DocumentoCompletadosPDF datos={datos as DatosReporteCompletados[]} />
+          componentePDF = <DocumentoCompletadosPDF datos={datos as unknown as DatosReporteCompletados[]} />
           break
         case 'por-vencer':
-          componentePDF = <DocumentoPorVencerPDF datos={datos as DatosReportePorVencer[]} />
+          componentePDF = <DocumentoPorVencerPDF datos={datos as unknown as DatosReportePorVencer[]} />
+          break
+        case 'vencidos':
+          componentePDF = <DocumentoVencidosPDF datos={datos as unknown as DatosReporteVencidos[]} />
           break
         default:
           toast.error('Tipo de reporte no soportado')

@@ -3,7 +3,13 @@
 // Función para generar archivos CSV con encoding UTF-8
 // =====================================================
 
-import type { TipoReporte, DatosReporteActivos, DatosReporteCompletados, DatosReportePorVencer } from './tipos'
+import type {
+  TipoReporte,
+  DatosReporteActivos,
+  DatosReporteCompletados,
+  DatosReportePorVencer,
+  DatosReporteVencidos,
+} from './tipos'
 
 interface DatosAuditoria {
   creado_en: string
@@ -38,6 +44,9 @@ export function generarCSVReporte(datos: any[], tipoReporte: TipoReporte, nombre
       break
     case 'por-vencer':
       csvContent = generarCSVPorVencer(datos as unknown as DatosReportePorVencer[])
+      break
+    case 'vencidos':
+      csvContent = generarCSVVencidos(datos as unknown as DatosReporteVencidos[])
       break
     case 'auditoria':
       csvContent = generarCSVAuditoria(datos as unknown as DatosAuditoria[])
@@ -167,6 +176,34 @@ function generarCSVAuditoria(datos: DatosAuditoria[]): string {
     d.usuario_correo,
     d.valor_anterior || '',
     d.valor_nuevo || '',
+  ])
+
+  return convertirACSV(headers, rows)
+}
+
+function generarCSVVencidos(datos: DatosReporteVencidos[]): string {
+  const headers = [
+    'Placa',
+    'N° Cuenta',
+    'Tipo Proceso',
+    'Estado',
+    'Organismo',
+    'Fecha Vencimiento',
+    'Días Restantes',
+    'Días Vencidos',
+    'Responsable',
+  ]
+
+  const rows = datos.map((d) => [
+    d.placa,
+    d.numero_cuenta,
+    d.proceso_tipo,
+    d.estado,
+    d.ciudad,
+    formatearFecha(d.fecha_vencimiento),
+    d.dias_restantes.toString(),
+    d.dias_vencidos.toString(),
+    d.responsable,
   ])
 
   return convertirACSV(headers, rows)

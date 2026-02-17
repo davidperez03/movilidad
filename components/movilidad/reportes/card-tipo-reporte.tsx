@@ -9,7 +9,7 @@ interface CardTipoReporteProps {
   descripcion: string
   href: string
   contador?: number
-  color?: 'blue' | 'green' | 'orange' | 'purple'
+  color?: 'blue' | 'green' | 'orange' | 'purple' | 'red'
 }
 
 const colorConfig = {
@@ -36,6 +36,12 @@ const colorConfig = {
     icon: 'text-purple-600',
     border: 'hover:border-purple-300',
     badge: 'bg-purple-100 text-purple-700',
+  },
+  red: {
+    bg: 'bg-red-100',
+    icon: 'text-red-600',
+    border: 'hover:border-red-300',
+    badge: 'bg-red-100 text-red-700',
   },
 }
 

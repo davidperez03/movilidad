@@ -8,27 +8,21 @@ import { Badge } from '@/components/ui/badge'
 import { DataTableColumnHeader } from '@/components/ui/data-table/data-table-column-header'
 import { BadgeEstadoProceso } from '@/components/movilidad/shared/badge-estado-proceso'
 import { formatearFecha } from '@/lib/movilidad/formatters'
+import {
+  formatearUrgenciaPorVencer,
+  obtenerNivelUrgenciaPorVencer,
+} from '@/lib/movilidad/reportes/urgencia'
 import type { DatosReportePorVencer } from '@/lib/movilidad/reportes/tipos'
 
 function BadgeUrgencia({ diasRestantes }: { diasRestantes: number }) {
-  if (diasRestantes < 0) {
-    return <Badge variant="destructive">Vencido ({diasRestantes})</Badge>
-  }
-  if (diasRestantes <= 2) {
-    return (
-      <Badge className="bg-orange-500 hover:bg-orange-600">
-        Alta ({diasRestantes} días)
-      </Badge>
-    )
-  }
-  if (diasRestantes <= 7) {
-    return (
-      <Badge className="bg-yellow-500 hover:bg-yellow-600 text-yellow-950">
-        Media ({diasRestantes} días)
-      </Badge>
-    )
-  }
-  return <Badge variant="outline">{diasRestantes} días</Badge>
+  const nivel = obtenerNivelUrgenciaPorVencer(diasRestantes)
+  const texto = formatearUrgenciaPorVencer(diasRestantes)
+
+  if (nivel === 'vencido') return <Badge variant="destructive">{texto}</Badge>
+  if (nivel === 'vence_hoy') return <Badge className="bg-red-500 hover:bg-red-600">{texto}</Badge>
+  if (nivel === 'alta') return <Badge className="bg-orange-500 hover:bg-orange-600">{texto}</Badge>
+  if (nivel === 'media') return <Badge className="bg-yellow-500 hover:bg-yellow-600 text-yellow-950">{texto}</Badge>
+  return <Badge variant="outline">{texto}</Badge>
 }
 
 export const columnasTablaPorVencer: ColumnDef<DatosReportePorVencer>[] = [
@@ -49,7 +43,9 @@ export const columnasTablaPorVencer: ColumnDef<DatosReportePorVencer>[] = [
   },
   {
     accessorKey: 'proceso_tipo',
-    header: 'Tipo Proceso',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Tipo Proceso" />
+    ),
     cell: ({ row }) => {
       const tipo = row.getValue('proceso_tipo') as string
       return (
@@ -58,15 +54,15 @@ export const columnasTablaPorVencer: ColumnDef<DatosReportePorVencer>[] = [
         </Badge>
       )
     },
-    enableSorting: false,
   },
   {
     accessorKey: 'estado',
-    header: 'Estado',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Estado" />
+    ),
     cell: ({ row }) => (
       <BadgeEstadoProceso estado={row.getValue('estado')} />
     ),
-    enableSorting: false,
   },
   {
     accessorKey: 'ciudad',
@@ -118,5 +114,6 @@ export const columnasTablaPorVencer: ColumnDef<DatosReportePorVencer>[] = [
       </div>
     ),
     enableSorting: false,
+    enableColumnFilter: false,
   },
 ]

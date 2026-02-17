@@ -39,6 +39,8 @@ export function FiltrosReporteComponent({
     if (filtros.fechaInicio) count++
     if (filtros.fechaFin) count++
     if (filtros.estado !== 'todos') count++
+    if (filtros.organismoId !== 'todos') count++
+    if (filtros.responsable !== 'todos') count++
     if (filtros.tipoProceso !== 'todos') count++
     setFiltrosActivos(count)
   }, [filtros])
@@ -115,7 +117,7 @@ export function FiltrosReporteComponent({
           </div>
 
           {/* Estado - solo para ciertos reportes */}
-          {(tipoReporte === 'activos' || tipoReporte === 'por-vencer') && (
+          {(tipoReporte === 'activos' || tipoReporte === 'por-vencer' || tipoReporte === 'vencidos') && (
             <div className="space-y-2">
               <Label htmlFor="estado">Estado</Label>
               <Select value={filtros.estado} onValueChange={(value) => onFilterChange({ ...filtros, estado: value })}>
@@ -127,6 +129,50 @@ export function FiltrosReporteComponent({
                   {estadosDisponibles.map((estado) => (
                     <SelectItem key={estado.valor} value={estado.valor}>
                       {estado.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          {(tipoReporte === 'activos' || tipoReporte === 'por-vencer' || tipoReporte === 'vencidos') && (
+            <div className="space-y-2">
+              <Label htmlFor="organismoId">Organismo</Label>
+              <Select
+                value={filtros.organismoId}
+                onValueChange={(value) => onFilterChange({ ...filtros, organismoId: value })}
+              >
+                <SelectTrigger id="organismoId">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Todos los organismos</SelectItem>
+                  {organismos.map((organismo) => (
+                    <SelectItem key={organismo.id} value={organismo.id}>
+                      {organismo.nombre}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          {(tipoReporte === 'completados' || tipoReporte === 'por-vencer' || tipoReporte === 'vencidos') && (
+            <div className="space-y-2">
+              <Label htmlFor="responsable">Responsable</Label>
+              <Select
+                value={filtros.responsable}
+                onValueChange={(value) => onFilterChange({ ...filtros, responsable: value })}
+              >
+                <SelectTrigger id="responsable">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Todos los responsables</SelectItem>
+                  {responsables.map((responsable) => (
+                    <SelectItem key={responsable.id} value={responsable.nombre_completo}>
+                      {responsable.nombre_completo}
                     </SelectItem>
                   ))}
                 </SelectContent>

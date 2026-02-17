@@ -2,6 +2,18 @@ alter table public.mov_empresas_transporte enable row level security;
 alter table public.mov_traslados enable row level security;
 alter table public.mov_radicaciones enable row level security;
 
+drop policy if exists "Usuarios pueden ver empresas de transporte" on public.mov_empresas_transporte;
+drop policy if exists "Crear empresas de transporte según permisos" on public.mov_empresas_transporte;
+drop policy if exists "Actualizar empresas de transporte según permisos" on public.mov_empresas_transporte;
+drop policy if exists "Usuarios pueden ver todos los traslados" on public.mov_traslados;
+drop policy if exists "Crear traslados según permisos modulares" on public.mov_traslados;
+drop policy if exists "Actualizar traslados según permisos modulares" on public.mov_traslados;
+drop policy if exists "Eliminar traslados según permisos modulares" on public.mov_traslados;
+drop policy if exists "Usuarios pueden ver todas las radicaciones" on public.mov_radicaciones;
+drop policy if exists "Crear radicaciones según permisos modulares" on public.mov_radicaciones;
+drop policy if exists "Actualizar radicaciones según permisos modulares" on public.mov_radicaciones;
+drop policy if exists "Eliminar radicaciones según permisos modulares" on public.mov_radicaciones;
+
 CREATE POLICY "Usuarios pueden ver empresas de transporte"
   ON public.mov_empresas_transporte FOR SELECT
   USING (true);

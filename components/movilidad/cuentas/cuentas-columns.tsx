@@ -88,8 +88,21 @@ export const columnasCuentas: ColumnDef<CuentaVehiculo>[] = [
     sortingFn: 'datetime',
   },
   {
+    accessorFn: (row) => {
+      const procesoActivo = row.procesoActivo
+      const ultimoCompletado = row.ultimo_proceso_completado
+      if (procesoActivo?.proceso_tipo) {
+        return `activo-${procesoActivo.proceso_tipo}-${procesoActivo.proceso_estado}`
+      }
+      if (ultimoCompletado) {
+        return `completado-${ultimoCompletado.proceso_tipo}-${ultimoCompletado.estado}`
+      }
+      return 'sin-historial'
+    },
     id: 'ultimo_proceso',
-    header: 'Último Proceso',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Último Proceso" />
+    ),
     cell: ({ row }) => {
       const procesoActivo = row.original.procesoActivo
       const ultimoCompletado = row.original.ultimo_proceso_completado
@@ -126,7 +139,6 @@ export const columnasCuentas: ColumnDef<CuentaVehiculo>[] = [
 
       return <span className="text-sm text-muted-foreground">Sin historial</span>
     },
-    enableSorting: false,
   },
   {
     id: 'acciones',
@@ -140,6 +152,7 @@ export const columnasCuentas: ColumnDef<CuentaVehiculo>[] = [
             asChild
             variant="outline"
             size="sm"
+            className="whitespace-nowrap"
           >
             <Link href={`/movilidad/vehiculos/${cuenta.placa}`}>
               <FileText className="h-3.5 w-3.5 mr-1.5" />
@@ -150,5 +163,6 @@ export const columnasCuentas: ColumnDef<CuentaVehiculo>[] = [
       )
     },
     enableSorting: false,
+    enableColumnFilter: false,
   },
 ]

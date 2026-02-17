@@ -43,6 +43,7 @@ export function obtenerTituloPDF(tipo: TipoReporte): string {
     activos: 'Reporte de Procesos Activos',
     completados: 'Reporte de Procesos Completados',
     'por-vencer': 'Reporte de Procesos por Vencer',
+    vencidos: 'Reporte de Procesos Vencidos',
     auditoria: 'Reporte de Auditoría Completa',
   }
 

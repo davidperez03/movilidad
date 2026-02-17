@@ -51,6 +51,7 @@ create table if not exists public.mov_radicaciones (
   estado text not null default 'sin_asignar' check (estado in (
     'sin_asignar',
     'pendiente_radicar',
+    'enviado_devolucion',
     'recibido',
     'revisado',
     'con_novedades',
@@ -63,12 +64,20 @@ create table if not exists public.mov_radicaciones (
   fecha_completado timestamp with time zone,
 
   observaciones text,
+  empresa_transportadora_id uuid references public.mov_empresas_transporte(id) on delete set null,
+  numero_guia text,
 
   creado_por uuid not null references public.perfiles(id) on delete restrict,
   actualizado_por uuid references public.perfiles(id) on delete restrict,
   creado_en timestamp with time zone default now() not null,
   actualizado_en timestamp with time zone default now() not null
 );
+
+-- Compatibilidad para bases ya existentes:
+-- asegura columnas logísticas en radicaciones incluso si la tabla ya estaba creada.
+alter table public.mov_radicaciones
+  add column if not exists empresa_transportadora_id uuid references public.mov_empresas_transporte(id) on delete set null,
+  add column if not exists numero_guia text;
 
 create index if not exists idx_mov_traslados_cuenta on public.mov_traslados(cuenta_id);
 create index if not exists idx_mov_traslados_organismo_destino on public.mov_traslados(organismo_destino_id);
@@ -77,6 +86,9 @@ create index if not exists idx_mov_traslados_fecha_tramite on public.mov_traslad
 create index if not exists idx_mov_traslados_fecha_vencimiento on public.mov_traslados(fecha_vencimiento);
 create index if not exists idx_mov_traslados_creado_por on public.mov_traslados(creado_por);
 create index if not exists idx_mov_traslados_empresa_transportadora on public.mov_traslados(empresa_transportadora_id);
+create index if not exists idx_mov_traslados_activos_cuenta_creado
+  on public.mov_traslados(cuenta_id, creado_en desc)
+  where estado not in ('trasladado', 'devuelto');
 
 create index if not exists idx_mov_radicaciones_cuenta on public.mov_radicaciones(cuenta_id);
 create index if not exists idx_mov_radicaciones_organismo_origen on public.mov_radicaciones(organismo_origen_id);
@@ -84,6 +96,10 @@ create index if not exists idx_mov_radicaciones_estado on public.mov_radicacione
 create index if not exists idx_mov_radicaciones_fecha_tramite on public.mov_radicaciones(fecha_tramite desc);
 create index if not exists idx_mov_radicaciones_fecha_vencimiento on public.mov_radicaciones(fecha_vencimiento);
 create index if not exists idx_mov_radicaciones_creado_por on public.mov_radicaciones(creado_por);
+create index if not exists idx_mov_radicaciones_empresa_transportadora on public.mov_radicaciones(empresa_transportadora_id);
+create index if not exists idx_mov_radicaciones_activas_cuenta_creado
+  on public.mov_radicaciones(cuenta_id, creado_en desc)
+  where estado not in ('radicado', 'devuelto');
 
 COMMENT ON TABLE public.mov_empresas_transporte IS
   'Catálogo de empresas transportadoras para traslados de vehículos';
@@ -158,7 +174,7 @@ COMMENT ON COLUMN public.mov_radicaciones.organismo_origen_id IS
   'ID del organismo de tránsito origen desde donde se recibe el vehículo (referencia a mov_organismos_transito.id)';
 
 COMMENT ON COLUMN public.mov_radicaciones.estado IS
-  'Estado actual del proceso: sin_asignar, pendiente_radicar, recibido, revisado, con_novedades, radicado (final), devuelto (final)';
+  'Estado actual del proceso: sin_asignar, pendiente_radicar, enviado_devolucion, recibido, revisado, con_novedades, radicado (final), devuelto (final)';
 
 COMMENT ON COLUMN public.mov_radicaciones.fecha_tramite IS
   'Fecha de inicio del trámite de radicación';
@@ -171,6 +187,12 @@ COMMENT ON COLUMN public.mov_radicaciones.fecha_completado IS
 
 COMMENT ON COLUMN public.mov_radicaciones.observaciones IS
   'Notas u observaciones adicionales sobre el proceso de radicación';
+
+COMMENT ON COLUMN public.mov_radicaciones.empresa_transportadora_id IS
+  'ID de la empresa transportadora usada cuando una radicación es devuelta al solicitante';
+
+COMMENT ON COLUMN public.mov_radicaciones.numero_guia IS
+  'Número de guía del envío para devolución de una radicación';
 
 COMMENT ON COLUMN public.mov_radicaciones.creado_por IS
   'ID del usuario que creó la radicación (referencia a perfiles.id)';

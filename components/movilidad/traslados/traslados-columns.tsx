@@ -9,6 +9,7 @@ import { DataTableColumnHeader } from '@/components/ui/data-table/data-table-col
 import { BadgeEstadoProceso } from '@/components/movilidad/shared/badge-estado-proceso'
 import { BotonDescargarRemision } from '@/components/movilidad/pdf/boton-descargar-remision'
 import { formatDateForDisplay } from '@/lib/utils'
+import { calcularDiasVencidosCalendario, formatearVencidoHace } from '@/lib/movilidad/formatters'
 import {
   type ProcesoBase,
   type EmpresaTransporte,
@@ -26,7 +27,7 @@ export interface TrasladoData extends ProcesoBase {
   dias_restantes?: number | null
 }
 
-// Columna de vencimiento con días hábiles restantes (específica para traslados activos)
+// Columna de vencimiento: hábiles para vigentes, calendario para vencidos
 const columnaVencimientoConDias: ColumnDef<TrasladoData> = {
   accessorKey: 'fecha_vencimiento',
   header: ({ column }) => (
@@ -35,14 +36,22 @@ const columnaVencimientoConDias: ColumnDef<TrasladoData> = {
   cell: ({ row }) => {
     const fecha = row.getValue('fecha_vencimiento') as string
     const dias = row.original.dias_restantes
+    const diasVencidosCalendario = calcularDiasVencidosCalendario(fecha)
+    const vencidoSinCalculoHabil = (dias === null || dias === undefined) && diasVencidosCalendario > 0
+    const estaVencido = (dias !== null && dias !== undefined && dias < 0) || vencidoSinCalculoHabil
+    const diasNoVencidos = dias ?? Number.POSITIVE_INFINITY
     return (
       <div className="text-sm whitespace-nowrap">
         <div>{formatDateForDisplay(fecha)}</div>
-        {dias !== null && dias !== undefined && (
+        {(dias !== null && dias !== undefined || vencidoSinCalculoHabil) && (
           <div className={`text-xs ${
-            dias < 0 ? 'text-red-600' : dias <= 7 ? 'text-orange-600' : 'text-green-600'
+            estaVencido ? 'text-red-600' : diasNoVencidos <= 7 ? 'text-orange-600' : 'text-green-600'
           }`}>
-            {dias < 0 ? `Vencido hace ${Math.abs(dias)} días hábiles` : `${dias} días hábiles`}
+            {estaVencido
+              ? formatearVencidoHace(Math.max(diasVencidosCalendario, 1))
+              : dias === 0
+                ? 'Vence hoy'
+                : `${dias} días hábiles`}
           </div>
         )}
       </div>
@@ -53,8 +62,15 @@ const columnaVencimientoConDias: ColumnDef<TrasladoData> = {
 
 // Columna de transporte (específica para traslados)
 const columnaTransporte: ColumnDef<TrasladoData> = {
+  accessorFn: (row) => {
+    const empresa = row.empresa_transporte?.nombre || ''
+    const guia = row.numero_guia || ''
+    return `${empresa} ${guia}`.trim()
+  },
   id: 'transporte',
-  header: 'Transporte',
+  header: ({ column }) => (
+    <DataTableColumnHeader column={column} title="Transporte" />
+  ),
   cell: ({ row }) => {
     const empresa = row.original.empresa_transporte?.nombre
     const guia = row.original.numero_guia
@@ -70,7 +86,6 @@ const columnaTransporte: ColumnDef<TrasladoData> = {
       </div>
     )
   },
-  enableSorting: false,
 }
 
 // Columna de estado (para traslados)
@@ -93,8 +108,8 @@ const columnaAccionesConRemision: ColumnDef<TrasladoData> = {
     const puedeDescargar = traslado.estado === 'aprobado' || traslado.estado === 'enviado_organismo' || traslado.estado === 'trasladado'
 
     return (
-      <div className="text-right flex gap-1.5 justify-end">
-        <Button variant="ghost" size="sm" asChild>
+      <div className="text-right flex flex-nowrap items-center gap-1.5 justify-end">
+        <Button variant="ghost" size="sm" className="shrink-0 whitespace-nowrap" asChild>
           <Link href={`/movilidad/vehiculos/${traslado.mov_cuentas_vehiculos?.placa}`}>
             <Eye className="h-4 w-4 mr-1" />
             Ver
@@ -104,12 +119,17 @@ const columnaAccionesConRemision: ColumnDef<TrasladoData> = {
           <BotonDescargarRemision
             trasladoId={traslado.id}
             placa={traslado.mov_cuentas_vehiculos?.placa || ''}
-          />
+            showIcon={false}
+            className="shrink-0 whitespace-nowrap"
+          >
+            PDF
+          </BotonDescargarRemision>
         )}
       </div>
     )
   },
   enableSorting: false,
+  enableColumnFilter: false,
 }
 
 // Columnas para traslados activos
@@ -151,8 +171,8 @@ export const columnasTrasladosCompletados: ColumnDef<TrasladoData>[] = [
     cell: ({ row }) => {
       const traslado = row.original
       return (
-        <div className="text-right flex gap-1.5 justify-end">
-          <Button variant="ghost" size="sm" asChild>
+        <div className="text-right flex flex-nowrap items-center gap-1.5 justify-end">
+          <Button variant="ghost" size="sm" className="shrink-0 whitespace-nowrap" asChild>
             <Link href={`/movilidad/vehiculos/${traslado.mov_cuentas_vehiculos?.placa}`}>
               <Eye className="h-4 w-4" />
             </Link>
@@ -160,10 +180,15 @@ export const columnasTrasladosCompletados: ColumnDef<TrasladoData>[] = [
           <BotonDescargarRemision
             trasladoId={traslado.id}
             placa={traslado.mov_cuentas_vehiculos?.placa || ''}
-          />
+            showIcon={false}
+            className="shrink-0 whitespace-nowrap"
+          >
+            PDF
+          </BotonDescargarRemision>
         </div>
       )
     },
     enableSorting: false,
+    enableColumnFilter: false,
   },
 ]

@@ -2,7 +2,6 @@
 
 import { DataTable } from '@/components/ui/data-table/data-table'
 import { columnasTablaCompletados } from './tabla-completados-columns'
-import { useFiltrosReporte } from '@/lib/movilidad/reportes/use-filtros-reporte'
 import type { DatosReporteCompletados, FiltrosReporte } from '@/lib/movilidad/reportes/tipos'
 
 interface TablaCompletadosProps {
@@ -10,13 +9,11 @@ interface TablaCompletadosProps {
   filtros: FiltrosReporte
 }
 
-export function TablaCompletados({ datos, filtros }: TablaCompletadosProps) {
-  const datosFiltrados = useFiltrosReporte(datos, filtros, 'fecha_completado')
-
+export function TablaCompletados({ datos, filtros: _filtros }: TablaCompletadosProps) {
   return (
     <DataTable
       columns={columnasTablaCompletados}
-      data={datosFiltrados}
+      data={datos}
       enablePagination={true}
       pageSize={20}
       pageSizeOptions={[10, 20, 50, 100]}

@@ -1,6 +1,14 @@
 alter table public.mov_novedades enable row level security;
 alter table public.mov_adjuntos_novedades enable row level security;
 
+drop policy if exists "Usuarios pueden ver todas las novedades" on public.mov_novedades;
+drop policy if exists "Crear novedades según permisos modulares" on public.mov_novedades;
+drop policy if exists "Actualizar novedades según permisos modulares" on public.mov_novedades;
+drop policy if exists "Eliminar novedades según permisos modulares" on public.mov_novedades;
+drop policy if exists "Usuarios pueden ver adjuntos de novedades" on public.mov_adjuntos_novedades;
+drop policy if exists "Subir adjuntos según permisos modulares" on public.mov_adjuntos_novedades;
+drop policy if exists "Eliminar adjuntos según permisos modulares" on public.mov_adjuntos_novedades;
+
 create policy "Usuarios pueden ver todas las novedades"
   on public.mov_novedades for select
   using (true);

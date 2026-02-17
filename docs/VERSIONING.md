@@ -214,6 +214,7 @@ git push origin develop
 
 | Versión | Fecha | Descripción |
 |---------|-------|-------------|
+| 1.6.0 | 2026-02-17 | Feat: reportes vencidos, radicaciones, mejoras parqueadero y humanización UI |
 | 1.5.0 | 2026-02-11 | Feat: tipografía profesional (Plus Jakarta Sans, JetBrains Mono, Share Tech Mono) |
 | 1.4.4 | 2026-02-10 | Fix: permisos modulares, licencias admins, capitalización parqueadero |
 | 1.4.3 | 2026-02-10 | Fix: serialización iconos server→client en nav móvil |

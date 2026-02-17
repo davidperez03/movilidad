@@ -37,12 +37,14 @@ export interface RadicacionHistorial {
   fecha_tramite: string
   fecha_vencimiento: string
   fecha_completado: string | null
+  numero_guia?: string | null
   observaciones: string | null
   creado_en: string
   actualizado_en: string
   creador: UsuarioResumen | null
   actualizador: UsuarioResumen | null
   organismo: OrganismoTransito | null
+  empresa_transporte?: EmpresaTransporte | null
 }
 
 export interface HistorialAccion {

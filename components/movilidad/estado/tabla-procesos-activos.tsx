@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { BadgeEstadoProceso } from '@/components/movilidad/shared/badge-estado-proceso'
 import { formatDateForDisplay } from '@/lib/utils'
+import { calcularDiasVencidosCalendario, formatearVencidoHace } from '@/lib/movilidad/formatters'
 import { cn } from '@/lib/utils'
 
 interface ProcesoActivo {
@@ -100,10 +101,10 @@ const columnas: ColumnDef<ProcesoActivo>[] = [
             dias < 0 ? "text-red-600" : dias <= 7 ? "text-orange-600" : "text-green-600"
           )}>
             {dias < 0
-              ? `Vencido hace ${Math.abs(dias)} días`
+              ? formatearVencidoHace(Math.max(calcularDiasVencidosCalendario(fecha), 1))
               : dias === 0
                 ? "Vence hoy"
-                : `${dias} días restantes`
+                : `${dias} días hábiles restantes`
             }
           </div>
         </div>
@@ -140,6 +141,7 @@ const columnas: ColumnDef<ProcesoActivo>[] = [
       </div>
     ),
     enableSorting: false,
+    enableColumnFilter: false,
   },
 ]
 

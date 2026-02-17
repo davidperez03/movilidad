@@ -10,7 +10,7 @@ import type { MobileUserInfo } from "@/components/shared/mobile-nav"
 import { SkipLink } from "@/components/ui/skip-link"
 import { capitalizeName } from "@/lib/utils/capitalize"
 
-export const revalidate = 60
+export const dynamic = "force-dynamic"
 
 interface RolModulo {
   codigo: string
