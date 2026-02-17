@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -37,7 +36,6 @@ export default function ConsultaPublicaPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [resultado, setResultado] = useState<ProcesoInfo | null>(null)
-  const supabase = createClient()
 
   const handleConsulta = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -48,24 +46,22 @@ export default function ConsultaPublicaPage() {
     try {
       const placaLimpia = placa.trim().toUpperCase()
 
-      // Buscar en la vista pública de consultas
-      const { data, error: queryError } = await supabase
-        .from("mov_vista_consulta_publica")
-        .select("*")
-        .eq("placa", placaLimpia)
-        .single()
+      const res = await fetch("/api/consulta", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ placa: placaLimpia }),
+      })
 
-      if (queryError) {
-        if (queryError.code === "PGRST116") {
-          setError("No se encontró ningún vehículo con esa placa")
-        } else {
-          setError("Error al consultar: " + queryError.message)
-        }
+      const json = await res.json()
+
+      if (!res.ok) {
+        setError(json.error || "Error al consultar")
         return
       }
 
-      setResultado(data as ProcesoInfo)
+      setResultado(json.data as ProcesoInfo)
     } catch (err) {
+      console.error("Error en consulta pública:", err)
       setError("Error inesperado al realizar la consulta")
     } finally {
       setLoading(false)

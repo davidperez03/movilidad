@@ -8,6 +8,9 @@ declare
   tiene_traslado_activo boolean;
   tiene_radicacion_activa boolean;
 begin
+  -- Prevenir race condition: serializar validación por cuenta
+  PERFORM pg_advisory_xact_lock(hashtext('validar_proceso_unico_' || new.cuenta_id::text));
+
   select exists(
     select 1 from public.mov_traslados
     where cuenta_id = new.cuenta_id

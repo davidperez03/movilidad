@@ -11,7 +11,7 @@ drop policy if exists "Eliminar notificaciones de radicacion segun permisos"
 
 create policy "Usuarios pueden ver notificaciones de radicacion"
   on public.mov_notificaciones_radicacion for select
-  using (true);
+  using (tiene_acceso_modulo(auth.uid(), 'movilidad'));
 
 create policy "Crear notificaciones de radicacion segun permisos"
   on public.mov_notificaciones_radicacion for insert

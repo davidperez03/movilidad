@@ -57,7 +57,6 @@ from (
   where r.estado not in ('radicado', 'devuelto')
     and r.fecha_vencimiento is not null
 ) procesos
-where procesos.fecha_vencimiento::date < current_date
-order by dias_vencidos desc;
+where procesos.fecha_vencimiento::date < current_date;
 
 comment on view public.mov_vista_procesos_vencidos is 'Procesos activos cuya fecha de vencimiento ya fue superada';

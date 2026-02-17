@@ -5,7 +5,7 @@ drop policy if exists "Solo el sistema puede insertar en historial" on public.mo
 
 create policy "Usuarios pueden ver todo el historial"
   on public.mov_historial_acciones for select
-  using (true);
+  using (tiene_acceso_modulo(auth.uid(), 'movilidad'));
 
 create policy "Solo el sistema puede insertar en historial"
   on public.mov_historial_acciones for insert

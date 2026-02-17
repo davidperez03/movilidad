@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server"
+import { logger } from "@/lib/logger"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import Link from "next/link"
@@ -53,6 +54,7 @@ export default async function TrasladosPage() {
   }))
 
   if (errorActivos) {
+    logger.error("Error cargando traslados activos", { error: errorActivos })
   }
 
   // Obtener traslados completados

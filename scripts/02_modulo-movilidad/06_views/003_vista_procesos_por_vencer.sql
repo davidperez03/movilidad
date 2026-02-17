@@ -44,7 +44,6 @@ from (
     and r.fecha_vencimiento is not null
 ) procesos
 where procesos.fecha_vencimiento::date >= current_date
-  and procesos.dias_restantes between 0 and 10
-order by procesos.dias_restantes asc;
+  and procesos.dias_restantes between 0 and 10;
 
 comment on view public.mov_vista_procesos_por_vencer is 'Procesos activos que vencen hoy o en los próximos 10 días hábiles';

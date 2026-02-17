@@ -7,7 +7,7 @@ drop policy if exists "Eliminar cuentas según permisos modulares" on public.mov
 
 create policy "Todos pueden ver cuentas"
   on public.mov_cuentas_vehiculos for select
-  using (true);
+  using (tiene_acceso_modulo(auth.uid(), 'movilidad'));
 
 create policy "Crear cuentas según permisos modulares"
   on public.mov_cuentas_vehiculos for insert

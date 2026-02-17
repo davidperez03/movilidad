@@ -5,7 +5,7 @@ drop policy if exists "Solo admins pueden modificar festivos" on public.mov_fest
 
 create policy "Todos pueden ver festivos"
   on public.mov_festivos_colombia for select
-  using (true);
+  using (tiene_acceso_modulo(auth.uid(), 'movilidad'));
 
 create policy "Solo admins pueden modificar festivos"
   on public.mov_festivos_colombia for all

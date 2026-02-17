@@ -38,11 +38,13 @@
 #   ├── 01_sistema-usuarios/   # Tablas de usuarios, perfiles, roles
 #   ├── 02_modulo-movilidad/   # Módulo de movilidad
 #   ├── 03_modulo-parqueadero/ # Módulo de parqueadero (inspecciones)
-#   └── 99_vistas_finales/     # Vistas que dependen de todo lo anterior
+#   ├── 99_vistas_finales/     # Vistas que dependen de todo lo anterior
+#   └── 99_hardening/          # Hardening de seguridad (SIEMPRE al final)
 #
 # NOTAS:
 #   - Las carpetas 99_utilities NO se ejecutan (son herramientas manuales)
 #   - 99_vistas_finales se ejecuta AL FINAL de todo
+#   - 99_hardening se ejecuta SIEMPRE al final (incluso en migraciones parciales)
 #   - Los scripts se ejecutan en orden alfabético
 #   - Si un script falla, la ejecución se detiene
 #
@@ -224,6 +226,17 @@ mostrar_estado() {
     fi
 }
 
+# Función para ejecutar hardening (siempre al final de cualquier migración)
+ejecutar_hardening() {
+    if [ -d "$SCRIPTS_DIR/99_hardening" ]; then
+        echo -e "${YELLOW}━━━ Aplicando hardening de seguridad ━━━${NC}"
+        for archivo in $(find "$SCRIPTS_DIR/99_hardening" -name "*.sql" -type f | sort); do
+            ejecutar_sql "$archivo"
+        done
+        echo ""
+    fi
+}
+
 # Procesar argumentos
 case "$1" in
     --clean|--limpiar)
@@ -256,6 +269,9 @@ case "$1" in
             ejecutar_carpeta "$SCRIPTS_DIR/99_vistas_finales"
         fi
 
+        # Hardening siempre al final
+        ejecutar_hardening
+
         echo -e "${GREEN}╔══════════════════════════════════════════════════════════════╗${NC}"
         echo -e "${GREEN}║              ✓ Migraciones completadas                       ║${NC}"
         echo -e "${GREEN}╚══════════════════════════════════════════════════════════════╝${NC}"
@@ -264,6 +280,8 @@ case "$1" in
         # Ejecutar un módulo específico
         if [ -d "$SCRIPTS_DIR/$1" ]; then
             ejecutar_carpeta "$SCRIPTS_DIR/$1"
+            # Hardening siempre al final, incluso en migraciones parciales
+            ejecutar_hardening
             echo -e "${GREEN}✓ Módulo $1 completado${NC}"
         else
             echo -e "${RED}Módulo no encontrado: $1${NC}"

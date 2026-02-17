@@ -13,10 +13,12 @@ drop policy if exists "Usuarios pueden ver todas las radicaciones" on public.mov
 drop policy if exists "Crear radicaciones según permisos modulares" on public.mov_radicaciones;
 drop policy if exists "Actualizar radicaciones según permisos modulares" on public.mov_radicaciones;
 drop policy if exists "Eliminar radicaciones según permisos modulares" on public.mov_radicaciones;
+drop policy if exists "Acceso público de lectura a traslados" on public.mov_traslados;
+drop policy if exists "Acceso público de lectura a radicaciones" on public.mov_radicaciones;
 
 CREATE POLICY "Usuarios pueden ver empresas de transporte"
   ON public.mov_empresas_transporte FOR SELECT
-  USING (true);
+  USING (tiene_acceso_modulo(auth.uid(), 'movilidad'));
 
 CREATE POLICY "Crear empresas de transporte según permisos"
   ON public.mov_empresas_transporte FOR INSERT
@@ -34,7 +36,7 @@ CREATE POLICY "Actualizar empresas de transporte según permisos"
 
 create policy "Usuarios pueden ver todos los traslados"
   on public.mov_traslados for select
-  using (true);
+  using (tiene_acceso_modulo(auth.uid(), 'movilidad'));
 
 create policy "Crear traslados según permisos modulares"
   on public.mov_traslados for insert
@@ -66,7 +68,7 @@ create policy "Eliminar traslados según permisos modulares"
 
 create policy "Usuarios pueden ver todas las radicaciones"
   on public.mov_radicaciones for select
-  using (true);
+  using (tiene_acceso_modulo(auth.uid(), 'movilidad'));
 
 create policy "Crear radicaciones según permisos modulares"
   on public.mov_radicaciones for insert
@@ -95,13 +97,3 @@ create policy "Eliminar radicaciones según permisos modulares"
     es_superadmin(auth.uid())
     or tiene_permiso(auth.uid(), 'movilidad', 'eliminar_radicaciones')
   );
-
-drop policy if exists "Acceso público de lectura a traslados" on public.mov_traslados;
-create policy "Acceso público de lectura a traslados"
-  on public.mov_traslados for select
-  using (true); -- Permite ver todos los estados
-
-drop policy if exists "Acceso público de lectura a radicaciones" on public.mov_radicaciones;
-create policy "Acceso público de lectura a radicaciones"
-  on public.mov_radicaciones for select
-  using (true); -- Permite ver todos los estados
