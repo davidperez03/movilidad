@@ -24,6 +24,15 @@ Este release se realizó siguiendo un proceso simplificado debido a la urgencia 
 
 ---
 
+## [1.7.0] - 2026-02-17
+
+### Release Intermedia
+
+Versión de base estable que precede a v1.7.1.
+Contiene todos los cambios de v1.6.0 más preparaciones para la versión 1.7.1.
+
+---
+
 ## [1.6.0] - 2026-02-17
 
 ### Feat: Reportes vencidos, radicaciones y mejoras parqueadero
