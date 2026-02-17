@@ -37,8 +37,8 @@ begin
 end;
 $$;
 
+REVOKE ALL ON FUNCTION public.consultar_vehiculo_por_placa(text) FROM PUBLIC;
 grant execute on function public.consultar_vehiculo_por_placa(text) to anon;
 grant execute on function public.consultar_vehiculo_por_placa(text) to authenticated;
-grant execute on function public.consultar_vehiculo_por_placa(text) to public;
 
 comment on function public.consultar_vehiculo_por_placa(text) is 'Función pública para consultar estado completo de vehículo por placa, incluyendo observaciones';

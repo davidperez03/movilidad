@@ -9,12 +9,16 @@ import { MobileNav } from "@/components/shared/mobile-nav"
 import type { MobileUserInfo } from "@/components/shared/mobile-nav"
 import { SkipLink } from "@/components/ui/skip-link"
 import { capitalizeName } from "@/lib/utils/capitalize"
+import { obtenerLayoutData } from "@/lib/movilidad/server/layout-data"
 
 export const dynamic = "force-dynamic"
 
-interface RolModulo {
-  codigo: string
-  nombre: string
+const rolColors: Record<string, string> = {
+  superadmin: "bg-red-100 text-red-700 border-red-300",
+  mov_administrador: "bg-purple-100 text-purple-700 border-purple-300",
+  mov_operador: "bg-blue-100 text-blue-700 border-blue-300",
+  mov_usuario: "bg-gray-100 text-gray-700 border-gray-300",
+  sin_rol: "bg-gray-100 text-gray-500 border-gray-300",
 }
 
 export default async function MovilidadLayout({
@@ -39,12 +43,10 @@ export default async function MovilidadLayout({
     .eq("id", user.id)
     .single()
 
-  // Verificar acceso al módulo de movilidad
-  // Debe ser superadmin O tener rol asignado en el módulo movilidad
   const esSuperAdmin = perfil?.rol_global === 'superadmin'
 
+  // Verificar acceso al módulo de movilidad
   if (!esSuperAdmin) {
-    // Verificar si tiene rol en movilidad
     const { data: rolMovilidad } = await supabase
       .from('usuarios_roles')
       .select('id')
@@ -57,56 +59,11 @@ export default async function MovilidadLayout({
     }
   }
 
-  // Obtener estadísticas para badges en el navbar
-  const { count: trasladosActivos } = await supabase
-    .from("mov_traslados")
-    .select("*", { count: "exact", head: true })
-    .not("estado", "in", "(trasladado,devuelto)")
-
-  const { count: radicacionesActivas } = await supabase
-    .from("mov_radicaciones")
-    .select("*", { count: "exact", head: true })
-    .not("estado", "in", "(radicado,devuelto)")
-
-  const { count: novedadesPendientes } = await supabase
-    .from("mov_novedades")
-    .select("*", { count: "exact", head: true })
-    .neq("estado", "resuelta")
-
-  // Obtener rol en módulo movilidad
-  const { data: rolModuloData } = await supabase
-    .from('usuarios_roles')
-    .select(`
-      roles_modulo (
-        codigo,
-        nombre
-      )
-    `)
-    .eq('usuario_id', user.id)
-    .eq('modulo_id', 'movilidad')
-    .single()
-
-  const rolModuloRaw = rolModuloData?.roles_modulo as unknown as RolModulo | null
-  const rolModulo: RolModulo = esSuperAdmin
-    ? { codigo: 'superadmin', nombre: 'SuperAdmin' }
-    : (rolModuloRaw ?? { codigo: 'sin_rol', nombre: 'Sin rol' })
-
-  const rolColors: Record<string, string> = {
-    superadmin: "bg-red-100 text-red-700 border-red-300",
-    mov_administrador: "bg-purple-100 text-purple-700 border-purple-300",
-    mov_operador: "bg-blue-100 text-blue-700 border-blue-300",
-    mov_usuario: "bg-gray-100 text-gray-700 border-gray-300",
-    sin_rol: "bg-gray-100 text-gray-500 border-gray-300",
-  }
-
-  // Obtener todos los módulos del usuario para alternancia
-  const { data: todosLosRoles } = await supabase
-    .from('usuarios_roles')
-    .select('modulo_id')
-    .eq('usuario_id', user.id)
-
-  const modulosUsuario = new Set(todosLosRoles?.map(r => r.modulo_id) || [])
-  const tieneParqueadero = esSuperAdmin || modulosUsuario.has('parqueadero')
+  // Una sola función obtiene: contadores + rol + módulos (antes 4 queries, ahora 2)
+  const { contadores, rolModulo, tieneParqueadero } = await obtenerLayoutData(
+    user.id,
+    esSuperAdmin
+  )
 
   const nombreCapitalizado = capitalizeName(perfil?.nombre_completo) || perfil?.correo || ''
 
@@ -180,9 +137,9 @@ export default async function MovilidadLayout({
 
           {/* Navigation tabs */}
           <NavTabs
-            trasladosActivos={trasladosActivos}
-            radicacionesActivas={radicacionesActivas}
-            novedadesPendientes={novedadesPendientes}
+            trasladosActivos={contadores.trasladosActivos}
+            radicacionesActivas={contadores.radicacionesActivas}
+            novedadesPendientes={contadores.novedadesPendientes}
           />
         </div>
       </header>

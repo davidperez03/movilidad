@@ -44,9 +44,10 @@ export async function updateSession(request: NextRequest) {
   // Rutas públicas que no requieren autenticación
   const publicRoutes = ["/", "/consulta"]
   const isPublicRoute = publicRoutes.includes(request.nextUrl.pathname)
+  const isPublicApi = request.nextUrl.pathname.startsWith("/api/consulta")
   const isAuthRoute = request.nextUrl.pathname.startsWith("/auth") || request.nextUrl.pathname.startsWith("/api/auth")
 
-  if (user && !isPublicRoute && !isAuthRoute) {
+  if (user && !isPublicRoute && !isPublicApi && !isAuthRoute) {
     try {
       const { data: sesionId, error } = await supabase
         .rpc('obtener_sesion_activa', { p_usuario_id: user.id })
@@ -62,10 +63,11 @@ export async function updateSession(request: NextRequest) {
         return response
       }
     } catch {
+      // Error verificando sesión activa — no bloquear la navegación
     }
   }
 
-  if (!user && !isPublicRoute && !isAuthRoute) {
+  if (!user && !isPublicRoute && !isPublicApi && !isAuthRoute) {
     // no user, potentially respond by redirecting the user to the login page
     const url = request.nextUrl.clone()
     url.pathname = "/auth/login"

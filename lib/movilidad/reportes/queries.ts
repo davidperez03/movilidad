@@ -297,43 +297,19 @@ export async function obtenerResponsables(): Promise<Responsable[]> {
 export async function obtenerContadores() {
   const supabase = await createClient()
 
-  // Contar procesos activos
-  const { count: activos } = await supabase
-    .from('mov_vista_proceso_activo')
-    .select('*', { count: 'exact', head: true })
-    .not('proceso_tipo', 'is', null)
+  const { data, error } = await supabase.rpc('obtener_contadores_movilidad')
 
-  // Contar procesos por vencer
-  const { count: porVencer } = await supabase
-    .from('mov_vista_procesos_por_vencer')
-    .select('*', { count: 'exact', head: true })
+  if (error) {
+    logger.error('Error obteniendo contadores:', error)
+    return { activos: 0, completados: 0, porVencer: 0, vencidos: 0 }
+  }
 
-  const { count: vencidos } = await supabase
-    .from('mov_vista_procesos_vencidos')
-    .select('*', { count: 'exact', head: true })
-
-  // Contar procesos completados (últimos 30 días)
-  const hace30Dias = new Date()
-  hace30Dias.setDate(hace30Dias.getDate() - 30)
-
-  const { count: completadosTraslados } = await supabase
-    .from('mov_traslados')
-    .select('*', { count: 'exact', head: true })
-    .eq('estado', 'trasladado')
-    .gte('fecha_completado', hace30Dias.toISOString())
-
-  const { count: completadosRadicaciones } = await supabase
-    .from('mov_radicaciones')
-    .select('*', { count: 'exact', head: true })
-    .eq('estado', 'radicado')
-    .gte('fecha_completado', hace30Dias.toISOString())
-
-  const completados = (completadosTraslados || 0) + (completadosRadicaciones || 0)
+  const c = data as Record<string, number>
 
   return {
-    activos: activos || 0,
-    completados: completados || 0,
-    porVencer: porVencer || 0,
-    vencidos: vencidos || 0,
+    activos: c.activos ?? 0,
+    completados: c.completados_30d ?? 0,
+    porVencer: c.por_vencer ?? 0,
+    vencidos: c.vencidos ?? 0,
   }
 }

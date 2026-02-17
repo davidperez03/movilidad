@@ -60,30 +60,36 @@ with procesos as (
   left join public.mov_organismos_transito or_org on r.organismo_origen_id = or_org.id
   left join public.mov_notificaciones_radicacion nr on nr.radicacion_id = r.id
   left join public.mov_empresas_transporte et on et.id = r.empresa_transportadora_id
+),
+ranked as (
+  select
+    p.*,
+    row_number() over (partition by p.cuenta_id order by p.proceso_creado_en desc, p.proceso_id desc) as rn
+  from procesos p
 )
-select distinct on (p.cuenta_id)
-  p.placa,
-  p.numero_cuenta,
-  p.tipo_servicio,
-  p.proceso_tipo,
-  p.proceso_id,
-  p.proceso_estado,
-  p.fecha_tramite,
-  p.fecha_vencimiento,
-  p.fecha_completado,
-  p.dias_restantes,
-  p.ciudad,
-  p.observaciones,
-  p.empresa_transporte,
-  p.numero_guia,
-  p.proceso_creado_en,
-  p.solicitante_notificado,
-  p.notificado_en
-from procesos p
-order by p.cuenta_id, p.proceso_creado_en desc, p.proceso_id desc;
+select
+  r.placa,
+  r.numero_cuenta,
+  r.tipo_servicio,
+  r.proceso_tipo,
+  r.proceso_id,
+  r.proceso_estado,
+  r.fecha_tramite,
+  r.fecha_vencimiento,
+  r.fecha_completado,
+  r.dias_restantes,
+  r.ciudad,
+  r.observaciones,
+  r.empresa_transporte,
+  r.numero_guia,
+  r.proceso_creado_en,
+  r.solicitante_notificado,
+  r.notificado_en
+from ranked r
+where r.rn = 1;
 
-grant select on public.mov_vista_consulta_publica to anon;
+-- Solo authenticated puede leer la vista directamente
+-- anon accede vía RPC consultar_vehiculo_por_placa (SECURITY DEFINER)
 grant select on public.mov_vista_consulta_publica to authenticated;
-grant select on public.mov_vista_consulta_publica to public;
 
 comment on view public.mov_vista_consulta_publica is 'Vista pública con información del último proceso realizado por vehículo (traslado o radicación), incluyendo estados finales y observaciones';

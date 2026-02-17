@@ -10,6 +10,9 @@ declare
 begin
   fecha_actual := to_char(current_date, 'YYYYMMDD');
 
+  -- Prevenir race condition en generación de número de cuenta
+  PERFORM pg_advisory_xact_lock(hashtext('generar_numero_cuenta'));
+
   select coalesce(max(
     cast(substring(numero_cuenta from 10) as integer)
   ), 0) + 1

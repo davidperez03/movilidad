@@ -49,6 +49,7 @@ export const columnasTablaVencidos: ColumnDef<DatosReporteVencidos>[] = [
     accessorKey: 'ciudad',
     header: ({ column }) => <DataTableColumnHeader column={column} title="Organismo" />,
     cell: ({ row }) => <div className="max-w-[200px] truncate">{row.getValue('ciudad')}</div>,
+    meta: { className: 'hidden lg:table-cell' },
   },
   {
     accessorKey: 'fecha_vencimiento',
@@ -69,6 +70,7 @@ export const columnasTablaVencidos: ColumnDef<DatosReporteVencidos>[] = [
     accessorKey: 'responsable',
     header: ({ column }) => <DataTableColumnHeader column={column} title="Responsable" />,
     cell: ({ row }) => <div className="max-w-[150px] truncate">{row.getValue('responsable')}</div>,
+    meta: { className: 'hidden md:table-cell' },
   },
   {
     id: 'acciones',

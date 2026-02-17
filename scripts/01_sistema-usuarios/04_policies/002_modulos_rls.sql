@@ -20,7 +20,7 @@ CREATE POLICY "Solo superadmins pueden modificar módulos"
 DROP POLICY IF EXISTS "Todos pueden ver roles disponibles" ON public.roles_modulo;
 CREATE POLICY "Todos pueden ver roles disponibles"
   ON public.roles_modulo FOR SELECT
-  USING (true);
+  USING (auth.uid() IS NOT NULL);
 
 DROP POLICY IF EXISTS "Solo superadmins pueden modificar roles" ON public.roles_modulo;
 CREATE POLICY "Solo superadmins pueden modificar roles"

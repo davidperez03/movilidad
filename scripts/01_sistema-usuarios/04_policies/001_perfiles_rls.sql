@@ -3,7 +3,7 @@ ALTER TABLE public.perfiles ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Los usuarios pueden ver todos los perfiles" ON public.perfiles;
 CREATE POLICY "Los usuarios pueden ver todos los perfiles"
   ON public.perfiles FOR SELECT
-  USING (true);
+  USING (auth.uid() IS NOT NULL);
 
 DROP POLICY IF EXISTS "Los usuarios pueden actualizar su propio perfil" ON public.perfiles;
 CREATE POLICY "Los usuarios pueden actualizar su propio perfil"
