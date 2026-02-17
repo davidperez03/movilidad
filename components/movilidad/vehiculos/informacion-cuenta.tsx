@@ -18,7 +18,7 @@ export function InformacionCuenta({ cuenta }: InformacionCuentaProps) {
         <CardTitle>Información de la Cuenta</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
           <div>
             <p className="text-sm text-muted-foreground">Creado por</p>
             <p className="font-medium">{cuenta.creador?.nombre_completo}</p>

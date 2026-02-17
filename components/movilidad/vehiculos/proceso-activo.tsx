@@ -128,7 +128,7 @@ export function ProcesoActivo({ proceso, novedades, placa }: ProcesoActivoProps)
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="grid gap-4 md:grid-cols-4">
+        <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
           <div>
             <p className="text-sm text-muted-foreground">
               {proceso.proceso_tipo === "traslado" ? "Destino" : "Origen"}
@@ -193,7 +193,7 @@ export function ProcesoActivo({ proceso, novedades, placa }: ProcesoActivoProps)
         </div>
 
         {/* Información de auditoría */}
-        <div className="grid gap-4 md:grid-cols-3 text-sm">
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-3 text-sm">
           <div>
             <p className="text-xs text-muted-foreground">Creado por</p>
             <p className="font-medium">{proceso.creador?.nombre_completo || 'Sin información'}</p>
@@ -222,7 +222,7 @@ export function ProcesoActivo({ proceso, novedades, placa }: ProcesoActivoProps)
         {/* Datos de transporte - Solo para traslados en estado enviado_organismo */}
         {proceso.proceso_tipo === "traslado" && proceso.proceso_estado === "enviado_organismo" && (
           <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="text-sm font-medium text-blue-900 mb-1">Información de Transporte</p>
                 <div className="text-sm text-blue-700 space-y-1">
@@ -249,7 +249,7 @@ export function ProcesoActivo({ proceso, novedades, placa }: ProcesoActivoProps)
         {/* Datos de devolución - Solo para radicaciones en envío de devolución */}
         {proceso.proceso_tipo === "radicacion" && proceso.proceso_estado === "enviado_devolucion" && (
           <div className="p-3 bg-red-50 border border-red-200 rounded-md">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="text-sm font-medium text-red-900 mb-1">Información de Envío de Devolución</p>
                 <div className="text-sm text-red-700 space-y-1">
@@ -324,7 +324,7 @@ export function ProcesoActivo({ proceso, novedades, placa }: ProcesoActivoProps)
         )}
 
         {/* Acciones del proceso */}
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <CambiarEstado
             procesoId={proceso.proceso_id}
             procesoTipo={proceso.proceso_tipo as "traslado" | "radicacion"}
@@ -379,15 +379,15 @@ export function ProcesoActivo({ proceso, novedades, placa }: ProcesoActivoProps)
                       <p className="text-sm text-green-900">{novedad.solucion}</p>
                     </div>
                   )}
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs text-muted-foreground">
                       <span>Creado por: {novedad.creador?.nombre_completo}</span>
                       <span>
                         {formatDateShort(novedad.creado_en)}
                       </span>
                       {novedad.estado === "resuelta" && (
                         <>
-                          <span>•</span>
+                          <span className="hidden sm:inline">•</span>
                           <span>Resuelto por: {novedad.resolutor?.nombre_completo}</span>
                         </>
                       )}

@@ -164,7 +164,7 @@ function LoginForm() {
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-primary">
               <Car className="h-8 w-8 text-primary-foreground" />
             </div>
-            <h2 className="mt-6 text-3xl font-bold tracking-tight">
+            <h2 className="mt-6 text-2xl sm:text-3xl font-bold tracking-tight">
               Movilidad
             </h2>
           </div>

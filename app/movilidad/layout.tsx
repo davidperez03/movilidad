@@ -83,7 +83,7 @@ export default async function MovilidadLayout({
 
       {/* Header mejorado */}
       <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60" role="banner">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-3 sm:px-4">
           {/* Top bar */}
           <div className="flex h-16 items-center justify-between">
             <div className="flex items-center gap-3">
@@ -145,7 +145,7 @@ export default async function MovilidadLayout({
       </header>
 
       {/* Contenido */}
-      <main id="main-content" className="container mx-auto px-4 py-8" role="main">
+      <main id="main-content" className="container mx-auto px-3 sm:px-4 py-6 sm:py-8" role="main">
         {children}
       </main>
     </div>

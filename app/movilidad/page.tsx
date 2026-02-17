@@ -161,7 +161,7 @@ export default async function MovilidadDashboard() {
       </div>
 
       {/* Quick Actions - Mismo orden que nav */}
-      <div className="grid gap-3 grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
+      <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
         <Link href="/movilidad/estado" className="group">
           <Card className="transition-all hover:shadow-md hover:border-cyan-300">
             <CardContent className="p-4 flex items-center gap-3">

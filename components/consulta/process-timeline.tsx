@@ -57,7 +57,7 @@ export function ProcessTimeline({ tipo, estadoActual, className }: ProcessTimeli
                 <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
                   <Circle className="w-4 h-4 text-gray-400" />
                 </div>
-                <span className="text-xs text-gray-400 mt-1.5 text-center max-w-[60px]">
+                <span className="text-xs text-gray-400 mt-1.5 text-center max-w-[48px] sm:max-w-[60px]">
                   {step.label}
                 </span>
               </div>
@@ -118,7 +118,7 @@ export function ProcessTimeline({ tipo, estadoActual, className }: ProcessTimeli
 
                 {/* Label del paso */}
                 <span className={cn(
-                  "text-xs mt-1.5 text-center max-w-[70px] font-medium",
+                  "text-xs mt-1.5 text-center max-w-[48px] sm:max-w-[70px] font-medium",
                   isPast && "text-green-600 dark:text-green-400",
                   isCurrent && "text-blue-600 dark:text-blue-400",
                   isFuture && "text-gray-400"

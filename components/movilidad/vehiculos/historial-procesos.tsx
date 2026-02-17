@@ -12,7 +12,7 @@ interface HistorialProcesosProps {
 
 export function HistorialProcesos({ traslados, radicaciones, placa }: HistorialProcesosProps) {
   return (
-    <div className="grid gap-4 md:grid-cols-2">
+    <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
       {/* Traslados */}
       <Card>
         <CardHeader>

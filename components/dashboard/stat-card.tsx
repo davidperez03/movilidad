@@ -87,9 +87,9 @@ export function StatCard({
         <div className={cn("rounded-lg p-2", colors.bg)}>
           <Icon className={cn("h-4 w-4", colors.icon)} />
         </div>
-        <div className="flex items-baseline gap-2">
-          <span className={cn("text-2xl font-bold", colors.value)}>{value}</span>
-          <span className="text-sm text-muted-foreground">{title}</span>
+        <div className="flex items-baseline gap-2 min-w-0">
+          <span className={cn("text-xl sm:text-2xl font-bold", colors.value)}>{value}</span>
+          <span className="text-xs sm:text-sm text-muted-foreground truncate">{title}</span>
         </div>
       </CardContent>
     </Card>

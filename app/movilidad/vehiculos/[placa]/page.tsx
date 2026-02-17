@@ -50,7 +50,7 @@ export default async function DetalleVehiculoPage({
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-4">
           <Button asChild variant="ghost" size="sm">
             <Link href="/movilidad/cuentas">
@@ -59,8 +59,8 @@ export default async function DetalleVehiculoPage({
             </Link>
           </Button>
           <div>
-            <h1 className="text-3xl font-bold flex items-center gap-2">
-              <Car className="h-8 w-8" />
+            <h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-2">
+              <Car className="h-6 w-6 sm:h-8 sm:w-8" />
               <span className="font-plate">{cuenta.placa}</span>
             </h1>
             <p className="text-muted-foreground">
@@ -68,7 +68,7 @@ export default async function DetalleVehiculoPage({
             </p>
           </div>
         </div>
-        <Badge variant="outline" className="text-lg py-2 px-4">
+        <Badge variant="outline" className="text-sm sm:text-lg py-1 sm:py-2 px-3 sm:px-4 w-fit">
           {cuenta.tipo_servicio === "particular" && "Particular"}
           {cuenta.tipo_servicio === "publico" && "Público"}
           {cuenta.tipo_servicio === "otro" && "Otro"}
