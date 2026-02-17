@@ -39,8 +39,22 @@ export async function POST(req: Request) {
 
     const item = Array.isArray(data) ? data[0] : data
     if (!item) {
+      // Verificar si la placa existe pero no tiene procesos
+      const { data: cuenta } = await supabase
+        .from("mov_cuentas_vehiculos")
+        .select("placa")
+        .eq("placa", parsed.data.placa)
+        .maybeSingle()
+
+      if (cuenta) {
+        return NextResponse.json(
+          { error: "El vehículo está registrado pero no tiene trámites en curso ni completados" },
+          { status: 404 }
+        )
+      }
+
       return NextResponse.json(
-        { error: "No se encontró ningún vehículo con esa placa" },
+        { error: "No se encontró ningún vehículo con la placa " + parsed.data.placa },
         { status: 404 }
       )
     }
