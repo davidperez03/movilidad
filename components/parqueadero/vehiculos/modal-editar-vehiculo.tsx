@@ -97,7 +97,7 @@ export function ModalEditarVehiculo({ vehiculo, onCerrar }: ModalEditarVehiculoP
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid gap-3 grid-cols-2">
+          <div className="grid gap-3 grid-cols-1 sm:grid-cols-2">
             <div className="space-y-1">
               <Label htmlFor="placa" className="text-xs">Placa *</Label>
               <Input
@@ -128,7 +128,7 @@ export function ModalEditarVehiculo({ vehiculo, onCerrar }: ModalEditarVehiculoP
             </div>
           </div>
 
-          <div className="grid gap-3 grid-cols-2">
+          <div className="grid gap-3 grid-cols-1 sm:grid-cols-2">
             <div className="space-y-1">
               <Label htmlFor="marca" className="text-xs">Marca</Label>
               <Input
@@ -159,7 +159,7 @@ export function ModalEditarVehiculo({ vehiculo, onCerrar }: ModalEditarVehiculoP
             />
           </div>
 
-          <div className="grid gap-3 grid-cols-2">
+          <div className="grid gap-3 grid-cols-1 sm:grid-cols-2">
             <div className="space-y-1">
               <Label htmlFor="soat_vencimiento" className="text-xs">Venc. SOAT</Label>
               <Input
