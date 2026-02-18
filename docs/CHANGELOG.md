@@ -5,6 +5,14 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.8.1] - 2026-02-18
+
+### Fixed
+- **Auth**: al presionar "atrás" desde el dashboard, el login ahora detecta la sesión activa
+  y redirige automáticamente al módulo correcto con `router.replace()` (elimina `/auth/login` del historial)
+
+---
+
 ## [1.8.0] - 2026-02-18
 
 ### Added

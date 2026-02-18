@@ -34,10 +34,48 @@ function LoginForm() {
   const [password, setPassword] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const [checking, setChecking] = useState(true)
   const [timeoutMessage, setTimeoutMessage] = useState(false)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
   const router = useRouter()
   const searchParams = useSearchParams()
+
+  // Si ya hay sesión activa (ej: usuario presionó "atrás"), redirigir al dashboard
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (!session) {
+        setChecking(false)
+        return
+      }
+      if (session.user.user_metadata?.debe_cambiar_password) {
+        router.replace("/auth/cambiar-password")
+        return
+      }
+      const { data: profile } = await supabase
+        .from("perfiles")
+        .select("rol_global")
+        .eq("id", session.user.id)
+        .single()
+      if (profile?.rol_global === "superadmin") {
+        router.replace("/superadmin/dashboard")
+        return
+      }
+      const { data: roles } = await supabase
+        .from("usuarios_roles")
+        .select("modulo_id")
+        .eq("usuario_id", session.user.id)
+      if (roles?.some(r => r.modulo_id === "movilidad")) {
+        router.replace("/movilidad")
+        return
+      }
+      if (roles?.some(r => r.modulo_id === "parqueadero")) {
+        router.replace("/parqueadero")
+        return
+      }
+      router.replace("/sin-acceso")
+    })
+  }, [router])
 
   useEffect(() => {
     if (searchParams?.get("timeout") === "true") {
@@ -49,6 +87,14 @@ function LoginForm() {
       setTimeout(() => setSuccessMessage(null), 5000)
     }
   }, [searchParams])
+
+  if (checking) {
+    return (
+      <div className="min-h-screen w-full flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
+  }
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
