@@ -5,6 +5,19 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.8.0] - 2026-02-18
+
+### Added
+- **Responsive completo**: layouts corregidos para viewport móvil (< 640px) en 9 archivos
+  - Modales de vehículos parqueadero (`modal-nuevo-vehiculo`, `modal-editar-vehiculo`): grids de 2 columnas → 1 col en móvil
+  - Modal datos personal (`modal-datos-personal`): 4 grids de 2 columnas → 1 col en móvil
+  - Popovers de organismo (`combobox-organismos`) y empresa (`agregar-datos-transporte`): anchos fijos → `95vw` en móvil
+  - Dashboards movilidad y parqueadero: stat cards de 2 columnas → 1 col en móvil
+  - Modal detalles usuario: información básica 1 col en móvil
+  - Historial proceso dialog: datos del proceso 1 col en móvil
+
+---
+
 ## [1.7.1] - 2026-02-17
 
 ### Nota de Release
