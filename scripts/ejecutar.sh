@@ -9,13 +9,15 @@
 #   Lee automáticamente las credenciales desde .env.local
 #
 # USO:
-#   ./scripts/ejecutar.sh                         # Ejecuta TODAS las migraciones
+#   ./scripts/ejecutar.sh                         # Ejecuta TODAS las migraciones (setup)
+#   ./scripts/ejecutar.sh --migrations            # Ejecuta migraciones incrementales
 #   ./scripts/ejecutar.sh 03_modulo-parqueadero   # Ejecuta solo un módulo
 #   ./scripts/ejecutar.sh --clean                 # Limpia la BD (¡PELIGROSO!)
 #   ./scripts/ejecutar.sh --help                  # Muestra esta ayuda
 #
 # TAMBIÉN PUEDES USAR NPM:
-#   npm run db:migrate                # Ejecuta todas las migraciones
+#   npm run db:migrate                # Ejecuta todas las migraciones (setup)
+#   npm run db:migrate:incremental    # Ejecuta migraciones incrementales
 #   npm run db:migrate:parqueadero    # Ejecuta solo parqueadero
 #   npm run db:clean                  # Limpia la BD
 #
@@ -87,10 +89,11 @@ mostrar_ayuda() {
     echo "  ./scripts/ejecutar.sh [opción|módulo]"
     echo ""
     echo -e "${BLUE}OPCIONES:${NC}"
-    echo "  (sin argumentos)    Ejecuta TODAS las migraciones en orden"
-    echo "  --clean, --limpiar  Limpia la base de datos (requiere confirmación)"
-    echo "  --help, -h          Muestra esta ayuda"
-    echo "  --status            Muestra el estado de la conexión"
+    echo "  (sin argumentos)        Ejecuta TODAS las migraciones de setup en orden"
+    echo "  --migrations             Ejecuta migraciones incrementales (scripts/migrations/)"
+    echo "  --clean, --limpiar       Limpia la base de datos (requiere confirmación)"
+    echo "  --help, -h               Muestra esta ayuda"
+    echo "  --status                 Muestra el estado de la conexión"
     echo ""
     echo -e "${BLUE}MÓDULOS DISPONIBLES:${NC}"
     for dir in "$SCRIPTS_DIR"/[0-9]*/; do
@@ -247,6 +250,45 @@ case "$1" in
         ;;
     --status|--estado)
         mostrar_estado
+        ;;
+    --migrations|--migraciones)
+        # Ejecutar migraciones incrementales
+        MIGRATIONS_DIR="$SCRIPTS_DIR/migrations"
+        if [ ! -d "$MIGRATIONS_DIR" ]; then
+            echo -e "${RED}No existe la carpeta migrations/${NC}"
+            exit 1
+        fi
+
+        SQL_FILES=$(find "$MIGRATIONS_DIR" -maxdepth 1 -name "*.sql" -type f | sort)
+        if [ -z "$SQL_FILES" ]; then
+            echo -e "${YELLOW}No hay migraciones pendientes en migrations/${NC}"
+            exit 0
+        fi
+
+        echo -e "${GREEN}╔══════════════════════════════════════════════════════════════╗${NC}"
+        echo -e "${GREEN}║           Migraciones incrementales                         ║${NC}"
+        echo -e "${GREEN}╚══════════════════════════════════════════════════════════════╝${NC}"
+        echo ""
+        echo -e "${YELLOW}Archivos encontrados:${NC}"
+        for archivo in $SQL_FILES; do
+            echo -e "  $(basename "$archivo")"
+        done
+        echo ""
+        read -p "¿Ejecutar todas? (s/N): " confirmar
+        if [ "$confirmar" != "s" ] && [ "$confirmar" != "S" ]; then
+            echo -e "${YELLOW}Cancelado${NC}"
+            exit 0
+        fi
+
+        for archivo in $SQL_FILES; do
+            ejecutar_sql "$archivo"
+        done
+
+        # Hardening siempre al final
+        ejecutar_hardening
+
+        echo -e "${GREEN}✓ Migraciones incrementales completadas${NC}"
+        echo -e "${YELLOW}Recuerda actualizar scripts/migrations/APPLIED.md${NC}"
         ;;
     "")
         # Ejecutar todo en orden

@@ -3,7 +3,7 @@
 ## Antes de Empezar
 
 1. Lee la [Arquitectura del Sistema](./ARCHITECTURE.md)
-2. Familiarízate con el [proceso de versionado](../VERSIONING.md)
+2. Familiarízate con el [flujo Git y versionado](./GITFLOW.md)
 3. Configura tu entorno de desarrollo
 
 ## Configuración del Entorno
@@ -168,7 +168,7 @@ components/
 3. Incluir rollback si es posible
 
 ```sql
--- scripts/03_modulo-movilidad/010_nueva_tabla.sql
+-- scripts/02_modulo-movilidad/010_nueva_tabla.sql
 -- Descripción: Agregar tabla para X funcionalidad
 -- Autor: Tu nombre
 -- Fecha: 2025-01-21

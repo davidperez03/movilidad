@@ -8,6 +8,7 @@
     "lint": "eslint .",
     "start": "next start",
     "db:migrate": "./scripts/ejecutar.sh",
+    "db:migrate:incremental": "./scripts/ejecutar.sh --migrations",
     "db:migrate:parqueadero": "./scripts/ejecutar.sh 03_modulo-parqueadero",
     "db:clean": "./scripts/ejecutar.sh --clean"
   },
