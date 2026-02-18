@@ -189,7 +189,7 @@ export function ModalDetallesUsuario({ usuario, onCerrar }: ModalDetallesUsuario
             <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
               <User className="h-4 w-4" /> Información Básica
             </h3>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1">
                 <p className="text-sm text-muted-foreground flex items-center gap-1"><Mail className="h-3 w-3" /> Correo</p>
                 <p className="font-medium">{usuario.correo}</p>
