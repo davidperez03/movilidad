@@ -34,7 +34,9 @@ scripts/
 │   ├── 05_data/
 │   └── 06_views/
 │
-└── 99_vistas_finales/
+├── 99_hardening/           # Hardening de seguridad (RLS, vistas, funciones)
+├── 99_vistas_finales/
+└── one-time/               # Scripts de ejecución única (importar datos históricos)
 ```
 
 ## Ejecución

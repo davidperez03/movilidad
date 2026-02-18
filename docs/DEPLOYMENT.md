@@ -35,16 +35,26 @@ Las migraciones deben ejecutarse en orden desde el SQL Editor de Supabase.
 ```bash
 # Estructura de scripts
 scripts/
-├── 00_configuracion/       # Configuración inicial
+├── 00_configuracion/       # Configuración inicial (timezone)
 ├── 01_sistema-usuarios/    # Autenticación y permisos
-├── 02_modulo-movilidad/    # Módulo principal
+├── 02_modulo-movilidad/    # Módulo de movilidad
 │   ├── 01_tables/          # Tablas
 │   ├── 02_functions/       # Funciones
 │   ├── 03_triggers/        # Triggers
 │   ├── 04_policies/        # RLS
 │   ├── 05_data/            # Datos iniciales
+│   ├── 06_views/           # Vistas
+│   └── 99_utilities/       # Utilidades (limpiar datos)
+├── 03_modulo-parqueadero/  # Módulo de parqueadero (inspecciones)
+│   ├── 01_tables/          # Tablas
+│   ├── 02_functions/       # Funciones
+│   ├── 03_triggers/        # Triggers
+│   ├── 04_policies/        # RLS
+│   ├── 05_data/            # Datos iniciales y catálogo
 │   └── 06_views/           # Vistas
-└── 99_vistas_finales/      # Vistas consolidadas
+├── 99_hardening/           # Hardening de seguridad (RLS, vistas, funciones)
+├── 99_vistas_finales/      # Vistas consolidadas (auditoría)
+└── one-time/               # Scripts de ejecución única (importar datos históricos)
 ```
 
 **Orden de ejecución:** Ejecutar cada carpeta en orden numérico, y dentro de cada subcarpeta ejecutar los archivos en orden.

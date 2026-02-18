@@ -10,13 +10,21 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 ### Nota de Release
 Este release se realizó siguiendo un proceso simplificado debido a la urgencia de los cambios.
 
-### Fixed
-- **Responsive**: Mejoras en diseño responsive del formulario de inspecciones
-  - Botón "Guardar Inspección" ahora es responsive (se adapta a móvil)
-  - Botones de evaluación de items (bueno/regular/malo/no_aplica) más compactos en móvil
-  - Botones de resolución de novedades con texto corto en móvil
+#### Agregado
+- **Responsive completo para móviles** (12 archivos modificados)
+  - Headers responsivos con texto adaptativo y navegación compacta
+  - Grids adaptativos (`grid-cols-1 sm:grid-cols-2 lg:grid-cols-4`) en dashboards y reportes
+  - Padding responsive (`p-3 sm:p-6`) en contenedores principales
+  - Stat cards con layout compacto en pantallas pequeñas
+  - Timeline de consulta pública compacto en móvil
 
-### Changed
+#### Corregido
+- **Responsive inspecciones**: Botón "Guardar Inspección" adaptado a móvil
+- Botones de evaluación de items (bueno/regular/malo/no_aplica) más compactos en móvil
+- Botones de resolución de novedades con texto corto en móvil
+- **Lockfile**: Sincronización de `package-lock.json` con dependencias
+
+#### Cambiado
 - **Catálogo de Inspecciones**: Actualización de items
   - Eliminado item: `LIQUIDO DE FRENOS` (NIV_FRENOS)
   - Eliminado item: `RAMPAS DE ACCESO` (GRU_RAMPAS)
@@ -26,10 +34,22 @@ Este release se realizó siguiendo un proceso simplificado debido a la urgencia 
 
 ## [1.7.0] - 2026-02-17
 
-### Release Intermedia
+### Seguridad, Responsividad y UX de Consulta Pública
 
-Versión de base estable que precede a v1.7.1.
-Contiene todos los cambios de v1.6.0 más preparaciones para la versión 1.7.1.
+#### Seguridad
+- **Hardening completo de base de datos**
+  - Row-Level Security (RLS) reforzado en tablas críticas
+  - Vistas SQL con `security_invoker = true`
+  - Funciones SQL con `SET search_path = public`
+  - Optimización de consultas en vistas frecuentes
+
+#### Agregado
+- **UX de errores en consulta pública**: Mensajes visuales diferenciados por tipo de error (no encontrado, sin conexión, error del servidor)
+- **Tablas responsivas**: Responsividad completa en tablas de datos con scroll horizontal y columnas adaptativas
+- Meta tag `className` para compatibilidad de estilos en `<html>`
+
+#### Corregido
+- Mensajes de error genéricos en consulta pública reemplazados por mensajes específicos y amigables
 
 ---
 
@@ -516,6 +536,12 @@ sin_asignar → revisado → aprobado → enviado_organismo → trasladado
 - Exportación CSV/Excel/PDF
 - Filtros avanzados
 - Mejoras responsive en inspecciones
+
+### Fase 9: Seguridad y Responsividad (Febrero 2026)
+- Hardening de seguridad en BD (RLS, vistas, funciones)
+- Responsividad completa para móviles en tablas y páginas
+- UX mejorada en consulta pública con errores diferenciados
+- Proceso de release estandarizado con semver
 
 ---
 

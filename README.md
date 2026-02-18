@@ -1,6 +1,6 @@
 # Movilidad
 
-![Versión](https://img.shields.io/badge/versión-1.0.0-blue)
+![Versión](https://img.shields.io/badge/versión-1.7.1-blue)
 ![Next.js](https://img.shields.io/badge/Next.js-16.1.0-black)
 ![React](https://img.shields.io/badge/React-19-61DAFB)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6)
@@ -13,7 +13,9 @@ Sistema web integral para la gestión de procesos de movilidad vehicular, diseñ
 | Documento | Descripción |
 |-----------|-------------|
 | [CHANGELOG](./docs/CHANGELOG.md) | Historial de cambios y versiones |
-| [VERSIONING](./docs/VERSIONING.md) | Guía de versionado y GitFlow |
+| [Versiones](./docs/VERSIONING.md) | Historial de versiones |
+| [GitFlow](./docs/GITFLOW.md) | Flujo Git, versionado semántico y proceso de release |
+| [Migraciones](./docs/MIGRATIONS.md) | Guía de migraciones de base de datos |
 | [Arquitectura](./docs/ARCHITECTURE.md) | Arquitectura técnica del sistema |
 | [Despliegue](./docs/DEPLOYMENT.md) | Guía de despliegue |
 | [Contribución](./docs/CONTRIBUTING.md) | Guía para contribuidores |

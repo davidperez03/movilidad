@@ -11,15 +11,15 @@
 ### 1. Generar el SQL
 
 ```bash
-python3 scripts/migracion/generar_sql.py
+python3 scripts/one-time/generar_sql.py
 ```
 
-Lee las hojas **TRASLADOS** y **RADICADOS** de `data.xlsx` y genera `scripts/migracion/migracion_datos.sql`.
+Lee las hojas **TRASLADOS** y **RADICADOS** de `data.xlsx` y genera `scripts/one-time/migracion_datos.sql`.
 
 ### 2. Reemplazar el email del administrador
 
 ```bash
-sed -i "s/ADMIN@EJEMPLO.COM/admin@admin.com/g" scripts/migracion/migracion_datos.sql
+sed -i "s/ADMIN@EJEMPLO.COM/admin@admin.com/g" scripts/one-time/migracion_datos.sql
 ```
 
 El email debe existir en la columna `correo` de la tabla `perfiles`.
@@ -36,7 +36,7 @@ echo $SUPABASE_POSTGRES_URL_NON_POOLING
 ### 4. Ejecutar con psql
 
 ```bash
-psql "$SUPABASE_POSTGRES_URL_NON_POOLING" -f scripts/migracion/migracion_datos.sql
+psql "$SUPABASE_POSTGRES_URL_NON_POOLING" -f scripts/one-time/migracion_datos.sql
 ```
 
 ### 5. Verificar
