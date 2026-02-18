@@ -134,7 +134,7 @@ export function ModalDatosPersonal({ persona, onCerrar }: ModalDatosPersonalProp
           {requiereLicencia(persona.rol_codigo) ? (
             <div className="space-y-3">
               <h4 className="text-sm font-medium">Licencia de Conducción</h4>
-              <div className="grid gap-3 grid-cols-2">
+              <div className="grid gap-3 grid-cols-1 sm:grid-cols-2">
                 <div className="space-y-1">
                   <Label htmlFor="licencia_categoria" className="text-xs">Categoría</Label>
                   <Select
@@ -164,7 +164,7 @@ export function ModalDatosPersonal({ persona, onCerrar }: ModalDatosPersonalProp
                   />
                 </div>
               </div>
-              <div className="grid gap-3 grid-cols-2">
+              <div className="grid gap-3 grid-cols-1 sm:grid-cols-2">
                 <div className="space-y-1">
                   <Label htmlFor="licencia_numero" className="text-xs">Número</Label>
                   <Input
@@ -194,7 +194,7 @@ export function ModalDatosPersonal({ persona, onCerrar }: ModalDatosPersonalProp
 
           <div className="space-y-3">
             <h4 className="text-sm font-medium">Documento</h4>
-            <div className="grid gap-3 grid-cols-2">
+            <div className="grid gap-3 grid-cols-1 sm:grid-cols-2">
               <div className="space-y-1">
                 <Label htmlFor="documento_tipo" className="text-xs">Tipo</Label>
                 <Select
@@ -236,7 +236,7 @@ export function ModalDatosPersonal({ persona, onCerrar }: ModalDatosPersonalProp
                 onChange={(e) => setFormData({ ...formData, telefono: e.target.value })}
               />
             </div>
-            <div className="grid gap-3 grid-cols-2">
+            <div className="grid gap-3 grid-cols-1 sm:grid-cols-2">
               <div className="space-y-1">
                 <Label htmlFor="contacto_emergencia" className="text-xs">Contacto emergencia</Label>
                 <Input
