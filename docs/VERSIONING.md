@@ -214,6 +214,7 @@ git push origin develop
 
 | Versión | Fecha | Descripción |
 |---------|-------|-------------|
+| 1.8.1 | 2026-02-18 | Fix: login redirige al dashboard si hay sesión activa (botón atrás) |
 | 1.8.0 | 2026-02-18 | Feat: responsive completo en modales, popovers y dashboards (9 archivos) |
 | 1.7.1 | 2026-02-17 | Fix: responsive inspecciones, actualización catálogo items, lockfile sync |
 | 1.7.0 | 2026-02-17 | Feat: hardening BD, UX errores consulta, tablas responsivas, mensajes error |
