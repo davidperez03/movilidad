@@ -214,6 +214,9 @@ git push origin develop
 
 | Versión | Fecha | Descripción |
 |---------|-------|-------------|
+| 1.8.0 | 2026-02-18 | Feat: responsive completo en modales, popovers y dashboards (9 archivos) |
+| 1.7.1 | 2026-02-17 | Fix: responsive inspecciones, actualización catálogo items, lockfile sync |
+| 1.7.0 | 2026-02-17 | Feat: hardening BD, UX errores consulta, tablas responsivas, mensajes error |
 | 1.6.0 | 2026-02-17 | Feat: reportes vencidos, radicaciones, mejoras parqueadero y humanización UI |
 | 1.5.0 | 2026-02-11 | Feat: tipografía profesional (Plus Jakarta Sans, JetBrains Mono, Share Tech Mono) |
 | 1.4.4 | 2026-02-10 | Fix: permisos modulares, licencias admins, capitalización parqueadero |
