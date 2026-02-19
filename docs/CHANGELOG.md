@@ -5,6 +5,16 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.8.2] - 2026-02-19
+
+### Seguridad
+- Reemplaza dependencia `xlsx` (licencia comercial de pago a partir de v0.18) por `exceljs` (MIT)
+
+### Agregado
+- Agrega archivo `LICENSE` — EULA propietario bajo legislación colombiana e internacional
+
+---
+
 ## [1.8.1] - 2026-02-18
 
 ### Fixed
