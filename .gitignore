@@ -3,12 +3,18 @@
 # dependencies
 /node_modules
 
+# lockfile — el proyecto usa pnpm, ignorar lockfiles de otros gestores
+package-lock.json
+yarn.lock
+
 # next.js
 /.next/
 /out/
 
 # production
 /build
+
+.claude
 
 # debug
 npm-debug.log*

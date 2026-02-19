@@ -1,29 +1,45 @@
 import { View, Text } from '@react-pdf/renderer'
 import { basePdfStyles } from './base-pdf-styles'
 
+interface MetadataItem {
+  label: string
+  value: string | number
+}
+
 interface PdfHeaderProps {
   titulo: string
   subtitulo: string
-  metadata?: {
-    label: string
-    value: string | number
-  }[]
+  badge?: string
+  metadata?: MetadataItem[]
 }
 
-export function PdfHeader({ titulo, subtitulo, metadata }: PdfHeaderProps) {
+export function PdfHeader({ titulo, subtitulo, badge, metadata }: PdfHeaderProps) {
   return (
     <>
-      <View style={basePdfStyles.header}>
-        <Text style={basePdfStyles.title}>{titulo}</Text>
-        <Text style={basePdfStyles.subtitle}>{subtitulo}</Text>
+      {/* Barra de encabezado con fondo oscuro */}
+      <View style={basePdfStyles.headerBar}>
+        <View style={basePdfStyles.headerBarLeft}>
+          <Text style={basePdfStyles.headerTitle}>{titulo}</Text>
+          <Text style={basePdfStyles.headerSubtitle}>{subtitulo}</Text>
+        </View>
+        {badge && (
+          <View style={basePdfStyles.headerBadge}>
+            <Text style={basePdfStyles.headerBadgeText}>{badge}</Text>
+          </View>
+        )}
       </View>
 
+      {/* Barra de metadatos */}
       {metadata && metadata.length > 0 && (
-        <View style={basePdfStyles.metadata}>
+        <View style={basePdfStyles.metadataBar}>
           {metadata.map((item, index) => (
-            <Text key={index}>
-              {item.label}: {item.value}
-            </Text>
+            <View
+              key={index}
+              style={index === metadata.length - 1 ? basePdfStyles.metadataItemLast : basePdfStyles.metadataItem}
+            >
+              <Text style={basePdfStyles.metadataLabel}>{item.label.toUpperCase()}</Text>
+              <Text style={basePdfStyles.metadataValue}>{item.value}</Text>
+            </View>
           ))}
         </View>
       )}

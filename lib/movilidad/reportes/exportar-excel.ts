@@ -26,6 +26,22 @@ interface DatosAuditoria {
 }
 
 // =====================================================
+// PALETA DE COLORES
+// =====================================================
+const COLOR = {
+  headerBg: 'FF1E3A5F',   // Azul marino — fondo cabecera
+  headerFg: 'FFFFFFFF',   // Blanco — texto cabecera
+  resumenBg: 'FF1E40AF',  // Azul profundo — título hoja resumen
+  resumenFg: 'FFFFFFFF',  // Blanco — texto título resumen
+  sectionFg: 'FF1E3A5F',  // Azul marino — texto sección
+  altRow: 'FFF8FAFC',     // Gris muy suave — filas alternas
+  border: 'FFE2E8F0',     // Gris claro — bordes
+  vencidoFg: 'FFDC2626',  // Rojo — texto vencido
+  urgenteFg: 'FFEA580C',  // Naranja — texto urgente
+  labelFg: 'FF64748B',    // Gris — texto etiqueta resumen
+} as const
+
+// =====================================================
 // FUNCIÓN PRINCIPAL
 // =====================================================
 
@@ -41,8 +57,10 @@ export async function generarExcelReporte(
   }
 
   const wb = new ExcelJS.Workbook()
+  wb.creator = 'Sistema de Movilidad'
+  wb.created = new Date()
+  wb.modified = new Date()
 
-  // Generar hoja de datos según tipo de reporte
   switch (tipoReporte) {
     case 'activos':
       generarHojaActivos(wb, datos as unknown as DatosReporteActivos[])
@@ -63,10 +81,8 @@ export async function generarExcelReporte(
       throw new Error(`Tipo de reporte no soportado: ${tipoReporte}`)
   }
 
-  // Generar hoja de resumen
   generarHojaResumen(wb, tipoReporte, filtros, datos.length)
 
-  // Descargar archivo en el navegador
   const buffer = await wb.xlsx.writeBuffer()
   const blob = new Blob([buffer], {
     type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -86,15 +102,15 @@ export async function generarExcelReporte(
 function generarHojaActivos(wb: ExcelJS.Workbook, datos: DatosReporteActivos[]): void {
   const ws = wb.addWorksheet('Datos')
   ws.columns = [
-    { header: 'Placa', key: 'placa', width: 10 },
-    { header: 'N° Cuenta', key: 'numero_cuenta', width: 15 },
-    { header: 'Tipo Servicio', key: 'tipo_servicio', width: 15 },
-    { header: 'Tipo Proceso', key: 'proceso_tipo', width: 15 },
-    { header: 'Estado', key: 'proceso_estado', width: 20 },
-    { header: 'Organismo', key: 'ciudad', width: 30 },
-    { header: 'Fecha Trámite', key: 'fecha_tramite', width: 15 },
-    { header: 'Fecha Vencimiento', key: 'fecha_vencimiento', width: 18 },
-    { header: 'Días Restantes', key: 'dias_restantes', width: 15 },
+    { header: 'Placa', key: 'placa', width: 12 },
+    { header: 'N° Cuenta', key: 'numero_cuenta', width: 16 },
+    { header: 'Tipo Servicio', key: 'tipo_servicio', width: 16 },
+    { header: 'Tipo Proceso', key: 'proceso_tipo', width: 16 },
+    { header: 'Estado', key: 'proceso_estado', width: 22 },
+    { header: 'Organismo', key: 'ciudad', width: 32 },
+    { header: 'Fecha Trámite', key: 'fecha_tramite', width: 16 },
+    { header: 'Fecha Vencimiento', key: 'fecha_vencimiento', width: 20 },
+    { header: 'Días Restantes', key: 'dias_restantes', width: 16 },
   ]
   ws.addRows(
     datos.map((d) => ({
@@ -109,20 +125,21 @@ function generarHojaActivos(wb: ExcelJS.Workbook, datos: DatosReporteActivos[]):
       dias_restantes: d.dias_restantes !== null ? d.dias_restantes : '',
     }))
   )
+  aplicarEstilosHoja(ws)
 }
 
 function generarHojaCompletados(wb: ExcelJS.Workbook, datos: DatosReporteCompletados[]): void {
   const ws = wb.addWorksheet('Datos')
   ws.columns = [
-    { header: 'Placa', key: 'placa', width: 10 },
-    { header: 'N° Cuenta', key: 'numero_cuenta', width: 15 },
-    { header: 'Tipo Servicio', key: 'tipo_servicio', width: 15 },
-    { header: 'Tipo Proceso', key: 'proceso_tipo', width: 15 },
-    { header: 'Estado Final', key: 'estado', width: 15 },
-    { header: 'Organismo', key: 'organismo', width: 30 },
-    { header: 'Fecha Completado', key: 'fecha_completado', width: 18 },
-    { header: 'Duración (días)', key: 'duracion_dias', width: 15 },
-    { header: 'Responsable', key: 'responsable', width: 25 },
+    { header: 'Placa', key: 'placa', width: 12 },
+    { header: 'N° Cuenta', key: 'numero_cuenta', width: 16 },
+    { header: 'Tipo Servicio', key: 'tipo_servicio', width: 16 },
+    { header: 'Tipo Proceso', key: 'proceso_tipo', width: 16 },
+    { header: 'Estado Final', key: 'estado', width: 16 },
+    { header: 'Organismo', key: 'organismo', width: 32 },
+    { header: 'Fecha Completado', key: 'fecha_completado', width: 20 },
+    { header: 'Duración (días)', key: 'duracion_dias', width: 16 },
+    { header: 'Responsable', key: 'responsable', width: 28 },
   ]
   ws.addRows(
     datos.map((d) => ({
@@ -137,20 +154,21 @@ function generarHojaCompletados(wb: ExcelJS.Workbook, datos: DatosReporteComplet
       responsable: d.responsable,
     }))
   )
+  aplicarEstilosHoja(ws)
 }
 
 function generarHojaPorVencer(wb: ExcelJS.Workbook, datos: DatosReportePorVencer[]): void {
   const ws = wb.addWorksheet('Datos')
   ws.columns = [
-    { header: 'Placa', key: 'placa', width: 10 },
-    { header: 'N° Cuenta', key: 'numero_cuenta', width: 15 },
-    { header: 'Tipo Proceso', key: 'proceso_tipo', width: 15 },
-    { header: 'Estado', key: 'estado', width: 20 },
-    { header: 'Organismo', key: 'ciudad', width: 30 },
-    { header: 'Fecha Vencimiento', key: 'fecha_vencimiento', width: 18 },
-    { header: 'Días Restantes', key: 'dias_restantes', width: 15 },
-    { header: 'Urgencia', key: 'urgencia', width: 12 },
-    { header: 'Responsable', key: 'responsable', width: 25 },
+    { header: 'Placa', key: 'placa', width: 12 },
+    { header: 'N° Cuenta', key: 'numero_cuenta', width: 16 },
+    { header: 'Tipo Proceso', key: 'proceso_tipo', width: 16 },
+    { header: 'Estado', key: 'estado', width: 22 },
+    { header: 'Organismo', key: 'ciudad', width: 32 },
+    { header: 'Fecha Vencimiento', key: 'fecha_vencimiento', width: 20 },
+    { header: 'Días Restantes', key: 'dias_restantes', width: 16 },
+    { header: 'Urgencia', key: 'urgencia', width: 14 },
+    { header: 'Responsable', key: 'responsable', width: 28 },
   ]
   ws.addRows(
     datos.map((d) => ({
@@ -165,19 +183,30 @@ function generarHojaPorVencer(wb: ExcelJS.Workbook, datos: DatosReportePorVencer
       responsable: d.responsable,
     }))
   )
+  aplicarEstilosHoja(ws)
+
+  // Resaltar filas urgentes
+  ws.eachRow((row, rowNumber) => {
+    if (rowNumber <= 1) return
+    const dias = row.getCell('dias_restantes').value
+    if (typeof dias === 'number') {
+      if (dias <= 0) aplicarColorFila(row, 'FFFEF2F2', COLOR.vencidoFg)
+      else if (dias <= 5) aplicarColorFila(row, 'FFFFF7ED', COLOR.urgenteFg)
+    }
+  })
 }
 
 function generarHojaAuditoria(wb: ExcelJS.Workbook, datos: DatosAuditoria[]): void {
   const ws = wb.addWorksheet('Datos')
   ws.columns = [
-    { header: 'Fecha/Hora', key: 'creado_en', width: 18 },
-    { header: 'Módulo', key: 'modulo', width: 12 },
-    { header: 'Acción', key: 'accion', width: 20 },
-    { header: 'Entidad', key: 'entidad_tipo', width: 15 },
-    { header: 'Usuario', key: 'usuario_nombre', width: 25 },
-    { header: 'Correo', key: 'usuario_correo', width: 30 },
-    { header: 'Estado Anterior', key: 'valor_anterior', width: 18 },
-    { header: 'Estado Nuevo', key: 'valor_nuevo', width: 18 },
+    { header: 'Fecha/Hora', key: 'creado_en', width: 20 },
+    { header: 'Módulo', key: 'modulo', width: 14 },
+    { header: 'Acción', key: 'accion', width: 22 },
+    { header: 'Entidad', key: 'entidad_tipo', width: 16 },
+    { header: 'Usuario', key: 'usuario_nombre', width: 28 },
+    { header: 'Correo', key: 'usuario_correo', width: 32 },
+    { header: 'Estado Anterior', key: 'valor_anterior', width: 20 },
+    { header: 'Estado Nuevo', key: 'valor_nuevo', width: 20 },
   ]
   ws.addRows(
     datos.map((d) => ({
@@ -191,20 +220,21 @@ function generarHojaAuditoria(wb: ExcelJS.Workbook, datos: DatosAuditoria[]): vo
       valor_nuevo: d.valor_nuevo || '',
     }))
   )
+  aplicarEstilosHoja(ws)
 }
 
 function generarHojaVencidos(wb: ExcelJS.Workbook, datos: DatosReporteVencidos[]): void {
   const ws = wb.addWorksheet('Datos')
   ws.columns = [
-    { header: 'Placa', key: 'placa', width: 10 },
-    { header: 'N° Cuenta', key: 'numero_cuenta', width: 15 },
-    { header: 'Tipo Proceso', key: 'proceso_tipo', width: 15 },
-    { header: 'Estado', key: 'estado', width: 20 },
-    { header: 'Organismo', key: 'ciudad', width: 30 },
-    { header: 'Fecha Vencimiento', key: 'fecha_vencimiento', width: 18 },
-    { header: 'Días Restantes', key: 'dias_restantes', width: 15 },
-    { header: 'Días Vencidos', key: 'dias_vencidos', width: 15 },
-    { header: 'Responsable', key: 'responsable', width: 25 },
+    { header: 'Placa', key: 'placa', width: 12 },
+    { header: 'N° Cuenta', key: 'numero_cuenta', width: 16 },
+    { header: 'Tipo Proceso', key: 'proceso_tipo', width: 16 },
+    { header: 'Estado', key: 'estado', width: 22 },
+    { header: 'Organismo', key: 'ciudad', width: 32 },
+    { header: 'Fecha Vencimiento', key: 'fecha_vencimiento', width: 20 },
+    { header: 'Días Restantes', key: 'dias_restantes', width: 16 },
+    { header: 'Días Vencidos', key: 'dias_vencidos', width: 16 },
+    { header: 'Responsable', key: 'responsable', width: 28 },
   ]
   ws.addRows(
     datos.map((d) => ({
@@ -219,6 +249,13 @@ function generarHojaVencidos(wb: ExcelJS.Workbook, datos: DatosReporteVencidos[]
       responsable: d.responsable,
     }))
   )
+  aplicarEstilosHoja(ws)
+
+  // Todas las filas en rojo tenue
+  ws.eachRow((row, rowNumber) => {
+    if (rowNumber <= 1) return
+    aplicarColorFila(row, 'FFFEF2F2', COLOR.vencidoFg)
+  })
 }
 
 // =====================================================
@@ -232,29 +269,131 @@ function generarHojaResumen(
   totalRegistros: number
 ): void {
   const ws = wb.addWorksheet('Resumen')
+  ws.getColumn(1).width = 28
+  ws.getColumn(2).width = 44
+
   const ahora = new Date()
   const fechaGeneracion = `${ahora.getDate()}/${ahora.getMonth() + 1}/${ahora.getFullYear()} ${ahora.getHours()}:${String(ahora.getMinutes()).padStart(2, '0')}`
 
-  const filas = [
-    ['REPORTE DE MOVILIDAD'],
-    [''],
-    ['Tipo de Reporte:', obtenerTituloReporte(tipoReporte)],
-    ['Fecha de Generación:', fechaGeneracion],
-    ['Total de Registros:', totalRegistros],
-    [''],
-    ['FILTROS APLICADOS:'],
-    ['Fecha Inicio:', filtros.fechaInicio || 'Todos'],
-    ['Fecha Fin:', filtros.fechaFin || 'Todos'],
-    ['Estado:', filtros.estado === 'todos' ? 'Todos' : filtros.estado],
-    ['Organismo:', filtros.organismoId === 'todos' ? 'Todos' : filtros.organismoId],
-    ['Tipo de Proceso:', filtros.tipoProceso === 'todos' ? 'Todos' : filtros.tipoProceso],
-    ['Responsable:', filtros.responsable === 'todos' ? 'Todos' : filtros.responsable],
-  ]
+  // Título principal
+  const tituloRow = ws.addRow(['REPORTE DE MOVILIDAD', ''])
+  ws.mergeCells(`A${tituloRow.number}:B${tituloRow.number}`)
+  tituloRow.height = 28
+  tituloRow.getCell(1).style = {
+    fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR.resumenBg } },
+    font: { bold: true, color: { argb: COLOR.resumenFg }, size: 13 },
+    alignment: { vertical: 'middle', horizontal: 'center' },
+  }
 
-  filas.forEach((fila) => ws.addRow(fila))
+  ws.addRow([''])
 
-  ws.getColumn(1).width = 25
-  ws.getColumn(2).width = 40
+  // Datos generales
+  agregarFilaResumen(ws, 'Tipo de Reporte', obtenerTituloReporte(tipoReporte), true)
+  agregarFilaResumen(ws, 'Fecha de Generación', fechaGeneracion, false, true)
+  agregarFilaResumen(ws, 'Total de Registros', totalRegistros.toString(), true)
+
+  ws.addRow([''])
+
+  // Sección filtros
+  const filtrosTituloRow = ws.addRow(['FILTROS APLICADOS', ''])
+  ws.mergeCells(`A${filtrosTituloRow.number}:B${filtrosTituloRow.number}`)
+  filtrosTituloRow.height = 18
+  filtrosTituloRow.getCell(1).style = {
+    fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFBFDBFE' } },
+    font: { bold: true, color: { argb: COLOR.sectionFg }, size: 9 },
+    alignment: { vertical: 'middle', horizontal: 'left' },
+    border: bordesDelgados(),
+  }
+
+  agregarFilaResumen(ws, 'Fecha Inicio', filtros.fechaInicio || 'Todos')
+  agregarFilaResumen(ws, 'Fecha Fin', filtros.fechaFin || 'Todos', false, true)
+  agregarFilaResumen(ws, 'Estado', filtros.estado === 'todos' ? 'Todos' : filtros.estado)
+  agregarFilaResumen(ws, 'Organismo', filtros.organismoId === 'todos' ? 'Todos' : filtros.organismoId, false, true)
+  agregarFilaResumen(ws, 'Tipo de Proceso', filtros.tipoProceso === 'todos' ? 'Todos' : filtros.tipoProceso)
+  agregarFilaResumen(ws, 'Responsable', filtros.responsable === 'todos' ? 'Todos' : filtros.responsable, false, true)
+}
+
+// =====================================================
+// HELPERS DE ESTILO
+// =====================================================
+
+function aplicarEstilosHoja(ws: ExcelJS.Worksheet): void {
+  const totalColumnas = ws.columnCount
+
+  // Cabecera
+  const headerRow = ws.getRow(1)
+  headerRow.height = 24
+  headerRow.eachCell((cell) => {
+    cell.style = {
+      fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR.headerBg } },
+      font: { bold: true, color: { argb: COLOR.headerFg }, size: 9 },
+      alignment: { vertical: 'middle', horizontal: 'center', wrapText: true },
+      border: bordesDelgados(COLOR.headerBg),
+    }
+  })
+
+  // Autofilter y freeze
+  ws.autoFilter = { from: { row: 1, column: 1 }, to: { row: 1, column: totalColumnas } }
+  ws.views = [{ state: 'frozen', ySplit: 1 }]
+
+  // Filas de datos
+  ws.eachRow((row, rowNumber) => {
+    if (rowNumber <= 1) return
+    const isAlt = rowNumber % 2 === 0
+    row.height = 18
+    row.eachCell({ includeEmpty: true }, (cell) => {
+      cell.style = {
+        fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: isAlt ? COLOR.altRow : 'FFFFFFFF' } },
+        font: { size: 9, color: { argb: 'FF1E293B' } },
+        alignment: { vertical: 'middle' },
+        border: bordesDelgados(),
+      }
+    })
+  })
+}
+
+function aplicarColorFila(row: ExcelJS.Row, bgArgb: string, fgArgb: string): void {
+  row.eachCell({ includeEmpty: true }, (cell) => {
+    const fontActual = (cell.style.font as ExcelJS.Font) ?? {}
+    cell.style = {
+      ...cell.style,
+      fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: bgArgb } },
+      font: { ...fontActual, size: 9, color: { argb: fgArgb } },
+    }
+  })
+}
+
+function agregarFilaResumen(
+  ws: ExcelJS.Worksheet,
+  label: string,
+  value: string,
+  boldValue = false,
+  altBg = false
+): void {
+  const row = ws.addRow([label, value])
+  row.height = 17
+  const bg = altBg ? COLOR.altRow : 'FFFFFFFF'
+  row.getCell(1).style = {
+    fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: bg } },
+    font: { bold: true, size: 9, color: { argb: COLOR.labelFg } },
+    alignment: { vertical: 'middle' },
+    border: bordesDelgados(),
+  }
+  row.getCell(2).style = {
+    fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: bg } },
+    font: { bold: boldValue, size: 9, color: { argb: 'FF1E293B' } },
+    alignment: { vertical: 'middle' },
+    border: bordesDelgados(),
+  }
+}
+
+function bordesDelgados(colorArgb: string = COLOR.border): Partial<ExcelJS.Borders> {
+  return {
+    top: { style: 'hair', color: { argb: colorArgb } },
+    left: { style: 'hair', color: { argb: colorArgb } },
+    bottom: { style: 'hair', color: { argb: colorArgb } },
+    right: { style: 'hair', color: { argb: colorArgb } },
+  }
 }
 
 // =====================================================
@@ -263,13 +402,11 @@ function generarHojaResumen(
 
 function formatearFecha(fecha: string | null | undefined): string {
   if (!fecha) return ''
-
   try {
     const date = new Date(fecha)
     const dia = String(date.getDate()).padStart(2, '0')
     const mes = String(date.getMonth() + 1).padStart(2, '0')
-    const anio = date.getFullYear()
-    return `${dia}/${mes}/${anio}`
+    return `${dia}/${mes}/${date.getFullYear()}`
   } catch {
     return fecha
   }
@@ -277,15 +414,13 @@ function formatearFecha(fecha: string | null | undefined): string {
 
 function formatearFechaHora(fecha: string | null | undefined): string {
   if (!fecha) return ''
-
   try {
     const date = new Date(fecha)
     const dia = String(date.getDate()).padStart(2, '0')
     const mes = String(date.getMonth() + 1).padStart(2, '0')
-    const anio = date.getFullYear()
     const horas = String(date.getHours()).padStart(2, '0')
     const minutos = String(date.getMinutes()).padStart(2, '0')
-    return `${dia}/${mes}/${anio} ${horas}:${minutos}`
+    return `${dia}/${mes}/${date.getFullYear()} ${horas}:${minutos}`
   } catch {
     return fecha
   }
@@ -299,6 +434,5 @@ function obtenerTituloReporte(tipo: TipoReporte): string {
     vencidos: 'Procesos Vencidos',
     auditoria: 'Auditoría Completa',
   }
-
   return titulos[tipo]
 }
