@@ -10,13 +10,13 @@ interface DocumentoVencidosPDFProps {
 }
 
 const columnas = [
-  { texto: 'Placa', ancho: '12%' },
-  { texto: 'N° Cuenta', ancho: '14%' },
-  { texto: 'Tipo Proc.', ancho: '14%' },
-  { texto: 'Estado', ancho: '16%' },
-  { texto: 'Organismo', ancho: '22%' },
+  { texto: 'Placa', ancho: '11%' },
+  { texto: 'N° Cuenta', ancho: '13%' },
+  { texto: 'Tipo Proceso', ancho: '15%' },
+  { texto: 'Estado', ancho: '17%' },
+  { texto: 'Organismo', ancho: '21%' },
   { texto: 'F. Vencimiento', ancho: '12%' },
-  { texto: 'Días Venc.', ancho: '10%' },
+  { texto: 'Días Venc.', ancho: '11%' },
 ]
 
 export function DocumentoVencidosPDF({ datos }: DocumentoVencidosPDFProps) {
@@ -25,34 +25,47 @@ export function DocumentoVencidosPDF({ datos }: DocumentoVencidosPDFProps) {
       <Page size="A4" orientation="landscape" style={basePdfStyles.page}>
         <PdfHeader
           titulo="Reporte de Procesos Vencidos"
-          subtitulo="Procesos con fecha de vencimiento superada"
+          subtitulo="Procesos con Fecha de Vencimiento Superada"
+          badge="VENCIDOS"
           metadata={[
             { label: 'Fecha de generación', value: obtenerFechaGeneracion() },
             { label: 'Total de registros', value: datos.length },
+            { label: 'Sistema', value: 'Movilidad' },
           ]}
         />
 
-        <View style={basePdfStyles.table}>
-          <PdfTableHeader columnas={columnas} />
+        <View style={basePdfStyles.tableWrapper}>
+          <View style={basePdfStyles.table}>
+            <PdfTableHeader columnas={columnas} />
 
-          {datos.map((dato, index) => (
-            <View key={index} style={basePdfStyles.tableRow}>
-              <Text style={{ width: columnas[0].ancho }}>{dato.placa}</Text>
-              <Text style={{ width: columnas[1].ancho }}>{dato.numero_cuenta}</Text>
-              <Text style={{ width: columnas[2].ancho }}>{dato.proceso_tipo}</Text>
-              <Text style={{ width: columnas[3].ancho }}>{dato.estado}</Text>
-              <Text style={{ width: columnas[4].ancho }}>{dato.ciudad}</Text>
-              <Text style={{ width: columnas[5].ancho }}>{formatearFechaPDF(dato.fecha_vencimiento)}</Text>
-              <Text style={[{ width: columnas[6].ancho }, basePdfStyles.vencido]}>
-                {dato.dias_vencidos}
-              </Text>
-            </View>
-          ))}
+            {datos.map((dato, index) => (
+              <View
+                key={index}
+                style={[basePdfStyles.tableRow, basePdfStyles.tableRowVencido]}
+              >
+                <Text style={[basePdfStyles.tableCellBold, { width: columnas[0].ancho }]}>{dato.placa}</Text>
+                <Text style={[basePdfStyles.tableCell, { width: columnas[1].ancho }]}>{dato.numero_cuenta}</Text>
+                <Text style={[basePdfStyles.tableCell, { width: columnas[2].ancho }]}>{dato.proceso_tipo}</Text>
+                <Text style={[basePdfStyles.tableCell, { width: columnas[3].ancho }]}>{dato.estado}</Text>
+                <Text style={[basePdfStyles.tableCell, { width: columnas[4].ancho }]}>{dato.ciudad}</Text>
+                <Text style={[basePdfStyles.tableCell, { width: columnas[5].ancho }]}>
+                  {formatearFechaPDF(dato.fecha_vencimiento)}
+                </Text>
+                <Text style={[basePdfStyles.tableCellVencido, { width: columnas[6].ancho }]}>
+                  {dato.dias_vencidos} días
+                </Text>
+              </View>
+            ))}
+          </View>
         </View>
 
-        <Text style={basePdfStyles.footer}>
-          Reporte generado por Movilidad - Página 1 de 1
-        </Text>
+        <Text
+          style={basePdfStyles.footer}
+          render={({ pageNumber, totalPages }) =>
+            `Sistema de Movilidad  ·  Página ${pageNumber} de ${totalPages}`
+          }
+          fixed
+        />
       </Page>
     </Document>
   )

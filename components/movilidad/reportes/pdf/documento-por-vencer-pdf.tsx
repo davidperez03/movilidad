@@ -16,11 +16,11 @@ interface DocumentoPorVencerPDFProps {
 const columnas = [
   { texto: 'Placa', ancho: '12%' },
   { texto: 'N° Cuenta', ancho: '14%' },
-  { texto: 'Tipo Proc.', ancho: '14%' },
-  { texto: 'Estado', ancho: '16%' },
+  { texto: 'Tipo Proceso', ancho: '15%' },
+  { texto: 'Estado', ancho: '17%' },
   { texto: 'Organismo', ancho: '22%' },
   { texto: 'F. Vencimiento', ancho: '12%' },
-  { texto: 'Días Rest.', ancho: '10%' },
+  { texto: 'Días Rest.', ancho: '8%' },
 ]
 
 export function DocumentoPorVencerPDF({ datos }: DocumentoPorVencerPDFProps) {
@@ -30,46 +30,63 @@ export function DocumentoPorVencerPDF({ datos }: DocumentoPorVencerPDFProps) {
         <PdfHeader
           titulo="Reporte de Procesos por Vencer"
           subtitulo="Alertas de Vencimientos Próximos"
+          badge="POR VENCER"
           metadata={[
             { label: 'Fecha de generación', value: obtenerFechaGeneracion() },
             { label: 'Total de registros', value: datos.length },
+            { label: 'Sistema', value: 'Movilidad' },
           ]}
         />
 
-        {/* Tabla */}
-        <View style={basePdfStyles.table}>
-          <PdfTableHeader columnas={columnas} />
+        <View style={basePdfStyles.tableWrapper}>
+          <View style={basePdfStyles.table}>
+            <PdfTableHeader columnas={columnas} />
 
-          {/* Filas de datos */}
-          {datos.map((d, index) => {
-            const nivelUrgencia = obtenerNivelUrgenciaPorVencer(d.dias_restantes)
-            const estiloUrgencia =
-              nivelUrgencia === 'vencido'
-                ? basePdfStyles.vencido
-                : nivelUrgencia === 'vence_hoy' || nivelUrgencia === 'alta'
-                  ? basePdfStyles.urgente
-                  : {}
+            {datos.map((d, index) => {
+              const nivel = obtenerNivelUrgenciaPorVencer(d.dias_restantes)
+              const esVencido = nivel === 'vencido'
+              const esUrgente = nivel === 'vence_hoy' || nivel === 'alta'
 
-            return (
-              <View key={index} style={basePdfStyles.tableRow}>
-                <Text style={{ width: columnas[0].ancho }}>{d.placa}</Text>
-                <Text style={{ width: columnas[1].ancho }}>{d.numero_cuenta}</Text>
-                <Text style={{ width: columnas[2].ancho }}>{d.proceso_tipo}</Text>
-                <Text style={{ width: columnas[3].ancho }}>{d.estado}</Text>
-                <Text style={{ width: columnas[4].ancho }}>{d.ciudad}</Text>
-                <Text style={{ width: columnas[5].ancho }}>{formatearFechaPDF(d.fecha_vencimiento)}</Text>
-                <Text style={[{ width: columnas[6].ancho }, estiloUrgencia]}>
-                  {formatearUrgenciaPorVencer(d.dias_restantes)}
-                </Text>
-              </View>
-            )
-          })}
+              const rowStyle = esVencido
+                ? basePdfStyles.tableRowVencido
+                : esUrgente
+                  ? basePdfStyles.tableRowUrgente
+                  : index % 2 === 1
+                    ? basePdfStyles.tableRowAlternate
+                    : {}
+
+              const diasStyle = esVencido
+                ? basePdfStyles.tableCellVencido
+                : esUrgente
+                  ? basePdfStyles.tableCellUrgente
+                  : basePdfStyles.tableCellBold
+
+              return (
+                <View key={index} style={[basePdfStyles.tableRow, rowStyle]}>
+                  <Text style={[basePdfStyles.tableCellBold, { width: columnas[0].ancho }]}>{d.placa}</Text>
+                  <Text style={[basePdfStyles.tableCell, { width: columnas[1].ancho }]}>{d.numero_cuenta}</Text>
+                  <Text style={[basePdfStyles.tableCell, { width: columnas[2].ancho }]}>{d.proceso_tipo}</Text>
+                  <Text style={[basePdfStyles.tableCell, { width: columnas[3].ancho }]}>{d.estado}</Text>
+                  <Text style={[basePdfStyles.tableCell, { width: columnas[4].ancho }]}>{d.ciudad}</Text>
+                  <Text style={[basePdfStyles.tableCell, { width: columnas[5].ancho }]}>
+                    {formatearFechaPDF(d.fecha_vencimiento)}
+                  </Text>
+                  <Text style={[diasStyle, { width: columnas[6].ancho }]}>
+                    {formatearUrgenciaPorVencer(d.dias_restantes)}
+                  </Text>
+                </View>
+              )
+            })}
+          </View>
         </View>
 
-        {/* Footer */}
-        <Text style={basePdfStyles.footer}>
-          Reporte generado por Movilidad - Página 1 de 1
-        </Text>
+        <Text
+          style={basePdfStyles.footer}
+          render={({ pageNumber, totalPages }) =>
+            `Sistema de Movilidad  ·  Página ${pageNumber} de ${totalPages}`
+          }
+          fixed
+        />
       </Page>
     </Document>
   )
