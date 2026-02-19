@@ -5,6 +5,18 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.8.3] - 2026-02-19
+
+### Cambiado
+- Rediseño profesional de plantillas Excel: cabecera azul marino, autofilter, freeze row, filas alternas, bordes, hoja Resumen estilizada, colores de urgencia (vencidos/por vencer)
+- Rediseño profesional de plantillas PDF: barra de encabezado con badge, metadatos en columnas, tabla con cabecera azul, filas alternas, footer con número de página real, colores de urgencia por fila
+
+### Corregido
+- `.gitignore`: ignorar `package-lock.json` y `yarn.lock` (proyecto usa pnpm)
+- `pnpm-lock.yaml`: sincronizado tras reemplazo de `xlsx` por `exceljs`
+
+---
+
 ## [1.8.2] - 2026-02-19
 
 ### Seguridad
