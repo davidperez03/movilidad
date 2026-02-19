@@ -6,6 +6,10 @@ Para el proceso de release y reglas de versionamiento semántico ver [GITFLOW.md
 
 | Versión | Fecha | Descripción |
 |---------|-------|-------------|
+| 1.8.7 | 2026-02-19 | Chore: eliminar package-lock.json del repo (proyecto usa pnpm) |
+| 1.8.6 | 2026-02-19 | Fix: márgenes superiores y laterales en PDF de inspecciones preoperacionales |
+| 1.8.5 | 2026-02-19 | Fix: oscurecer texto opaco en títulos y labels del PDF de inspecciones |
+| 1.8.4 | 2026-02-19 | Fix: layout DataTable responsivo, PDF inspecciones sin cortes de sección |
 | 1.8.3 | 2026-02-19 | Rediseño profesional plantillas Excel y PDF, fix pnpm-lock.yaml y .gitignore |
 | 1.8.2 | 2026-02-19 | Fix: reemplazar xlsx (licencia comercial) por exceljs (MIT), agregar LICENSE |
 | 1.8.1 | 2026-02-18 | Fix: login redirige al dashboard si hay sesión activa (botón atrás) |

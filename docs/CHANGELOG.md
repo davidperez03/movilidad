@@ -5,6 +5,43 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.8.7] - 2026-02-19
+
+### Mantenimiento
+
+#### Eliminado
+- `package-lock.json` del repositorio (el proyecto usa pnpm exclusivamente; solo `pnpm-lock.yaml` es el lockfile oficial)
+
+---
+
+## [1.8.6] - 2026-02-19
+
+### Corregido
+
+#### Corregido
+- PDF de inspecciones preoperacionales: se agrega margen superior de 36pt y márgenes laterales a la página; la barra de encabezado se muestra con bordes redondeados dentro de los márgenes
+
+---
+
+## [1.8.5] - 2026-02-19
+
+### Corregido
+
+#### Corregido
+- PDF de inspecciones preoperacionales: texto de títulos de sección, labels de campos, cabeceras de tabla y celdas de observaciones demasiado pálidos — colores oscurecidos a valores legibles (`#111827`, `#4b5563`, `#1f2937`)
+
+---
+
+## [1.8.4] - 2026-02-19
+
+### Corregido
+
+#### Corregido
+- `DataTable`: cambiar `tableLayout` default de `fixed` a `auto`, reducir ancho de última columna de 190px a 80px, aumentar min-width a 700px — mejora distribución de columnas en pantallas normales y responsivas
+- PDF de inspecciones preoperacionales: encabezado simplificado a "Inspecciones Preoperacionales" (eliminado subtítulo "Control de Flota · Sistema de Parqueadero"); `wrap={false}` en todas las secciones para evitar cortes de contenido entre páginas
+
+---
+
 ## [1.8.3] - 2026-02-19
 
 ### Cambiado
