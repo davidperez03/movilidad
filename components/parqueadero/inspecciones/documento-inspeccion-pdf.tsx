@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 8,
     fontFamily: "Helvetica-Bold",
-    color: "#374151",
+    color: "#111827",
     marginBottom: 8,
     paddingBottom: 4,
     borderBottom: "0.5 solid #d1d5db",
@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
   },
   infoLabel: {
     fontSize: 7,
-    color: "#9ca3af",
+    color: "#4b5563",
     marginBottom: 1,
   },
   infoValue: {
@@ -127,7 +127,7 @@ const styles = StyleSheet.create({
   },
   docLabel: {
     fontSize: 7,
-    color: "#9ca3af",
+    color: "#4b5563",
     marginBottom: 2,
   },
   docValue: {
@@ -164,7 +164,7 @@ const styles = StyleSheet.create({
   },
   resumenLabel: {
     fontSize: 7,
-    color: "#9ca3af",
+    color: "#4b5563",
   },
 
   // ─── Novedades ────────────────────────────────────────
@@ -210,7 +210,7 @@ const styles = StyleSheet.create({
   tableHeaderText: {
     fontSize: 7,
     fontFamily: "Helvetica-Bold",
-    color: "#374151",
+    color: "#111827",
   },
   tableRow: {
     flexDirection: "row",
@@ -226,11 +226,11 @@ const styles = StyleSheet.create({
   },
   tableCell: {
     fontSize: 8,
-    color: "#374151",
+    color: "#1f2937",
   },
   colItem:   { flex: 3 },
   colEstado: { width: 55, textAlign: "center" },
-  colObs:    { flex: 2, color: "#6b7280" },
+  colObs:    { flex: 2, color: "#4b5563" },
 
   // ─── Categoría ────────────────────────────────────────
   categoriaHeader: {
@@ -240,8 +240,8 @@ const styles = StyleSheet.create({
     marginTop: 8,
     fontSize: 8,
     fontFamily: "Helvetica-Bold",
-    color: "#374151",
-    borderLeft: "2 solid #d1d5db",
+    color: "#111827",
+    borderLeft: "2 solid #9ca3af",
   },
 
   // ─── Observaciones ────────────────────────────────────
@@ -251,14 +251,14 @@ const styles = StyleSheet.create({
     borderRadius: 3,
     border: "0.5 solid #e5e7eb",
     fontSize: 8,
-    color: "#374151",
+    color: "#1f2937",
   },
 
   // ─── Firmas ───────────────────────────────────────────
   firmasTitulo: {
     fontSize: 8,
     fontFamily: "Helvetica-Bold",
-    color: "#374151",
+    color: "#111827",
     textAlign: "center",
     marginBottom: 14,
   },
@@ -289,7 +289,7 @@ const styles = StyleSheet.create({
   },
   firmaLabel: {
     fontSize: 7,
-    color: "#9ca3af",
+    color: "#4b5563",
     textAlign: "center",
   },
 
@@ -340,7 +340,7 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: 7,
-    color: "#9ca3af",
+    color: "#6b7280",
   },
 })
 
