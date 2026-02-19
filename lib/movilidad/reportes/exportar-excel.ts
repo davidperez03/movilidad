@@ -1,9 +1,9 @@
 // =====================================================
 // EXPORTACIÓN A EXCEL
-// Función para generar archivos Excel (.xlsx) usando xlsx
+// Función para generar archivos Excel (.xlsx) usando exceljs
 // =====================================================
 
-import * as XLSX from 'xlsx'
+import ExcelJS from 'exceljs'
 import type {
   TipoReporte,
   FiltrosReporte,
@@ -30,204 +30,195 @@ interface DatosAuditoria {
 // =====================================================
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function generarExcelReporte(
+export async function generarExcelReporte(
   datos: any[],
   tipoReporte: TipoReporte,
   filtros: FiltrosReporte,
   nombreArchivo: string
-): void {
+): Promise<void> {
   if (!datos || datos.length === 0) {
     throw new Error('No hay datos para exportar')
   }
 
-  // Crear workbook
-  const wb = XLSX.utils.book_new()
+  const wb = new ExcelJS.Workbook()
 
   // Generar hoja de datos según tipo de reporte
-  let wsDatos: XLSX.WorkSheet
-
   switch (tipoReporte) {
     case 'activos':
-      wsDatos = generarHojaActivos(datos as unknown as DatosReporteActivos[])
+      generarHojaActivos(wb, datos as unknown as DatosReporteActivos[])
       break
     case 'completados':
-      wsDatos = generarHojaCompletados(datos as unknown as DatosReporteCompletados[])
+      generarHojaCompletados(wb, datos as unknown as DatosReporteCompletados[])
       break
     case 'por-vencer':
-      wsDatos = generarHojaPorVencer(datos as unknown as DatosReportePorVencer[])
+      generarHojaPorVencer(wb, datos as unknown as DatosReportePorVencer[])
       break
     case 'vencidos':
-      wsDatos = generarHojaVencidos(datos as unknown as DatosReporteVencidos[])
+      generarHojaVencidos(wb, datos as unknown as DatosReporteVencidos[])
       break
     case 'auditoria':
-      wsDatos = generarHojaAuditoria(datos as unknown as DatosAuditoria[])
+      generarHojaAuditoria(wb, datos as unknown as DatosAuditoria[])
       break
     default:
       throw new Error(`Tipo de reporte no soportado: ${tipoReporte}`)
   }
 
-  // Agregar hoja de datos
-  XLSX.utils.book_append_sheet(wb, wsDatos, 'Datos')
-
   // Generar hoja de resumen
-  const wsResumen = generarHojaResumen(tipoReporte, filtros, datos.length)
-  XLSX.utils.book_append_sheet(wb, wsResumen, 'Resumen')
+  generarHojaResumen(wb, tipoReporte, filtros, datos.length)
 
-  // Descargar archivo
-  XLSX.writeFile(wb, `${nombreArchivo}.xlsx`)
+  // Descargar archivo en el navegador
+  const buffer = await wb.xlsx.writeBuffer()
+  const blob = new Blob([buffer], {
+    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = `${nombreArchivo}.xlsx`
+  link.click()
+  URL.revokeObjectURL(url)
 }
 
 // =====================================================
 // HOJAS DE DATOS POR TIPO DE REPORTE
 // =====================================================
 
-function generarHojaActivos(datos: DatosReporteActivos[]): XLSX.WorkSheet {
-  const datosFormateados = datos.map((d) => ({
-    Placa: d.placa,
-    'N° Cuenta': d.numero_cuenta,
-    'Tipo Servicio': d.tipo_servicio,
-    'Tipo Proceso': d.proceso_tipo,
-    Estado: d.proceso_estado,
-    Organismo: d.ciudad,
-    'Fecha Trámite': formatearFecha(d.fecha_tramite),
-    'Fecha Vencimiento': formatearFecha(d.fecha_vencimiento),
-    'Días Restantes': d.dias_restantes !== null ? d.dias_restantes : '',
-  }))
-
-  const ws = XLSX.utils.json_to_sheet(datosFormateados)
-
-  // Ajustar anchos de columna
-  ws['!cols'] = [
-    { wch: 10 }, // Placa
-    { wch: 15 }, // N° Cuenta
-    { wch: 15 }, // Tipo Servicio
-    { wch: 15 }, // Tipo Proceso
-    { wch: 20 }, // Estado
-    { wch: 30 }, // Organismo
-    { wch: 15 }, // Fecha Trámite
-    { wch: 18 }, // Fecha Vencimiento
-    { wch: 15 }, // Días Restantes
+function generarHojaActivos(wb: ExcelJS.Workbook, datos: DatosReporteActivos[]): void {
+  const ws = wb.addWorksheet('Datos')
+  ws.columns = [
+    { header: 'Placa', key: 'placa', width: 10 },
+    { header: 'N° Cuenta', key: 'numero_cuenta', width: 15 },
+    { header: 'Tipo Servicio', key: 'tipo_servicio', width: 15 },
+    { header: 'Tipo Proceso', key: 'proceso_tipo', width: 15 },
+    { header: 'Estado', key: 'proceso_estado', width: 20 },
+    { header: 'Organismo', key: 'ciudad', width: 30 },
+    { header: 'Fecha Trámite', key: 'fecha_tramite', width: 15 },
+    { header: 'Fecha Vencimiento', key: 'fecha_vencimiento', width: 18 },
+    { header: 'Días Restantes', key: 'dias_restantes', width: 15 },
   ]
-
-  return ws
+  ws.addRows(
+    datos.map((d) => ({
+      placa: d.placa,
+      numero_cuenta: d.numero_cuenta,
+      tipo_servicio: d.tipo_servicio,
+      proceso_tipo: d.proceso_tipo,
+      proceso_estado: d.proceso_estado,
+      ciudad: d.ciudad,
+      fecha_tramite: formatearFecha(d.fecha_tramite),
+      fecha_vencimiento: formatearFecha(d.fecha_vencimiento),
+      dias_restantes: d.dias_restantes !== null ? d.dias_restantes : '',
+    }))
+  )
 }
 
-function generarHojaCompletados(datos: DatosReporteCompletados[]): XLSX.WorkSheet {
-  const datosFormateados = datos.map((d) => ({
-    Placa: d.placa,
-    'N° Cuenta': d.numero_cuenta,
-    'Tipo Servicio': d.tipo_servicio,
-    'Tipo Proceso': d.proceso_tipo,
-    'Estado Final': d.estado,
-    Organismo: d.organismo,
-    'Fecha Completado': formatearFecha(d.fecha_completado),
-    'Duración (días)': d.duracion_dias,
-    Responsable: d.responsable,
-  }))
-
-  const ws = XLSX.utils.json_to_sheet(datosFormateados)
-
-  ws['!cols'] = [
-    { wch: 10 },
-    { wch: 15 },
-    { wch: 15 },
-    { wch: 15 },
-    { wch: 15 },
-    { wch: 30 },
-    { wch: 18 },
-    { wch: 15 },
-    { wch: 25 },
+function generarHojaCompletados(wb: ExcelJS.Workbook, datos: DatosReporteCompletados[]): void {
+  const ws = wb.addWorksheet('Datos')
+  ws.columns = [
+    { header: 'Placa', key: 'placa', width: 10 },
+    { header: 'N° Cuenta', key: 'numero_cuenta', width: 15 },
+    { header: 'Tipo Servicio', key: 'tipo_servicio', width: 15 },
+    { header: 'Tipo Proceso', key: 'proceso_tipo', width: 15 },
+    { header: 'Estado Final', key: 'estado', width: 15 },
+    { header: 'Organismo', key: 'organismo', width: 30 },
+    { header: 'Fecha Completado', key: 'fecha_completado', width: 18 },
+    { header: 'Duración (días)', key: 'duracion_dias', width: 15 },
+    { header: 'Responsable', key: 'responsable', width: 25 },
   ]
-
-  return ws
+  ws.addRows(
+    datos.map((d) => ({
+      placa: d.placa,
+      numero_cuenta: d.numero_cuenta,
+      tipo_servicio: d.tipo_servicio,
+      proceso_tipo: d.proceso_tipo,
+      estado: d.estado,
+      organismo: d.organismo,
+      fecha_completado: formatearFecha(d.fecha_completado),
+      duracion_dias: d.duracion_dias,
+      responsable: d.responsable,
+    }))
+  )
 }
 
-function generarHojaPorVencer(datos: DatosReportePorVencer[]): XLSX.WorkSheet {
-  const datosFormateados = datos.map((d) => ({
-    Placa: d.placa,
-    'N° Cuenta': d.numero_cuenta,
-    'Tipo Proceso': d.proceso_tipo,
-    Estado: d.estado,
-    Organismo: d.ciudad,
-    'Fecha Vencimiento': formatearFecha(d.fecha_vencimiento),
-    'Días Restantes': d.dias_restantes,
-    Urgencia: obtenerEtiquetaUrgenciaPorVencer(d.dias_restantes),
-    Responsable: d.responsable,
-  }))
-
-  const ws = XLSX.utils.json_to_sheet(datosFormateados)
-
-  ws['!cols'] = [
-    { wch: 10 },
-    { wch: 15 },
-    { wch: 15 },
-    { wch: 20 },
-    { wch: 30 },
-    { wch: 18 },
-    { wch: 15 },
-    { wch: 12 },
-    { wch: 25 },
+function generarHojaPorVencer(wb: ExcelJS.Workbook, datos: DatosReportePorVencer[]): void {
+  const ws = wb.addWorksheet('Datos')
+  ws.columns = [
+    { header: 'Placa', key: 'placa', width: 10 },
+    { header: 'N° Cuenta', key: 'numero_cuenta', width: 15 },
+    { header: 'Tipo Proceso', key: 'proceso_tipo', width: 15 },
+    { header: 'Estado', key: 'estado', width: 20 },
+    { header: 'Organismo', key: 'ciudad', width: 30 },
+    { header: 'Fecha Vencimiento', key: 'fecha_vencimiento', width: 18 },
+    { header: 'Días Restantes', key: 'dias_restantes', width: 15 },
+    { header: 'Urgencia', key: 'urgencia', width: 12 },
+    { header: 'Responsable', key: 'responsable', width: 25 },
   ]
-
-  return ws
+  ws.addRows(
+    datos.map((d) => ({
+      placa: d.placa,
+      numero_cuenta: d.numero_cuenta,
+      proceso_tipo: d.proceso_tipo,
+      estado: d.estado,
+      ciudad: d.ciudad,
+      fecha_vencimiento: formatearFecha(d.fecha_vencimiento),
+      dias_restantes: d.dias_restantes,
+      urgencia: obtenerEtiquetaUrgenciaPorVencer(d.dias_restantes),
+      responsable: d.responsable,
+    }))
+  )
 }
 
-function generarHojaAuditoria(datos: DatosAuditoria[]): XLSX.WorkSheet {
-  const datosFormateados = datos.map((d) => ({
-    'Fecha/Hora': formatearFechaHora(d.creado_en),
-    Módulo: d.modulo,
-    Acción: d.accion,
-    Entidad: d.entidad_tipo,
-    Usuario: d.usuario_nombre,
-    Correo: d.usuario_correo,
-    'Estado Anterior': d.valor_anterior || '',
-    'Estado Nuevo': d.valor_nuevo || '',
-  }))
-
-  const ws = XLSX.utils.json_to_sheet(datosFormateados)
-
-  ws['!cols'] = [
-    { wch: 18 },
-    { wch: 12 },
-    { wch: 20 },
-    { wch: 15 },
-    { wch: 25 },
-    { wch: 30 },
-    { wch: 18 },
-    { wch: 18 },
+function generarHojaAuditoria(wb: ExcelJS.Workbook, datos: DatosAuditoria[]): void {
+  const ws = wb.addWorksheet('Datos')
+  ws.columns = [
+    { header: 'Fecha/Hora', key: 'creado_en', width: 18 },
+    { header: 'Módulo', key: 'modulo', width: 12 },
+    { header: 'Acción', key: 'accion', width: 20 },
+    { header: 'Entidad', key: 'entidad_tipo', width: 15 },
+    { header: 'Usuario', key: 'usuario_nombre', width: 25 },
+    { header: 'Correo', key: 'usuario_correo', width: 30 },
+    { header: 'Estado Anterior', key: 'valor_anterior', width: 18 },
+    { header: 'Estado Nuevo', key: 'valor_nuevo', width: 18 },
   ]
-
-  return ws
+  ws.addRows(
+    datos.map((d) => ({
+      creado_en: formatearFechaHora(d.creado_en),
+      modulo: d.modulo,
+      accion: d.accion,
+      entidad_tipo: d.entidad_tipo,
+      usuario_nombre: d.usuario_nombre,
+      usuario_correo: d.usuario_correo,
+      valor_anterior: d.valor_anterior || '',
+      valor_nuevo: d.valor_nuevo || '',
+    }))
+  )
 }
 
-function generarHojaVencidos(datos: DatosReporteVencidos[]): XLSX.WorkSheet {
-  const datosFormateados = datos.map((d) => ({
-    Placa: d.placa,
-    'N° Cuenta': d.numero_cuenta,
-    'Tipo Proceso': d.proceso_tipo,
-    Estado: d.estado,
-    Organismo: d.ciudad,
-    'Fecha Vencimiento': formatearFecha(d.fecha_vencimiento),
-    'Días Restantes': d.dias_restantes,
-    'Días Vencidos': d.dias_vencidos,
-    Responsable: d.responsable,
-  }))
-
-  const ws = XLSX.utils.json_to_sheet(datosFormateados)
-
-  ws['!cols'] = [
-    { wch: 10 },
-    { wch: 15 },
-    { wch: 15 },
-    { wch: 20 },
-    { wch: 30 },
-    { wch: 18 },
-    { wch: 15 },
-    { wch: 15 },
-    { wch: 25 },
+function generarHojaVencidos(wb: ExcelJS.Workbook, datos: DatosReporteVencidos[]): void {
+  const ws = wb.addWorksheet('Datos')
+  ws.columns = [
+    { header: 'Placa', key: 'placa', width: 10 },
+    { header: 'N° Cuenta', key: 'numero_cuenta', width: 15 },
+    { header: 'Tipo Proceso', key: 'proceso_tipo', width: 15 },
+    { header: 'Estado', key: 'estado', width: 20 },
+    { header: 'Organismo', key: 'ciudad', width: 30 },
+    { header: 'Fecha Vencimiento', key: 'fecha_vencimiento', width: 18 },
+    { header: 'Días Restantes', key: 'dias_restantes', width: 15 },
+    { header: 'Días Vencidos', key: 'dias_vencidos', width: 15 },
+    { header: 'Responsable', key: 'responsable', width: 25 },
   ]
-
-  return ws
+  ws.addRows(
+    datos.map((d) => ({
+      placa: d.placa,
+      numero_cuenta: d.numero_cuenta,
+      proceso_tipo: d.proceso_tipo,
+      estado: d.estado,
+      ciudad: d.ciudad,
+      fecha_vencimiento: formatearFecha(d.fecha_vencimiento),
+      dias_restantes: d.dias_restantes,
+      dias_vencidos: d.dias_vencidos,
+      responsable: d.responsable,
+    }))
+  )
 }
 
 // =====================================================
@@ -235,14 +226,16 @@ function generarHojaVencidos(datos: DatosReporteVencidos[]): XLSX.WorkSheet {
 // =====================================================
 
 function generarHojaResumen(
+  wb: ExcelJS.Workbook,
   tipoReporte: TipoReporte,
   filtros: FiltrosReporte,
   totalRegistros: number
-): XLSX.WorkSheet {
+): void {
+  const ws = wb.addWorksheet('Resumen')
   const ahora = new Date()
   const fechaGeneracion = `${ahora.getDate()}/${ahora.getMonth() + 1}/${ahora.getFullYear()} ${ahora.getHours()}:${String(ahora.getMinutes()).padStart(2, '0')}`
 
-  const resumen = [
+  const filas = [
     ['REPORTE DE MOVILIDAD'],
     [''],
     ['Tipo de Reporte:', obtenerTituloReporte(tipoReporte)],
@@ -258,12 +251,10 @@ function generarHojaResumen(
     ['Responsable:', filtros.responsable === 'todos' ? 'Todos' : filtros.responsable],
   ]
 
-  const ws = XLSX.utils.aoa_to_sheet(resumen)
+  filas.forEach((fila) => ws.addRow(fila))
 
-  // Ajustar anchos
-  ws['!cols'] = [{ wch: 25 }, { wch: 40 }]
-
-  return ws
+  ws.getColumn(1).width = 25
+  ws.getColumn(2).width = 40
 }
 
 // =====================================================
