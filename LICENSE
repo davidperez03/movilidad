@@ -1,0 +1,208 @@
+ACUERDO DE LICENCIA DE SOFTWARE PROPIETARIO
+============================================
+Sistema de Movilidad
+
+Copyright © 2025–2026 David Fernando Perez Rodriguez.
+Todos los derechos reservados.
+
+Este Acuerdo de Licencia de Usuario Final ("Acuerdo") es un contrato legal entre
+usted (persona natural o jurídica) y David Fernando Perez Rodriguez ("el Titular")
+para el uso del software denominado Sistema de Movilidad, incluyendo su código
+fuente, binarios compilados, documentación técnica, interfaces de usuario, bases
+de datos, esquemas, activos visuales y cualquier material asociado
+(colectivamente, "el Software").
+
+AL ACCEDER, INSTALAR, COPIAR O UTILIZAR EL SOFTWARE, USTED ACEPTA QUEDAR
+OBLIGADO POR LOS TÉRMINOS DE ESTE ACUERDO. SI NO ESTÁ DE ACUERDO CON ESTOS
+TÉRMINOS, NO ACCEDA NI USE EL SOFTWARE.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ARTÍCULO 1 — CONCESIÓN DE LICENCIA
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Sujeto al cumplimiento de los términos de este Acuerdo, el Titular le otorga una
+licencia limitada, personal, no exclusiva, no sublicenciable e intransferible
+para usar el Software únicamente para los fines internos y operativos expresamente
+autorizados por escrito por el Titular. Ninguna disposición de este Acuerdo debe
+interpretarse como una transferencia de propiedad intelectual.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ARTÍCULO 2 — DERECHOS RESERVADOS Y RESTRICCIONES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Queda estrictamente prohibido, sin autorización previa, expresa y por escrito
+del Titular:
+
+  (a) Reproducir, copiar o duplicar el Software, total o parcialmente, por
+      cualquier medio o formato, ya sea digital, físico o de cualquier otra
+      naturaleza.
+
+  (b) Distribuir, publicar, sublicenciar, vender, arrendar, ceder, transferir
+      o de cualquier otra forma poner a disposición de terceros el Software o
+      cualquier derecho derivado del mismo.
+
+  (c) Modificar, adaptar, traducir, crear obras derivadas, fusionar o integrar
+      el Software con otros sistemas sin autorización expresa.
+
+  (d) Aplicar ingeniería inversa, descompilar, desensamblar o intentar derivar
+      el código fuente del Software o de cualquiera de sus componentes.
+
+  (e) Usar el Software para desarrollar, directa o indirectamente, productos,
+      servicios o sistemas que compitan con el Software o con los intereses
+      comerciales del Titular.
+
+  (f) Suprimir, alterar u ocultar cualquier aviso de derechos de autor, marca,
+      leyenda de confidencialidad u otro aviso de propiedad que figure en el
+      Software o en su documentación.
+
+  (g) Publicar o divulgar el Software, su código fuente o cualquier fragmento
+      del mismo en repositorios públicos, plataformas de terceros, foros,
+      comunidades en línea o cualquier canal de acceso público.
+
+  (h) Usar el Software en servicios de computación en la nube o entornos
+      compartidos sin autorización específica del Titular.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ARTÍCULO 3 — PROPIEDAD INTELECTUAL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+El Software y todas sus copias son propiedad exclusiva del Titular y están
+protegidos por la legislación colombiana e internacional sobre propiedad
+intelectual, incluyendo, entre otras:
+
+  · Ley 23 de 1982 — Derechos de autor en Colombia
+  · Ley 44 de 1993 — Modificación y adiciones a la Ley 23
+  · Decisión 351 de 1993 de la Comunidad Andina — Régimen común sobre
+    derechos de autor y derechos conexos
+  · Convenio de Berna para la Protección de las Obras Literarias y Artísticas
+  · Acuerdo sobre los Aspectos de los Derechos de Propiedad Intelectual
+    relacionados con el Comercio (ADPIC/TRIPS)
+
+Este Acuerdo no transfiere al usuario ningún título, derecho de propiedad ni
+interés sobre el Software, sus marcas, nombres comerciales ni ningún otro
+derecho de propiedad intelectual del Titular.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ARTÍCULO 4 — CONFIDENCIALIDAD
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+El Software, su código fuente, arquitectura, algoritmos, estructuras de datos
+y documentación técnica constituyen información confidencial y secreto empresarial
+del Titular en los términos del artículo 260 del Código de Comercio de Colombia
+y demás normas concordantes.
+
+El usuario se obliga a:
+
+  (a) Mantener la más estricta confidencialidad sobre el Software y su contenido.
+  (b) No divulgar información del Software a terceros sin consentimiento escrito
+      previo del Titular.
+  (c) Implementar medidas de seguridad razonables para prevenir el acceso no
+      autorizado al Software.
+  (d) Notificar al Titular de manera inmediata ante cualquier divulgación no
+      autorizada o sospecha de la misma.
+
+La obligación de confidencialidad subsistirá a la terminación de este Acuerdo
+por un período de cinco (5) años.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ARTÍCULO 5 — EXCLUSIÓN DE GARANTÍAS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+EL SOFTWARE SE PROPORCIONA "TAL CUAL" ("AS IS"), SIN GARANTÍA DE NINGÚN TIPO,
+EXPRESA, IMPLÍCITA O ESTATUTARIA, INCLUYENDO, SIN LIMITACIÓN, LAS GARANTÍAS
+IMPLÍCITAS DE COMERCIABILIDAD, IDONEIDAD PARA UN PROPÓSITO PARTICULAR,
+EXACTITUD, DISPONIBILIDAD Y NO INFRACCIÓN DE DERECHOS DE TERCEROS.
+
+El Titular no garantiza que:
+  · El Software opere de forma ininterrumpida o libre de errores.
+  · Los defectos identificados sean corregidos en un plazo determinado.
+  · El Software sea compatible con todos los entornos de hardware o software.
+  · Los resultados obtenidos mediante el uso del Software sean precisos o fiables.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ARTÍCULO 6 — LIMITACIÓN DE RESPONSABILIDAD
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+En ningún caso el Titular será responsable ante el usuario ni ante terceros por:
+
+  (a) Daños directos, indirectos, incidentales, especiales, punitivos o
+      consecuentes de cualquier naturaleza.
+  (b) Pérdida de beneficios, ingresos, datos, fondo de comercio u otras pérdidas
+      intangibles.
+  (c) Interrupción del negocio o de la actividad operativa.
+  (d) Costo de adquisición de productos o servicios sustitutos.
+
+Lo anterior aplica independientemente de la teoría legal invocada (contrato,
+responsabilidad extracontractual, negligencia u otra) y aunque el Titular haya
+sido advertido de la posibilidad de dichos daños.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ARTÍCULO 7 — VIGENCIA Y TERMINACIÓN
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Este Acuerdo entra en vigor en la fecha de primer acceso o uso del Software y
+permanece vigente hasta su terminación.
+
+El Titular podrá dar por terminado este Acuerdo de forma inmediata y sin previo
+aviso si el usuario incumple cualquiera de sus términos. Ante la terminación:
+
+  (a) Todos los derechos otorgados bajo este Acuerdo cesarán de inmediato.
+  (b) El usuario deberá cesar todo uso del Software.
+  (c) El usuario deberá destruir o devolver todas las copias del Software en
+      su posesión, en cualquier formato.
+  (d) Las obligaciones de confidencialidad (Artículo 4) y las limitaciones de
+      responsabilidad (Artículo 6) subsistirán a la terminación.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ARTÍCULO 8 — LEY APLICABLE Y JURISDICCIÓN
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Este Acuerdo se rige e interpreta exclusivamente de conformidad con las leyes
+de la República de Colombia, sin perjuicio de sus normas de conflicto de leyes.
+
+Cualquier controversia derivada de o relacionada con este Acuerdo que no pueda
+resolverse de manera amistosa entre las partes será sometida a la jurisdicción
+exclusiva de los jueces y tribunales competentes de la República de Colombia.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ARTÍCULO 9 — DISPOSICIONES GENERALES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  (a) Integralidad. Este Acuerdo constituye el acuerdo completo entre las partes
+      respecto al Software y reemplaza cualquier acuerdo, comunicación o
+      entendimiento previo, oral o escrito, relacionado con el mismo.
+
+  (b) Modificaciones. El Titular se reserva el derecho de modificar los términos
+      de este Acuerdo en cualquier momento. Las modificaciones serán efectivas
+      desde su publicación o notificación al usuario.
+
+  (c) Divisibilidad. Si alguna disposición de este Acuerdo fuera declarada nula,
+      inválida o inaplicable, dicha disposición se modificará en la medida mínima
+      necesaria para hacerla válida, y las demás disposiciones permanecerán en
+      plena vigencia.
+
+  (d) No renuncia. La falta de ejercicio por parte del Titular de cualquier
+      derecho o disposición de este Acuerdo no constituirá una renuncia a
+      dicho derecho o disposición.
+
+  (e) Cesión. El usuario no podrá ceder ni transferir este Acuerdo ni ninguno
+      de sus derechos u obligaciones sin el consentimiento previo y por escrito
+      del Titular. El Titular podrá ceder este Acuerdo libremente.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CONTACTO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Para solicitudes de licencia, autorizaciones o consultas legales:
+
+  Titular:      David Fernando Pérez Rodríguez
+  Jurisdicción: República de Colombia
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ADVERTENCIA: El uso, reproducción o distribución no autorizados de este Software
+constituyen una violación de las leyes de propiedad intelectual y pueden dar lugar
+a sanciones civiles y penales severas, siendo perseguidos con todo el rigor de
+la ley colombiana e internacional.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
