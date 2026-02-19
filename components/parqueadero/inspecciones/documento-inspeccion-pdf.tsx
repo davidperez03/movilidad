@@ -5,9 +5,9 @@ import { capitalizeName, humanize } from "@/lib/utils/capitalize"
 
 const styles = StyleSheet.create({
   page: {
-    paddingTop: 0,
+    paddingTop: 36,
     paddingBottom: 44,
-    paddingHorizontal: 0,
+    paddingHorizontal: 36,
     fontSize: 9,
     fontFamily: "Helvetica",
     color: "#111827",
@@ -17,14 +17,15 @@ const styles = StyleSheet.create({
   // ─── Encabezado ──────────────────────────────────────
   headerBar: {
     backgroundColor: "#1e3a5f",
-    paddingTop: 18,
-    paddingBottom: 18,
-    paddingLeft: 36,
-    paddingRight: 36,
+    paddingTop: 16,
+    paddingBottom: 16,
+    paddingLeft: 20,
+    paddingRight: 20,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 24,
+    borderRadius: 4,
   },
   headerTitle: {
     fontSize: 13,
@@ -51,9 +52,7 @@ const styles = StyleSheet.create({
   },
 
   // ─── Cuerpo ───────────────────────────────────────────
-  body: {
-    paddingHorizontal: 36,
-  },
+  body: {},
 
   // ─── Resultado ───────────────────────────────────────
   resultadoRow: {
@@ -338,6 +337,7 @@ const styles = StyleSheet.create({
     borderTop: "0.5 solid #e5e7eb",
     paddingTop: 5,
   },
+
   footerText: {
     fontSize: 7,
     color: "#6b7280",
