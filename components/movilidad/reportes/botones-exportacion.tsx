@@ -79,7 +79,7 @@ export function BotonesExportacion<TDato = unknown>({
     }
   }
 
-  const handleExportarExcel = () => {
+  const handleExportarExcel = async () => {
     if (!datos || datos.length === 0) {
       toast.error('No hay datos para exportar')
       return
@@ -87,7 +87,7 @@ export function BotonesExportacion<TDato = unknown>({
 
     try {
       setLoadingExcel(true)
-      generarExcelReporte(datos, tipoReporte, filtros, nombreArchivo)
+      await generarExcelReporte(datos, tipoReporte, filtros, nombreArchivo)
       toast.success('Excel generado exitosamente')
     } catch {
       toast.error('Error al generar el archivo Excel')
