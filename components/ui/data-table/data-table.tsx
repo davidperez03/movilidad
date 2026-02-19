@@ -37,7 +37,7 @@ export function DataTable<TData, TValue>({
   onRowClick,
   emptyMessage = 'No se encontraron resultados',
   className,
-  tableLayout = 'fixed',
+  tableLayout = 'auto',
   toolbarActions,
 }: DataTableProps<TData, TValue>) {
   // State management
@@ -91,10 +91,10 @@ export function DataTable<TData, TValue>({
       <div className="rounded-lg border overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
         <Table
           className={cn(
-            'min-w-[600px]',
+            'min-w-[700px]',
             tableLayout === 'fixed'
-              ? 'table-fixed [&_th:last-child]:w-[190px] [&_td:last-child]:whitespace-nowrap'
-              : 'table-auto',
+              ? 'table-fixed [&_th:last-child]:w-[80px] [&_td:last-child]:whitespace-nowrap'
+              : 'table-auto [&_th:last-child]:w-[80px] [&_td:last-child]:whitespace-nowrap',
             className
           )}
         >
