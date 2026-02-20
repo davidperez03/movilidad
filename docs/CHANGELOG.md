@@ -5,6 +5,15 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.8.11] - 2026-02-20
+
+### Seguridad / Corrección crítica
+
+#### Corregido
+- **Redirect loop silencioso en login**: el middleware verificaba `sys_sesiones` incondicionalmente para todos los usuarios autenticados — si `registrarInicio` fallaba (401), no se creaba registro nuevo pero sí podía existir un registro antiguo con `ultima_actividad` desactualizada, lo que disparaba el cierre por inactividad inmediatamente al ingresar al dashboard. La cookie `session_registered` ahora actúa como guardia: el middleware solo consulta BD si esa cookie existe
+
+---
+
 ## [1.8.10] - 2026-02-20
 
 ### Corregido

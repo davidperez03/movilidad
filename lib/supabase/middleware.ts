@@ -48,50 +48,52 @@ export async function updateSession(request: NextRequest) {
   const isAuthRoute = request.nextUrl.pathname.startsWith("/auth") || request.nextUrl.pathname.startsWith("/api/auth")
 
   if (user && !isPublicRoute && !isPublicApi && !isAuthRoute) {
-    try {
-      const { data: sesion } = await supabase
-        .from('sys_sesiones')
-        .select('id, ultima_actividad')
-        .eq('usuario_id', user.id)
-        .eq('estado', 'activa')
-        .order('inicio_sesion', { ascending: false })
-        .limit(1)
-        .maybeSingle()
+    // Solo verificar sys_sesiones si hay cookie de sesión registrada.
+    // Sin ella (ej: registrarInicio falló, o sesión pre-auditoría) no hay reglas DB que aplicar.
+    const sessionCookie = request.cookies.get('session_registered')
 
-      const sessionCookie = request.cookies.get('session_registered')
+    if (sessionCookie) {
+      try {
+        const { data: sesion } = await supabase
+          .from('sys_sesiones')
+          .select('id, ultima_actividad')
+          .eq('usuario_id', user.id)
+          .eq('estado', 'activa')
+          .order('inicio_sesion', { ascending: false })
+          .limit(1)
+          .maybeSingle()
 
-      // Construye un redirect que incluye las cookies que signOut() limpió en supabaseResponse,
-      // garantizando que el browser reciba la anulación completa de tokens en la misma respuesta
-      const buildLogoutRedirect = (reason: string) => {
-        const url = request.nextUrl.clone()
-        url.pathname = "/auth/login"
-        url.searchParams.set('reason', reason)
-        const response = NextResponse.redirect(url)
-        // Copiar cookies de Supabase (access/refresh token eliminados por signOut)
-        supabaseResponse.cookies.getAll().forEach(({ name, value, ...options }) => {
-          response.cookies.set({ name, value, ...options })
-        })
-        response.cookies.delete('session_registered')
-        return response
-      }
+        // Construye un redirect que incluye las cookies que signOut() limpió en supabaseResponse,
+        // garantizando que el browser reciba la anulación completa de tokens en la misma respuesta
+        const buildLogoutRedirect = (reason: string) => {
+          const url = request.nextUrl.clone()
+          url.pathname = "/auth/login"
+          url.searchParams.set('reason', reason)
+          const response = NextResponse.redirect(url)
+          // Copiar cookies de Supabase (access/refresh token eliminados por signOut)
+          supabaseResponse.cookies.getAll().forEach(({ name, value, ...options }) => {
+            response.cookies.set({ name, value, ...options })
+          })
+          response.cookies.delete('session_registered')
+          return response
+        }
 
-      // Sesión cerrada por admin o manualmente: cookie existe pero no hay sesión activa en BD
-      if (!sesion && sessionCookie) {
-        await supabase.auth.signOut()
-        return buildLogoutRedirect('session_closed')
-      }
+        // Sesión cerrada por admin o manualmente: cookie existe pero no hay sesión activa en BD
+        if (!sesion) {
+          await supabase.auth.signOut()
+          return buildLogoutRedirect('session_closed')
+        }
 
-      // Inactividad superada: sys_sesiones registra actividad cada ~1 min desde el cliente
-      // Si ultima_actividad supera 5 min, cerrar aunque el token de Supabase siga vigente
-      if (sesion) {
+        // Inactividad superada: sys_sesiones registra actividad cada ~1 min desde el cliente
+        // Si ultima_actividad supera 5 min, cerrar aunque el token de Supabase siga vigente
         const inactiveMs = Date.now() - new Date(sesion.ultima_actividad).getTime()
         if (inactiveMs > 5 * 60 * 1000) {
           await supabase.auth.signOut()
           return buildLogoutRedirect('inactivity')
         }
+      } catch {
+        // Error verificando sesión — no bloquear la navegación
       }
-    } catch {
-      // Error verificando sesión — no bloquear la navegación
     }
   }
 

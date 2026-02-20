@@ -18,3 +18,4 @@ GRANT EXECUTE ON FUNCTION cerrar_sesiones_inactivas  TO authenticated;
 -- REVOKE EXECUTE ON FUNCTION actualizar_actividad_sesion  FROM authenticated;
 -- REVOKE EXECUTE ON FUNCTION obtener_sesion_activa       FROM authenticated;
 -- REVOKE EXECUTE ON FUNCTION cerrar_sesiones_inactivas   FROM authenticated;
+
