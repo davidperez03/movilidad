@@ -5,6 +5,17 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.8.9] - 2026-02-20
+
+### Seguridad
+
+#### Corregido
+- **Cierre de sesión por inactividad no funcionaba en producción**: el middleware verificaba solo `estado = 'activa'` en BD — si el browser se cerraba sin que el timer del cliente disparara, la sesión quedaba activa indefinidamente
+- **Tokens no se anulaban al cerrar sesión forzada**: `signOut()` limpiaba las cookies en `supabaseResponse` pero el redirect devolvía un response nuevo sin ellas — el browser conservaba los tokens access/refresh. Ahora se copian al redirect en la misma respuesta
+- **`checkSession` usaba caché local**: reemplazado `getSession()` por `getUser()` para validar contra el servidor en el montaje del SessionProvider
+
+---
+
 ## [1.8.7] - 2026-02-19
 
 ### Mantenimiento
