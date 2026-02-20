@@ -136,10 +136,11 @@ export function SessionProvider({ children }: SessionProviderProps) {
     // Iniciar timers
     updateActivity()
 
-    // Verificar sesión al montar
+    // Verificar sesión al montar contra el servidor (getUser valida el token,
+    // getSession solo lee del caché local y no detecta tokens expirados)
     const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
         router.push("/auth/login")
       }
     }
