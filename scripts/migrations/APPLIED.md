@@ -4,7 +4,7 @@ Registro manual de migraciones ejecutadas en producción.
 
 | # | Archivo | Fecha aplicado | Aplicado por | Versión app |
 |---|---------|---------------|--------------|-------------|
-| — | (sin migraciones pendientes) | — | — | v1.7.1 |
+| 001 | 001_grant_execute_sesiones.sql | pendiente | — | v1.8.9 |
 
 <!--
 Al aplicar una migración, agregar una fila:
