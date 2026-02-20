@@ -5,6 +5,18 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.8.10] - 2026-02-20
+
+### Corregido
+
+#### Corregido
+- **Login bloqueado por fallo de auditoría**: `registrarInicio` retornaba null (401 Unauthorized) y lanzaba un error que impedía el acceso — autenticación y auditoría son responsabilidades separadas, el fallo de una no debe bloquear la otra
+- **401 en funciones de sesiones**: las funciones `registrar_inicio_sesion`, `registrar_fin_sesion`, `actualizar_actividad_sesion` y `obtener_sesion_activa` no tenían `GRANT EXECUTE` para el rol `authenticated` — migración `001` agrega los permisos faltantes
+
+> **Acción requerida en BD**: ejecutar `scripts/migrations/001_grant_execute_sesiones.sql` en Supabase SQL Editor
+
+---
+
 ## [1.8.9] - 2026-02-20
 
 ### Seguridad
