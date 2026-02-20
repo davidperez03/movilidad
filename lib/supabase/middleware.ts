@@ -49,21 +49,49 @@ export async function updateSession(request: NextRequest) {
 
   if (user && !isPublicRoute && !isPublicApi && !isAuthRoute) {
     try {
-      const { data: sesionId, error } = await supabase
-        .rpc('obtener_sesion_activa', { p_usuario_id: user.id })
+      const { data: sesion } = await supabase
+        .from('sys_sesiones')
+        .select('id, ultima_actividad')
+        .eq('usuario_id', user.id)
+        .eq('estado', 'activa')
+        .order('inicio_sesion', { ascending: false })
+        .limit(1)
+        .maybeSingle()
 
       const sessionCookie = request.cookies.get('session_registered')
-      if (!error && sesionId === null && sessionCookie) {
-        await supabase.auth.signOut()
+
+      // Construye un redirect que incluye las cookies que signOut() limpió en supabaseResponse,
+      // garantizando que el browser reciba la anulación completa de tokens en la misma respuesta
+      const buildLogoutRedirect = (reason: string) => {
         const url = request.nextUrl.clone()
         url.pathname = "/auth/login"
-        url.searchParams.set('reason', 'session_closed')
+        url.searchParams.set('reason', reason)
         const response = NextResponse.redirect(url)
+        // Copiar cookies de Supabase (access/refresh token eliminados por signOut)
+        supabaseResponse.cookies.getAll().forEach(({ name, value, ...options }) => {
+          response.cookies.set({ name, value, ...options })
+        })
         response.cookies.delete('session_registered')
         return response
       }
+
+      // Sesión cerrada por admin o manualmente: cookie existe pero no hay sesión activa en BD
+      if (!sesion && sessionCookie) {
+        await supabase.auth.signOut()
+        return buildLogoutRedirect('session_closed')
+      }
+
+      // Inactividad superada: sys_sesiones registra actividad cada ~1 min desde el cliente
+      // Si ultima_actividad supera 5 min, cerrar aunque el token de Supabase siga vigente
+      if (sesion) {
+        const inactiveMs = Date.now() - new Date(sesion.ultima_actividad).getTime()
+        if (inactiveMs > 5 * 60 * 1000) {
+          await supabase.auth.signOut()
+          return buildLogoutRedirect('inactivity')
+        }
+      }
     } catch {
-      // Error verificando sesión activa — no bloquear la navegación
+      // Error verificando sesión — no bloquear la navegación
     }
   }
 

@@ -6,6 +6,7 @@ Para el proceso de release y reglas de versionamiento semántico ver [GITFLOW.md
 
 | Versión | Fecha | Descripción |
 |---------|-------|-------------|
+| 1.8.9 | 2026-02-20 | Fix(auth): cierre de sesión por inactividad y anulación completa de tokens |
 | 1.8.7 | 2026-02-19 | Chore: eliminar package-lock.json del repo (proyecto usa pnpm) |
 | 1.8.6 | 2026-02-19 | Fix: márgenes superiores y laterales en PDF de inspecciones preoperacionales |
 | 1.8.5 | 2026-02-19 | Fix: oscurecer texto opaco en títulos y labels del PDF de inspecciones |
