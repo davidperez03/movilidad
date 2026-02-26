@@ -73,3 +73,12 @@ export interface VistaPersonal {
   telefono: string | null
   estado_licencia: EstadoDocumento
 }
+
+/**
+ * Tipo para foto con timestamp en zona horaria Colombia
+ */
+export interface FotoConTimestamp {
+  url: string
+  timestamp: string  // ISO timestamp en zona horaria Colombia
+  origen: 'camera' | 'upload'  // Distinguir entre captura de cámara o subida desde galería
+}

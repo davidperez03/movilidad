@@ -1,5 +1,6 @@
 import { CheckCircle, XCircle, AlertCircle, MinusCircle } from "lucide-react"
 import type { EstadoDocumento } from "./types"
+import { toColombiaTime } from "@/lib/utils/date"
 
 const MESES_CORTO = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"]
 const MESES_LARGO = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"]
@@ -30,10 +31,14 @@ export function formatearFechaLarga(fecha: string | null | undefined): string {
   return `${diaSemana}, ${dia} de ${mes} de ${year}`
 }
 
-// "1 de enero de 2024, 10:30"
+// "1 de enero de 2024, 10:30" - CON zona horaria Colombia
 export function formatearFechaHora(fechaISO: string | null | undefined): string {
   if (!fechaISO) return "Sin registrar"
-  const d = new Date(fechaISO)
+
+  // FIX: Usar toColombiaTime para convertir a zona horaria Colombia
+  const d = toColombiaTime(fechaISO)
+  if (!d) return "Sin registrar"
+
   const dia = d.getDate()
   const mes = MESES_LARGO[d.getMonth()]
   const year = d.getFullYear()
