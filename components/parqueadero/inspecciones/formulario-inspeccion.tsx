@@ -28,12 +28,12 @@ import {
 import { OPCIONES_TURNO, CATEGORIAS_ITEMS, ESTADOS_DOCUMENTO } from "@/lib/parqueadero/config"
 import { formatearFecha, getEstadoDocumentoColor, ESTADO_ITEM_ICONS, ESTADO_ITEM_COLORS, type EstadoItem } from "@/lib/parqueadero/utils"
 import { getNowDateColombia, getNowTimeColombia, getNowTimestampColombia } from "@/lib/utils/date"
-import type { ItemCatalogo, VistaPersonal, VistaVehiculo, EstadoDocumento } from "@/lib/parqueadero/types"
+import type { ItemCatalogo, VistaPersonal, VistaVehiculo, EstadoDocumento, FotoConTimestamp } from "@/lib/parqueadero/types"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 import { capitalizeName } from "@/lib/utils/capitalize"
 import { CapturaFirma, VistaFirma } from "./captura-firma"
-import { CapturaFoto, VistaFoto } from "./captura-foto"
+import { CapturaFoto, VistaFotos } from "./captura-foto"
 
 type VehiculoFormulario = Pick<VistaVehiculo, 'id' | 'placa' | 'marca' | 'modelo' | 'tipo' | 'soat_vencimiento' | 'tecnomecanica_vencimiento' | 'estado_soat' | 'estado_tecnomecanica'>
 
@@ -48,7 +48,7 @@ interface ItemInspeccion {
   item_catalogo_id: string
   estado: EstadoItem
   observacion: string
-  foto_url: string | null
+  fotos: FotoConTimestamp[]  // Cambio: array de fotos con timestamps
 }
 
 interface NovedadPendiente {
@@ -93,10 +93,14 @@ export function FormularioInspeccion({
     Object.fromEntries(
       itemsCatalogo.map((item) => [
         item.id,
-        { item_catalogo_id: item.id, estado: "" as EstadoItem, observacion: "", foto_url: null },
+        { item_catalogo_id: item.id, estado: "" as EstadoItem, observacion: "", fotos: [] },
       ])
     )
   )
+
+  // Fotos de observaciones generales
+  const [observacionesFotos, setObservacionesFotos] = useState<FotoConTimestamp[]>([])
+  const [modalFotoObservaciones, setModalFotoObservaciones] = useState(false)
 
   // Firmas
   const [firmaInspector, setFirmaInspector] = useState<string | null>(null)
@@ -206,11 +210,25 @@ export function FormularioInspeccion({
     }))
   }
 
-  const handleFotoChange = (itemId: string, foto_url: string | null) => {
+  const handleFotosChange = (itemId: string, nuevasFotos: FotoConTimestamp[]) => {
     setItems((prev) => ({
       ...prev,
-      [itemId]: { ...prev[itemId], foto_url },
+      [itemId]: {
+        ...prev[itemId],
+        fotos: [...(prev[itemId].fotos || []), ...nuevasFotos]
+      },
     }))
+  }
+
+  const eliminarFoto = (itemId: string, fotoIndex: number) => {
+    setItems((prev) => {
+      const fotosActuales = prev[itemId].fotos || []
+      const nuevasFotos = fotosActuales.filter((_, i) => i !== fotoIndex)
+      return {
+        ...prev,
+        [itemId]: { ...prev[itemId], fotos: nuevasFotos },
+      }
+    })
   }
 
   const handleResolucionChange = (novedadId: string, estado: 'subsanado' | 'se_mantiene' | 'empeoro' | null, itemCatalogoId: string) => {
@@ -387,6 +405,7 @@ export function FormularioInspeccion({
           turno: formData.turno,
           es_apto: esApto,
           observaciones: formData.observaciones || null,
+          observaciones_fotos: observacionesFotos.length > 0 ? observacionesFotos : null,
           creado_por: user.id,
           // Snapshot de documentos al momento de la inspección
           snapshot_soat_vencimiento: vehiculoSeleccionado?.soat_vencimiento || null,
@@ -429,7 +448,8 @@ export function FormularioInspeccion({
             item_catalogo_id: item.item_catalogo_id,
             estado: item.estado,
             observacion: item.observacion || null,
-            foto_url: item.foto_url || null,
+            fotos: item.fotos.length > 0 ? item.fotos : null,
+            foto_url: item.fotos.length > 0 ? item.fotos[0].url : null,  // Retrocompatibilidad
             // Snapshot del catálogo al momento de la inspección
             item_codigo: catalogoItem?.codigo || null,
             item_nombre: catalogoItem?.nombre || null,
@@ -803,17 +823,18 @@ export function FormularioInspeccion({
                             className="text-sm"
                             rows={2}
                           />
-                          <div className="flex items-center gap-2">
-                            <VistaFoto
-                              url={items[item.id]?.foto_url}
+                          <div>
+                            <VistaFotos
+                              fotos={items[item.id]?.fotos || []}
                               onCapturar={() => setModalFoto(item.id)}
-                              onEliminar={() => handleFotoChange(item.id, null)}
+                              onEliminar={(index) => eliminarFoto(item.id, index)}
+                              maxFotos={3}
                               size="sm"
                             />
-                            {!items[item.id]?.foto_url && (
-                              <span className="text-xs text-muted-foreground">
-                                Agregar foto de evidencia (opcional)
-                              </span>
+                            {(items[item.id]?.fotos?.length || 0) === 0 && (
+                              <p className="text-xs text-muted-foreground mt-1">
+                                Agregar fotos de evidencia (hasta 3, opcional)
+                              </p>
                             )}
                           </div>
                         </div>
@@ -832,13 +853,25 @@ export function FormularioInspeccion({
         <CardHeader>
           <CardTitle>Observaciones Generales</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
           <Textarea
             placeholder="Observaciones adicionales de la inspección..."
             value={formData.observaciones}
             onChange={(e) => setFormData({ ...formData, observaciones: e.target.value })}
             rows={3}
           />
+          <div>
+            <Label className="mb-2 block">Fotos de Observaciones (hasta 5)</Label>
+            <VistaFotos
+              fotos={observacionesFotos}
+              onCapturar={() => setModalFotoObservaciones(true)}
+              onEliminar={(index) => {
+                setObservacionesFotos(prev => prev.filter((_, i) => i !== index))
+              }}
+              maxFotos={5}
+              size="md"
+            />
+          </div>
         </CardContent>
       </Card>
 
@@ -913,19 +946,35 @@ export function FormularioInspeccion({
         descripcion="Su firma como inspector de la inspección"
       />
 
-      {/* Modal de foto */}
+      {/* Modales de fotos */}
       <CapturaFoto
         open={modalFoto !== null}
         onClose={() => setModalFoto(null)}
-        onSave={(url) => {
+        onSave={(fotos) => {
           if (modalFoto) {
-            handleFotoChange(modalFoto, url)
+            handleFotosChange(modalFoto, fotos)
           }
           setModalFoto(null)
         }}
-        titulo="Foto de Evidencia"
-        descripcion="Capture una foto de la novedad encontrada"
+        titulo="Fotos de Evidencia"
+        descripcion="Capture hasta 3 fotos de la novedad encontrada"
         carpeta="inspecciones"
+        maxFotos={3}
+        fotosActuales={modalFoto ? items[modalFoto]?.fotos || [] : []}
+      />
+
+      <CapturaFoto
+        open={modalFotoObservaciones}
+        onClose={() => setModalFotoObservaciones(false)}
+        onSave={(fotos) => {
+          setObservacionesFotos(prev => [...prev, ...fotos])
+          setModalFotoObservaciones(false)
+        }}
+        titulo="Fotos de Observaciones Generales"
+        descripcion="Capture hasta 5 fotos adicionales para las observaciones"
+        carpeta="inspecciones/observaciones"
+        maxFotos={5}
+        fotosActuales={observacionesFotos}
       />
 
       {/* Resumen y decisión APTO/NO APTO */}

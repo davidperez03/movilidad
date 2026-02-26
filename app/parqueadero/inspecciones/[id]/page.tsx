@@ -20,6 +20,8 @@ import {
 } from "lucide-react"
 import { TURNOS, CATEGORIAS_ITEMS, ESTADOS_ITEM, ESTADOS_DOCUMENTO } from "@/lib/parqueadero/config"
 import { formatearFecha, formatearFechaLarga, formatearFechaHora, formatearFechaCorta, formatearHora, ESTADO_ITEM_ICONS, ESTADO_ITEM_COLORS, type EstadoItem } from "@/lib/parqueadero/utils"
+import { formatearTimestampParaImagen } from "@/lib/parqueadero/procesamiento-imagen"
+import type { FotoConTimestamp } from "@/lib/parqueadero/types"
 import { SeccionNovedades } from "@/components/parqueadero/inspecciones/seccion-novedades"
 import { BotonDescargarInspeccion } from "@/components/parqueadero/inspecciones/boton-descargar-inspeccion"
 import { cn } from "@/lib/utils"
@@ -111,24 +113,25 @@ export default async function InspeccionDetallePage({ params }: PageProps) {
             {formatearFechaLarga(inspeccion.fecha)}
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-2">
           <BotonDescargarInspeccion
             inspeccionId={id}
             placa={inspeccion.placa}
             variant="outline"
+            className="w-full sm:w-auto"
           />
           <Badge
             variant={inspeccion.es_apto ? "default" : "destructive"}
-            className="text-lg px-4 py-2"
+            className="text-base sm:text-lg px-3 sm:px-4 py-1.5 sm:py-2 justify-center"
           >
             {inspeccion.es_apto ? (
               <>
-                <CheckCircle className="h-5 w-5 mr-2" />
+                <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                 APTO
               </>
             ) : (
               <>
-                <XCircle className="h-5 w-5 mr-2" />
+                <XCircle className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                 NO APTO
               </>
             )}
@@ -274,27 +277,27 @@ export default async function InspeccionDetallePage({ params }: PageProps) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex gap-6">
-            <div className="flex items-center gap-2">
-              <CheckCircle className="h-5 w-5 text-green-600" />
-              <span className="text-2xl font-bold text-green-600">
+          <div className="flex flex-wrap gap-4 sm:gap-6">
+            <div className="flex items-center gap-2 min-w-[140px]">
+              <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0" />
+              <span className="text-xl sm:text-2xl font-bold text-green-600">
                 {inspeccion.items_buenos}
               </span>
-              <span className="text-muted-foreground">Buenos</span>
+              <span className="text-sm sm:text-base text-muted-foreground">Buenos</span>
             </div>
-            <div className="flex items-center gap-2">
-              <AlertCircle className="h-5 w-5 text-yellow-600" />
-              <span className="text-2xl font-bold text-yellow-600">
+            <div className="flex items-center gap-2 min-w-[140px]">
+              <AlertCircle className="h-5 w-5 text-yellow-600 flex-shrink-0" />
+              <span className="text-xl sm:text-2xl font-bold text-yellow-600">
                 {inspeccion.items_regulares}
               </span>
-              <span className="text-muted-foreground">Regulares</span>
+              <span className="text-sm sm:text-base text-muted-foreground">Regulares</span>
             </div>
-            <div className="flex items-center gap-2">
-              <XCircle className="h-5 w-5 text-red-600" />
-              <span className="text-2xl font-bold text-red-600">
+            <div className="flex items-center gap-2 min-w-[140px]">
+              <XCircle className="h-5 w-5 text-red-600 flex-shrink-0" />
+              <span className="text-xl sm:text-2xl font-bold text-red-600">
                 {inspeccion.items_malos}
               </span>
-              <span className="text-muted-foreground">Malos</span>
+              <span className="text-sm sm:text-base text-muted-foreground">Malos</span>
             </div>
           </div>
         </CardContent>
@@ -355,27 +358,68 @@ export default async function InspeccionDetallePage({ params }: PageProps) {
                               Subsanado{item.subsanado_observacion && `: ${item.subsanado_observacion}`}
                             </p>
                           )}
-                          {/* Fotos de evidencia */}
-                          {(item.foto_url || item.subsanado_foto_url) && (
-                            <div className="flex gap-2 mt-2">
-                              {item.foto_url && (
-                                <a href={item.foto_url} target="_blank" rel="noopener noreferrer">
-                                  <img
-                                    src={item.foto_url}
-                                    alt="Evidencia"
-                                    className="h-16 w-16 object-cover rounded border hover:opacity-80 transition-opacity"
-                                  />
-                                </a>
-                              )}
-                              {item.subsanado_foto_url && (
-                                <a href={item.subsanado_foto_url} target="_blank" rel="noopener noreferrer">
-                                  <img
-                                    src={item.subsanado_foto_url}
-                                    alt="Subsanación"
-                                    className="h-16 w-16 object-cover rounded border border-green-300 hover:opacity-80 transition-opacity"
-                                  />
-                                </a>
-                              )}
+                          {/* Fotos de evidencia múltiples */}
+                          {item.fotos && Array.isArray(item.fotos) && item.fotos.length > 0 && (
+                            <div className="mt-2">
+                              <p className="text-xs text-muted-foreground mb-2">Evidencia:</p>
+                              <div className="flex flex-wrap gap-2">
+                                {item.fotos.map((foto: FotoConTimestamp, index: number) => (
+                                  <div key={index} className="relative">
+                                    <a href={foto.url} target="_blank" rel="noopener noreferrer">
+                                      <div className="relative">
+                                        <img
+                                          src={foto.url}
+                                          alt={`Evidencia ${index + 1}`}
+                                          className="h-16 w-16 sm:h-20 sm:w-20 object-cover rounded border hover:opacity-80 transition-opacity"
+                                        />
+                                        {foto.origen && (
+                                          <span
+                                            className={`absolute bottom-0 left-0 right-0 text-center text-[8px] font-bold py-0.5 rounded-b text-white ${
+                                              foto.origen === 'camera'
+                                                ? 'bg-green-600/85'
+                                                : 'bg-orange-600/85'
+                                            }`}
+                                          >
+                                            {foto.origen === 'camera' ? 'Camara' : 'Galeria'}
+                                          </span>
+                                        )}
+                                      </div>
+                                    </a>
+                                    {foto.timestamp && (
+                                      <p className="text-xs text-muted-foreground text-center mt-1">
+                                        {formatearTimestampParaImagen(foto.timestamp)}
+                                      </p>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Retrocompatibilidad: mostrar foto_url si fotos está vacío */}
+                          {(!item.fotos || item.fotos.length === 0) && item.foto_url && (
+                            <div className="mt-2">
+                              <a href={item.foto_url} target="_blank" rel="noopener noreferrer">
+                                <img
+                                  src={item.foto_url}
+                                  alt="Evidencia"
+                                  className="h-16 w-16 object-cover rounded border hover:opacity-80 transition-opacity"
+                                />
+                              </a>
+                            </div>
+                          )}
+
+                          {/* Foto de subsanación */}
+                          {item.subsanado_foto_url && (
+                            <div className="mt-2">
+                              <p className="text-xs text-muted-foreground mb-1">Subsanación:</p>
+                              <a href={item.subsanado_foto_url} target="_blank" rel="noopener noreferrer">
+                                <img
+                                  src={item.subsanado_foto_url}
+                                  alt="Subsanación"
+                                  className="h-16 w-16 object-cover rounded border border-green-300 hover:opacity-80 transition-opacity"
+                                />
+                              </a>
                             </div>
                           )}
                         </div>
@@ -399,14 +443,52 @@ export default async function InspeccionDetallePage({ params }: PageProps) {
         )
       })}
 
-      {/* Observaciones generales */}
-      {inspeccion.observaciones && (
+      {/* Observaciones generales con fotos */}
+      {(inspeccion.observaciones || inspeccion.observaciones_fotos) && (
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-base">Observaciones Generales</CardTitle>
           </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground">{inspeccion.observaciones}</p>
+          <CardContent className="space-y-4">
+            {inspeccion.observaciones && (
+              <p className="text-muted-foreground">{inspeccion.observaciones}</p>
+            )}
+            {inspeccion.observaciones_fotos && Array.isArray(inspeccion.observaciones_fotos) && inspeccion.observaciones_fotos.length > 0 && (
+              <div>
+                <p className="text-sm text-muted-foreground mb-2">Fotos adjuntas:</p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                  {inspeccion.observaciones_fotos.map((foto: FotoConTimestamp, index: number) => (
+                    <div key={index}>
+                      <a href={foto.url} target="_blank" rel="noopener noreferrer">
+                        <div className="relative">
+                          <img
+                            src={foto.url}
+                            alt={`Observacion ${index + 1}`}
+                            className="w-full h-24 sm:h-32 object-cover rounded-lg border hover:opacity-80 transition-opacity"
+                          />
+                          {foto.origen && (
+                            <span
+                              className={`absolute bottom-0 left-0 right-0 text-center text-[9px] font-bold py-0.5 rounded-b-lg text-white ${
+                                foto.origen === 'camera'
+                                  ? 'bg-green-600/85'
+                                  : 'bg-orange-600/85'
+                              }`}
+                            >
+                              {foto.origen === 'camera' ? 'Camara' : 'Galeria'}
+                            </span>
+                          )}
+                        </div>
+                      </a>
+                      {foto.timestamp && (
+                        <p className="text-xs text-muted-foreground text-center mt-1">
+                          {formatearTimestampParaImagen(foto.timestamp)}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
       )}

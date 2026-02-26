@@ -2,6 +2,8 @@
 
 import { Document, Page, Text, View, StyleSheet, Image } from "@react-pdf/renderer"
 import { capitalizeName, humanize } from "@/lib/utils/capitalize"
+import type { FotoConTimestamp } from "@/lib/parqueadero/types"
+import { formatearTimestampParaImagen } from "@/lib/parqueadero/procesamiento-imagen"
 
 const styles = StyleSheet.create({
   page: {
@@ -349,7 +351,8 @@ interface ItemInspeccion {
   id: string
   estado: string
   observacion: string | null
-  foto_url: string | null
+  fotos: FotoConTimestamp[] | null  // Nuevo: múltiples fotos
+  foto_url: string | null  // Mantener para retrocompatibilidad
   item_nombre: string | null
   item_categoria: string | null
   subsanado: boolean
@@ -364,6 +367,7 @@ interface InspeccionPDFData {
   turno: string | null
   es_apto: boolean
   observaciones: string | null
+  observaciones_fotos: FotoConTimestamp[] | null  // Nuevo
   placa: string
   marca: string
   modelo: string
@@ -433,7 +437,12 @@ export function DocumentoInspeccionPDF({ inspeccion, items }: DocumentoInspeccio
   }, {} as Record<string, ItemInspeccion[]>)
 
   const novedades = items.filter((i) => i.estado === "regular" || i.estado === "malo")
-  const itemsConFoto = items.filter((i) => i.foto_url)
+  // Filtrar items con fotos (nuevo formato o legacy)
+  const itemsConFoto = items.filter((i) => {
+    if (i.fotos && i.fotos.length > 0) return true
+    if (i.foto_url) return true  // Retrocompatibilidad
+    return false
+  })
 
   return (
     <Document>
@@ -648,22 +657,86 @@ export function DocumentoInspeccionPDF({ inspeccion, items }: DocumentoInspeccio
           </View>
 
           <View style={styles.body}>
-            {itemsConFoto.map((item, index) => (
-              <View key={item.id} style={styles.anexoItem} wrap={false}>
+            {itemsConFoto.map((item, itemIndex) => {
+              // Obtener array de fotos (nuevo formato o legacy)
+              const fotos: FotoConTimestamp[] = item.fotos && item.fotos.length > 0
+                ? item.fotos
+                : item.foto_url
+                ? [{ url: item.foto_url, timestamp: '' }]  // Retrocompatibilidad
+                : []
+
+              return fotos.map((foto, fotoIndex) => (
+                <View
+                  key={`${item.id}-${fotoIndex}`}
+                  style={styles.anexoItem}
+                  wrap={false}
+                >
+                  <View style={styles.anexoHeader}>
+                    <Text style={styles.anexoTitulo}>
+                      {itemIndex + 1}.{fotoIndex + 1} {item.item_nombre}
+                      {fotos.length > 1 && ` (Foto ${fotoIndex + 1}/${fotos.length})`}
+                    </Text>
+                    <Text style={[styles.anexoEstado, { color: item.estado === "malo" ? "#dc2626" : "#b45309" }]}>
+                      {getEstadoLabel(item.estado).toUpperCase()}
+                    </Text>
+                  </View>
+                  {item.observacion && fotoIndex === 0 && (
+                    <Text style={styles.anexoObs}>{item.observacion}</Text>
+                  )}
+                  {foto.timestamp && (
+                    <Text style={[styles.anexoObs, { fontSize: 7, marginBottom: 4 }]}>
+                      Fecha: {formatearTimestampParaImagen(foto.timestamp)}
+                    </Text>
+                  )}
+                  <Image src={foto.url} style={styles.anexoFoto} />
+                </View>
+              ))
+            })}
+          </View>
+
+          <View style={styles.footer} fixed>
+            <Text style={styles.footerText}>Sistema de Movilidad · Anexos Fotográficos</Text>
+            <Text
+              style={styles.footerText}
+              render={({ pageNumber, totalPages }) => `${docId}  ·  Página ${pageNumber} de ${totalPages}`}
+            />
+          </View>
+        </Page>
+      )}
+
+      {/* Página de fotos de observaciones generales */}
+      {inspeccion.observaciones_fotos && inspeccion.observaciones_fotos.length > 0 && (
+        <Page size="LETTER" style={styles.page}>
+          <View style={styles.headerBar}>
+            <View>
+              <Text style={styles.headerTitle}>Observaciones Generales - Anexos Fotográficos</Text>
+              <Text style={styles.headerSubtitle}>{inspeccion.placa} · {formatearFecha(inspeccion.fecha)}</Text>
+            </View>
+            <View style={styles.headerMeta}>
+              <Text style={styles.headerConsecutivo}>{docId}</Text>
+            </View>
+          </View>
+
+          <View style={styles.body}>
+            {inspeccion.observaciones_fotos.map((foto, index) => (
+              <View key={index} style={styles.anexoItem} wrap={false}>
                 <View style={styles.anexoHeader}>
-                  <Text style={styles.anexoTitulo}>{index + 1}. {item.item_nombre}</Text>
-                  <Text style={[styles.anexoEstado, { color: item.estado === "malo" ? "#dc2626" : "#b45309" }]}>
-                    {getEstadoLabel(item.estado).toUpperCase()}
+                  <Text style={styles.anexoTitulo}>
+                    Foto {index + 1} de Observaciones Generales
                   </Text>
                 </View>
-                {item.observacion && <Text style={styles.anexoObs}>{item.observacion}</Text>}
-                {item.foto_url && <Image src={item.foto_url} style={styles.anexoFoto} />}
+                {foto.timestamp && (
+                  <Text style={[styles.anexoObs, { fontSize: 7, marginBottom: 4 }]}>
+                    Fecha: {formatearTimestampParaImagen(foto.timestamp)}
+                  </Text>
+                )}
+                <Image src={foto.url} style={styles.anexoFoto} />
               </View>
             ))}
           </View>
 
           <View style={styles.footer} fixed>
-            <Text style={styles.footerText}>Sistema de Movilidad · Anexos Fotográficos</Text>
+            <Text style={styles.footerText}>Sistema de Movilidad · Observaciones Generales</Text>
             <Text
               style={styles.footerText}
               render={({ pageNumber, totalPages }) => `${docId}  ·  Página ${pageNumber} de ${totalPages}`}
