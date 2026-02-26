@@ -5,6 +5,16 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.9.1] - 2026-02-26
+
+### Corregido
+
+#### Corregido
+- Campo `fotos` faltaba en el SELECT de `parq_items_inspeccion` en `boton-descargar-inspeccion.tsx`
+- Objeto de retrocompatibilidad `foto_url` en `documento-inspeccion-pdf.tsx` faltaba el campo `origen` requerido por `FotoConTimestamp`
+
+---
+
 ## [1.9.0] - 2026-02-26
 
 ### Sistema de fotos multiples en inspecciones
