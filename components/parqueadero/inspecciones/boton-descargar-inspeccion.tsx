@@ -86,6 +86,7 @@ export function BotonDescargarInspeccion({
           estado: item.estado,
           observacion: item.observacion,
           foto_url: item.foto_url,
+          fotos: (item.fotos as import("@/lib/parqueadero/types").FotoConTimestamp[] | null) ?? null,
           item_nombre: item.item_nombre || (item.item_catalogo as { nombre?: string; categoria?: string; orden?: number } | null)?.nombre || "Sin nombre",
           item_categoria: item.item_categoria || (item.item_catalogo as { nombre?: string; categoria?: string; orden?: number } | null)?.categoria || "otros",
           item_orden: item.item_orden ?? (item.item_catalogo as { nombre?: string; categoria?: string; orden?: number } | null)?.orden ?? 0,
