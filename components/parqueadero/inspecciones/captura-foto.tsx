@@ -139,14 +139,15 @@ export function CapturaFoto({
 
       for (const foto of fotos) {
         const ts = Date.now()
-        const extension = foto.file.name.split(".").pop() || "jpg"
-        const nombreArchivo = `${carpeta}/${ts}_${Math.random().toString(36).substring(7)}.${extension}`
+        // Canvas siempre produce JPEG, forzar extension .jpg para compatibilidad con react-pdf
+        const nombreArchivo = `${carpeta}/${ts}_${Math.random().toString(36).substring(7)}.jpg`
 
         const { data, error } = await supabase.storage
           .from("parqueadero")
           .upload(nombreArchivo, foto.file, {
             cacheControl: "3600",
             upsert: false,
+            contentType: "image/jpeg",
           })
 
         if (error) throw error
