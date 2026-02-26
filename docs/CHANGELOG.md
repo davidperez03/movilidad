@@ -5,6 +5,33 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.9.0] - 2026-02-26
+
+### Sistema de fotos multiples en inspecciones
+
+#### Agregado
+- Soporte de hasta 3 fotos por item de inspeccion y 5 fotos para observaciones generales
+- Procesamiento de imagen en cliente con Canvas API: watermark de fecha/hora en esquina inferior derecha y badge de origen en esquina inferior izquierda
+- Dos botones separados en el modal de captura para distinguir camara vs galeria (badge verde CAMARA / naranja GALERIA)
+- Badge visual de origen en previsualizacion y vista de detalles de la inspeccion
+- Nuevo tipo `FotoConTimestamp` con campos `url`, `timestamp` y `origen`
+- Nuevo modulo `lib/parqueadero/procesamiento-imagen.ts` con funciones de Canvas API y optimizacion de imagen para movil
+- Migracion `002_sistema_fotos_multiples_inspecciones.sql`: columnas JSONB `fotos` en `parq_items_inspeccion` y `observaciones_fotos` en `parq_inspecciones`
+- PDF de inspeccion con anexos de fotos multiples, una por pagina con su timestamp
+
+#### Cambiado
+- Vista de detalles de inspeccion responsive: header con flex-wrap, grid de fotos adaptativo por breakpoint
+- PDF actualizado para mostrar fotos multiples como paginas de anexo independientes
+
+#### Corregido
+- Zona horaria Colombia en `formatearFechaHora` usando `toColombiaTime()`
+- Imports de `@radix-ui/react-*` en alert-dialog, button y sheet (reemplazaban importacion de `radix-ui` unificado)
+
+#### Retrocompatibilidad
+- Columna `foto_url` se conserva permanentemente con la primera foto del array para datos historicos
+
+---
+
 ## [1.8.11] - 2026-02-20
 
 ### Seguridad / Corrección crítica

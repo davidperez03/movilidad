@@ -6,6 +6,7 @@ Para el proceso de release y reglas de versionamiento semántico ver [GITFLOW.md
 
 | Versión | Fecha | Descripción |
 |---------|-------|-------------|
+| 1.9.0 | 2026-02-26 | Feat(inspecciones): fotos multiples por item con timestamp y distincion camara/galeria, responsive y PDF actualizado |
 | 1.8.11 | 2026-02-20 | Fix(auth): redirect loop silencioso — middleware solo verifica sys_sesiones con cookie de sesión registrada |
 | 1.8.10 | 2026-02-20 | Fix(auth): login bloqueado por fallo de auditoría, GRANT EXECUTE funciones sesiones |
 | 1.8.9 | 2026-02-20 | Fix(auth): cierre de sesión por inactividad y anulación completa de tokens |
