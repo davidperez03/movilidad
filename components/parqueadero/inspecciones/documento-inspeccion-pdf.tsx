@@ -662,7 +662,7 @@ export function DocumentoInspeccionPDF({ inspeccion, items }: DocumentoInspeccio
               const fotos: FotoConTimestamp[] = item.fotos && item.fotos.length > 0
                 ? item.fotos
                 : item.foto_url
-                ? [{ url: item.foto_url, timestamp: '' }]  // Retrocompatibilidad
+                ? [{ url: item.foto_url, timestamp: '', origen: 'camera' as const }]  // Retrocompatibilidad
                 : []
 
               return fotos.map((foto, fotoIndex) => (
