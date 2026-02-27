@@ -385,11 +385,6 @@ export default async function InspeccionDetallePage({ params }: PageProps) {
                                         )}
                                       </div>
                                     </a>
-                                    {foto.timestamp && (
-                                      <p className="text-xs text-muted-foreground text-center mt-1">
-                                        {formatearTimestampParaImagen(foto.timestamp)}
-                                      </p>
-                                    )}
                                   </div>
                                 ))}
                               </div>
@@ -479,11 +474,6 @@ export default async function InspeccionDetallePage({ params }: PageProps) {
                           )}
                         </div>
                       </a>
-                      {foto.timestamp && (
-                        <p className="text-xs text-muted-foreground text-center mt-1">
-                          {formatearTimestampParaImagen(foto.timestamp)}
-                        </p>
-                      )}
                     </div>
                   ))}
                 </div>

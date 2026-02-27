@@ -225,9 +225,6 @@ export function CapturaFoto({
                   >
                     <X className="h-3 w-3" />
                   </Button>
-                  <p className="text-xs text-muted-foreground mt-1 text-center">
-                    {formatearTimestampParaImagen(foto.timestamp)}
-                  </p>
                 </div>
               ))}
             </div>
@@ -444,9 +441,6 @@ export function VistaFotos({
               <X className="h-3 w-3" />
             </Button>
           )}
-          <p className="text-xs text-muted-foreground text-center mt-1">
-            {formatearTimestampParaImagen(foto.timestamp)}
-          </p>
         </div>
       ))}
 
