@@ -1,24 +1,8 @@
-"use client"
-
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { createClient } from "@/lib/supabase/client"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Textarea } from "@/components/ui/textarea"
-import {
-  AlertTriangle,
-  CheckCircle,
-  XCircle,
-  Loader2,
-  ChevronDown,
-  ChevronUp,
-} from "lucide-react"
+import { AlertTriangle, CheckCircle } from "lucide-react"
 import { CATEGORIAS_ITEMS, ESTADOS_ITEM } from "@/lib/parqueadero/config"
 import { ESTADO_ITEM_ICONS, ESTADO_ITEM_COLORS, type EstadoItem } from "@/lib/parqueadero/utils"
-import { getNowTimestampColombia } from "@/lib/utils/date"
-import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 
 interface ItemNovedad {
@@ -49,75 +33,12 @@ function getItemData(item: ItemNovedad) {
 
 interface SeccionNovedadesProps {
   novedades: ItemNovedad[]
-  inspeccionId: string
-  esApto: boolean
 }
 
-export function SeccionNovedades({ novedades, inspeccionId, esApto }: SeccionNovedadesProps) {
-  const router = useRouter()
-  const [loading, setLoading] = useState<string | null>(null)
-  const [observaciones, setObservaciones] = useState<Record<string, string>>({})
-  const [expandido, setExpandido] = useState<Record<string, boolean>>({})
+export function SeccionNovedades({ novedades }: SeccionNovedadesProps) {
 
   const novedadesPendientes = novedades.filter((n) => !n.subsanado)
   const novedadesSubsanadas = novedades.filter((n) => n.subsanado)
-
-  const handleSubsanar = async (itemId: string) => {
-    setLoading(itemId)
-
-    try {
-      const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
-
-      const { error } = await supabase
-        .from("parq_items_inspeccion")
-        .update({
-          subsanado: true,
-          subsanado_en: getNowTimestampColombia(),
-          subsanado_por: user?.id,
-          subsanado_observacion: observaciones[itemId] || null,
-        })
-        .eq("id", itemId)
-
-      if (error) throw error
-
-      toast.success("Novedad marcada como subsanada")
-      router.refresh()
-    } catch (error: unknown) {
-      const err = error as { message?: string }
-      toast.error("Error: " + (err.message || "Error desconocido"))
-    } finally {
-      setLoading(null)
-    }
-  }
-
-  const handleDesmarcar = async (itemId: string) => {
-    setLoading(itemId)
-
-    try {
-      const supabase = createClient()
-
-      const { error } = await supabase
-        .from("parq_items_inspeccion")
-        .update({
-          subsanado: false,
-          subsanado_en: null,
-          subsanado_por: null,
-          subsanado_observacion: null,
-        })
-        .eq("id", itemId)
-
-      if (error) throw error
-
-      toast.success("Novedad desmarcada")
-      router.refresh()
-    } catch (error: unknown) {
-      const err = error as { message?: string }
-      toast.error("Error: " + (err.message || "Error desconocido"))
-    } finally {
-      setLoading(null)
-    }
-  }
 
 
   return (
@@ -153,7 +74,6 @@ export function SeccionNovedades({ novedades, inspeccionId, esApto }: SeccionNov
               const itemData = getItemData(item)
               const categoriaConfig = CATEGORIAS_ITEMS[itemData.categoria]
               const estadoConfig = ESTADOS_ITEM[item.estado]
-              const isExpanded = expandido[item.id]
               const IconComponent = ESTADO_ITEM_ICONS[item.estado as EstadoItem]
 
               return (
@@ -184,47 +104,7 @@ export function SeccionNovedades({ novedades, inspeccionId, esApto }: SeccionNov
                         )}
                       </div>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setExpandido({ ...expandido, [item.id]: !isExpanded })}
-                    >
-                      {isExpanded ? (
-                        <ChevronUp className="h-4 w-4" />
-                      ) : (
-                        <ChevronDown className="h-4 w-4" />
-                      )}
-                    </Button>
                   </div>
-
-                  {isExpanded && (
-                    <div className="mt-4 pt-4 border-t space-y-3">
-                      <Textarea
-                        placeholder="Observación de la corrección realizada (opcional)"
-                        value={observaciones[item.id] || ""}
-                        onChange={(e) =>
-                          setObservaciones({ ...observaciones, [item.id]: e.target.value })
-                        }
-                        rows={2}
-                        className="text-sm"
-                      />
-                      <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          onClick={() => handleSubsanar(item.id)}
-                          disabled={loading === item.id}
-                          className="bg-green-600 hover:bg-green-700"
-                        >
-                          {loading === item.id ? (
-                            <Loader2 className="h-4 w-4 mr-1 animate-spin" />
-                          ) : (
-                            <CheckCircle className="h-4 w-4 mr-1" />
-                          )}
-                          Marcar como Subsanado
-                        </Button>
-                      </div>
-                    </div>
-                  )}
                 </div>
               )
             })}
@@ -261,19 +141,6 @@ export function SeccionNovedades({ novedades, inspeccionId, esApto }: SeccionNov
                         )}
                       </div>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleDesmarcar(item.id)}
-                      disabled={loading === item.id}
-                      className="text-muted-foreground hover:text-destructive"
-                    >
-                      {loading === item.id ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <XCircle className="h-4 w-4" />
-                      )}
-                    </Button>
                   </div>
                 </div>
               )
