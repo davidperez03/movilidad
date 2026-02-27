@@ -3,7 +3,6 @@
 import { Document, Page, Text, View, StyleSheet, Image } from "@react-pdf/renderer"
 import { capitalizeName, humanize } from "@/lib/utils/capitalize"
 import type { FotoConTimestamp } from "@/lib/parqueadero/types"
-import { formatearTimestampParaImagen } from "@/lib/parqueadero/procesamiento-imagen"
 
 const styles = StyleSheet.create({
   page: {
@@ -683,11 +682,6 @@ export function DocumentoInspeccionPDF({ inspeccion, items }: DocumentoInspeccio
                   {item.observacion && fotoIndex === 0 && (
                     <Text style={styles.anexoObs}>{item.observacion}</Text>
                   )}
-                  {foto.timestamp && (
-                    <Text style={[styles.anexoObs, { fontSize: 7, marginBottom: 4 }]}>
-                      Fecha: {formatearTimestampParaImagen(foto.timestamp)}
-                    </Text>
-                  )}
                   <Image src={foto.url} style={styles.anexoFoto} />
                 </View>
               ))
@@ -725,11 +719,6 @@ export function DocumentoInspeccionPDF({ inspeccion, items }: DocumentoInspeccio
                     Foto {index + 1} de Observaciones Generales
                   </Text>
                 </View>
-                {foto.timestamp && (
-                  <Text style={[styles.anexoObs, { fontSize: 7, marginBottom: 4 }]}>
-                    Fecha: {formatearTimestampParaImagen(foto.timestamp)}
-                  </Text>
-                )}
                 <Image src={foto.url} style={styles.anexoFoto} />
               </View>
             ))}

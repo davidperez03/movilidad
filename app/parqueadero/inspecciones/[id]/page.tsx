@@ -16,11 +16,9 @@ import {
   FileText,
   Shield,
   PenTool,
-  Camera,
 } from "lucide-react"
 import { TURNOS, CATEGORIAS_ITEMS, ESTADOS_ITEM, ESTADOS_DOCUMENTO } from "@/lib/parqueadero/config"
 import { formatearFecha, formatearFechaLarga, formatearFechaHora, formatearFechaCorta, formatearHora, ESTADO_ITEM_ICONS, ESTADO_ITEM_COLORS, type EstadoItem } from "@/lib/parqueadero/utils"
-import { formatearTimestampParaImagen } from "@/lib/parqueadero/procesamiento-imagen"
 import type { FotoConTimestamp } from "@/lib/parqueadero/types"
 import { SeccionNovedades } from "@/components/parqueadero/inspecciones/seccion-novedades"
 import { BotonDescargarInspeccion } from "@/components/parqueadero/inspecciones/boton-descargar-inspeccion"
@@ -45,12 +43,24 @@ export default async function InspeccionDetallePage({ params }: PageProps) {
     notFound()
   }
 
-  // Obtener firmas
+  // Obtener firmas y fotos de observaciones (no están en la vista)
   const { data: firmas } = await supabase
     .from("parq_inspecciones")
-    .select("firma_inspector, firma_operador")
+    .select("firma_inspector, firma_operador, observaciones_fotos")
     .eq("id", id)
     .single()
+
+  const observacionesFotos = (firmas?.observaciones_fotos as FotoConTimestamp[] | null | undefined) ?? null
+
+  // Determinar si esta es la inspección más reciente del vehículo
+  // Si existe una inspección posterior para la misma placa, esta pasa a ser historial (solo lectura)
+  const { count: inspeccionesPosteriores } = await supabase
+    .from("parq_inspecciones")
+    .select("id", { count: "exact", head: true })
+    .eq("vehiculo_id", inspeccion.vehiculo_id)
+    .gt("creado_en", inspeccion.creado_en)
+
+  const esEditable = inspeccionesPosteriores === 0
 
   const { data: itemsInspeccion } = await supabase
     .from("parq_items_inspeccion")
@@ -264,7 +274,7 @@ export default async function InspeccionDetallePage({ params }: PageProps) {
         <SeccionNovedades
           novedades={novedades}
           inspeccionId={id}
-          esApto={inspeccion.es_apto}
+          esEditable={esEditable}
         />
       )}
 
@@ -385,11 +395,6 @@ export default async function InspeccionDetallePage({ params }: PageProps) {
                                         )}
                                       </div>
                                     </a>
-                                    {foto.timestamp && (
-                                      <p className="text-xs text-muted-foreground text-center mt-1">
-                                        {formatearTimestampParaImagen(foto.timestamp)}
-                                      </p>
-                                    )}
                                   </div>
                                 ))}
                               </div>
@@ -444,7 +449,7 @@ export default async function InspeccionDetallePage({ params }: PageProps) {
       })}
 
       {/* Observaciones generales con fotos */}
-      {(inspeccion.observaciones || inspeccion.observaciones_fotos) && (
+      {(inspeccion.observaciones || (observacionesFotos && observacionesFotos.length > 0)) && (
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-base">Observaciones Generales</CardTitle>
@@ -453,11 +458,11 @@ export default async function InspeccionDetallePage({ params }: PageProps) {
             {inspeccion.observaciones && (
               <p className="text-muted-foreground">{inspeccion.observaciones}</p>
             )}
-            {inspeccion.observaciones_fotos && Array.isArray(inspeccion.observaciones_fotos) && inspeccion.observaciones_fotos.length > 0 && (
+            {observacionesFotos && observacionesFotos.length > 0 && (
               <div>
                 <p className="text-sm text-muted-foreground mb-2">Fotos adjuntas:</p>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                  {inspeccion.observaciones_fotos.map((foto: FotoConTimestamp, index: number) => (
+                  {observacionesFotos.map((foto: FotoConTimestamp, index: number) => (
                     <div key={index}>
                       <a href={foto.url} target="_blank" rel="noopener noreferrer">
                         <div className="relative">
@@ -479,11 +484,6 @@ export default async function InspeccionDetallePage({ params }: PageProps) {
                           )}
                         </div>
                       </a>
-                      {foto.timestamp && (
-                        <p className="text-xs text-muted-foreground text-center mt-1">
-                          {formatearTimestampParaImagen(foto.timestamp)}
-                        </p>
-                      )}
                     </div>
                   ))}
                 </div>

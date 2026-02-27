@@ -46,10 +46,10 @@ export function BotonDescargarInspeccion({
         return
       }
 
-      // 2. Obtener firmas de la tabla de inspecciones
+      // 2. Obtener firmas y fotos de observaciones de la tabla de inspecciones
       const { data: firmas } = await supabase
         .from("parq_inspecciones")
-        .select("firma_inspector, firma_operador")
+        .select("firma_inspector, firma_operador, observaciones_fotos")
         .eq("id", inspeccionId)
         .single()
 
@@ -103,6 +103,7 @@ export function BotonDescargarInspeccion({
             ...inspeccion,
             firma_inspector: firmas?.firma_inspector || null,
             firma_operador: firmas?.firma_operador || null,
+            observaciones_fotos: (firmas?.observaciones_fotos as import("@/lib/parqueadero/types").FotoConTimestamp[] | null | undefined) ?? null,
           }}
           items={itemsProcesados}
         />
