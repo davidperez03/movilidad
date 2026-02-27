@@ -57,7 +57,7 @@ export default async function InspeccionDetallePage({ params }: PageProps) {
   const { count: inspeccionesPosteriores } = await supabase
     .from("parq_inspecciones")
     .select("id", { count: "exact", head: true })
-    .eq("placa", inspeccion.placa)
+    .eq("vehiculo_id", inspeccion.vehiculo_id)
     .gt("creado_en", inspeccion.creado_en)
 
   const esEditable = inspeccionesPosteriores === 0
