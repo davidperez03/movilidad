@@ -257,10 +257,15 @@ export function FormularioInspeccion({
     }
   }
 
-  const handleResolucionObsChange = (novedadId: string, observacion: string) => {
+  const handleResolucionObsChange = (novedadId: string, observacion: string, itemCatalogoId: string) => {
     setNovedadesResolucion((prev) => ({
       ...prev,
       [novedadId]: { ...prev[novedadId], observacion },
+    }))
+    // Sincronizar al item de la nueva inspección para que quede guardado
+    setItems((prev) => ({
+      ...prev,
+      [itemCatalogoId]: { ...prev[itemCatalogoId], observacion },
     }))
   }
 
@@ -803,7 +808,7 @@ export function FormularioInspeccion({
                               <Textarea
                                 placeholder="Observación (opcional)"
                                 value={resolucion.observacion || ""}
-                                onChange={(e) => handleResolucionObsChange(novedadPendiente.id, e.target.value)}
+                                onChange={(e) => handleResolucionObsChange(novedadPendiente.id, e.target.value, item.id)}
                                 className="text-sm"
                                 rows={2}
                               />
@@ -812,31 +817,35 @@ export function FormularioInspeccion({
                         </div>
                       )}
 
-                      {/* Observación y foto para items regulares/malos actuales */}
+                      {/* Observación: ocultar si hay novedad pendiente con resolución (ya tiene su propio campo) */}
+                      {(items[item.id]?.estado === "regular" ||
+                        items[item.id]?.estado === "malo") &&
+                        !(novedadPendiente && novedadesResolucion[novedadPendiente.id]?.estado) && (
+                        <Textarea
+                          placeholder="Observación (requerida para items regulares/malos)"
+                          value={items[item.id]?.observacion || ""}
+                          onChange={(e) => handleObservacionChange(item.id, e.target.value)}
+                          className="text-sm"
+                          rows={2}
+                        />
+                      )}
+
+                      {/* Fotos de evidencia: siempre visibles para items regulares/malos */}
                       {(items[item.id]?.estado === "regular" ||
                         items[item.id]?.estado === "malo") && (
-                        <div className="space-y-2">
-                          <Textarea
-                            placeholder="Observación (requerida para items regulares/malos)"
-                            value={items[item.id]?.observacion || ""}
-                            onChange={(e) => handleObservacionChange(item.id, e.target.value)}
-                            className="text-sm"
-                            rows={2}
+                        <div>
+                          <VistaFotos
+                            fotos={items[item.id]?.fotos || []}
+                            onCapturar={() => setModalFoto(item.id)}
+                            onEliminar={(index) => eliminarFoto(item.id, index)}
+                            maxFotos={3}
+                            size="sm"
                           />
-                          <div>
-                            <VistaFotos
-                              fotos={items[item.id]?.fotos || []}
-                              onCapturar={() => setModalFoto(item.id)}
-                              onEliminar={(index) => eliminarFoto(item.id, index)}
-                              maxFotos={3}
-                              size="sm"
-                            />
-                            {(items[item.id]?.fotos?.length || 0) === 0 && (
-                              <p className="text-xs text-muted-foreground mt-1">
-                                Agregar fotos de evidencia (hasta 3, opcional)
-                              </p>
-                            )}
-                          </div>
+                          {(items[item.id]?.fotos?.length || 0) === 0 && (
+                            <p className="text-xs text-muted-foreground mt-1">
+                              Agregar fotos de evidencia (hasta 3, opcional)
+                            </p>
+                          )}
                         </div>
                       )}
                     </div>
