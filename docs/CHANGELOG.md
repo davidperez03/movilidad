@@ -5,6 +5,22 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.9.2] - 2026-02-27
+
+### Mejoras en inspecciones preoperacionales
+
+#### Agregado
+- Botón "Subsanar" en detalle de inspección, visible solo en la inspección más reciente del vehículo (inspecciones anteriores quedan en solo lectura)
+- Formulario inline de subsanación por novedad: textarea de cierre + confirmar/cancelar
+
+#### Corregido
+- `observaciones_fotos` ahora se obtiene directamente de `parq_inspecciones` (no existía en la vista)
+- Fechas de fotos eliminadas del PDF (la marca de agua en la imagen ya las incluye)
+- Observación duplicada en formulario: al resolver novedad como "se mantiene" ya no aparece un segundo textarea redundante; la observación de resolución se sincroniza al nuevo item
+- Bug: detección de inspección más reciente usaba `placa` en lugar de `vehiculo_id`
+
+---
+
 ## [1.9.1] - 2026-02-26
 
 ### Corregido
