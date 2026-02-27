@@ -52,6 +52,16 @@ export default async function InspeccionDetallePage({ params }: PageProps) {
 
   const observacionesFotos = (firmas?.observaciones_fotos as FotoConTimestamp[] | null | undefined) ?? null
 
+  // Determinar si esta es la inspección más reciente del vehículo
+  // Si existe una inspección posterior para la misma placa, esta pasa a ser historial (solo lectura)
+  const { count: inspeccionesPosteriores } = await supabase
+    .from("parq_inspecciones")
+    .select("id", { count: "exact", head: true })
+    .eq("placa", inspeccion.placa)
+    .gt("creado_en", inspeccion.creado_en)
+
+  const esEditable = inspeccionesPosteriores === 0
+
   const { data: itemsInspeccion } = await supabase
     .from("parq_items_inspeccion")
     .select(`
@@ -263,6 +273,8 @@ export default async function InspeccionDetallePage({ params }: PageProps) {
       {novedades.length > 0 && (
         <SeccionNovedades
           novedades={novedades}
+          inspeccionId={id}
+          esEditable={esEditable}
         />
       )}
 

@@ -1,6 +1,14 @@
+"use client"
+
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { createClient } from "@/lib/supabase/client"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { AlertTriangle, CheckCircle } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Textarea } from "@/components/ui/textarea"
+import { AlertTriangle, CheckCircle, XCircle, Loader2 } from "lucide-react"
+import { toast } from "sonner"
 import { CATEGORIAS_ITEMS, ESTADOS_ITEM } from "@/lib/parqueadero/config"
 import { ESTADO_ITEM_ICONS, ESTADO_ITEM_COLORS, type EstadoItem } from "@/lib/parqueadero/utils"
 import { cn } from "@/lib/utils"
@@ -33,13 +41,63 @@ function getItemData(item: ItemNovedad) {
 
 interface SeccionNovedadesProps {
   novedades: ItemNovedad[]
+  inspeccionId: string
+  esEditable: boolean
 }
 
-export function SeccionNovedades({ novedades }: SeccionNovedadesProps) {
+export function SeccionNovedades({ novedades, inspeccionId, esEditable }: SeccionNovedadesProps) {
+  const router = useRouter()
+  const [loading, setLoading] = useState<string | null>(null) // id del item en proceso
+  const [expandido, setExpandido] = useState<string | null>(null) // id del item con form abierto
+  const [observaciones, setObservaciones] = useState<Record<string, string>>({})
 
   const novedadesPendientes = novedades.filter((n) => !n.subsanado)
   const novedadesSubsanadas = novedades.filter((n) => n.subsanado)
 
+  const handleSubsanar = async (itemId: string) => {
+    setLoading(itemId)
+    try {
+      const supabase = createClient()
+      const { error } = await supabase
+        .from("parq_items_inspeccion")
+        .update({
+          subsanado: true,
+          subsanado_observacion: observaciones[itemId] || null,
+        })
+        .eq("id", itemId)
+
+      if (error) throw error
+
+      toast.success("Novedad subsanada")
+      setExpandido(null)
+      setObservaciones((prev) => { const next = { ...prev }; delete next[itemId]; return next })
+      router.refresh()
+    } catch {
+      toast.error("Error al subsanar la novedad")
+    } finally {
+      setLoading(null)
+    }
+  }
+
+  const handleDesmarcar = async (itemId: string) => {
+    setLoading(itemId)
+    try {
+      const supabase = createClient()
+      const { error } = await supabase
+        .from("parq_items_inspeccion")
+        .update({ subsanado: false, subsanado_observacion: null })
+        .eq("id", itemId)
+
+      if (error) throw error
+
+      toast.success("Subsanación revertida")
+      router.refresh()
+    } catch {
+      toast.error("Error al revertir la subsanación")
+    } finally {
+      setLoading(null)
+    }
+  }
 
   return (
     <Card className={cn(
@@ -75,6 +133,7 @@ export function SeccionNovedades({ novedades }: SeccionNovedadesProps) {
               const categoriaConfig = CATEGORIAS_ITEMS[itemData.categoria]
               const estadoConfig = ESTADOS_ITEM[item.estado]
               const IconComponent = ESTADO_ITEM_ICONS[item.estado as EstadoItem]
+              const esteExpandido = expandido === item.id
 
               return (
                 <div
@@ -86,7 +145,7 @@ export function SeccionNovedades({ novedades }: SeccionNovedadesProps) {
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex items-start gap-3 flex-1">
-                      <IconComponent className={cn("h-5 w-5", ESTADO_ITEM_COLORS[item.estado as EstadoItem]?.icon)} />
+                      <IconComponent className={cn("h-5 w-5 mt-0.5", ESTADO_ITEM_COLORS[item.estado as EstadoItem]?.icon)} />
                       <div className="flex-1">
                         <div className="flex items-center gap-2 flex-wrap">
                           <p className="font-medium">{itemData.nombre}</p>
@@ -102,8 +161,61 @@ export function SeccionNovedades({ novedades }: SeccionNovedadesProps) {
                             {item.observacion}
                           </p>
                         )}
+
+                        {/* Formulario inline de subsanación */}
+                        {esEditable && esteExpandido && (
+                          <div className="mt-3 space-y-2">
+                            <Textarea
+                              placeholder="Observación de cierre (opcional)"
+                              value={observaciones[item.id] || ""}
+                              onChange={(e) =>
+                                setObservaciones((prev) => ({ ...prev, [item.id]: e.target.value }))
+                              }
+                              rows={2}
+                              className="text-sm"
+                              disabled={loading === item.id}
+                            />
+                            <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                onClick={() => handleSubsanar(item.id)}
+                                disabled={loading === item.id}
+                                className="bg-green-600 hover:bg-green-700 text-white"
+                              >
+                                {loading === item.id ? (
+                                  <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                                ) : (
+                                  <CheckCircle className="h-3 w-3 mr-1" />
+                                )}
+                                Confirmar
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => setExpandido(null)}
+                                disabled={loading === item.id}
+                              >
+                                Cancelar
+                              </Button>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
+
+                    {/* Botón subsanar */}
+                    {esEditable && !esteExpandido && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="text-green-700 border-green-300 hover:bg-green-50 flex-shrink-0"
+                        onClick={() => setExpandido(item.id)}
+                        disabled={loading === item.id}
+                      >
+                        <CheckCircle className="h-3 w-3 mr-1" />
+                        Subsanar
+                      </Button>
+                    )}
                   </div>
                 </div>
               )
@@ -141,6 +253,23 @@ export function SeccionNovedades({ novedades }: SeccionNovedadesProps) {
                         )}
                       </div>
                     </div>
+
+                    {/* Botón desmarcar */}
+                    {esEditable && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="text-red-500 hover:text-red-700 hover:bg-red-50 flex-shrink-0"
+                        onClick={() => handleDesmarcar(item.id)}
+                        disabled={loading === item.id}
+                      >
+                        {loading === item.id ? (
+                          <Loader2 className="h-3 w-3 animate-spin" />
+                        ) : (
+                          <XCircle className="h-3 w-3" />
+                        )}
+                      </Button>
+                    )}
                   </div>
                 </div>
               )
