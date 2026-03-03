@@ -5,6 +5,22 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.11.0] - 2026-03-03
+
+### Seguridad (Olas 2–4) y correcciones en inspecciones
+
+#### Seguridad
+- Ola 2: Hardening de endpoints admin — validación de permisos, cierre de sesión robusto y limpieza de sesiones residuales
+- Ola 3: Validación de contraseñas seguras y escape HTML en todas las plantillas de email
+- Ola 4: Security headers globales (X-Frame-Options, CSP report-only, HSTS, Permissions-Policy), refactorización del middleware de sesión y limpieza de cookie residual
+
+#### Corregido
+- Firmas del inspector y del operador ahora son obligatorias para guardar una inspección preoperacional
+- PDF de inspecciones: la observación de subsanación ahora aparece en la sección Novedades
+- Middleware de sesión: eliminada verificación de inactividad duplicada (ya la maneja `SessionProvider` en cliente), evitando expulsiones incorrectas de sesión
+
+---
+
 ## [1.10.0] - 2026-03-03
 
 ### Seguridad — Ola 1: Rate Limiting y Fix Host Header Injection
