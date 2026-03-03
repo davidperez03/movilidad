@@ -5,6 +5,21 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.10.0] - 2026-03-03
+
+### Seguridad — Ola 1: Rate Limiting y Fix Host Header Injection
+
+#### Seguridad
+- Rate limiter in-memory en endpoints públicos: `forgot-password` (3/15 min por IP + 3/60 min por email), `sign-up` (3/60 min), `consulta` (10/1 min), `update-password` (10/15 min)
+- Eliminado fallback inseguro al header `Host` en `forgot-password` — la URL de reset ahora deriva exclusivamente de variables de entorno (`NEXT_PUBLIC_SITE_URL` / `VERCEL_PROJECT_PRODUCTION_URL`)
+- Bucket doble en `forgot-password`: por IP y por email, previniendo spam focalizado con rotación de IP
+- Validación Zod de formato de email y longitud de nombre en `forgot-password` y `sign-up`
+- Prioridad de extracción de IP: `x-vercel-forwarded-for` → `x-real-ip` → `x-forwarded-for`
+- `encodeURIComponent` aplicado al `token_hash` en el reset URL
+- Respuesta 429 estandarizada con header `Retry-After` en todos los endpoints limitados
+
+---
+
 ## [1.9.2] - 2026-02-27
 
 ### Mejoras en inspecciones preoperacionales

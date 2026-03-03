@@ -6,6 +6,7 @@ Para el proceso de release y reglas de versionamiento semántico ver [GITFLOW.md
 
 | Versión | Fecha | Descripción |
 |---------|-------|-------------|
+| 1.10.0 | 2026-03-03 | Feat(security): Ola 1 SEV-1 — rate limiting en endpoints públicos, fix host header injection, validación Zod, bucket doble por IP+email |
 | 1.9.2 | 2026-02-27 | Fix(inspecciones): fotos observaciones desde tabla directa, subsanar solo en inspeccion reciente, sin fechas duplicadas en PDF |
 | 1.9.1 | 2026-02-26 | Fix: errores TypeScript en fotos inspecciones — campo fotos en SELECT y origen en objeto legacy |
 | 1.9.0 | 2026-02-26 | Feat(inspecciones): fotos multiples por item con timestamp y distincion camara/galeria, responsive y PDF actualizado |
