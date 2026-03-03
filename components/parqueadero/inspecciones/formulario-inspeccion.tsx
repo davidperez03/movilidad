@@ -360,6 +360,15 @@ export function FormularioInspeccion({
       return
     }
 
+    if (!firmaInspector) {
+      toast.error("La firma del inspector es obligatoria")
+      return
+    }
+    if (!firmaOperador) {
+      toast.error("La firma del operador es obligatoria")
+      return
+    }
+
     setLoading(true)
 
     try {

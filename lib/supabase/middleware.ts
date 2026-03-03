@@ -95,17 +95,10 @@ export async function updateSession(request: NextRequest) {
       }
 
       if (!sesion) {
-        // Sin sesión activa en DB: cerrada por admin o fallo en registro.
-        // Fail-closed: siempre cerrar — sin depender de cookie manipulable por JS.
+        // Sin sesión activa en DB: cerrada por admin.
+        // La inactividad la maneja el SessionProvider en cliente.
         await supabase.auth.signOut()
         return buildLogoutRedirect('session_closed')
-      } else {
-        // Verificar inactividad
-        const inactiveMs = Date.now() - new Date(sesion.ultima_actividad).getTime()
-        if (inactiveMs > 5 * 60 * 1000) {
-          await supabase.auth.signOut()
-          return buildLogoutRedirect('inactivity')
-        }
       }
     } catch {
       // Fail-closed: error verificando sesión → redirigir a login
