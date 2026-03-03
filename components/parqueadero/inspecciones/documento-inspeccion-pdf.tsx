@@ -567,6 +567,11 @@ export function DocumentoInspeccionPDF({ inspeccion, items }: DocumentoInspeccio
                       {item.subsanado ? " · Subsanado" : ""}
                     </Text>
                     {item.observacion && <Text style={styles.novedadObs}>{item.observacion}</Text>}
+                    {item.subsanado_observacion && (
+                      <Text style={[styles.novedadObs, { fontFamily: "Helvetica-Oblique", marginTop: 2 }]}>
+                        Subsanación: {item.subsanado_observacion}
+                      </Text>
+                    )}
                   </View>
                 ))}
               </View>
