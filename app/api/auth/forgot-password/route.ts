@@ -1,15 +1,54 @@
 import { NextResponse } from 'next/server'
+import { z } from 'zod'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { sendEmail } from '@/lib/email/send-email'
 import { recuperarPasswordTemplate } from '@/lib/email/templates'
 import { logger } from '@/lib/logger'
+import { forgotPasswordLimiter, forgotPasswordEmailLimiter } from '@/lib/rate-limit'
+
+const schema = z.object({
+  email: z.string().email(),
+})
+
+function getClientIp(request: Request): string {
+  // x-vercel-forwarded-for: set por Vercel infrastructure, no falseable por cliente
+  const vercelIp = request.headers.get('x-vercel-forwarded-for')
+  if (vercelIp) return vercelIp.split(',')[0].trim()
+  // x-real-ip: set por proxy confiable (nginx)
+  const realIp = request.headers.get('x-real-ip')
+  if (realIp) return realIp
+  // x-forwarded-for: fallback, potencialmente falseable sin proxy validado
+  const forwarded = request.headers.get('x-forwarded-for')
+  if (forwarded) return forwarded.split(',')[0].trim()
+  return 'unknown'
+}
 
 export async function POST(request: Request) {
-  try {
-    const { email } = await request.json()
+  const ip = getClientIp(request)
+  const ipCheck = forgotPasswordLimiter.check(ip)
+  if (!ipCheck.allowed) {
+    return NextResponse.json(
+      { error: 'Demasiadas solicitudes. Intenta mas tarde.' },
+      { status: 429, headers: { 'Retry-After': String(ipCheck.retryAfter) } }
+    )
+  }
 
-    if (!email) {
-      return NextResponse.json({ error: 'Email requerido' }, { status: 400 })
+  try {
+    const body = await request.json().catch(() => null)
+    const parsed = schema.safeParse(body)
+    if (!parsed.success) {
+      return NextResponse.json({ error: 'Email inválido' }, { status: 400 })
+    }
+
+    const { email } = parsed.data
+
+    // Segundo bucket por email: previene spam focalizado a una víctima con rotación de IP
+    const emailCheck = forgotPasswordEmailLimiter.check(email.toLowerCase())
+    if (!emailCheck.allowed) {
+      return NextResponse.json(
+        { error: 'Demasiadas solicitudes. Intenta mas tarde.' },
+        { status: 429, headers: { 'Retry-After': String(emailCheck.retryAfter) } }
+      )
     }
 
     const supabase = createAdminClient()
@@ -32,16 +71,19 @@ export async function POST(request: Request) {
 
     const tokenHash = data.properties.hashed_token
 
-    // Derivar URL base: variable de entorno > header Host del request
-    const host = request.headers.get('host') || ''
-    const protocol = host.startsWith('localhost') ? 'http' : 'https'
-    const siteUrl = (
-      process.env.NEXT_PUBLIC_SITE_URL
-      || (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : '')
-      || `${protocol}://${host}`
-    ).replace(/\/+$/, '') // quitar trailing slashes
+    // Derivar URL base solo desde variables de entorno (sin fallback al header Host)
+    const siteUrl =
+      process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, '') ||
+      (process.env.VERCEL_PROJECT_PRODUCTION_URL
+        ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+        : null)
 
-    const resetUrl = `${siteUrl}/auth/reset-password?token_hash=${tokenHash}&type=recovery`
+    if (!siteUrl) {
+      logger.error('NEXT_PUBLIC_SITE_URL no configurado')
+      return NextResponse.json({ error: 'Error de configuracion del servidor' }, { status: 500 })
+    }
+
+    const resetUrl = `${siteUrl}/auth/reset-password?token_hash=${encodeURIComponent(tokenHash)}&type=recovery`
 
     // Obtener nombre del perfil
     const { data: perfil } = await supabase

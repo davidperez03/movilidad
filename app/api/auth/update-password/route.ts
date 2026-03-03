@@ -1,8 +1,28 @@
 import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { logger } from '@/lib/logger'
+import { updatePasswordLimiter } from '@/lib/rate-limit'
+
+function getClientIp(request: Request): string {
+  const vercelIp = request.headers.get('x-vercel-forwarded-for')
+  if (vercelIp) return vercelIp.split(',')[0].trim()
+  const realIp = request.headers.get('x-real-ip')
+  if (realIp) return realIp
+  const forwarded = request.headers.get('x-forwarded-for')
+  if (forwarded) return forwarded.split(',')[0].trim()
+  return 'unknown'
+}
 
 export async function POST(request: Request) {
+  const ip = getClientIp(request)
+  const { allowed, retryAfter } = updatePasswordLimiter.check(ip)
+  if (!allowed) {
+    return NextResponse.json(
+      { error: 'Demasiadas solicitudes. Intenta mas tarde.' },
+      { status: 429, headers: { 'Retry-After': String(retryAfter) } }
+    )
+  }
+
   try {
     const { newPassword, clearFlag, accessToken } = await request.json()
 

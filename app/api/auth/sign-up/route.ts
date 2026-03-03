@@ -1,19 +1,43 @@
 import { NextResponse } from 'next/server'
+import { z } from 'zod'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { capitalizeName } from '@/lib/utils/capitalize'
 import { logger } from '@/lib/logger'
+import { signUpLimiter } from '@/lib/rate-limit'
+
+const schema = z.object({
+  email: z.string().email(),
+  nombreCompleto: z.string().min(3).max(100),
+})
+
+function getClientIp(request: Request): string {
+  const vercelIp = request.headers.get('x-vercel-forwarded-for')
+  if (vercelIp) return vercelIp.split(',')[0].trim()
+  const realIp = request.headers.get('x-real-ip')
+  if (realIp) return realIp
+  const forwarded = request.headers.get('x-forwarded-for')
+  if (forwarded) return forwarded.split(',')[0].trim()
+  return 'unknown'
+}
 
 export async function POST(request: Request) {
-  try {
-    const { email, nombreCompleto } = await request.json()
+  const ip = getClientIp(request)
+  const { allowed, retryAfter } = signUpLimiter.check(ip)
+  if (!allowed) {
+    return NextResponse.json(
+      { error: 'Demasiadas solicitudes. Intenta mas tarde.' },
+      { status: 429, headers: { 'Retry-After': String(retryAfter) } }
+    )
+  }
 
-    if (!email || !nombreCompleto) {
+  try {
+    const body = await request.json().catch(() => null)
+    const parsed = schema.safeParse(body)
+    if (!parsed.success) {
       return NextResponse.json({ error: 'Email y nombre son requeridos' }, { status: 400 })
     }
 
-    if (nombreCompleto.trim().length < 3) {
-      return NextResponse.json({ error: 'El nombre debe tener al menos 3 caracteres' }, { status: 400 })
-    }
+    const { email, nombreCompleto } = parsed.data
 
     const supabase = createAdminClient()
 
