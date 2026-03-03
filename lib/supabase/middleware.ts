@@ -1,13 +1,35 @@
 import { createServerClient } from "@supabase/ssr"
 import { NextResponse, type NextRequest } from "next/server"
 
-export async function updateSession(request: NextRequest) {
-  let supabaseResponse = NextResponse.next({
-    request,
-  })
+const SECURITY_HEADERS: Record<string, string> = {
+  'X-Frame-Options': 'DENY',
+  'X-Content-Type-Options': 'nosniff',
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+  'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
+  'Strict-Transport-Security': 'max-age=63072000; includeSubDomains; preload',
+  // CSP en modo Report-Only: monitorear violaciones sin bloquear (Ola 4).
+  // Cambiar a Content-Security-Policy para enforcement después de validar 24h en producción.
+  'Content-Security-Policy-Report-Only': [
+    "default-src 'self'",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data: blob:",
+    "font-src 'self' data:",
+    "connect-src 'self' https://*.supabase.co wss://*.supabase.co",
+    "frame-ancestors 'none'",
+  ].join('; '),
+}
 
-  // With Fluid compute, don't put this client in a global environment
-  // variable. Always create a new one on each request.
+function applySecurityHeaders(response: NextResponse): NextResponse {
+  for (const [key, value] of Object.entries(SECURITY_HEADERS)) {
+    response.headers.set(key, value)
+  }
+  return response
+}
+
+export async function updateSession(request: NextRequest) {
+  let supabaseResponse = NextResponse.next({ request })
+
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -18,9 +40,7 @@ export async function updateSession(request: NextRequest) {
         },
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
-          supabaseResponse = NextResponse.next({
-            request,
-          })
+          supabaseResponse = NextResponse.next({ request })
           cookiesToSet.forEach(({ name, value, options }) => supabaseResponse.cookies.set(name, value, options))
         },
       },
@@ -31,91 +51,68 @@ export async function updateSession(request: NextRequest) {
   // supabase.auth.getUser(). A simple mistake could make it very hard to debug
   // issues with users being randomly logged out.
 
-  // IMPORTANT: If you remove getUser() and you use server-side rendering
-  // with the Supabase client, your users may be randomly logged out.
+  const publicRoutes = ["/", "/consulta"]
+  const isPublicRoute = publicRoutes.includes(request.nextUrl.pathname)
+  const isPublicApi = request.nextUrl.pathname.startsWith("/api/consulta")
+  const isAuthRoute = request.nextUrl.pathname.startsWith("/auth") || request.nextUrl.pathname.startsWith("/api/auth")
+  const isProtected = !isPublicRoute && !isPublicApi && !isAuthRoute
+
+  // Fail-closed: si getUser() falla en rutas protegidas, redirigir a login
   let user = null
   try {
     const { data } = await supabase.auth.getUser()
     user = data?.user || null
   } catch {
-    // Si hay error de conexión, dejamos que el usuario continúe sin autenticar
-  }
-
-  // Rutas públicas que no requieren autenticación
-  const publicRoutes = ["/", "/consulta"]
-  const isPublicRoute = publicRoutes.includes(request.nextUrl.pathname)
-  const isPublicApi = request.nextUrl.pathname.startsWith("/api/consulta")
-  const isAuthRoute = request.nextUrl.pathname.startsWith("/auth") || request.nextUrl.pathname.startsWith("/api/auth")
-
-  if (user && !isPublicRoute && !isPublicApi && !isAuthRoute) {
-    // Solo verificar sys_sesiones si hay cookie de sesión registrada.
-    // Sin ella (ej: registrarInicio falló, o sesión pre-auditoría) no hay reglas DB que aplicar.
-    const sessionCookie = request.cookies.get('session_registered')
-
-    if (sessionCookie) {
-      try {
-        const { data: sesion } = await supabase
-          .from('sys_sesiones')
-          .select('id, ultima_actividad')
-          .eq('usuario_id', user.id)
-          .eq('estado', 'activa')
-          .order('inicio_sesion', { ascending: false })
-          .limit(1)
-          .maybeSingle()
-
-        // Construye un redirect que incluye las cookies que signOut() limpió en supabaseResponse,
-        // garantizando que el browser reciba la anulación completa de tokens en la misma respuesta
-        const buildLogoutRedirect = (reason: string) => {
-          const url = request.nextUrl.clone()
-          url.pathname = "/auth/login"
-          url.searchParams.set('reason', reason)
-          const response = NextResponse.redirect(url)
-          // Copiar cookies de Supabase (access/refresh token eliminados por signOut)
-          supabaseResponse.cookies.getAll().forEach(({ name, value, ...options }) => {
-            response.cookies.set({ name, value, ...options })
-          })
-          response.cookies.delete('session_registered')
-          return response
-        }
-
-        // Sesión cerrada por admin o manualmente: cookie existe pero no hay sesión activa en BD
-        if (!sesion) {
-          await supabase.auth.signOut()
-          return buildLogoutRedirect('session_closed')
-        }
-
-        // Inactividad superada: sys_sesiones registra actividad cada ~1 min desde el cliente
-        // Si ultima_actividad supera 5 min, cerrar aunque el token de Supabase siga vigente
-        const inactiveMs = Date.now() - new Date(sesion.ultima_actividad).getTime()
-        if (inactiveMs > 5 * 60 * 1000) {
-          await supabase.auth.signOut()
-          return buildLogoutRedirect('inactivity')
-        }
-      } catch {
-        // Error verificando sesión — no bloquear la navegación
-      }
+    if (isProtected) {
+      const url = request.nextUrl.clone()
+      url.pathname = "/auth/login"
+      return applySecurityHeaders(NextResponse.redirect(url))
     }
   }
 
-  if (!user && !isPublicRoute && !isPublicApi && !isAuthRoute) {
-    // no user, potentially respond by redirecting the user to the login page
-    const url = request.nextUrl.clone()
-    url.pathname = "/auth/login"
-    return NextResponse.redirect(url)
+  if (user && isProtected) {
+    // Verificar sys_sesiones siempre — sin depender de cookie manipulable por JS.
+    // Fail-closed: si la verificación falla o no hay sesión activa, cerrar.
+    try {
+      const { data: sesion } = await supabase
+        .from('sys_sesiones')
+        .select('id, ultima_actividad')
+        .eq('usuario_id', user.id)
+        .eq('estado', 'activa')
+        .order('inicio_sesion', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+
+      const buildLogoutRedirect = (reason: string) => {
+        const url = request.nextUrl.clone()
+        url.pathname = "/auth/login"
+        url.searchParams.set('reason', reason)
+        const response = NextResponse.redirect(url)
+        supabaseResponse.cookies.getAll().forEach(({ name, value, ...options }) => {
+          response.cookies.set({ name, value, ...options })
+        })
+        return applySecurityHeaders(response)
+      }
+
+      if (!sesion) {
+        // Sin sesión activa en DB: cerrada por admin.
+        // La inactividad la maneja el SessionProvider en cliente.
+        await supabase.auth.signOut()
+        return buildLogoutRedirect('session_closed')
+      }
+    } catch {
+      // Fail-closed: error verificando sesión → redirigir a login
+      const url = request.nextUrl.clone()
+      url.pathname = "/auth/login"
+      return applySecurityHeaders(NextResponse.redirect(url))
+    }
   }
 
-  // IMPORTANT: You *must* return the supabaseResponse object as it is.
-  // If you're creating a new response object with NextResponse.next() make sure to:
-  // 1. Pass the request in it, like so:
-  //    const myNewResponse = NextResponse.next({ request })
-  // 2. Copy over the cookies, like so:
-  //    myNewResponse.cookies.setAll(supabaseResponse.cookies.getAll())
-  // 3. Change the myNewResponse object to fit your needs, but avoid changing
-  //    the cookies!
-  // 4. Finally:
-  //    return myNewResponse
-  // If this is not done, you may be causing the browser and server to go out
-  // of sync and terminate the user's session prematurely!
+  if (!user && isProtected) {
+    const url = request.nextUrl.clone()
+    url.pathname = "/auth/login"
+    return applySecurityHeaders(NextResponse.redirect(url))
+  }
 
-  return supabaseResponse
+  return applySecurityHeaders(supabaseResponse)
 }

@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
@@ -43,13 +42,10 @@ export function PasswordForm({ title, description, buttonText, clearFlag, onSucc
     setIsLoading(true)
 
     try {
-      const supabase = createClient()
-      const { data: { session } } = await supabase.auth.getSession()
-
       const res = await fetch("/api/auth/update-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ newPassword: newPwd, clearFlag, accessToken: session?.access_token }),
+        body: JSON.stringify({ newPassword: newPwd, clearFlag }),
       })
 
       if (!res.ok) {

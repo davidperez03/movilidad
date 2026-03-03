@@ -1,43 +1,47 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { requireSuperAdmin } from '@/lib/api/require-superadmin'
 import { logger } from '@/lib/logger'
+
+const schema = z.object({
+  userId: z.string().uuid('userId debe ser un UUID válido'),
+})
 
 export async function POST(request: NextRequest) {
   try {
     const auth = await requireSuperAdmin()
     if (auth.response) return auth.response
 
-    const { userId } = await request.json()
-
-    if (!userId) {
-      return NextResponse.json({ error: 'userId requerido' }, { status: 400 })
+    const body = await request.json().catch(() => null)
+    const parsed = schema.safeParse(body)
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.errors[0].message }, { status: 400 })
     }
 
-    // No permitir auto-eliminación
+    const { userId } = parsed.data
+
     if (userId === auth.userId) {
       return NextResponse.json({ error: 'No puede eliminarse a sí mismo' }, { status: 400 })
     }
 
     const supabaseAdmin = createAdminClient()
 
-    // Eliminar roles del usuario
     await supabaseAdmin
       .from('usuarios_roles')
       .delete()
       .eq('usuario_id', userId)
 
-    // Eliminar perfil (cascade eliminará lo demás)
     await supabaseAdmin
       .from('perfiles')
       .delete()
       .eq('id', userId)
 
-    // Eliminar de auth
     const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(userId)
 
     if (deleteError) {
-      return NextResponse.json({ error: deleteError.message }, { status: 400 })
+      logger.error('Error eliminando usuario', { error: deleteError.message, userId })
+      return NextResponse.json({ error: 'Error al eliminar el usuario' }, { status: 400 })
     }
 
     return NextResponse.json({ success: true, message: 'Usuario eliminado correctamente' })
