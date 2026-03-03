@@ -1,8 +1,9 @@
-import { baseLayout, credentialBox, alertBox, divider } from './base'
+import { baseLayout, credentialBox, alertBox, divider, escapeHtml } from './base'
 
 export function resetPasswordTemplate(nombre: string, email: string, tempCred: string): string {
+  const safeNombre = escapeHtml(nombre)
   return baseLayout(`
-    <p style="color:#111827;font-size:15px;margin:0 0 4px;">Hola ${nombre},</p>
+    <p style="color:#111827;font-size:15px;margin:0 0 4px;">Hola ${safeNombre},</p>
     <p style="color:#6b7280;font-size:14px;line-height:1.5;margin:0;">El administrador restablecio la clave de tu cuenta.</p>
     ${divider()}
     ${credentialBox('Correo', email)}
