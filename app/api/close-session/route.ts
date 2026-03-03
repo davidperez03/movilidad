@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
 import { logger } from '@/lib/logger'
+
+const schema = z.object({
+  sessionId: z.string().uuid('sessionId debe ser un UUID válido'),
+})
 
 /**
  * API Route: Cerrar sesión cuando se cierra la ventana
@@ -12,42 +17,55 @@ import { logger } from '@/lib/logger'
 export async function POST(request: NextRequest) {
   try {
     const body = await request.text()
-    const { sessionId } = JSON.parse(body)
-
-    if (!sessionId) {
-      return NextResponse.json(
-        { error: 'Session ID es requerido' },
-        { status: 400 }
-      )
+    let rawBody: unknown
+    try {
+      rawBody = JSON.parse(body)
+    } catch {
+      return NextResponse.json({ error: 'Payload inválido' }, { status: 400 })
+    }
+    const parsed = schema.safeParse(rawBody)
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.errors[0].message }, { status: 400 })
     }
 
+    const { sessionId } = parsed.data
     const supabase = await createClient()
 
-    // IMPORTANTE: Primero invalidar el token de Supabase
-    // Esto hace que el token deje de ser válido inmediatamente
-    await supabase.auth.signOut()
+    // Verificar usuario autenticado
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      return NextResponse.json({ error: 'No autenticado' }, { status: 401 })
+    }
 
-    // Luego llamar función RPC para cerrar la sesión en nuestra DB
+    // Verificar que el sessionId pertenece al usuario autenticado
+    const { data: sesion } = await supabase
+      .from('sys_sesiones')
+      .select('id')
+      .eq('id', sessionId)
+      .eq('usuario_id', user.id)
+      .maybeSingle()
+
+    if (!sesion) {
+      return NextResponse.json({ error: 'Sesión no encontrada' }, { status: 403 })
+    }
+
+    // Registrar cierre en DB primero (auth aún válida para RPC con auth.uid())
     const { error } = await supabase.rpc('registrar_fin_sesion', {
       p_sesion_id: sessionId,
-      p_estado: 'cerrada'
+      p_estado: 'cerrada',
     })
 
     if (error) {
-      logger.error('Error cerrando sesión', error)
-      return NextResponse.json(
-        { error: 'Error al cerrar sesión' },
-        { status: 500 }
-      )
+      logger.error('Error cerrando sesión', { error: error.message, sessionId })
+      return NextResponse.json({ error: 'Error al cerrar sesión' }, { status: 500 })
     }
 
-    return NextResponse.json({ success: true })
+    // Invalidar token de Supabase después de registrar el cierre
+    await supabase.auth.signOut()
 
+    return NextResponse.json({ success: true })
   } catch (error) {
     logger.error('Error en close-session', error)
-    return NextResponse.json(
-      { error: 'Error interno del servidor' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
   }
 }

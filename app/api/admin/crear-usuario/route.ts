@@ -48,7 +48,8 @@ export async function POST(request: NextRequest) {
           { status: 409 }
         )
       }
-      return NextResponse.json({ error: createError.message }, { status: 400 })
+      logger.error('Error creando usuario', { error: createError.message, email })
+      return NextResponse.json({ error: 'Error al crear el usuario' }, { status: 400 })
     }
 
     // Asegurar que el perfil quede inactivo
