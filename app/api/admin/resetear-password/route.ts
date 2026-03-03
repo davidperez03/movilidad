@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { requireSuperAdmin } from '@/lib/api/require-superadmin'
 import { generatePassword } from '@/lib/utils/generate-password'
@@ -6,17 +7,22 @@ import { sendEmail } from '@/lib/email/send-email'
 import { resetPasswordTemplate } from '@/lib/email/templates'
 import { logger } from '@/lib/logger'
 
+const schema = z.object({
+  userId: z.string().uuid('userId debe ser un UUID válido'),
+})
+
 export async function POST(request: NextRequest) {
   try {
     const auth = await requireSuperAdmin()
     if (auth.response) return auth.response
 
-    const { userId } = await request.json()
-
-    if (!userId) {
-      return NextResponse.json({ error: 'userId requerido' }, { status: 400 })
+    const body = await request.json().catch(() => null)
+    const parsed = schema.safeParse(body)
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.errors[0].message }, { status: 400 })
     }
 
+    const { userId } = parsed.data
     const supabaseAdmin = createAdminClient()
 
     const { data: { user: targetUser }, error: getUserError } = await supabaseAdmin.auth.admin.getUserById(userId)
@@ -36,7 +42,8 @@ export async function POST(request: NextRequest) {
     })
 
     if (updateError) {
-      return NextResponse.json({ error: updateError.message }, { status: 400 })
+      logger.error('Error restableciendo contraseña', { error: updateError.message, userId })
+      return NextResponse.json({ error: 'Error al restablecer la contraseña' }, { status: 400 })
     }
 
     const nombre = targetUser.user_metadata?.nombre_completo || 'Usuario'

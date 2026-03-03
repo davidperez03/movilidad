@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
+import { requireSuperAdmin } from '@/lib/api/require-superadmin'
 import { logger } from '@/lib/logger'
+
+const schema = z.object({
+  sesion_id: z.string().uuid('sesion_id debe ser un UUID válido'),
+})
 
 /**
  * API Route: Cerrar sesión manualmente (Superadmin)
@@ -9,55 +15,35 @@ import { logger } from '@/lib/logger'
  */
 export async function POST(request: NextRequest) {
   try {
-    const { sesion_id, admin_id } = await request.json()
+    const auth = await requireSuperAdmin()
+    if (auth.response) return auth.response
 
-    if (!sesion_id || !admin_id) {
-      return NextResponse.json(
-        { error: 'sesion_id y admin_id son requeridos' },
-        { status: 400 }
-      )
+    const body = await request.json().catch(() => null)
+    const parsed = schema.safeParse(body)
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.errors[0].message }, { status: 400 })
     }
 
+    const { sesion_id } = parsed.data
     const supabase = await createClient()
 
-    // Verificar que el admin está autenticado
-    const { data: { user } } = await supabase.auth.getUser()
-
-    if (!user || user.id !== admin_id) {
-      return NextResponse.json(
-        { error: 'No autorizado' },
-        { status: 401 }
-      )
-    }
-
-    // Llamar función RPC para cerrar sesión
     const { data, error } = await supabase.rpc('superadmin_cerrar_sesion', {
       p_sesion_id: sesion_id,
-      p_admin_id: admin_id
+      p_admin_id: auth.userId,
     })
 
     if (error) {
-      logger.error('Error cerrando sesión', error)
-      return NextResponse.json(
-        { error: error.message },
-        { status: 500 }
-      )
+      logger.error('Error cerrando sesión', { error: error.message, sesion_id })
+      return NextResponse.json({ error: 'Error al cerrar la sesión' }, { status: 500 })
     }
 
     if (!data) {
-      return NextResponse.json(
-        { error: 'Sesión no encontrada o ya cerrada' },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: 'Sesión no encontrada o ya cerrada' }, { status: 404 })
     }
 
     return NextResponse.json({ success: true })
-
   } catch (error) {
     logger.error('Error en cerrar-sesion', error)
-    return NextResponse.json(
-      { error: 'Error interno del servidor' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
   }
 }
