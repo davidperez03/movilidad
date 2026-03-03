@@ -103,9 +103,6 @@ function LoginForm() {
     setError(null)
 
     try {
-      // Limpiar cookie stale de sesiones anteriores
-      document.cookie = 'session_registered=; path=/; max-age=0'
-
       const { error, data } = await supabase.auth.signInWithPassword({
         email,
         password,
