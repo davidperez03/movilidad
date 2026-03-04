@@ -5,6 +5,18 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.11.1] - 2026-03-04
+
+### Corrección crítica — Redirect loop al iniciar sesión
+
+#### Corregido
+- **Login bloqueado en todos los tipos de usuario**: el middleware verificaba `sys_sesiones` fail-closed — si `registrarInicio` fallaba (RPC 401 sin GRANT EXECUTE) no se creaba el registro y el middleware redirigía a login en un loop. Ahora solo bloquea cuando hay evidencia de cierre forzado por admin (`forzada_cierre`) posterior al último login del usuario; logins frescos y sesiones pendientes de registro pasan sin redirección
+- **Errores silenciosos en SessionManager**: `registrarInicio` ahora emite `console.warn` al fallar para facilitar diagnóstico
+
+> **Acción requerida en BD** (si no se aplicó antes): ejecutar `scripts/migrations/001_grant_execute_sesiones.sql` en Supabase SQL Editor para otorgar `GRANT EXECUTE` a las funciones de sesión.
+
+---
+
 ## [1.11.0] - 2026-03-03
 
 ### Seguridad (Olas 2–4) y correcciones en inspecciones
