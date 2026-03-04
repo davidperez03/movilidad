@@ -50,6 +50,7 @@ export class SessionManager {
       })
 
       if (error) {
+        console.warn('[SessionManager] registrarInicio falló:', error.message, '— el seguimiento de sesión no estará disponible')
         return null
       }
 

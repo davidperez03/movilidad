@@ -71,8 +71,9 @@ export async function updateSession(request: NextRequest) {
   }
 
   if (user && isProtected) {
-    // Verificar sys_sesiones siempre — sin depender de cookie manipulable por JS.
-    // Fail-closed: si la verificación falla o no hay sesión activa, cerrar.
+    // Verificar sys_sesiones para detectar cierres forzados por admin.
+    // Solo bloqueamos si hay evidencia de cierre forzado DESPUÉS del último login.
+    // No bloqueamos por ausencia de sesión (puede ser login fresco o registrarInicio pendiente).
     try {
       const { data: sesion } = await supabase
         .from('sys_sesiones')
@@ -95,16 +96,30 @@ export async function updateSession(request: NextRequest) {
       }
 
       if (!sesion) {
-        // Sin sesión activa en DB: cerrada por admin.
-        // La inactividad la maneja el SessionProvider en cliente.
-        await supabase.auth.signOut()
-        return buildLogoutRedirect('session_closed')
+        // Sin sesión activa. Solo cerrar si el admin forzó el cierre DESPUÉS del último login.
+        // Si no hay evidencia de cierre forzado, es un login fresco: permitir el paso.
+        const lastSignIn = user.last_sign_in_at
+        if (lastSignIn) {
+          const { data: forcedClose } = await supabase
+            .from('sys_sesiones')
+            .select('id')
+            .eq('usuario_id', user.id)
+            .eq('estado', 'forzada_cierre')
+            .gte('fin_sesion', lastSignIn)
+            .limit(1)
+            .maybeSingle()
+
+          if (forcedClose) {
+            await supabase.auth.signOut()
+            return buildLogoutRedirect('session_closed')
+          }
+        }
+        // Sin cierre forzado post-login → login fresco o registrarInicio pendiente.
+        // Permitir el paso; SessionManager registrará la sesión en cliente.
       }
     } catch {
-      // Fail-closed: error verificando sesión → redirigir a login
-      const url = request.nextUrl.clone()
-      url.pathname = "/auth/login"
-      return applySecurityHeaders(NextResponse.redirect(url))
+      // Error de BD: no bloquear a usuarios autenticados válidos.
+      // La identidad ya fue verificada por getUser() arriba.
     }
   }
 
