@@ -189,6 +189,17 @@ function LoginForm() {
     } catch (error: unknown) {
       const msg = error instanceof Error ? error.message : "Error al iniciar sesión"
       setError(traducirErrorAuth(msg))
+
+      // Registrar intento fallido en auditoría (no bloquea si falla)
+      try {
+        const ipRes = await fetch('/api/client-info').then(r => r.json()).catch(() => ({}))
+        await supabase.rpc('registrar_login_fallido', {
+          p_correo: email,
+          p_razon: msg,
+          p_ip_address: ipRes.ip ?? null,
+          p_user_agent: navigator.userAgent,
+        })
+      } catch { /* silencioso — no afecta UX */ }
     } finally {
       setIsLoading(false)
     }

@@ -22,10 +22,11 @@ const FILTROS_INITIAL: FiltrosAuditoria = {
 }
 
 export function getTipoAccion(accion: string): string {
-  if (accion.startsWith('usuario_')) return 'usuario'
+  if (accion.startsWith('usuario_') || accion === 'password_reseteado') return 'usuario'
   if (accion.startsWith('rol_')) return 'rol'
   if (accion.includes('login') || accion.includes('logout') || accion.includes('sesion') || accion.includes('token')) return 'sesion'
   if (accion.startsWith('parq_')) return 'parqueadero'
+  if (accion === 'modulo_activado' || accion === 'modulo_desactivado' || accion === 'configuracion_modificada') return 'sistema'
   return 'movilidad'
 }
 
@@ -95,7 +96,13 @@ export function useAuditoria() {
     const busquedaLower = filtros.busqueda.toLowerCase()
 
     return registros.filter((r) => {
-      if (filtros.tipo !== 'todos' && getTipoAccion(r.accion) !== filtros.tipo) return false
+      if (filtros.tipo !== 'todos') {
+        const tipo = getTipoAccion(r.accion)
+        // El filtro 'usuario' cubre también roles (card "Usuarios y Roles")
+        if (filtros.tipo === 'usuario') {
+          if (tipo !== 'usuario' && tipo !== 'rol') return false
+        } else if (tipo !== filtros.tipo) return false
+      }
       if (filtros.usuario !== 'todos' && r.usuario_id !== filtros.usuario) return false
       if (filtros.fechaInicio && r.creado_en < filtros.fechaInicio) return false
       if (filtros.fechaFin && r.creado_en.split('T')[0] > filtros.fechaFin) return false

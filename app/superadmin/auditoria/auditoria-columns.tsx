@@ -43,17 +43,20 @@ function fmt(estado: string): string {
 
 // Categoría y color
 export function getCat(accion: string): { label: string; color: string } {
-  if (accion.startsWith('usuario_')) return { label: 'Usuario', color: 'bg-blue-100 text-blue-800' }
+  if (accion.startsWith('usuario_') || accion === 'password_reseteado') return { label: 'Usuario', color: 'bg-blue-100 text-blue-800' }
   if (accion.startsWith('rol_')) return { label: 'Rol', color: 'bg-purple-100 text-purple-800' }
   if (accion.includes('login') || accion.includes('logout') || accion.includes('sesion') || accion.includes('token')) {
     return { label: 'Sesión', color: 'bg-slate-100 text-slate-700' }
+  }
+  if (accion === 'modulo_activado' || accion === 'modulo_desactivado' || accion === 'configuracion_modificada') {
+    return { label: 'Sistema', color: 'bg-orange-100 text-orange-800' }
   }
   if (accion.startsWith('parq_')) return { label: 'Parqueadero', color: 'bg-cyan-100 text-cyan-800' }
   if (accion === 'cuenta_creada') return { label: 'Cuenta', color: 'bg-teal-100 text-teal-800' }
   if (accion.includes('traslado')) return { label: 'Traslado', color: 'bg-amber-100 text-amber-800' }
   if (accion.includes('radicacion')) return { label: 'Radicación', color: 'bg-sky-100 text-sky-800' }
-  if (accion.includes('proceso') || accion === 'estado_cambiado') return { label: 'Proceso', color: 'bg-violet-100 text-violet-800' }
-  if (accion === 'novedad_agregada') return { label: 'Novedad', color: 'bg-pink-100 text-pink-800' }
+  if (accion.includes('proceso') || accion === 'estado_cambiado' || accion === 'observacion_agregada') return { label: 'Proceso', color: 'bg-violet-100 text-violet-800' }
+  if (accion === 'novedad_agregada' || accion === 'novedad_resuelta') return { label: 'Novedad', color: 'bg-pink-100 text-pink-800' }
   return { label: 'Sistema', color: 'bg-gray-100 text-gray-700' }
 }
 
@@ -137,6 +140,9 @@ export function getDescripcion(r: RegistroAuditoria): string {
       const n = s(r, 'sesiones_cerradas')
       return n ? `${n} sesiones cerradas por token expirado` : 'Tokens expirados'
     }
+    case 'modulo_activado': return 'Módulo activado'
+    case 'modulo_desactivado': return 'Módulo desactivado'
+    case 'configuracion_modificada': return 'Configuración modificada'
 
     case 'cuenta_creada': {
       const num = s(r, 'numero_cuenta'), tipo = s(r, 'tipo_servicio')
@@ -168,6 +174,14 @@ export function getDescripcion(r: RegistroAuditoria): string {
       const tipo = s(r, 'tipo_novedad'), desc = s(r, 'descripcion')
       if (tipo && desc) return `${tipo}: ${desc.substring(0, 40)}${desc.length > 40 ? '...' : ''}`
       return tipo || 'Novedad agregada'
+    }
+    case 'novedad_resuelta': {
+      const tipo = s(r, 'tipo_novedad')
+      return tipo ? `Resuelta: ${tipo}` : 'Novedad resuelta'
+    }
+    case 'observacion_agregada': {
+      const obs = s(r, 'observacion')
+      return obs ? obs.substring(0, 60) + (obs.length > 60 ? '...' : '') : 'Observación agregada'
     }
 
     // === Parqueadero ===

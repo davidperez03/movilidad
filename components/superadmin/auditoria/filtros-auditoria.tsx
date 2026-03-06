@@ -14,11 +14,11 @@ import type { FiltrosAuditoria } from '@/lib/hooks/useAuditoria'
 
 const TIPOS = [
   { value: 'todos', label: 'Todos los tipos' },
-  { value: 'usuario', label: 'Usuarios' },
-  { value: 'rol', label: 'Roles' },
+  { value: 'usuario', label: 'Usuarios y Roles' },
   { value: 'sesion', label: 'Sesiones' },
   { value: 'movilidad', label: 'Movilidad' },
   { value: 'parqueadero', label: 'Parqueadero' },
+  { value: 'sistema', label: 'Sistema' },
 ]
 
 interface FiltrosAuditoriaProps {

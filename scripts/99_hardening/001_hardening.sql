@@ -20,9 +20,11 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA public
 ALTER DEFAULT PRIVILEGES IN SCHEMA public
   REVOKE ALL ON FUNCTIONS FROM public;
 
--- Re-grant explícito: anon solo puede ejecutar la RPC de consulta pública
--- La vista ya NO es accesible directamente por anon (se consume vía API route server-side)
+-- Re-grant explícito: funciones accesibles sin autenticación
+-- consultar_vehiculo_por_placa: RPC de consulta pública (vista consumida vía API route server-side)
+-- registrar_login_fallido: registra intentos de login fallidos antes de que exista sesión
 GRANT EXECUTE ON FUNCTION public.consultar_vehiculo_por_placa(text) TO anon;
+GRANT EXECUTE ON FUNCTION public.registrar_login_fallido(text, text, inet, text) TO anon;
 
 -- authenticated necesita acceso a tablas vía RLS (las políticas controlan el acceso)
 GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO authenticated;
