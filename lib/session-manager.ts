@@ -127,6 +127,16 @@ export class SessionManager {
   }
 
   /**
+   * Limpia el ID de sesión de memoria y sessionStorage
+   */
+  static clearSessionId(): void {
+    this.sessionId = null
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem('current_session_id')
+    }
+  }
+
+  /**
    * Obtiene el ID de sesión actual
    */
   static getSessionId(): string | null {

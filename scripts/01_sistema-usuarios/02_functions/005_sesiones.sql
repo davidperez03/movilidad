@@ -172,9 +172,10 @@ SECURITY DEFINER
 SET search_path = public
 AS $$
 DECLARE
-  sesiones_cerradas INTEGER;
+  v_sesion RECORD;
+  sesiones_cerradas INTEGER := 0;
 BEGIN
-  WITH sesiones_a_cerrar AS (
+  FOR v_sesion IN
     UPDATE public.sys_sesiones
     SET
       estado = 'expirada',
@@ -183,8 +184,21 @@ BEGIN
     WHERE estado = 'activa'
       AND ultima_actividad < (now() - (p_minutos_inactividad || ' minutes')::INTERVAL)
     RETURNING id, usuario_id
-  )
-  SELECT COUNT(*) INTO sesiones_cerradas FROM sesiones_a_cerrar;
+  LOOP
+    -- Auditoría individual por sesión con datos del usuario
+    PERFORM registrar_auditoria_sistema(
+      'sesion_expirada',
+      'sesion',
+      v_sesion.id,
+      jsonb_build_object(
+        'usuario_id', v_sesion.usuario_id,
+        'motivo', 'inactividad_automatica',
+        'minutos_inactividad', p_minutos_inactividad
+      )
+    );
+
+    sesiones_cerradas := sesiones_cerradas + 1;
+  END LOOP;
 
   RETURN sesiones_cerradas;
 END;
@@ -314,3 +328,10 @@ COMMENT ON FUNCTION cerrar_sesiones_inactivas IS
 
 COMMENT ON FUNCTION obtener_sesion_activa IS
   'Función para obtener el ID de la sesión activa más reciente de un usuario';
+
+-- Permisos: el rol authenticated necesita ejecutar estas funciones desde el cliente
+GRANT EXECUTE ON FUNCTION registrar_inicio_sesion     TO authenticated;
+GRANT EXECUTE ON FUNCTION registrar_fin_sesion        TO authenticated;
+GRANT EXECUTE ON FUNCTION actualizar_actividad_sesion TO authenticated;
+GRANT EXECUTE ON FUNCTION obtener_sesion_activa       TO authenticated;
+GRANT EXECUTE ON FUNCTION cerrar_sesiones_inactivas   TO authenticated;
