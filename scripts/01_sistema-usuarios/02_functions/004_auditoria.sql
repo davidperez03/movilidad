@@ -233,3 +233,42 @@ $$;
 
 COMMENT ON FUNCTION registrar_auditoria_sistema IS
   'Función para registrar manualmente una acción en la auditoría del sistema. Captura automáticamente el usuario autenticado.';
+
+CREATE OR REPLACE FUNCTION registrar_login_fallido(
+  p_correo TEXT,
+  p_razon TEXT DEFAULT 'Credenciales inválidas',
+  p_ip_address INET DEFAULT NULL,
+  p_user_agent TEXT DEFAULT NULL
+)
+RETURNS VOID
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  INSERT INTO public.sys_auditoria (
+    accion,
+    entidad_tipo,
+    detalles,
+    realizado_por,
+    ip_address,
+    user_agent
+  ) VALUES (
+    'login_fallido',
+    'sesion',
+    jsonb_build_object(
+      'correo', p_correo,
+      'razon', p_razon
+    ),
+    NULL,
+    p_ip_address,
+    p_user_agent
+  );
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION registrar_login_fallido TO anon;
+GRANT EXECUTE ON FUNCTION registrar_login_fallido TO authenticated;
+
+COMMENT ON FUNCTION registrar_login_fallido IS
+  'Registra intentos de login fallidos. Solo inserta login_fallido — callable por anon sin sesión activa.';
