@@ -70,27 +70,30 @@ export class SessionManager {
   }
 
   /**
-   * Actualiza la última actividad de la sesión
+   * Actualiza la última actividad de la sesión.
+   * Retorna:
+   *   'active'   — sesión actualizada correctamente en BD
+   *   'inactive' — sesión no existe o está cerrada/expirada en BD
+   *   'error'    — fallo de red u otro error (no conclusivo sobre el estado)
    */
-  static async actualizarActividad(): Promise<boolean> {
+  static async actualizarActividad(): Promise<'active' | 'inactive' | 'error'> {
     try {
       const sessionId = this.getSessionId()
-      if (!sessionId) return false
+      if (!sessionId) return 'inactive'
 
       const supabase = createClient()
 
-      const { error } = await supabase.rpc('actualizar_actividad_sesion', {
+      const { data, error } = await supabase.rpc('actualizar_actividad_sesion', {
         p_sesion_id: sessionId
       })
 
-      if (error) {
-        return false
-      }
+      if (error) return 'error'
 
-      return true
+      // data = true si encontró y actualizó la fila (estado = 'activa')
+      return data ? 'active' : 'inactive'
 
-    } catch (error) {
-      return false
+    } catch {
+      return 'error'
     }
   }
 
