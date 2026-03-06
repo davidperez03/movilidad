@@ -5,6 +5,20 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.12.0] - 2026-03-06
+
+### Auditoría de logins fallidos y correcciones de consistencia
+
+#### Agregado
+- **Registro de logins fallidos**: cada intento de autenticación fallido queda registrado en `sys_auditoria` con correo, razón, IP y user agent, incluso sin sesión activa (función `registrar_login_fallido` con `GRANT TO anon`)
+- **Migración 004**: `004_registrar_login_fallido.sql` — función SQL + GRANTs aplicados en producción
+
+#### Corregido
+- **Inconsistencias de auditoría en frontend**: `password_reseteado` se clasificaba como `movilidad` en vez de `usuario`; `modulo_activado/desactivado/configuracion_modificada` no tenían categoría ni descripción; filtro "Usuarios y Roles" no incluía eventos de tipo `rol`
+- **Hardening compatible con `anon`**: `001_hardening.sql` ahora re-concede explícitamente `EXECUTE` de `registrar_login_fallido` a `anon` para no perder el permiso al re-ejecutar el script de hardening
+
+---
+
 ## [1.11.3] - 2026-03-06
 
 ### Corrección de sesiones en móvil
