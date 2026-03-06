@@ -5,6 +5,17 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.11.3] - 2026-03-06
+
+### Corrección de sesiones en móvil
+
+#### Corregido
+- **Sesiones duplicadas en navegación móvil**: `checkSession` corría en cada cambio de ruta, creando una sesión nueva por cada página visitada. Ahora `sessionInitializedRef` lo limita a una sola vez por montado
+- **Error de red creaba sesión nueva**: `actualizarActividad()` retornaba `false` tanto para sesión cerrada como para error de red. Ahora tristate `'active' | 'inactive' | 'error'` — solo `'inactive'` confirmado por BD dispara creación de nueva sesión
+- **Sesiones huérfanas en iOS**: `beforeunload` no dispara en iOS Safari. Agregado `pagehide` para cubrir cierre de pestaña/app en móviles
+
+---
+
 ## [1.11.2] - 2026-03-06
 
 ### Corrección de sesiones — cierre confiable y auditoría completa

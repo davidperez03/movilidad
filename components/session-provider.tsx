@@ -32,6 +32,7 @@ export function SessionProvider({ children }: SessionProviderProps) {
   const lastDbActivityUpdateRef = useRef<number>(0) // Para tracking de actualización en BD
   const inactivityTimerRef = useRef<NodeJS.Timeout | null>(null)
   const warningTimerRef = useRef<NodeJS.Timeout | null>(null)
+  const sessionInitializedRef = useRef<boolean>(false)
 
   // Rutas públicas que no necesitan gestión de sesión
   const isPublicRoute = pathname?.startsWith("/auth") || pathname?.startsWith("/consulta") || pathname === "/"
@@ -136,17 +137,20 @@ export function SessionProvider({ children }: SessionProviderProps) {
     })
 
     // Cerrar sesión en BD cuando el usuario cierra la pestaña/browser.
+    // - beforeunload: desktop y Android
+    // - pagehide: iOS Safari (no dispara beforeunload de forma confiable)
     // sendBeacon garantiza el envío incluso durante el unload.
-    const handleBeforeUnload = () => {
+    const handlePageClose = () => {
       const sessionId = SessionManager.getSessionId()
       if (sessionId) {
         navigator.sendBeacon('/api/close-session', JSON.stringify({ sessionId }))
-        // Limpiar sessionStorage antes de que el browser pueda restaurarlo
-        // al reabrir la pestaña — fuerza la creación de nueva sesión al volver.
+        // Limpiar sessionStorage para forzar nueva sesión al volver
         sessionStorage.removeItem('current_session_id')
+        sessionInitializedRef.current = false
       }
     }
-    window.addEventListener('beforeunload', handleBeforeUnload)
+    window.addEventListener('beforeunload', handlePageClose)
+    window.addEventListener('pagehide', handlePageClose)
 
     // Iniciar timers
     updateActivity()
@@ -160,20 +164,28 @@ export function SessionProvider({ children }: SessionProviderProps) {
         return
       }
 
-      // Verificar que la sesión registrada en cliente siga activa en BD.
-      // Cubre dos casos:
-      //   - Sin sessionId (pestaña nueva): crear sesión directamente.
-      //   - Con sessionId pero inactiva en BD (Ctrl+Shift+T restauró sessionStorage
-      //     con ID de sesión ya cerrada): limpiar y crear nueva.
       const sessionId = SessionManager.getSessionId()
+
       if (!sessionId) {
+        // Sin sesión en cliente: crear una nueva (login reciente, pestaña nueva, etc.)
         await SessionManager.registrarInicio(user.id)
-      } else {
-        const sigueActiva = await SessionManager.actualizarActividad()
-        if (!sigueActiva) {
-          SessionManager.clearSessionId()
-          await SessionManager.registrarInicio(user.id)
-        }
+        sessionInitializedRef.current = true
+        return
+      }
+
+      // Si ya inicializamos en este montado, no volver a verificar en cada
+      // cambio de ruta — evita crear sesiones duplicadas en navegación en móvil.
+      if (sessionInitializedRef.current) return
+      sessionInitializedRef.current = true
+
+      // Primera vez en este montado con sessionId existente:
+      // verificar que siga activa en BD (caso Ctrl+Shift+T con sessionStorage restaurado).
+      // Solo crear nueva sesión si la BD confirma que está cerrada ('inactive').
+      // Un error de red ('error') no es conclusivo — conservar la sesión existente.
+      const estadoBD = await SessionManager.actualizarActividad()
+      if (estadoBD === 'inactive') {
+        SessionManager.clearSessionId()
+        await SessionManager.registrarInicio(user.id)
       }
     }
     checkSession()
@@ -184,7 +196,8 @@ export function SessionProvider({ children }: SessionProviderProps) {
         document.removeEventListener(eventName, activityHandler)
       })
 
-      window.removeEventListener('beforeunload', handleBeforeUnload)
+      window.removeEventListener('beforeunload', handlePageClose)
+      window.removeEventListener('pagehide', handlePageClose)
 
       if (inactivityTimerRef.current) {
         clearTimeout(inactivityTimerRef.current)
