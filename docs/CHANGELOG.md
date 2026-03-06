@@ -5,6 +5,26 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.11.2] - 2026-03-06
+
+### Corrección de sesiones — cierre confiable y auditoría completa
+
+#### Corregido
+- **Sesiones no se cerraban en BD al hacer logout**: `BotonCerrarSesion` llamaba `signOut()` antes de `registrarFin()` — para ese momento `auth.uid()` ya era NULL y el RPC fallaba silenciosamente. Ahora `registrarFin()` se ejecuta primero mientras la sesión Supabase aún es válida
+- **Race condition en `SIGNED_OUT` listener**: el listener intentaba llamar `registrarFin()` después de que `signOut()` invalidaba el token, causando que `realizado_por` quedara NULL en auditoría. Eliminado — los flujos normales ya cierran correctamente antes del `signOut()`
+- **Cierre de pestaña sin logout dejaba sesión `activa` indefinidamente**: agregado handler `beforeunload` con `navigator.sendBeacon` hacia `/api/close-session` para registrar el cierre en BD
+- **Ctrl+Shift+T restauraba sessionStorage stale**: al reabrir una pestaña cerrada, Chrome restauraba el sessionId de la sesión ya cerrada impidiendo crear una nueva. Ahora `checkSession` verifica que el sessionId local siga activo en BD; si no, limpia y crea nueva sesión
+- **`cerrar_sesiones_inactivas()` no dejaba rastro en auditoría**: la función cerraba sesiones en bulk sin registrar nada en `sys_auditoria`. Ahora audita individualmente cada sesión cerrada con `usuario_id` y motivo
+- **`/api/close-session` llamaba `signOut()` innecesariamente**: al ser invocado vía `sendBeacon` (pestaña cerrándose), el `signOut()` causaba que un F5 expulsara al usuario. Eliminado — el JWT expira naturalmente
+
+#### Agregado
+- **`SessionManager.clearSessionId()`**: método público para limpiar estado stale de sesión en memoria y `sessionStorage`
+- **`pg_cron` configurado**: limpieza automática horaria de sesiones expiradas por token JWT (`cerrar_sesiones_token_expirado`) e inactividad > 65 min (`cerrar_sesiones_inactivas`)
+- **Migración 003**: `cerrar_sesiones_inactivas` mejorada + configuración `pg_cron`
+- **Scripts SQL sincronizados**: fuentes de migraciones 001 y 002 actualizados para reflejar el estado real de producción (GRANTs, columnas `fotos`, `observaciones_fotos`, constraints e índices)
+
+---
+
 ## [1.11.1] - 2026-03-04
 
 ### Corrección crítica — Redirect loop al iniciar sesión

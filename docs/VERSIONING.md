@@ -6,6 +6,7 @@ Para el proceso de release y reglas de versionamiento semántico ver [GITFLOW.md
 
 | Versión | Fecha | Descripción |
 |---------|-------|-------------|
+| 1.11.2 | 2026-03-06 | Fix(sessions): cierre confiable de sesiones en BD, auditoría completa, beforeunload para cierre de pestaña, pg_cron automático |
 | 1.11.1 | 2026-03-04 | Fix(middleware): corregir redirect loop al login — middleware solo bloquea en cierre forzado por admin, no en ausencia de sesión |
 | 1.11.0 | 2026-03-03 | Feat(security): Olas 2–4 SEV-1 — hardening admin, validación passwords, escape HTML emails, security headers, fix firmas obligatorias y PDF subsanación |
 | 1.10.0 | 2026-03-03 | Feat(security): Ola 1 SEV-1 — rate limiting en endpoints públicos, fix host header injection, validación Zod, bucket doble por IP+email |

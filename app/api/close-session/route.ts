@@ -49,7 +49,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Sesión no encontrada' }, { status: 403 })
     }
 
-    // Registrar cierre en DB primero (auth aún válida para RPC con auth.uid())
+    // Registrar cierre en BD — auth aún válida, auth.uid() disponible para auditoría.
+    // No se llama signOut() aquí: este endpoint es invocado via sendBeacon en beforeunload.
+    // El JWT expira naturalmente. Si el usuario recarga la página, Supabase mantiene su sesión.
     const { error } = await supabase.rpc('registrar_fin_sesion', {
       p_sesion_id: sessionId,
       p_estado: 'cerrada',
@@ -59,9 +61,6 @@ export async function POST(request: NextRequest) {
       logger.error('Error cerrando sesión', { error: error.message, sessionId })
       return NextResponse.json({ error: 'Error al cerrar sesión' }, { status: 500 })
     }
-
-    // Invalidar token de Supabase después de registrar el cierre
-    await supabase.auth.signOut()
 
     return NextResponse.json({ success: true })
   } catch (error) {

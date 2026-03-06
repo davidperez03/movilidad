@@ -92,12 +92,14 @@ export function SessionProvider({ children }: SessionProviderProps) {
     inactivityTimerRef.current = setTimeout(async () => {
       toast.error(SESSION_CONFIG.TIMEOUT_MESSAGE)
 
-      // Registrar cierre de sesión en BD como "expirada"
+      // Registrar cierre en BD primero — auth.uid() aún válido
       await SessionManager.registrarFin('expirada')
 
       // Cerrar sesión de Supabase
       await supabase.auth.signOut()
-      router.push("/auth/login?reason=inactivity")
+
+      // Hard navigation para evitar que el listener SIGNED_OUT sobreescriba el reason
+      window.location.href = "/auth/login?reason=inactivity"
     }, SESSION_CONFIG.INACTIVITY_TIMEOUT)
   }
 
@@ -133,6 +135,19 @@ export function SessionProvider({ children }: SessionProviderProps) {
       document.addEventListener(eventName, activityHandler, { passive: true })
     })
 
+    // Cerrar sesión en BD cuando el usuario cierra la pestaña/browser.
+    // sendBeacon garantiza el envío incluso durante el unload.
+    const handleBeforeUnload = () => {
+      const sessionId = SessionManager.getSessionId()
+      if (sessionId) {
+        navigator.sendBeacon('/api/close-session', JSON.stringify({ sessionId }))
+        // Limpiar sessionStorage antes de que el browser pueda restaurarlo
+        // al reabrir la pestaña — fuerza la creación de nueva sesión al volver.
+        sessionStorage.removeItem('current_session_id')
+      }
+    }
+    window.addEventListener('beforeunload', handleBeforeUnload)
+
     // Iniciar timers
     updateActivity()
 
@@ -142,6 +157,23 @@ export function SessionProvider({ children }: SessionProviderProps) {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) {
         router.push("/auth/login")
+        return
+      }
+
+      // Verificar que la sesión registrada en cliente siga activa en BD.
+      // Cubre dos casos:
+      //   - Sin sessionId (pestaña nueva): crear sesión directamente.
+      //   - Con sessionId pero inactiva en BD (Ctrl+Shift+T restauró sessionStorage
+      //     con ID de sesión ya cerrada): limpiar y crear nueva.
+      const sessionId = SessionManager.getSessionId()
+      if (!sessionId) {
+        await SessionManager.registrarInicio(user.id)
+      } else {
+        const sigueActiva = await SessionManager.actualizarActividad()
+        if (!sigueActiva) {
+          SessionManager.clearSessionId()
+          await SessionManager.registrarInicio(user.id)
+        }
       }
     }
     checkSession()
@@ -151,6 +183,8 @@ export function SessionProvider({ children }: SessionProviderProps) {
       SESSION_CONFIG.ACTIVITY_EVENTS.forEach((eventName) => {
         document.removeEventListener(eventName, activityHandler)
       })
+
+      window.removeEventListener('beforeunload', handleBeforeUnload)
 
       if (inactivityTimerRef.current) {
         clearTimeout(inactivityTimerRef.current)
@@ -165,8 +199,9 @@ export function SessionProvider({ children }: SessionProviderProps) {
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === "SIGNED_OUT" && !isPublicRoute) {
-        // Registrar cierre de sesión en BD
-        SessionManager.registrarFin('cerrada')
+        // Fallback para expiraciones inesperadas de token del lado de Supabase.
+        // Los flujos normales (logout manual, inactividad) ya llamaron registrarFin()
+        // antes de signOut() y usaron window.location.href para navegar.
         router.push("/auth/login")
       }
 
