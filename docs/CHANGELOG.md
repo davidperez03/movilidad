@@ -5,6 +5,21 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.13.0] - 2026-03-10
+
+### Descarga de inspecciones por rango de fechas
+
+#### Agregado
+- **Descarga por rango**: nuevo botón "Descargar por rango" en la página de inspecciones — permite seleccionar fecha inicio y fecha fin para generar un PDF unificado con todas las inspecciones del período
+- **PDF unificado**: portada con índice, estadísticas (total, aptas, no aptas) y tabla resumen; cada inspección incluye su contenido completo (info general, documentación, ítems, firmas, anexos fotográficos)
+
+#### Corregido
+- **Primeras inspecciones sin detalle de verificación**: la query de ítems ahora pagina en bloques de 1000 filas para evitar el límite por defecto de Supabase, que truncaba los ítems de las inspecciones más antiguas en rangos grandes
+- **`[SE_MANTIENE]` en crudo en PDF**: `subsanado_observacion` con prefijo `[SE_MANTIENE]`, `[SUBSANADO]` o `[EMPEORO]` ahora se muestra como texto legible ("Se mantiene", "Subsanado", "Empeoró")
+- **Colores de novedades en PDF**: cada novedad ahora tiene fondo y borde de color según su estado de resolución — verde (subsanado), amarillo/ámbar (se mantiene), rojo (empeoró), naranja (sin resolver)
+
+---
+
 ## [1.12.0] - 2026-03-06
 
 ### Auditoría de logins fallidos y correcciones de consistencia

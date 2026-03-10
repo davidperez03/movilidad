@@ -6,6 +6,7 @@ Para el proceso de release y reglas de versionamiento semántico ver [GITFLOW.md
 
 | Versión | Fecha | Descripción |
 |---------|-------|-------------|
+| 1.13.0 | 2026-03-10 | Feat(inspecciones): descarga por rango de fechas en PDF unificado, fix colores novedades y texto resolución |
 | 1.12.0 | 2026-03-06 | Feat(auditoria): registrar login fallido con GRANT anon, correcciones de consistencia entre frontend y BD |
 | 1.11.3 | 2026-03-06 | Fix(sessions): sesiones duplicadas en móvil, tristate actualizarActividad, pagehide para iOS Safari |
 | 1.11.2 | 2026-03-06 | Fix(sessions): cierre confiable de sesiones en BD, auditoría completa, beforeunload para cierre de pestaña, pg_cron automático |
