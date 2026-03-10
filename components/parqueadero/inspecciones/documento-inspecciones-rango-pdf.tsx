@@ -4,6 +4,56 @@ import { Document, Page, Text, View, StyleSheet, Image } from "@react-pdf/render
 import { capitalizeName, humanize } from "@/lib/utils/capitalize"
 import type { FotoConTimestamp } from "@/lib/parqueadero/types"
 
+// ─── Tipos ────────────────────────────────────────────────
+export interface ItemInspeccionRango {
+  id: string
+  estado: string
+  observacion: string | null
+  fotos: FotoConTimestamp[] | null
+  foto_url: string | null
+  item_nombre: string | null
+  item_categoria: string | null
+  item_orden: number
+  subsanado: boolean
+  subsanado_observacion: string | null
+}
+
+export interface InspeccionRangoData {
+  id: string
+  consecutivo: string | null
+  fecha: string
+  hora: string
+  turno: string | null
+  es_apto: boolean
+  observaciones: string | null
+  observaciones_fotos: FotoConTimestamp[] | null
+  placa: string
+  marca: string | null
+  modelo: string | null
+  vehiculo_tipo: string
+  operador_nombre: string
+  auxiliar_nombre: string | null
+  inspector_nombre: string
+  soat_vencimiento: string | null
+  tecnomecanica_vencimiento: string | null
+  operador_licencia_vencimiento: string | null
+  operador_licencia_categoria: string | null
+  estado_soat: string | null
+  estado_tecnomecanica: string | null
+  operador_estado_licencia: string | null
+  items_buenos: number
+  items_regulares: number
+  items_malos: number
+  firma_inspector: string | null
+  firma_operador: string | null
+}
+
+export interface DatoInspeccionRango {
+  inspeccion: InspeccionRangoData
+  items: ItemInspeccionRango[]
+}
+
+// ─── Estilos ──────────────────────────────────────────────
 const styles = StyleSheet.create({
   page: {
     paddingTop: 36,
@@ -15,7 +65,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#ffffff",
   },
 
-  // ─── Encabezado ──────────────────────────────────────
+  // ─── Encabezado ───────────────────────────────────────
   headerBar: {
     backgroundColor: "#1e3a5f",
     paddingTop: 16,
@@ -52,10 +102,106 @@ const styles = StyleSheet.create({
     color: "#93c5fd",
   },
 
-  // ─── Cuerpo ───────────────────────────────────────────
-  body: {},
+  // ─── Portada ──────────────────────────────────────────
+  coverHero: {
+    backgroundColor: "#1e3a5f",
+    borderRadius: 6,
+    padding: 36,
+    marginBottom: 30,
+    alignItems: "center",
+  },
+  coverTitle: {
+    fontSize: 20,
+    fontFamily: "Helvetica-Bold",
+    color: "#ffffff",
+    textAlign: "center",
+    marginBottom: 8,
+  },
+  coverSubtitle: {
+    fontSize: 11,
+    color: "#93c5fd",
+    textAlign: "center",
+  },
+  coverStats: {
+    flexDirection: "row",
+    gap: 12,
+    marginBottom: 24,
+  },
+  coverStatBox: {
+    flex: 1,
+    alignItems: "center",
+    padding: 12,
+    backgroundColor: "#f9fafb",
+    borderRadius: 4,
+    border: "0.5 solid #e5e7eb",
+  },
+  coverStatNum: {
+    fontSize: 22,
+    fontFamily: "Helvetica-Bold",
+    color: "#1e3a5f",
+    marginBottom: 2,
+  },
+  coverStatLabel: {
+    fontSize: 7,
+    color: "#4b5563",
+  },
 
-  // ─── Resultado ───────────────────────────────────────
+  // ─── Tabla de índice ──────────────────────────────────
+  indexTable: {
+    marginTop: 4,
+  },
+  indexHeader: {
+    flexDirection: "row",
+    backgroundColor: "#1e3a5f",
+    paddingTop: 6,
+    paddingBottom: 6,
+    paddingLeft: 8,
+    paddingRight: 8,
+    borderRadius: 2,
+    marginBottom: 2,
+  },
+  indexHeaderText: {
+    fontSize: 7,
+    fontFamily: "Helvetica-Bold",
+    color: "#ffffff",
+  },
+  indexRow: {
+    flexDirection: "row",
+    paddingTop: 5,
+    paddingBottom: 5,
+    paddingLeft: 8,
+    paddingRight: 8,
+    borderBottom: "0.5 solid #f3f4f6",
+  },
+  indexRowAlt: {
+    backgroundColor: "#f9fafb",
+  },
+  indexCell: {
+    fontSize: 8,
+    color: "#1f2937",
+  },
+  colFecha:   { width: 60 },
+  colHora:    { width: 42 },
+  colPlaca:   { width: 60 },
+  colOperador: { flex: 1 },
+  colEstado:  { width: 55, textAlign: "center" },
+  aptoBadge:   { color: "#166534", fontFamily: "Helvetica-Bold" },
+  noAptoBadge: { color: "#991b1b", fontFamily: "Helvetica-Bold" },
+
+  // ─── Separador de inspección ──────────────────────────
+  inspeccionSep: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 18,
+    paddingBottom: 14,
+    borderBottom: "1 solid #e5e7eb",
+  },
+  inspeccionSepLabel: {
+    fontSize: 8,
+    color: "#6b7280",
+  },
+
+  // ─── Resultado ────────────────────────────────────────
   resultadoRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -75,8 +221,8 @@ const styles = StyleSheet.create({
     paddingRight: 12,
     borderRadius: 3,
   },
-  apto:   { backgroundColor: "#f0fdf4", border: "1 solid #bbf7d0" },
-  noApto: { backgroundColor: "#fef2f2", border: "1 solid #fecaca" },
+  apto:       { backgroundColor: "#f0fdf4", border: "1 solid #bbf7d0" },
+  noApto:     { backgroundColor: "#fef2f2", border: "1 solid #fecaca" },
   aptoText:   { fontSize: 9, fontFamily: "Helvetica-Bold", color: "#166534" },
   noAptoText: { fontSize: 9, fontFamily: "Helvetica-Bold", color: "#991b1b" },
 
@@ -136,9 +282,7 @@ const styles = StyleSheet.create({
     color: "#111827",
     marginBottom: 3,
   },
-  docEstado: {
-    fontSize: 7,
-  },
+  docEstado:       { fontSize: 7 },
   estadoVigente:   { color: "#166534" },
   estadoPorVencer: { color: "#b45309" },
   estadoVencido:   { color: "#dc2626" },
@@ -215,7 +359,7 @@ const styles = StyleSheet.create({
   novedadResolucionSeMantiene: { color: "#b45309" },
   novedadResolucionEmpeoro: { color: "#991b1b" },
 
-  // ─── Tabla ────────────────────────────────────────────
+  // ─── Tabla de items ───────────────────────────────────
   table: {
     marginTop: 4,
   },
@@ -250,7 +394,7 @@ const styles = StyleSheet.create({
     color: "#1f2937",
   },
   colItem:   { flex: 3 },
-  colEstado: { width: 55, textAlign: "center" },
+  colEstado2: { width: 55, textAlign: "center" },
   colObs:    { flex: 2, color: "#4b5563" },
 
   // ─── Categoría ────────────────────────────────────────
@@ -359,60 +503,11 @@ const styles = StyleSheet.create({
     borderTop: "0.5 solid #e5e7eb",
     paddingTop: 5,
   },
-
   footerText: {
     fontSize: 7,
     color: "#6b7280",
   },
 })
-
-// ─── Tipos ────────────────────────────────────────────────
-interface ItemInspeccion {
-  id: string
-  estado: string
-  observacion: string | null
-  fotos: FotoConTimestamp[] | null  // Nuevo: múltiples fotos
-  foto_url: string | null  // Mantener para retrocompatibilidad
-  item_nombre: string | null
-  item_categoria: string | null
-  subsanado: boolean
-  subsanado_observacion: string | null
-}
-
-interface InspeccionPDFData {
-  id: string
-  consecutivo: string | null
-  fecha: string
-  hora: string
-  turno: string | null
-  es_apto: boolean
-  observaciones: string | null
-  observaciones_fotos: FotoConTimestamp[] | null  // Nuevo
-  placa: string
-  marca: string
-  modelo: string
-  vehiculo_tipo: string
-  operador_nombre: string
-  auxiliar_nombre: string | null
-  inspector_nombre: string
-  soat_vencimiento: string | null
-  tecnomecanica_vencimiento: string | null
-  operador_licencia_vencimiento: string | null
-  operador_licencia_categoria: string | null
-  estado_soat: string | null
-  estado_tecnomecanica: string | null
-  operador_estado_licencia: string | null
-  items_buenos: number
-  items_regulares: number
-  items_malos: number
-  firma_inspector: string | null
-  firma_operador: string | null
-}
-
-interface DocumentoInspeccionPDFProps {
-  inspeccion: InspeccionPDFData
-  items: ItemInspeccion[]
-}
 
 // ─── Helpers ──────────────────────────────────────────────
 const formatearFecha = (fecha: string | null): string => {
@@ -445,7 +540,7 @@ const getEstadoDocStyle = (estado: string | null) =>
   estado === "por_vencer" ? styles.estadoPorVencer :
   estado === "vencido" ? styles.estadoVencido : {}
 
-// Parsea "[SE_MANTIENE] texto" → { estado, etiqueta, texto }
+// Parsea "[SE_MANTIENE] texto" → { estado, texto }
 const RESOLUCION_LABELS: Record<string, string> = {
   SUBSANADO: "Subsanado",
   SE_MANTIENE: "Se mantiene",
@@ -470,32 +565,43 @@ const parsearResolucion = (obs: string | null, subsanado?: boolean): { estado: E
 }
 
 // ─── Componente ───────────────────────────────────────────
-export function DocumentoInspeccionPDF({ inspeccion, items }: DocumentoInspeccionPDFProps) {
-  const docId = inspeccion.consecutivo || inspeccion.id.split("-")[0].toUpperCase()
+interface Props {
+  datos: DatoInspeccionRango[]
+  fechaInicio: string
+  fechaFin: string
+}
 
-  const itemsPorCategoria = items.reduce((acc, item) => {
-    const cat = item.item_categoria || "otros"
-    if (!acc[cat]) acc[cat] = []
-    acc[cat].push(item)
-    return acc
-  }, {} as Record<string, ItemInspeccion[]>)
+export function DocumentoInspeccionesRangoPDF({ datos, fechaInicio, fechaFin }: Props) {
+  const totalAptos = datos.filter(d => d.inspeccion.es_apto).length
+  const totalNoAptos = datos.length - totalAptos
+  const rangoLabel = `${formatearFecha(fechaInicio)} — ${formatearFecha(fechaFin)}`
 
-  const novedades = items.filter((i) => i.estado === "regular" || i.estado === "malo")
-  // Filtrar items con fotos (nuevo formato o legacy)
-  const itemsConFoto = items.filter((i) => {
-    if (i.fotos && i.fotos.length > 0) return true
-    if (i.foto_url) return true  // Retrocompatibilidad
-    return false
-  })
+  // Generar páginas de cada inspección
+  const paginasInspecciones = datos.flatMap(({ inspeccion, items }, globalIndex) => {
+    const docId = inspeccion.consecutivo || inspeccion.id.split("-")[0].toUpperCase()
+    const itemsPorCategoria = items.reduce((acc, item) => {
+      const cat = item.item_categoria || "otros"
+      if (!acc[cat]) acc[cat] = []
+      acc[cat].push(item)
+      return acc
+    }, {} as Record<string, ItemInspeccionRango[]>)
 
-  return (
-    <Document>
-      <Page size="LETTER" style={styles.page}>
+    const novedades = items.filter(i => i.estado === "regular" || i.estado === "malo")
+    const itemsConFoto = items.filter(i => (i.fotos && i.fotos.length > 0) || i.foto_url)
+    const tieneObsFotos = inspeccion.observaciones_fotos && inspeccion.observaciones_fotos.length > 0
 
-        {/* Encabezado */}
+    const paginas = []
+
+    // Página principal de la inspección
+    paginas.push(
+      <Page key={`${inspeccion.id}-main`} size="LETTER" style={styles.page}>
+        {/* Encabezado con número de inspección */}
         <View style={styles.headerBar}>
           <View>
-            <Text style={styles.headerTitle}>Inspecciones Preoperacionales</Text>
+            <Text style={styles.headerTitle}>Inspección Preoperacional</Text>
+            <Text style={styles.headerSubtitle}>
+              {globalIndex + 1} de {datos.length} · {rangoLabel}
+            </Text>
           </View>
           <View style={styles.headerMeta}>
             <Text style={styles.headerConsecutivo}>{docId}</Text>
@@ -505,8 +611,7 @@ export function DocumentoInspeccionPDF({ inspeccion, items }: DocumentoInspeccio
           </View>
         </View>
 
-        <View style={styles.body}>
-
+        <View>
           {/* Resultado */}
           <View style={styles.resultadoRow} wrap={false}>
             <Text style={styles.resultadoLabel}>Resultado de la inspección</Text>
@@ -645,13 +750,13 @@ export function DocumentoInspeccionPDF({ inspeccion, items }: DocumentoInspeccio
                 <View style={styles.table}>
                   <View style={styles.tableHeader}>
                     <Text style={[styles.tableHeaderText, styles.colItem]}>Ítem</Text>
-                    <Text style={[styles.tableHeaderText, styles.colEstado]}>Estado</Text>
+                    <Text style={[styles.tableHeaderText, styles.colEstado2]}>Estado</Text>
                     <Text style={[styles.tableHeaderText, styles.colObs]}>Observación</Text>
                   </View>
                   {itemsCat.map((item, index) => (
                     <View key={item.id} style={[styles.tableRow, index % 2 === 1 ? styles.tableRowAlt : {}]}>
                       <Text style={[styles.tableCell, styles.colItem]}>{item.item_nombre}</Text>
-                      <Text style={[styles.tableCell, styles.colEstado]}>{getEstadoLabel(item.estado)}</Text>
+                      <Text style={[styles.tableCell, styles.colEstado2]}>{getEstadoLabel(item.estado)}</Text>
                       <Text style={[styles.tableCell, styles.colObs]}>{item.observacion || "—"}</Text>
                     </View>
                   ))}
@@ -692,22 +797,23 @@ export function DocumentoInspeccionPDF({ inspeccion, items }: DocumentoInspeccio
               </View>
             </View>
           </View>
-
         </View>
 
         {/* Footer */}
         <View style={styles.footer} fixed>
-          <Text style={styles.footerText}>Sistema de Movilidad · Inspección Preoperacional</Text>
+          <Text style={styles.footerText}>Sistema de Movilidad · Inspecciones {rangoLabel}</Text>
           <Text
             style={styles.footerText}
             render={({ pageNumber, totalPages }) => `${docId}  ·  Página ${pageNumber} de ${totalPages}`}
           />
         </View>
       </Page>
+    )
 
-      {/* Página de anexos */}
-      {itemsConFoto.length > 0 && (
-        <Page size="LETTER" style={styles.page}>
+    // Página de anexos fotográficos por ítem
+    if (itemsConFoto.length > 0) {
+      paginas.push(
+        <Page key={`${inspeccion.id}-fotos`} size="LETTER" style={styles.page}>
           <View style={styles.headerBar}>
             <View>
               <Text style={styles.headerTitle}>Anexos Fotográficos</Text>
@@ -718,13 +824,12 @@ export function DocumentoInspeccionPDF({ inspeccion, items }: DocumentoInspeccio
             </View>
           </View>
 
-          <View style={styles.body}>
+          <View>
             {itemsConFoto.map((item, itemIndex) => {
-              // Obtener array de fotos (nuevo formato o legacy)
               const fotos: FotoConTimestamp[] = item.fotos && item.fotos.length > 0
                 ? item.fotos
                 : item.foto_url
-                ? [{ url: item.foto_url, timestamp: '', origen: 'camera' as const }]  // Retrocompatibilidad
+                ? [{ url: item.foto_url, timestamp: "", origen: "camera" as const }]
                 : []
 
               return fotos.map((foto, fotoIndex) => (
@@ -759,14 +864,16 @@ export function DocumentoInspeccionPDF({ inspeccion, items }: DocumentoInspeccio
             />
           </View>
         </Page>
-      )}
+      )
+    }
 
-      {/* Página de fotos de observaciones generales */}
-      {inspeccion.observaciones_fotos && inspeccion.observaciones_fotos.length > 0 && (
-        <Page size="LETTER" style={styles.page}>
+    // Página de fotos de observaciones generales
+    if (tieneObsFotos) {
+      paginas.push(
+        <Page key={`${inspeccion.id}-obs-fotos`} size="LETTER" style={styles.page}>
           <View style={styles.headerBar}>
             <View>
-              <Text style={styles.headerTitle}>Observaciones Generales - Anexos Fotográficos</Text>
+              <Text style={styles.headerTitle}>Observaciones Generales — Anexos</Text>
               <Text style={styles.headerSubtitle}>{inspeccion.placa} · {formatearFecha(inspeccion.fecha)}</Text>
             </View>
             <View style={styles.headerMeta}>
@@ -774,13 +881,11 @@ export function DocumentoInspeccionPDF({ inspeccion, items }: DocumentoInspeccio
             </View>
           </View>
 
-          <View style={styles.body}>
-            {inspeccion.observaciones_fotos.map((foto, index) => (
+          <View>
+            {inspeccion.observaciones_fotos!.map((foto, index) => (
               <View key={index} style={styles.anexoItem} wrap={false}>
                 <View style={styles.anexoHeader}>
-                  <Text style={styles.anexoTitulo}>
-                    Foto {index + 1} de Observaciones Generales
-                  </Text>
+                  <Text style={styles.anexoTitulo}>Foto {index + 1} de Observaciones Generales</Text>
                 </View>
                 <Image src={foto.url} style={styles.anexoFoto} />
               </View>
@@ -795,7 +900,72 @@ export function DocumentoInspeccionPDF({ inspeccion, items }: DocumentoInspeccio
             />
           </View>
         </Page>
-      )}
+      )
+    }
+
+    return paginas
+  })
+
+  return (
+    <Document>
+      {/* Portada / Índice */}
+      <Page size="LETTER" style={styles.page}>
+        {/* Hero */}
+        <View style={styles.coverHero}>
+          <Text style={styles.coverTitle}>Registro de Inspecciones Preoperacionales</Text>
+          <Text style={styles.coverSubtitle}>{rangoLabel}</Text>
+        </View>
+
+        {/* Estadísticas */}
+        <View style={styles.coverStats}>
+          <View style={styles.coverStatBox}>
+            <Text style={styles.coverStatNum}>{datos.length}</Text>
+            <Text style={styles.coverStatLabel}>Total inspecciones</Text>
+          </View>
+          <View style={styles.coverStatBox}>
+            <Text style={[styles.coverStatNum, { color: "#166534" }]}>{totalAptos}</Text>
+            <Text style={styles.coverStatLabel}>Aptas</Text>
+          </View>
+          <View style={styles.coverStatBox}>
+            <Text style={[styles.coverStatNum, { color: "#dc2626" }]}>{totalNoAptos}</Text>
+            <Text style={styles.coverStatLabel}>No aptas</Text>
+          </View>
+        </View>
+
+        {/* Tabla índice */}
+        <Text style={[styles.sectionTitle, { marginBottom: 8 }]}>ÍNDICE DE INSPECCIONES</Text>
+        <View style={styles.indexTable}>
+          <View style={styles.indexHeader}>
+            <Text style={[styles.indexHeaderText, styles.colFecha]}>Fecha</Text>
+            <Text style={[styles.indexHeaderText, styles.colHora]}>Hora</Text>
+            <Text style={[styles.indexHeaderText, styles.colPlaca]}>Placa</Text>
+            <Text style={[styles.indexHeaderText, styles.colOperador]}>Operador</Text>
+            <Text style={[styles.indexHeaderText, styles.colEstado]}>Estado</Text>
+          </View>
+          {datos.map(({ inspeccion }, idx) => (
+            <View key={inspeccion.id} style={[styles.indexRow, idx % 2 === 1 ? styles.indexRowAlt : {}]}>
+              <Text style={[styles.indexCell, styles.colFecha]}>{formatearFecha(inspeccion.fecha)}</Text>
+              <Text style={[styles.indexCell, styles.colHora]}>{formatearHora(inspeccion.hora)}</Text>
+              <Text style={[styles.indexCell, styles.colPlaca]}>{inspeccion.placa}</Text>
+              <Text style={[styles.indexCell, styles.colOperador]}>{capitalizeName(inspeccion.operador_nombre)}</Text>
+              <Text style={[styles.indexCell, styles.colEstado, inspeccion.es_apto ? styles.aptoBadge : styles.noAptoBadge]}>
+                {inspeccion.es_apto ? "APTO" : "NO APTO"}
+              </Text>
+            </View>
+          ))}
+        </View>
+
+        <View style={styles.footer} fixed>
+          <Text style={styles.footerText}>Sistema de Movilidad · Inspecciones Preoperacionales</Text>
+          <Text
+            style={styles.footerText}
+            render={({ pageNumber, totalPages }) => `Página ${pageNumber} de ${totalPages}`}
+          />
+        </View>
+      </Page>
+
+      {/* Páginas de cada inspección */}
+      {paginasInspecciones}
     </Document>
   )
 }
