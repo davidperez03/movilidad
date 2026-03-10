@@ -4,6 +4,7 @@ import Link from "next/link"
 import { Plus } from "lucide-react"
 import { obtenerPermisosUsuario } from "@/lib/server/permisos"
 import { TablaInspecciones } from "@/components/parqueadero/inspecciones/tabla-inspecciones"
+import { BotonDescargarRangoInspecciones } from "@/components/parqueadero/inspecciones/boton-descargar-rango"
 
 export default async function InspeccionesPage() {
   const supabase = await createClient()
@@ -24,14 +25,17 @@ export default async function InspeccionesPage() {
           <h1 className="text-2xl font-bold tracking-tight">Inspecciones</h1>
           <p className="text-muted-foreground">Registro de inspecciones de vehículos</p>
         </div>
-        {permisos.crear_inspecciones && (
-          <Button asChild>
-            <Link href="/parqueadero/inspecciones/nueva">
-              <Plus className="h-4 w-4 mr-2" />
-              Nueva Inspección
-            </Link>
-          </Button>
-        )}
+        <div className="flex gap-2">
+          <BotonDescargarRangoInspecciones />
+          {permisos.crear_inspecciones && (
+            <Button asChild>
+              <Link href="/parqueadero/inspecciones/nueva">
+                <Plus className="h-4 w-4 mr-2" />
+                Nueva Inspección
+              </Link>
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Tabla */}
