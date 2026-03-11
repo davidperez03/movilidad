@@ -230,3 +230,96 @@ export async function optimizarImagenParaMovil(
     reader.readAsDataURL(file)
   })
 }
+
+/**
+ * Comprime una imagen hasta alcanzar un tamaño objetivo en bytes.
+ * Primero escala dimensiones, luego reduce calidad JPEG iterativamente.
+ *
+ * @param file Archivo de imagen (acepta hasta ~20MB)
+ * @param targetBytes Tamaño máximo deseado en bytes (default 2MB)
+ * @param maxWidth Ancho máximo antes de comprimir (default 1920px)
+ * @param maxHeight Alto máximo antes de comprimir (default 1080px)
+ * @returns Promise con File comprimido y bandera de si fue comprimido
+ */
+export async function comprimirHastaTarget(
+  file: File,
+  targetBytes: number = 2 * 1024 * 1024,
+  maxWidth: number = 1920,
+  maxHeight: number = 1080
+): Promise<{ file: File; fueComprimida: boolean }> {
+  // Si ya está dentro del límite, no hacer nada
+  if (file.size <= targetBytes) {
+    return { file, fueComprimida: false }
+  }
+
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+
+    reader.onload = (e) => {
+      const img = new Image()
+
+      img.onload = () => {
+        // Paso 1: calcular dimensiones escaladas
+        let newWidth = img.width
+        let newHeight = img.height
+
+        if (newWidth > maxWidth) {
+          newHeight = Math.round((newHeight * maxWidth) / newWidth)
+          newWidth = maxWidth
+        }
+
+        if (newHeight > maxHeight) {
+          newWidth = Math.round((newWidth * maxHeight) / newHeight)
+          newHeight = maxHeight
+        }
+
+        const canvas = document.createElement('canvas')
+        canvas.width = newWidth
+        canvas.height = newHeight
+
+        const ctx = canvas.getContext('2d')
+        if (!ctx) {
+          reject(new Error('No se pudo obtener contexto 2D'))
+          return
+        }
+
+        ctx.drawImage(img, 0, 0, newWidth, newHeight)
+
+        // Paso 2: intentar calidades decrecientes hasta cumplir el target
+        const calidades = [0.85, 0.75, 0.65, 0.55, 0.45, 0.35]
+        let intentoIdx = 0
+
+        const intentarCalidad = () => {
+          const calidad = calidades[intentoIdx]
+
+          canvas.toBlob(
+            (blob) => {
+              if (!blob) {
+                reject(new Error('Error al comprimir imagen'))
+                return
+              }
+
+              if (blob.size <= targetBytes || intentoIdx >= calidades.length - 1) {
+                const newFile = new File([blob], file.name, { type: 'image/jpeg' })
+                resolve({ file: newFile, fueComprimida: true })
+              } else {
+                intentoIdx++
+                intentarCalidad()
+              }
+            },
+            'image/jpeg',
+            calidad
+          )
+        }
+
+        intentarCalidad()
+      }
+
+      img.onerror = () => reject(new Error('Error al cargar imagen'))
+      img.src = e.target?.result as string
+    }
+
+    reader.onerror = () => reject(new Error('Error al leer archivo'))
+    reader.readAsDataURL(file)
+  })
+}
