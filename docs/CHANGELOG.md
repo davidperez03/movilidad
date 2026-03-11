@@ -5,6 +5,18 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.13.1] - 2026-03-11
+
+### Compresión adaptativa de fotos en inspecciones
+
+#### Corregido
+- **Fotos pesadas rechazadas**: las imágenes de cámaras móviles modernas (8–15MB) ya no son rechazadas — se comprimen automáticamente en el cliente hasta ≤ 2MB antes de subirse
+- **Límite de entrada**: sube de 5MB a 30MB para aceptar cualquier foto de dispositivo móvil; solo se rechaza si supera los 30MB (imposible comprimir en browser)
+- **Compresión iterativa**: escala dimensiones a máx 1920×1080 y reduce calidad JPEG progresivamente (0.85 → 0.35) hasta alcanzar el target
+- **Feedback al usuario**: toast informativo cuando la imagen fue optimizada automáticamente
+
+---
+
 ## [1.13.0] - 2026-03-10
 
 ### Descarga de inspecciones por rango de fechas
