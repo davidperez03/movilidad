@@ -16,7 +16,7 @@ import { toast } from "sonner"
 import type { FotoConTimestamp } from "@/lib/parqueadero/types"
 import {
   procesarImagenConTimestamp,
-  optimizarImagenParaMovil,
+  comprimirHastaTarget,
   formatearTimestampParaImagen,
 } from "@/lib/parqueadero/procesamiento-imagen"
 import { getNowTimestampColombia } from "@/lib/utils/date"
@@ -55,15 +55,15 @@ export function CapturaFoto({
   const galleryInputRef = useRef<HTMLInputElement>(null)
 
   const procesarArchivo = async (selectedFile: File, origen: 'camera' | 'upload') => {
-    // Validar tamaño (max 5MB)
-    if (selectedFile.size > 5 * 1024 * 1024) {
-      toast.error("La imagen no puede superar 5MB")
-      return
-    }
-
     // Validar tipo
     if (!selectedFile.type.startsWith("image/")) {
       toast.error("Solo se permiten imágenes")
+      return
+    }
+
+    // Límite absoluto: rechazar archivos mayores a 30MB (imposibles de comprimir en browser)
+    if (selectedFile.size > 30 * 1024 * 1024) {
+      toast.error("La imagen es demasiado grande (máximo 30MB)")
       return
     }
 
@@ -76,8 +76,11 @@ export function CapturaFoto({
     try {
       setLoading(true)
 
-      // 1. Optimizar para móvil si es necesario
-      const optimizada = await optimizarImagenParaMovil(selectedFile)
+      // 1. Comprimir si supera 2MB: escala dimensiones y reduce calidad JPEG iterativamente
+      const { file: optimizada, fueComprimida } = await comprimirHastaTarget(selectedFile)
+      if (fueComprimida) {
+        toast.info("Imagen optimizada automáticamente para reducir su peso")
+      }
 
       // 2. Agregar timestamp y badge de origen a la imagen
       const timestamp = getNowTimestampColombia()
@@ -261,7 +264,7 @@ export function CapturaFoto({
 
               {/* Contador de fotos */}
               <p className="text-xs text-muted-foreground text-center">
-                {totalFotos}/{maxFotos} fotos · Máximo 5MB por foto
+                {totalFotos}/{maxFotos} fotos · Se optimizan automáticamente
               </p>
             </div>
           )}
