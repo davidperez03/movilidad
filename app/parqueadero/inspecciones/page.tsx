@@ -8,14 +8,14 @@ import { BotonDescargarRangoInspecciones } from "@/components/parqueadero/inspec
 
 export default async function InspeccionesPage() {
   const supabase = await createClient()
-  const { parqueadero: permisos } = await obtenerPermisosUsuario()
+  const { parqueadero: permisos, esSuperadmin } = await obtenerPermisosUsuario()
 
   const { data: inspecciones } = await supabase
     .from("parq_vista_inspecciones")
     .select("*")
     .order("fecha", { ascending: false })
     .order("hora", { ascending: false })
-    .limit(100)
+    .limit(1000)
 
   return (
     <div className="space-y-6">
@@ -42,6 +42,7 @@ export default async function InspeccionesPage() {
       <TablaInspecciones
         inspecciones={inspecciones || []}
         permisos={permisos}
+        esSuperadmin={esSuperadmin}
       />
     </div>
   )

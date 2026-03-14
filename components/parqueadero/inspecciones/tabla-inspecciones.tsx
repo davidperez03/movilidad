@@ -1,12 +1,15 @@
 "use client"
 
+import { useState } from "react"
 import { ColumnDef } from "@tanstack/react-table"
 import { DataTable } from "@/components/ui/data-table/data-table"
 import { DataTableColumnHeader } from "@/components/ui/data-table/data-table-column-header"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Eye, CheckCircle, XCircle, MoreHorizontal } from "lucide-react"
+import { Eye, CheckCircle, XCircle, MoreHorizontal, Trash2 } from "lucide-react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 import type { VistaInspeccion } from "@/lib/parqueadero/types"
 import { capitalizeName } from "@/lib/utils/capitalize"
 import type { PermisoParqueadero } from "@/lib/types/permissions"
@@ -16,16 +19,39 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { BotonDescargarInspeccion } from "./boton-descargar-inspeccion"
+import { ConfirmDialog } from "@/components/shared/confirm-dialog"
 
 interface TablaInspeccionesProps {
   inspecciones: VistaInspeccion[]
   permisos: Record<PermisoParqueadero, boolean>
+  esSuperadmin: boolean
 }
 
-export function TablaInspecciones({ inspecciones, permisos }: TablaInspeccionesProps) {
+export function TablaInspecciones({ inspecciones, permisos, esSuperadmin }: TablaInspeccionesProps) {
+  const router = useRouter()
+  const [eliminarId, setEliminarId] = useState<string | null>(null)
+  const [eliminando, setEliminando] = useState(false)
+
+  const confirmarEliminar = async () => {
+    if (!eliminarId) return
+    setEliminando(true)
+    try {
+      const res = await fetch(`/api/parqueadero/inspecciones/${eliminarId}`, { method: "DELETE" })
+      if (!res.ok) throw new Error()
+      toast.success("Inspección eliminada")
+      router.refresh()
+    } catch {
+      toast.error("Error al eliminar la inspección")
+    } finally {
+      setEliminando(false)
+      setEliminarId(null)
+    }
+  }
+
   const columns: ColumnDef<VistaInspeccion>[] = [
     {
       accessorKey: "fecha",
@@ -130,6 +156,18 @@ export function TablaInspecciones({ inspecciones, permisos }: TablaInspeccionesP
                 Descargar PDF
               </BotonDescargarInspeccion>
             </DropdownMenuItem>
+            {esSuperadmin && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="text-destructive focus:text-destructive"
+                  onClick={() => setEliminarId(row.original.id)}
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Eliminar
+                </DropdownMenuItem>
+              </>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       ),
@@ -137,12 +175,24 @@ export function TablaInspecciones({ inspecciones, permisos }: TablaInspeccionesP
   ]
 
   return (
-    <DataTable
-      columns={columns}
-      data={inspecciones}
-      enableGlobalFilter
-      globalFilterPlaceholder="Buscar por placa, operador..."
-      emptyMessage="No hay inspecciones registradas"
-    />
+    <>
+      <DataTable
+        columns={columns}
+        data={inspecciones}
+        enableGlobalFilter
+        globalFilterPlaceholder="Buscar por placa, operador..."
+        emptyMessage="No hay inspecciones registradas"
+      />
+      <ConfirmDialog
+        open={!!eliminarId}
+        onOpenChange={open => { if (!open) setEliminarId(null) }}
+        title="¿Eliminar inspección?"
+        description="Esta acción es irreversible. Se eliminará la inspección y todos sus ítems."
+        confirmLabel="Eliminar"
+        variant="destructive"
+        onConfirm={confirmarEliminar}
+        isLoading={eliminando}
+      />
+    </>
   )
 }
