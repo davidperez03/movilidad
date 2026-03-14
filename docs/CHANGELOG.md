@@ -5,6 +5,19 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.14.0] - 2026-03-14
+
+### Filtro por placa en PDF y eliminación de inspecciones
+
+#### Agregado
+- **Filtro por placa en descarga por rango**: el diálogo de descarga PDF ahora incluye un select con las placas activas — permite descargar solo las inspecciones de un vehículo específico o de todos
+- **Eliminar inspección**: opción disponible exclusivamente para superadmin en el menú de acciones de cada inspección, con confirmación previa. API route `DELETE /api/parqueadero/inspecciones/[id]` protegido con `requireSuperAdmin`
+
+#### Corregido
+- **Límite de inspecciones en listado**: subido de 100 a 1000 para que no se corten registros históricos al cargar la página
+
+---
+
 ## [1.13.1] - 2026-03-11
 
 ### Compresión adaptativa de fotos en inspecciones

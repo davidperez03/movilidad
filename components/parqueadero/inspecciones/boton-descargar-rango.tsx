@@ -14,16 +14,35 @@ import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
 import { CalendarRange, Download, Loader2 } from "lucide-react"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { pdf } from "@react-pdf/renderer"
 import { DocumentoInspeccionesRangoPDF } from "./documento-inspecciones-rango-pdf"
 import type { FotoConTimestamp } from "@/lib/parqueadero/types"
 import type { ItemInspeccionRango } from "./documento-inspecciones-rango-pdf"
-
 export function BotonDescargarRangoInspecciones() {
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [fechaInicio, setFechaInicio] = useState("")
   const [fechaFin, setFechaFin] = useState("")
+  const [placa, setPlaca] = useState("todas")
+  const [placas, setPlacas] = useState<string[]>([])
+
+  const abrirDialogo = async () => {
+    setOpen(true)
+    const supabase = createClient()
+    const { data } = await supabase
+      .from("parq_vehiculos")
+      .select("placa")
+      .eq("activo", true)
+      .order("placa", { ascending: true })
+    if (data) setPlacas(data.map(v => v.placa))
+  }
 
   const descargar = async () => {
     if (!fechaInicio || !fechaFin) {
@@ -40,13 +59,19 @@ export function BotonDescargarRangoInspecciones() {
       const supabase = createClient()
 
       // 1. Obtener inspecciones del rango ordenadas por fecha y hora
-      const { data: inspecciones, error: errorInsp } = await supabase
+      let query = supabase
         .from("parq_vista_inspecciones")
         .select("*")
         .gte("fecha", fechaInicio)
         .lte("fecha", fechaFin)
         .order("fecha", { ascending: true })
         .order("hora", { ascending: true })
+
+      if (placa !== "todas") {
+        query = query.eq("placa", placa)
+      }
+
+      const { data: inspecciones, error: errorInsp } = await query
 
       if (errorInsp) throw errorInsp
 
@@ -151,12 +176,14 @@ export function BotonDescargarRangoInspecciones() {
       const url = URL.createObjectURL(blob)
       const link = document.createElement("a")
       link.href = url
-      link.download = `Inspecciones_${fechaInicio.replace(/-/g, "")}_${fechaFin.replace(/-/g, "")}.pdf`
+      const sufijPlaca = placa !== "todas" ? `_${placa}` : ""
+      link.download = `Inspecciones${sufijPlaca}_${fechaInicio.replace(/-/g, "")}_${fechaFin.replace(/-/g, "")}.pdf`
       link.click()
       URL.revokeObjectURL(url)
 
       toast.success(`PDF generado con ${inspecciones.length} inspección(es)`)
       setOpen(false)
+      setPlaca("todas")
     } catch (error) {
       console.error("Error al generar PDF de rango:", error)
       toast.error("Error al generar el PDF")
@@ -167,7 +194,7 @@ export function BotonDescargarRangoInspecciones() {
 
   return (
     <>
-      <Button variant="outline" onClick={() => setOpen(true)}>
+      <Button variant="outline" onClick={abrirDialogo}>
         <CalendarRange className="h-4 w-4 mr-2" />
         Descargar por rango
       </Button>
@@ -199,6 +226,20 @@ export function BotonDescargarRangoInspecciones() {
                 disabled={loading}
                 min={fechaInicio || undefined}
               />
+            </div>
+            <div className="space-y-2">
+              <Label>Vehículo</Label>
+              <Select value={placa} onValueChange={setPlaca} disabled={loading}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todas">Todos los vehículos</SelectItem>
+                  {placas.map(p => (
+                    <SelectItem key={p} value={p}>{p}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <p className="text-xs text-muted-foreground">
               Se generará un único PDF con todas las inspecciones del rango, ordenadas por fecha.

@@ -6,6 +6,7 @@ Para el proceso de release y reglas de versionamiento semántico ver [GITFLOW.md
 
 | Versión | Fecha | Descripción |
 |---------|-------|-------------|
+| 1.14.0 | 2026-03-14 | Feat(inspecciones): filtro por placa en PDF por rango, eliminar inspección para superadmin, límite listado 1000 |
 | 1.13.1 | 2026-03-11 | Fix(fotos): compresión adaptativa cliente — imágenes pesadas se comprimen a ≤2MB en lugar de rechazarse |
 | 1.13.0 | 2026-03-10 | Feat(inspecciones): descarga por rango de fechas en PDF unificado, fix colores novedades y texto resolución |
 | 1.12.0 | 2026-03-06 | Feat(auditoria): registrar login fallido con GRANT anon, correcciones de consistencia entre frontend y BD |
