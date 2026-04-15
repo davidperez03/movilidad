@@ -1,26 +1,11 @@
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
-import { ShieldCheck, LayoutDashboard, Users, FileText, Activity } from "lucide-react"
+import { ShieldCheck } from "lucide-react"
 import { BotonCerrarSesion } from "@/components/logout-button"
 import { MobileNav } from "@/components/shared/mobile-nav"
-import { NavLink } from "@/components/shared/nav-link"
-import { ModulosDropdown } from "@/components/superadmin/modulos-dropdown"
-import type { NavItem } from "@/components/shared/mobile-nav"
+import { SuperAdminNavTabs, superAdminNavItems } from "@/components/superadmin/nav-tabs"
 
 export const dynamic = "force-dynamic"
-
-const navItems = [
-  { href: "/superadmin/dashboard", label: "Dashboard", icon: LayoutDashboard, exact: true },
-  { href: "/superadmin/usuarios", label: "Usuarios", icon: Users },
-  { href: "/superadmin/sesiones", label: "Sesiones", icon: Activity },
-  { href: "/superadmin/auditoria", label: "Auditoría", icon: FileText },
-]
-
-const mobileItems: NavItem[] = [
-  ...navItems.map((i) => ({ href: i.href, label: i.label, icon: i.icon, exact: i.exact })),
-  { href: "/movilidad", label: "Movilidad" },
-  { href: "/parqueadero", label: "Parqueadero" },
-]
 
 export default async function SuperAdminLayout({
   children,
@@ -50,10 +35,9 @@ export default async function SuperAdminLayout({
         role="banner"
       >
         <div className="container mx-auto px-4 sm:px-6">
-          {/* Top bar */}
           <div className="flex h-[4.5rem] items-center justify-between">
             <div className="flex items-center gap-4">
-              <MobileNav title="SuperAdmin" items={mobileItems} />
+              <MobileNav title="SuperAdmin" items={superAdminNavItems} />
               <div className="flex items-center gap-3">
                 <div className="rounded-xl bg-primary/10 p-2.5">
                   <ShieldCheck className="h-5 w-5 text-primary" />
@@ -69,23 +53,11 @@ export default async function SuperAdminLayout({
             <BotonCerrarSesion />
           </div>
 
-          {/* Navigation tabs */}
-          <nav className="hidden md:flex gap-0.5 -mb-px" role="navigation" aria-label="Navegación SuperAdmin">
-            {navItems.map((item) => {
-              const Icon = item.icon
-              return (
-                <NavLink key={item.href} href={item.href} exact={item.exact}>
-                  <Icon className="h-4 w-4" />
-                  {item.label}
-                </NavLink>
-              )
-            })}
-            <ModulosDropdown />
-          </nav>
+          <SuperAdminNavTabs />
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8">{children}</main>
+      <main className="container mx-auto px-4 sm:px-6 py-8 sm:py-10">{children}</main>
     </div>
   )
 }
