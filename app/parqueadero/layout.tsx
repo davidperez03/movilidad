@@ -1,22 +1,11 @@
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
-import { Badge } from "@/components/ui/badge"
-import { Car, Truck, User, ShieldCheck } from "lucide-react"
-import { BotonCerrarSesion } from "@/components/logout-button"
-import Link from "next/link"
 import { NavTabsParqueadero, parqueaderoNavItems } from "@/components/parqueadero/nav-tabs"
-import { MobileNav } from "@/components/shared/mobile-nav"
-import type { MobileUserInfo } from "@/components/shared/mobile-nav"
-import { SkipLink } from "@/components/ui/skip-link"
-import { getNowDateColombia } from "@/lib/utils/date"
+import { ModuleHeader } from "@/components/shared/module-header"
 import { capitalizeName } from "@/lib/utils/capitalize"
+import { obtenerLayoutData } from "@/lib/parqueadero/server/layout-data"
 
 export const revalidate = 60
-
-interface RolModulo {
-  codigo: string
-  nombre: string
-}
 
 export default async function ParqueaderoLayout({
   children,
@@ -29,170 +18,74 @@ export default async function ParqueaderoLayout({
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (!user) {
-    redirect("/auth/login")
-  }
+  if (!user) redirect("/auth/login")
 
-  // Obtener perfil del usuario
   const { data: perfil } = await supabase
     .from("perfiles")
     .select("*")
     .eq("id", user.id)
     .single()
 
-  // Verificar acceso al módulo de parqueadero
-  const esSuperAdmin = perfil?.rol_global === 'superadmin'
+  const esSuperAdmin = perfil?.rol_global === "superadmin"
 
   if (!esSuperAdmin) {
-    // Verificar si tiene rol en parqueadero
     const { data: rolParqueadero } = await supabase
-      .from('usuarios_roles')
-      .select('id')
-      .eq('usuario_id', user.id)
-      .eq('modulo_id', 'parqueadero')
+      .from("usuarios_roles")
+      .select("id")
+      .eq("usuario_id", user.id)
+      .eq("modulo_id", "parqueadero")
       .single()
 
-    if (!rolParqueadero) {
-      redirect("/sin-acceso")
-    }
+    if (!rolParqueadero) redirect("/sin-acceso")
   }
 
-  // Obtener estadísticas para badges en el navbar
-  const { count: inspeccionesHoy } = await supabase
-    .from("parq_inspecciones")
-    .select("*", { count: "exact", head: true })
-    .eq("fecha", getNowDateColombia())
+  const { contadores, rolModulo, rolColors, tieneMovilidad } = await obtenerLayoutData(
+    user.id,
+    esSuperAdmin
+  )
 
-  const { count: vehiculosActivos } = await supabase
-    .from("parq_vehiculos")
-    .select("*", { count: "exact", head: true })
-    .eq("activo", true)
-
-  // Contar licencias con problemas (vencidas o por vencer, excluyendo auxiliares y admins)
-  const { data: personalConAlertas } = await supabase
-    .from("parq_vista_personal")
-    .select("estado_licencia, rol_codigo")
-    .in("estado_licencia", ["vencido", "por_vencer"])
-    .not("rol_codigo", "in", "(parq_auxiliar,parq_administrador)")
-
-  const alertasLicencias = personalConAlertas?.length || 0
-
-  // Obtener rol en módulo parqueadero
-  const { data: rolModuloData } = await supabase
-    .from('usuarios_roles')
-    .select(`
-      roles_modulo (
-        codigo,
-        nombre
-      )
-    `)
-    .eq('usuario_id', user.id)
-    .eq('modulo_id', 'parqueadero')
-    .single()
-
-  const rolModuloRaw = rolModuloData?.roles_modulo as unknown as RolModulo | null
-  const rolModulo: RolModulo = esSuperAdmin
-    ? { codigo: 'superadmin', nombre: 'SuperAdmin' }
-    : (rolModuloRaw ?? { codigo: 'sin_rol', nombre: 'Sin rol' })
-
-  const rolColors: Record<string, string> = {
-    superadmin: "bg-red-100 text-red-700 border-red-300",
-    parq_administrador: "bg-purple-100 text-purple-700 border-purple-300",
-    parq_auxiliar: "bg-blue-100 text-blue-700 border-blue-300",
-    parq_operario: "bg-gray-100 text-gray-700 border-gray-300",
-    sin_rol: "bg-gray-100 text-gray-500 border-gray-300",
-  }
-
-  // Obtener todos los módulos del usuario para alternancia
-  const { data: todosLosRoles } = await supabase
-    .from('usuarios_roles')
-    .select('modulo_id')
-    .eq('usuario_id', user.id)
-
-  const modulosUsuario = new Set(todosLosRoles?.map(r => r.modulo_id) || [])
-  const tieneMovilidad = esSuperAdmin || modulosUsuario.has('movilidad')
-
-  const nombreCapitalizado = capitalizeName(perfil?.nombre_completo) || perfil?.correo || ''
-
-  const mobileUserInfo: MobileUserInfo = {
-    nombre: nombreCapitalizado,
-    rol: rolModulo.nombre,
-    rolColor: rolColors[rolModulo.codigo] || rolColors.sin_rol,
-    esSuperAdmin,
-    otrosModulos: tieneMovilidad
-      ? [{ href: '/movilidad', label: 'Movilidad', iconName: 'Car' }]
-      : [],
-  }
+  const nombreCapitalizado = capitalizeName(perfil?.nombre_completo) || perfil?.correo || ""
 
   return (
     <div className="min-h-screen bg-muted/30">
-      <SkipLink href="#main-content">Saltar al contenido principal</SkipLink>
+      <ModuleHeader
+        title="Parqueadero"
+        subtitle="Inspecciones de Grúas"
+        iconName="Truck"
+        iconBgClass="bg-cyan-600/10"
+        iconColorClass="text-cyan-600"
+        nombreCapitalizado={nombreCapitalizado}
+        rolModulo={rolModulo}
+        rolColors={rolColors}
+        esSuperAdmin={esSuperAdmin}
+        otrosModulos={
+          tieneMovilidad
+            ? [{ href: "/movilidad", label: "Movilidad", descripcion: "Traslados y radicaciones", iconName: "Car" }]
+            : []
+        }
+        mobileNavItems={parqueaderoNavItems}
+        mobileUserInfo={{
+          nombre: nombreCapitalizado,
+          rol: rolModulo.nombre,
+          rolColor: rolColors[rolModulo.codigo] ?? rolColors.sin_rol,
+          esSuperAdmin,
+          otrosModulos: tieneMovilidad
+            ? [{ href: "/movilidad", label: "Movilidad", iconName: "Car" }]
+            : [],
+        }}
+      >
+        <NavTabsParqueadero
+          inspeccionesHoy={contadores.inspeccionesHoy}
+          vehiculosActivos={contadores.vehiculosActivos}
+          alertasLicencias={contadores.alertasLicencias}
+        />
+      </ModuleHeader>
 
-      {/* Header */}
-      <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60" role="banner">
-        <div className="container mx-auto px-4">
-          {/* Top bar */}
-          <div className="flex h-16 items-center justify-between">
-            <div className="flex items-center gap-3">
-              <MobileNav title="Parqueadero" items={parqueaderoNavItems} userInfo={mobileUserInfo} />
-              <div className="flex items-center gap-2">
-                <div className="rounded-lg bg-cyan-600/10 p-2">
-                  <Truck className="h-5 w-5 text-cyan-600" />
-                </div>
-                <div>
-                  <h1 className="text-lg font-bold leading-none">Parqueadero</h1>
-                  <p className="text-xs text-muted-foreground hidden sm:block">Inspecciones de Grúas</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="hidden sm:flex items-center gap-3">
-              <div className="flex items-center gap-2">
-                <User className="h-4 w-4 text-muted-foreground" />
-                <div className="text-right">
-                  <p className="text-sm font-medium leading-none">{nombreCapitalizado}</p>
-                  <Badge
-                    variant="outline"
-                    className={`mt-1 text-xs ${rolColors[rolModulo.codigo as keyof typeof rolColors]}`}
-                  >
-                    {rolModulo.nombre}
-                  </Badge>
-                </div>
-              </div>
-              {tieneMovilidad && (
-                <Link
-                  href="/movilidad"
-                  className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors rounded-md border px-2.5 py-1.5"
-                >
-                  <Car className="h-3.5 w-3.5" />
-                  Movilidad
-                </Link>
-              )}
-              {esSuperAdmin && (
-                <Link
-                  href="/superadmin/dashboard"
-                  className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors rounded-md border px-2.5 py-1.5"
-                >
-                  <ShieldCheck className="h-3.5 w-3.5" />
-                  Panel Admin
-                </Link>
-              )}
-              <div className="h-8 w-px bg-border" />
-              <BotonCerrarSesion />
-            </div>
-          </div>
-
-          {/* Navigation tabs */}
-          <NavTabsParqueadero
-            inspeccionesHoy={inspeccionesHoy}
-            vehiculosActivos={vehiculosActivos}
-            alertasLicencias={alertasLicencias}
-          />
-        </div>
-      </header>
-
-      {/* Contenido */}
-      <main id="main-content" className="container mx-auto px-4 py-8" role="main">
+      <main
+        id="main-content"
+        className="container mx-auto px-4 sm:px-6 py-8 sm:py-10"
+        role="main"
+      >
         {children}
       </main>
     </div>

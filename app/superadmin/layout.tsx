@@ -1,138 +1,91 @@
-'use client';
+import { createClient } from "@/lib/supabase/server"
+import { redirect } from "next/navigation"
+import { ShieldCheck, LayoutDashboard, Users, FileText, Activity } from "lucide-react"
+import { BotonCerrarSesion } from "@/components/logout-button"
+import { MobileNav } from "@/components/shared/mobile-nav"
+import { NavLink } from "@/components/shared/nav-link"
+import { ModulosDropdown } from "@/components/superadmin/modulos-dropdown"
+import type { NavItem } from "@/components/shared/mobile-nav"
 
-import { RequireSuperAdmin } from '@/components/auth/RequirePermission';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { ShieldCheck, LayoutDashboard, Users, FileText, ChevronDown, Activity } from 'lucide-react';
-import { useState } from 'react';
-import { BotonCerrarSesion } from '@/components/logout-button';
-import { MobileNav } from '@/components/shared/mobile-nav';
-import type { NavItem } from '@/components/shared/mobile-nav';
+export const dynamic = "force-dynamic"
 
-export default function SuperAdminLayout({
+const navItems = [
+  { href: "/superadmin/dashboard", label: "Dashboard", icon: LayoutDashboard, exact: true },
+  { href: "/superadmin/usuarios", label: "Usuarios", icon: Users },
+  { href: "/superadmin/sesiones", label: "Sesiones", icon: Activity },
+  { href: "/superadmin/auditoria", label: "Auditoría", icon: FileText },
+]
+
+const mobileItems: NavItem[] = [
+  ...navItems.map((i) => ({ href: i.href, label: i.label, icon: i.icon, exact: i.exact })),
+  { href: "/movilidad", label: "Movilidad" },
+  { href: "/parqueadero", label: "Parqueadero" },
+]
+
+export default async function SuperAdminLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
-  return (
-    <RequireSuperAdmin redirectTo="/sin-acceso">
-      <div className="min-h-screen bg-muted/30">
-        <SuperAdminNav />
-        <main className="container mx-auto px-4 py-8">{children}</main>
-      </div>
-    </RequireSuperAdmin>
-  );
-}
+  const supabase = await createClient()
 
-function SuperAdminNav() {
-  const pathname = usePathname();
-  const [modulosOpen, setModulosOpen] = useState(false);
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
-  const navItems = [
-    { href: '/superadmin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { href: '/superadmin/usuarios', label: 'Usuarios', icon: Users },
-    { href: '/superadmin/sesiones', label: 'Sesiones', icon: Activity },
-    { href: '/superadmin/auditoria', label: 'Auditoría', icon: FileText },
-  ];
+  if (!user) redirect("/auth/login")
 
-  const modulos = [
-    { href: '/movilidad', label: 'Movilidad', descripcion: 'Gestión de movilidad vehicular' },
-    { href: '/parqueadero', label: 'Parqueadero', descripcion: 'Inspecciones de grúas' },
-  ];
+  const { data: perfil } = await supabase
+    .from("perfiles")
+    .select("rol_global")
+    .eq("id", user.id)
+    .single()
+
+  if (perfil?.rol_global !== "superadmin") redirect("/sin-acceso")
 
   return (
-    <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto px-4">
-        {/* Top bar */}
-        <div className="flex h-16 items-center justify-between">
-          <div className="flex items-center gap-3">
-            <MobileNav
-              title="SuperAdmin"
-              items={[
-                ...navItems.map(i => ({ href: i.href, label: i.label, icon: i.icon, exact: i.href === '/superadmin/dashboard' })),
-                ...modulos.map(m => ({ href: m.href, label: m.label })),
-              ] as NavItem[]}
-            />
-            <div className="flex items-center gap-2">
-              <div className="rounded-lg bg-primary/10 p-2">
-                <ShieldCheck className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <h1 className="text-lg font-bold leading-none">SuperAdmin</h1>
-                <p className="text-xs text-muted-foreground hidden sm:block">Panel de administración</p>
+    <div className="min-h-screen bg-muted/30">
+      <header
+        className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
+        role="banner"
+      >
+        <div className="container mx-auto px-4 sm:px-6">
+          {/* Top bar */}
+          <div className="flex h-[4.5rem] items-center justify-between">
+            <div className="flex items-center gap-4">
+              <MobileNav title="SuperAdmin" items={mobileItems} />
+              <div className="flex items-center gap-3">
+                <div className="rounded-xl bg-primary/10 p-2.5">
+                  <ShieldCheck className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <h1 className="text-lg font-bold leading-none">SuperAdmin</h1>
+                  <p className="text-xs text-muted-foreground hidden sm:block mt-0.5">
+                    Panel de administración
+                  </p>
+                </div>
               </div>
             </div>
+            <BotonCerrarSesion />
           </div>
-          <BotonCerrarSesion />
+
+          {/* Navigation tabs */}
+          <nav className="hidden md:flex gap-0.5 -mb-px" role="navigation" aria-label="Navegación SuperAdmin">
+            {navItems.map((item) => {
+              const Icon = item.icon
+              return (
+                <NavLink key={item.href} href={item.href} exact={item.exact}>
+                  <Icon className="h-4 w-4" />
+                  {item.label}
+                </NavLink>
+              )
+            })}
+            <ModulosDropdown />
+          </nav>
         </div>
+      </header>
 
-        {/* Navigation tabs */}
-        <nav className="hidden md:flex gap-1 -mb-px">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = pathname === item.href;
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-medium transition-colors ${
-                  isActive
-                    ? 'border-primary text-foreground'
-                    : 'border-transparent text-muted-foreground hover:border-primary hover:text-foreground'
-                }`}
-              >
-                <Icon className="h-4 w-4" />
-                {item.label}
-              </Link>
-            );
-          })}
-
-          {/* Dropdown de Módulos */}
-          <div className="relative">
-            <button
-              onClick={() => setModulosOpen(!modulosOpen)}
-              className={`flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-medium transition-colors ${
-                pathname.startsWith('/movilidad') || pathname.startsWith('/parqueadero')
-                  ? 'border-primary text-foreground'
-                  : 'border-transparent text-muted-foreground hover:border-primary hover:text-foreground'
-              }`}
-            >
-              <span>Módulos</span>
-              <ChevronDown className={`h-4 w-4 transition-transform ${modulosOpen ? 'rotate-180' : ''}`} />
-            </button>
-
-            {modulosOpen && (
-              <>
-                {/* Overlay para cerrar */}
-                <div
-                  className="fixed inset-0 z-10"
-                  onClick={() => setModulosOpen(false)}
-                />
-
-                {/* Dropdown menu */}
-                <div className="absolute top-full left-0 mt-2 w-64 rounded-md border bg-popover shadow-lg z-20">
-                  <div className="p-2">
-                    <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
-                      MÓDULOS DEL SISTEMA
-                    </div>
-                    {modulos.map((modulo) => (
-                      <Link
-                        key={modulo.href}
-                        href={modulo.href}
-                        onClick={() => setModulosOpen(false)}
-                        className="flex flex-col gap-0.5 rounded-sm px-2 py-2 hover:bg-accent hover:text-accent-foreground transition-colors"
-                      >
-                        <span className="text-sm font-medium">{modulo.label}</span>
-                        <span className="text-xs text-muted-foreground">{modulo.descripcion}</span>
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
-        </nav>
-      </div>
-    </header>
-  );
+      <main className="container mx-auto px-4 py-8">{children}</main>
+    </div>
+  )
 }
