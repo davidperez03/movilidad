@@ -6,6 +6,7 @@ Para el proceso de release y reglas de versionamiento semántico ver [GITFLOW.md
 
 | Versión | Fecha | Descripción |
 |---------|-------|-------------|
+| 1.15.1 | 2026-04-15 | Fix(superadmin): corregir hydration mismatch en nav tabs — SuperAdminNavTabs como componente cliente propio |
 | 1.15.0 | 2026-04-15 | Feat(layout): refactorización navegación — ModuleSwitcher, ModuleHeader compartido, NavTabsGeneric, SuperAdmin RSC, mejoras de espaciado |
 | 1.14.1 | 2026-04-15 | Fix(session): corregir cierres por inactividad — autoRefreshToken desactivado, visibilitychange handler, fix pagehide iOS, timeouts por dispositivo |
 | 1.14.0 | 2026-03-14 | Feat(inspecciones): filtro por placa en PDF por rango, eliminar inspección para superadmin, límite listado 1000 |

@@ -5,6 +5,15 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.15.1] - 2026-04-15
+
+### Corrección de hydration mismatch en navegación SuperAdmin
+
+#### Corregido
+- **SuperAdmin nav tabs**: extraído a componente `'use client'` propio (`SuperAdminNavTabs`) que renderiza el `<nav>`, los `NavLink` y el `ModulosDropdown` en un solo árbol cliente — elimina el mismatch de hidratación causado por pasar elementos React como props a través del límite RSC/cliente
+
+---
+
 ## [1.15.0] - 2026-04-15
 
 ### Refactorización de navegación y mejoras visuales del header
