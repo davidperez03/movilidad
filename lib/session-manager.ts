@@ -159,9 +159,11 @@ export class SessionManager {
   }
 
   /**
-   * Detecta el tipo de dispositivo
+   * Detecta el tipo de dispositivo del usuario actual.
+   * Expuesto como público para que session-provider pueda
+   * seleccionar el timeout correcto por dispositivo.
    */
-  private static detectarDispositivo(): string {
+  static detectarDispositivo(): string {
     const ua = navigator.userAgent
 
     if (/(tablet|ipad|playbook|silk)|(android(?!.*mobi))/i.test(ua)) {

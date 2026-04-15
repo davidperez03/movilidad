@@ -13,6 +13,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { useState, useEffect, Suspense } from "react"
 import { Car, Loader2 } from "lucide-react"
 import { AlertBox } from "@/components/ui/alert-box"
+import { SESSION_CONFIG } from "@/lib/config/session"
 
 function traducirErrorAuth(message: string): string {
   const traducciones: Record<string, string> = {
@@ -222,7 +223,7 @@ function LoginForm() {
 
           {timeoutMessage && (
             <AlertBox variant="warning" title="Sesión cerrada por inactividad">
-              Tu sesión se cerró después de 10 minutos de inactividad. Por favor, inicia sesión nuevamente.
+              Tu sesión se cerró después de {SESSION_CONFIG.INACTIVITY_TIMEOUT_WEB / 60000} minutos de inactividad. Por favor, inicia sesión nuevamente.
             </AlertBox>
           )}
 
