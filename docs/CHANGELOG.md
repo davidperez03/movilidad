@@ -5,6 +5,24 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.15.0] - 2026-04-15
+
+### Refactorización de navegación y mejoras visuales del header
+
+#### Agregado
+- **ModuleSwitcher**: dropdown desde el ícono del módulo activo para cambiar entre módulos y acceder al Panel Admin — reemplaza los botones sueltos del header
+- **ModuleHeader compartido**: componente genérico que unifica el header de Movilidad y Parqueadero, eliminando ~80 líneas duplicadas
+- **NavTabsGeneric**: componente de tabs configurable reutilizado por ambos módulos
+- **lib/parqueadero/server/layout-data.ts**: queries en paralelo para el layout de parqueadero (patrón equivalente al de movilidad)
+- **lib/types/layout.ts**: tipos compartidos `RolModulo`, `MOVILIDAD_ROL_COLORS`, `PARQUEADERO_ROL_COLORS`
+
+#### Cambiado
+- **SuperAdmin layout**: convertido a RSC async con validación server-side — elimina dependencia de `RequireSuperAdmin` client-side y el flicker de "Verificando permisos..."
+- **Espaciado general del header**: altura aumentada a 4.5rem, padding de contenedor y tabs ampliado para reducir sensación de amontonamiento
+- **Mobile nav**: mayor separación entre items y sección de usuario con fondo sutil
+
+---
+
 ## [1.14.1] - 2026-04-15
 
 ### Corrección de cierres por inactividad en todos los dispositivos
