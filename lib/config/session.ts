@@ -6,14 +6,20 @@
 
 export const SESSION_CONFIG = {
   /**
-   * Tiempo de inactividad antes de cerrar sesión automáticamente
-   * Valores sugeridos:
-   * - 60000 = 1 minuto (desarrollo/testing)
-   * - 300000 = 5 minutos (recomendado para producción)
-   * - 600000 = 10 minutos
-   * - 900000 = 15 minutos
+   * Tiempo de inactividad por tipo de dispositivo.
+   * Mobile/Tablet tienen más margen porque el usuario puede estar
+   * leyendo o en uso pasivo del dispositivo.
    */
-  INACTIVITY_TIMEOUT: 300000, // 5 minutos
+  INACTIVITY_TIMEOUT_WEB: 300000,    // 5 minutos
+  INACTIVITY_TIMEOUT_MOBILE: 600000, // 10 minutos
+  INACTIVITY_TIMEOUT_TABLET: 600000, // 10 minutos
+
+  /**
+   * Tiempo de inactividad antes de cerrar sesión automáticamente.
+   * @deprecated Usar INACTIVITY_TIMEOUT_WEB / MOBILE / TABLET.
+   * Conservado como fallback.
+   */
+  INACTIVITY_TIMEOUT: 300000, // 5 minutos (fallback web)
 
   /**
    * Tiempo de advertencia antes del cierre de sesión
