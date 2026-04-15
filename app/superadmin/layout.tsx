@@ -49,18 +49,18 @@ export default async function SuperAdminLayout({
         className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
         role="banner"
       >
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 sm:px-6">
           {/* Top bar */}
-          <div className="flex h-16 items-center justify-between">
-            <div className="flex items-center gap-3">
+          <div className="flex h-[4.5rem] items-center justify-between">
+            <div className="flex items-center gap-4">
               <MobileNav title="SuperAdmin" items={mobileItems} />
-              <div className="flex items-center gap-2">
-                <div className="rounded-lg bg-primary/10 p-2">
+              <div className="flex items-center gap-3">
+                <div className="rounded-xl bg-primary/10 p-2.5">
                   <ShieldCheck className="h-5 w-5 text-primary" />
                 </div>
                 <div>
                   <h1 className="text-lg font-bold leading-none">SuperAdmin</h1>
-                  <p className="text-xs text-muted-foreground hidden sm:block">
+                  <p className="text-xs text-muted-foreground hidden sm:block mt-0.5">
                     Panel de administración
                   </p>
                 </div>
@@ -70,7 +70,7 @@ export default async function SuperAdminLayout({
           </div>
 
           {/* Navigation tabs */}
-          <nav className="hidden md:flex gap-1 -mb-px" role="navigation" aria-label="Navegación SuperAdmin">
+          <nav className="hidden md:flex gap-0.5 -mb-px" role="navigation" aria-label="Navegación SuperAdmin">
             {navItems.map((item) => {
               const Icon = item.icon
               return (

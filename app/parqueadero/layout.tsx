@@ -1,6 +1,5 @@
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
-import { Car, Truck } from "lucide-react"
 import { NavTabsParqueadero, parqueaderoNavItems } from "@/components/parqueadero/nav-tabs"
 import { ModuleHeader } from "@/components/shared/module-header"
 import { capitalizeName } from "@/lib/utils/capitalize"
@@ -52,7 +51,7 @@ export default async function ParqueaderoLayout({
       <ModuleHeader
         title="Parqueadero"
         subtitle="Inspecciones de Grúas"
-        icon={Truck}
+        iconName="Truck"
         iconBgClass="bg-cyan-600/10"
         iconColorClass="text-cyan-600"
         nombreCapitalizado={nombreCapitalizado}
@@ -61,7 +60,7 @@ export default async function ParqueaderoLayout({
         esSuperAdmin={esSuperAdmin}
         otrosModulos={
           tieneMovilidad
-            ? [{ href: "/movilidad", label: "Movilidad", icon: Car }]
+            ? [{ href: "/movilidad", label: "Movilidad", descripcion: "Traslados y radicaciones", iconName: "Car" }]
             : []
         }
         mobileNavItems={parqueaderoNavItems}
@@ -84,7 +83,7 @@ export default async function ParqueaderoLayout({
 
       <main
         id="main-content"
-        className="container mx-auto px-3 sm:px-4 py-6 sm:py-8"
+        className="container mx-auto px-4 sm:px-6 py-8 sm:py-10"
         role="main"
       >
         {children}

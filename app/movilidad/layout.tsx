@@ -1,6 +1,5 @@
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
-import { Car, Truck } from "lucide-react"
 import { NavTabs, movilidadNavItems } from "@/components/movilidad/nav-tabs"
 import { ModuleHeader } from "@/components/shared/module-header"
 import { capitalizeName } from "@/lib/utils/capitalize"
@@ -53,7 +52,7 @@ export default async function MovilidadLayout({
       <ModuleHeader
         title="Movilidad"
         subtitle="Traslados y Radicaciones"
-        icon={Car}
+        iconName="Car"
         iconBgClass="bg-primary/10"
         iconColorClass="text-primary"
         nombreCapitalizado={nombreCapitalizado}
@@ -62,7 +61,7 @@ export default async function MovilidadLayout({
         esSuperAdmin={esSuperAdmin}
         otrosModulos={
           tieneParqueadero
-            ? [{ href: "/parqueadero", label: "Parqueadero", icon: Truck }]
+            ? [{ href: "/parqueadero", label: "Parqueadero", descripcion: "Inspecciones de grúas", iconName: "Truck" }]
             : []
         }
         mobileNavItems={movilidadNavItems}
@@ -85,7 +84,7 @@ export default async function MovilidadLayout({
 
       <main
         id="main-content"
-        className="container mx-auto px-3 sm:px-4 py-6 sm:py-8"
+        className="container mx-auto px-4 sm:px-6 py-8 sm:py-10"
         role="main"
       >
         {children}

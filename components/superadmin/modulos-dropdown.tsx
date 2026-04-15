@@ -21,7 +21,7 @@ export function ModulosDropdown() {
     <div className="relative">
       <button
         onClick={() => setOpen((v) => !v)}
-        className={`flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-medium transition-colors ${
+        className={`flex items-center gap-2 border-b-2 px-5 py-3.5 text-sm font-medium transition-colors ${
           isActive
             ? "border-primary text-foreground"
             : "border-transparent text-muted-foreground hover:border-primary hover:text-foreground"

@@ -32,7 +32,7 @@ export function NavTabsGeneric({
 }: NavTabsGenericProps) {
   return (
     <nav
-      className="hidden md:flex gap-1 -mb-px"
+      className="hidden md:flex gap-0.5 -mb-px"
       role="navigation"
       aria-label={ariaLabel}
     >
