@@ -37,6 +37,15 @@ export function SessionProvider({ children }: SessionProviderProps) {
   // Rutas públicas que no necesitan gestión de sesión
   const isPublicRoute = pathname?.startsWith("/auth") || pathname?.startsWith("/consulta") || pathname === "/"
 
+  // Timeout según el tipo de dispositivo detectado
+  const getInactivityTimeout = (): number => {
+    if (typeof navigator === 'undefined') return SESSION_CONFIG.INACTIVITY_TIMEOUT_WEB
+    const device = SessionManager.detectarDispositivo()
+    if (device === 'mobile') return SESSION_CONFIG.INACTIVITY_TIMEOUT_MOBILE
+    if (device === 'tablet') return SESSION_CONFIG.INACTIVITY_TIMEOUT_TABLET
+    return SESSION_CONFIG.INACTIVITY_TIMEOUT_WEB
+  }
+
   // Refrescar token de Supabase
   const refreshToken = async () => {
     try {
@@ -77,9 +86,11 @@ export function SessionProvider({ children }: SessionProviderProps) {
       clearTimeout(warningTimerRef.current)
     }
 
+    const timeout = getInactivityTimeout()
+
     // Configurar timer de advertencia (si está habilitado)
     if (SESSION_CONFIG.WARNING_BEFORE_TIMEOUT) {
-      const warningTime = SESSION_CONFIG.INACTIVITY_TIMEOUT - SESSION_CONFIG.WARNING_BEFORE_TIMEOUT
+      const warningTime = timeout - SESSION_CONFIG.WARNING_BEFORE_TIMEOUT
 
       warningTimerRef.current = setTimeout(() => {
         toast.warning(
@@ -101,7 +112,7 @@ export function SessionProvider({ children }: SessionProviderProps) {
 
       // Hard navigation para evitar que el listener SIGNED_OUT sobreescriba el reason
       window.location.href = "/auth/login?reason=inactivity"
-    }, SESSION_CONFIG.INACTIVITY_TIMEOUT)
+    }, timeout)
   }
 
   // Refrescar token cuando hay actividad (no automáticamente)
@@ -136,11 +147,61 @@ export function SessionProvider({ children }: SessionProviderProps) {
       document.addEventListener(eventName, activityHandler, { passive: true })
     })
 
+    // Verificar inactividad real al volver al tab.
+    // Los browsers congelan setTimeout en tabs de fondo, por lo que el timer
+    // de 5 minutos nunca dispara si el usuario deja el tab en background.
+    // Con visibilitychange calculamos el tiempo transcurrido real contra
+    // lastActivityRef y forzamos el cierre si corresponde.
+    const handleVisibilityChange = async () => {
+      if (document.visibilityState !== 'visible') return
+
+      const timeout = getInactivityTimeout()
+      const elapsed = Date.now() - lastActivityRef.current
+
+      if (elapsed >= timeout) {
+        // El tiempo de inactividad se cumplió mientras el tab estaba oculto
+        await SessionManager.registrarFin('expirada')
+        await supabase.auth.signOut()
+        window.location.href = '/auth/login?reason=inactivity'
+        return
+      }
+
+      // Tab vuelve antes del timeout: recalcular el tiempo restante y
+      // resetear los timers con el tiempo que realmente queda.
+      if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current)
+      if (warningTimerRef.current) clearTimeout(warningTimerRef.current)
+
+      const remaining = timeout - elapsed
+
+      if (SESSION_CONFIG.WARNING_BEFORE_TIMEOUT) {
+        const warningRemaining = remaining - SESSION_CONFIG.WARNING_BEFORE_TIMEOUT
+        if (warningRemaining > 0) {
+          warningTimerRef.current = setTimeout(() => {
+            toast.warning(
+              `Tu sesión se cerrará en ${SESSION_CONFIG.WARNING_BEFORE_TIMEOUT / 1000} segundos por inactividad. Haz click en cualquier lugar para continuar.`,
+              { duration: SESSION_CONFIG.WARNING_BEFORE_TIMEOUT }
+            )
+          }, warningRemaining)
+        }
+      }
+
+      inactivityTimerRef.current = setTimeout(async () => {
+        toast.error(SESSION_CONFIG.TIMEOUT_MESSAGE)
+        await SessionManager.registrarFin('expirada')
+        await supabase.auth.signOut()
+        window.location.href = '/auth/login?reason=inactivity'
+      }, remaining)
+    }
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+
     // Cerrar sesión en BD cuando el usuario cierra la pestaña/browser.
-    // - beforeunload: desktop y Android
-    // - pagehide: iOS Safari (no dispara beforeunload de forma confiable)
-    // sendBeacon garantiza el envío incluso durante el unload.
-    const handlePageClose = () => {
+    // - beforeunload: desktop y Android Chrome
+    // - pagehide: iOS Safari (beforeunload no es confiable en iOS).
+    //   IMPORTANTE: pagehide se dispara también al entrar al bfcache (persisted=true),
+    //   p.ej. al minimizar la app o cambiar de tab. En ese caso NO debemos cerrar la
+    //   sesión — solo cuando persisted=false (unload real).
+    const handlePageClose = (event: PageTransitionEvent | Event) => {
+      if ('persisted' in event && (event as PageTransitionEvent).persisted) return
       const sessionId = SessionManager.getSessionId()
       if (sessionId) {
         navigator.sendBeacon('/api/close-session', JSON.stringify({ sessionId }))
@@ -196,6 +257,7 @@ export function SessionProvider({ children }: SessionProviderProps) {
         document.removeEventListener(eventName, activityHandler)
       })
 
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
       window.removeEventListener('beforeunload', handlePageClose)
       window.removeEventListener('pagehide', handlePageClose)
 

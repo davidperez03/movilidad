@@ -5,6 +5,21 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.14.1] - 2026-04-15
+
+### Corrección de cierres por inactividad en todos los dispositivos
+
+#### Corregido
+- **Sesión persistía indefinidamente**: `autoRefreshToken` de Supabase renovaba el JWT silenciosamente cada ~55 min aunque el usuario llevara días sin actividad — desactivado; el token solo se renueva con actividad real del usuario
+- **Timer de inactividad no disparaba en background**: los browsers congelan `setTimeout` en tabs de fondo — se agregó handler `visibilitychange` que calcula el tiempo transcurrido real al volver al tab y cierra sesión si corresponde
+- **iOS Safari `pagehide` cerraba sesiones incorrectamente**: el evento se disparaba al entrar a bfcache (cambiar de tab / minimizar app) — corregido con chequeo `event.persisted`
+- **Mensaje de login desincronizado**: mostraba "10 minutos" fijo; ahora lee el valor real desde `SESSION_CONFIG`
+
+#### Cambiado
+- **Timeouts diferenciados por dispositivo**: web=5min, mobile=10min, tablet=10min
+
+---
+
 ## [1.14.0] - 2026-03-14
 
 ### Filtro por placa en PDF y eliminación de inspecciones
