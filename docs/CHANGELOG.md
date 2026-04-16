@@ -5,6 +5,27 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.16.0] - 2026-04-16
+
+### Auditoría — refactorización completa y cierre de brechas
+
+#### Agregado
+- **Severidad visual por fila**: ícono rojo (crítico), naranja (alto), azul (medio), gris (info) — permite identificar eventos de riesgo de un vistazo
+- **Filtros rápidos**: chips *Hoy*, *Esta semana*, *Críticos*, *Logins fallidos* sobre la tabla
+- **Banner de alertas automático**: aparece si hay ≥3 logins fallidos, cuentas eliminadas o sesiones cerradas por admin en las últimas 24h
+- **Panel de detalle mejorado**: secciones organizadas (Quién · Cuándo · Desde dónde · Afectado · Cambios · Contexto), user_agent parseado a lenguaje humano, labels en español
+- **Cards de estadísticas**: ventana de 7 días con descripción clara; "Hoy" usa hora local del navegador (corrige bug UTC)
+- **Auditoría de contraseñas**: `password_cambiado` al cambiar contraseña propia, `password_reseteado` al resetear por admin, `usuario_aprobado` al aprobar cuenta — todos con IP y user-agent
+- **`lib/utils/get-client-ip.ts`**: utilidad compartida para extraer IP real del cliente (DRY)
+- **Migraciones SQL 005–008**: nuevas acciones en CHECK constraint, `ip_address`/`user_agent` en historial de módulos, trigger en tabla `modulos`, RLS historial movilidad solo superadmin
+
+#### Cambiado
+- **Columnas de la tabla**: reorganizadas a Severidad · Evento (badge+descripción legible) · Responsable · Afectado · Cuándo · IP
+- **RLS `mov_historial_acciones`**: restringido a solo superadmin (consistente con parqueadero y sistema)
+- Scripts principales (`scripts/`) sincronizados para instalaciones desde cero
+
+---
+
 ## [1.15.1] - 2026-04-15
 
 ### Corrección de hydration mismatch en navegación SuperAdmin
