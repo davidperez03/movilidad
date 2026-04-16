@@ -11,6 +11,7 @@ export interface FiltrosAuditoria {
   fechaInicio: string
   fechaFin: string
   busqueda: string
+  quickFilter: string
 }
 
 const FILTROS_INITIAL: FiltrosAuditoria = {
@@ -19,15 +20,61 @@ const FILTROS_INITIAL: FiltrosAuditoria = {
   fechaInicio: '',
   fechaFin: '',
   busqueda: '',
+  quickFilter: 'todos',
 }
 
 export function getTipoAccion(accion: string): string {
-  if (accion.startsWith('usuario_') || accion === 'password_reseteado') return 'usuario'
+  if (accion.startsWith('usuario_') || accion === 'password_reseteado' || accion === 'password_cambiado') return 'usuario'
   if (accion.startsWith('rol_')) return 'rol'
   if (accion.includes('login') || accion.includes('logout') || accion.includes('sesion') || accion.includes('token')) return 'sesion'
   if (accion.startsWith('parq_')) return 'parqueadero'
   if (accion === 'modulo_activado' || accion === 'modulo_desactivado' || accion === 'configuracion_modificada') return 'sistema'
   return 'movilidad'
+}
+
+const ACCIONES_CRITICAS = new Set([
+  'usuario_eliminado',
+  'sesion_cerrada_por_admin',
+  'login_fallido',
+  'usuario_desactivado',
+  'rol_global_cambiado',
+  'password_reseteado',
+  'password_cambiado',
+  'modulo_desactivado',
+])
+
+function isCritico(accion: string): boolean {
+  return ACCIONES_CRITICAS.has(accion)
+}
+
+/** Devuelve YYYY-MM-DD en hora local del navegador (no UTC) */
+function fechaLocal(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+
+function aplicarQuickFilter(registros: RegistroAuditoria[], quickFilter: string): RegistroAuditoria[] {
+  const ahora = new Date()
+
+  switch (quickFilter) {
+    case 'hoy': {
+      const hoy = fechaLocal(ahora)
+      return registros.filter((r) => fechaLocal(new Date(r.creado_en)) === hoy)
+    }
+    case 'semana': {
+      const hace7 = new Date(ahora); hace7.setDate(hace7.getDate() - 7); hace7.setHours(0, 0, 0, 0)
+      return registros.filter((r) => new Date(r.creado_en) >= hace7)
+    }
+    case 'mes': {
+      const hace30 = new Date(ahora); hace30.setDate(hace30.getDate() - 30); hace30.setHours(0, 0, 0, 0)
+      return registros.filter((r) => new Date(r.creado_en) >= hace30)
+    }
+    case 'criticos':
+      return registros.filter((r) => isCritico(r.accion))
+    case 'login_fallido':
+      return registros.filter((r) => r.accion === 'login_fallido')
+    default:
+      return registros
+  }
 }
 
 export function useAuditoria() {
@@ -95,10 +142,16 @@ export function useAuditoria() {
   const registrosFiltrados = useMemo(() => {
     const busquedaLower = filtros.busqueda.toLowerCase()
 
-    return registros.filter((r) => {
+    let resultado = registros
+
+    // Quick filter (temporal)
+    if (filtros.quickFilter !== 'todos') {
+      resultado = aplicarQuickFilter(resultado, filtros.quickFilter)
+    }
+
+    resultado = resultado.filter((r) => {
       if (filtros.tipo !== 'todos') {
         const tipo = getTipoAccion(r.accion)
-        // El filtro 'usuario' cubre también roles (card "Usuarios y Roles")
         if (filtros.tipo === 'usuario') {
           if (tipo !== 'usuario' && tipo !== 'rol') return false
         } else if (tipo !== filtros.tipo) return false
@@ -125,37 +178,54 @@ export function useAuditoria() {
 
       return true
     })
+
+    return resultado
   }, [registros, filtros])
 
-  const hayFiltros = filtros.tipo !== 'todos' || filtros.usuario !== 'todos' || !!filtros.fechaInicio || !!filtros.fechaFin || !!filtros.busqueda
+  const hayFiltros = filtros.tipo !== 'todos' || filtros.usuario !== 'todos' || !!filtros.fechaInicio || !!filtros.fechaFin || !!filtros.busqueda || filtros.quickFilter !== 'todos'
 
   const limpiarFiltros = useCallback(() => {
     setFiltros(FILTROS_INITIAL)
   }, [])
 
   const exportarCSV = useCallback(() => {
-    const csv = [
-      ['Fecha', 'Responsable', 'Correo', 'Tipo', 'Acción', 'Afectado/Placa', 'Estado Anterior', 'Estado Nuevo', 'IP', 'Módulo'].join(','),
-      ...registrosFiltrados.map((r) => [
+    const headers = ['Fecha', 'Responsable', 'Correo', 'Severidad', 'Tipo', 'Acción', 'Descripción', 'Afectado/Placa', 'Estado Anterior', 'Estado Nuevo', 'IP', 'Módulo']
+    const rows = registrosFiltrados.map((r) => {
+      const sev = ACCIONES_CRITICAS.has(r.accion) ? 'Crítico/Alto' : 'Normal'
+      const desc = r.accion.replace(/_/g, ' ')
+      return [
         `"${new Date(r.creado_en).toLocaleString('es-CO')}"`,
         `"${r.usuario_nombre}"`,
         `"${r.usuario_correo}"`,
+        `"${sev}"`,
         `"${getTipoAccion(r.accion)}"`,
-        `"${r.accion.replace(/_/g, ' ')}"`,
+        `"${desc}"`,
         `"${r.placa || ''}"`,
         `"${r.valor_anterior || ''}"`,
         `"${r.valor_nuevo || ''}"`,
         `"${r.ip_address || ''}"`,
         `"${r.modulo}"`,
-      ].join(',')),
-    ].join('\n')
+      ].join(',')
+    })
 
+    const csv = [headers.join(','), ...rows].join('\n')
     const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' })
     const link = document.createElement('a')
     link.href = URL.createObjectURL(blob)
     link.download = `auditoria_${new Date().toISOString().split('T')[0]}.csv`
     link.click()
   }, [registrosFiltrados])
+
+  // Alertas basadas en los últimos 1000 registros cargados
+  const alertas = useMemo(() => {
+    const hace24h = new Date(Date.now() - 24 * 60 * 60 * 1000)
+    const recientes = registros.filter((r) => new Date(r.creado_en) >= hace24h)
+    return {
+      loginsFallidos: recientes.filter((r) => r.accion === 'login_fallido').length,
+      usuariosEliminados: recientes.filter((r) => r.accion === 'usuario_eliminado').length,
+      sesionesCerradasAdmin: recientes.filter((r) => r.accion === 'sesion_cerrada_por_admin').length,
+    }
+  }, [registros])
 
   return {
     registros: registrosFiltrados,
@@ -169,5 +239,6 @@ export function useAuditoria() {
     limpiarFiltros,
     cargarDatos,
     exportarCSV,
+    alertas,
   }
 }

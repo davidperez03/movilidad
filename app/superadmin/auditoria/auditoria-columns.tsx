@@ -5,7 +5,7 @@ import { DataTableColumnHeader } from '@/components/ui/data-table/data-table-col
 import { Badge } from '@/components/ui/badge'
 import { ESTADOS_CONFIG } from '@/lib/movilidad/config'
 import { capitalizeName } from '@/lib/utils/capitalize'
-import { ChevronRight } from 'lucide-react'
+import { ChevronRight, AlertCircle, AlertTriangle, Info } from 'lucide-react'
 
 export interface RegistroAuditoria {
   id: string
@@ -27,13 +27,60 @@ export interface RegistroAuditoria {
   placa: string | null
 }
 
-// Helper
+// ─── Severidad ───────────────────────────────────────────────────────────────
+
+export type Severidad = 'critica' | 'alta' | 'media' | 'baja' | 'info'
+
+export const SEV_CONFIG: Record<Severidad, { dot: string; text: string; label: string }> = {
+  critica: { dot: 'bg-red-500',    text: 'text-red-600',    label: 'Crítico'  },
+  alta:    { dot: 'bg-orange-400', text: 'text-orange-500', label: 'Alto'     },
+  media:   { dot: 'bg-blue-400',   text: 'text-blue-500',   label: 'Medio'    },
+  baja:    { dot: 'bg-slate-300',  text: 'text-slate-400',  label: 'Bajo'     },
+  info:    { dot: 'bg-gray-200',   text: 'text-gray-400',   label: 'Info'     },
+}
+
+export function getSeveridad(accion: string): Severidad {
+  switch (accion) {
+    case 'usuario_eliminado':
+    case 'sesion_cerrada_por_admin':
+      return 'critica'
+    case 'login_fallido':
+    case 'usuario_desactivado':
+    case 'rol_global_cambiado':
+    case 'password_reseteado':
+    case 'password_cambiado':
+    case 'modulo_desactivado':
+      return 'alta'
+    case 'usuario_creado':
+    case 'usuario_aprobado':
+    case 'usuario_activado':
+    case 'rol_modulo_asignado':
+    case 'rol_modulo_removido':
+    case 'rol_modulo_cambiado':
+    case 'modulo_activado':
+    case 'configuracion_modificada':
+    case 'parq_vehiculo_desactivado':
+      return 'media'
+    case 'usuario_editado':
+    case 'parq_vehiculo_editado':
+    case 'parq_personal_actualizado':
+    case 'estado_cambiado':
+    case 'novedad_resuelta':
+    case 'parq_novedad_subsanada':
+    case 'proceso_devuelto':
+      return 'baja'
+    default:
+      return 'info'
+  }
+}
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
 function s(r: RegistroAuditoria, key: string): string {
   const val = r.detalles?.[key]
   return val !== undefined && val !== null ? String(val) : ''
 }
 
-// Formatear estado
 function fmt(estado: string): string {
   if (!estado) return ''
   const config = ESTADOS_CONFIG[estado]
@@ -41,9 +88,8 @@ function fmt(estado: string): string {
   return estado.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())
 }
 
-// Categoría y color
 export function getCat(accion: string): { label: string; color: string } {
-  if (accion.startsWith('usuario_') || accion === 'password_reseteado') return { label: 'Usuario', color: 'bg-blue-100 text-blue-800' }
+  if (accion.startsWith('usuario_') || accion === 'password_reseteado' || accion === 'password_cambiado') return { label: 'Usuario', color: 'bg-blue-100 text-blue-800' }
   if (accion.startsWith('rol_')) return { label: 'Rol', color: 'bg-purple-100 text-purple-800' }
   if (accion.includes('login') || accion.includes('logout') || accion.includes('sesion') || accion.includes('token')) {
     return { label: 'Sesión', color: 'bg-slate-100 text-slate-700' }
@@ -60,14 +106,13 @@ export function getCat(accion: string): { label: string; color: string } {
   return { label: 'Sistema', color: 'bg-gray-100 text-gray-700' }
 }
 
-// Obtener afectado
-function getAfectado(r: RegistroAuditoria): string {
+export function getAfectado(r: RegistroAuditoria): string {
   if (r.placa) return r.placa
 
   const correo = s(r, 'correo') || s(r, 'correo_nuevo') || s(r, 'usuario_correo')
   const nombre = s(r, 'nombre_completo') || s(r, 'nombre_nuevo') || s(r, 'usuario_nombre')
 
-  if (r.accion.startsWith('usuario_') || r.accion.startsWith('rol_')) {
+  if (r.accion.startsWith('usuario_') || r.accion.startsWith('rol_') || r.accion === 'password_reseteado') {
     if (nombre && correo) return `${capitalizeName(nombre)} (${correo})`
     return correo || capitalizeName(nombre) || ''
   }
@@ -77,17 +122,19 @@ function getAfectado(r: RegistroAuditoria): string {
     return r.usuario_correo || ''
   }
 
-  // Parqueadero: personal actualizado
   if (r.accion === 'parq_personal_actualizado') {
-    const nombre = s(r, 'nombre'), correo = s(r, 'correo')
-    if (nombre && correo) return `${capitalizeName(nombre)} (${correo})`
-    return correo || capitalizeName(nombre) || ''
+    const n = s(r, 'nombre'), c = s(r, 'correo')
+    if (n && c) return `${capitalizeName(n)} (${c})`
+    return c || capitalizeName(n) || ''
+  }
+
+  if (r.accion === 'modulo_activado' || r.accion === 'modulo_desactivado') {
+    return s(r, 'nombre') || s(r, 'modulo_id') || ''
   }
 
   return ''
 }
 
-// Descripción de la acción
 export function getDescripcion(r: RegistroAuditoria): string {
   switch (r.accion) {
     case 'usuario_creado': {
@@ -101,18 +148,23 @@ export function getDescripcion(r: RegistroAuditoria): string {
       if (na && nn && na !== nn) return `Nombre: ${na} → ${nn}`
       return 'Datos actualizados'
     }
-    case 'usuario_activado': return 'Reactivado'
+    case 'usuario_activado': return 'Cuenta reactivada'
+    case 'usuario_aprobado': return 'Cuenta aprobada por administrador'
     case 'usuario_desactivado': {
       const razon = s(r, 'razon_suspension')
-      return razon ? `Suspendido: ${razon}` : 'Suspendido'
+      return razon ? `Suspendido: ${razon}` : 'Cuenta suspendida'
     }
-    case 'usuario_eliminado': return 'Eliminado'
-    case 'password_reseteado': return 'Contraseña restablecida por admin'
+    case 'usuario_eliminado': return 'Cuenta eliminada permanentemente'
+    case 'password_reseteado': return 'Contraseña restablecida por administrador'
+    case 'password_cambiado': {
+      const razon = s(r, 'razon')
+      return razon || 'Contraseña cambiada por el usuario'
+    }
 
     case 'rol_global_cambiado': {
       const ant = fmt(s(r, 'rol_anterior') || r.valor_anterior || '')
       const nue = fmt(s(r, 'rol_nuevo') || r.valor_nuevo || '')
-      return ant && nue ? `${ant} → ${nue}` : nue || 'Rol cambiado'
+      return ant && nue ? `${ant} → ${nue}` : nue || 'Rol global cambiado'
     }
     case 'rol_modulo_asignado': {
       const rol = s(r, 'rol_nombre'), mod = s(r, 'modulo_id')
@@ -125,7 +177,7 @@ export function getDescripcion(r: RegistroAuditoria): string {
     case 'rol_modulo_cambiado': {
       const ant = s(r, 'rol_anterior_nombre') || r.valor_anterior || ''
       const nue = s(r, 'rol_nuevo_nombre') || r.valor_nuevo || ''
-      return ant && nue ? `Cambiado: ${ant} → ${nue}` : 'Rol cambiado'
+      return ant && nue ? `${ant} → ${nue}` : 'Rol de módulo cambiado'
     }
 
     case 'login_exitoso': {
@@ -135,14 +187,20 @@ export function getDescripcion(r: RegistroAuditoria): string {
     case 'login_fallido': return s(r, 'razon') || 'Credenciales inválidas'
     case 'logout': return 'Cerró sesión'
     case 'sesion_expirada': return 'Sesión expirada por inactividad'
-    case 'sesion_cerrada_por_admin': return 'Cerrada por administrador'
+    case 'sesion_cerrada_por_admin': return 'Sesión cerrada por administrador'
     case 'sesiones_token_expirado': {
       const n = s(r, 'sesiones_cerradas')
       return n ? `${n} sesiones cerradas por token expirado` : 'Tokens expirados'
     }
-    case 'modulo_activado': return 'Módulo activado'
-    case 'modulo_desactivado': return 'Módulo desactivado'
-    case 'configuracion_modificada': return 'Configuración modificada'
+    case 'modulo_activado': {
+      const nombre = s(r, 'nombre') || s(r, 'modulo_id')
+      return nombre ? `Módulo "${nombre}" activado` : 'Módulo activado'
+    }
+    case 'modulo_desactivado': {
+      const nombre = s(r, 'nombre') || s(r, 'modulo_id')
+      return nombre ? `Módulo "${nombre}" desactivado` : 'Módulo desactivado'
+    }
+    case 'configuracion_modificada': return 'Configuración del sistema modificada'
 
     case 'cuenta_creada': {
       const num = s(r, 'numero_cuenta'), tipo = s(r, 'tipo_servicio')
@@ -151,19 +209,19 @@ export function getDescripcion(r: RegistroAuditoria): string {
     }
     case 'traslado_iniciado': {
       const fecha = s(r, 'fecha_tramite')
-      return fecha ? `Iniciado - Trámite: ${fecha}` : 'Traslado iniciado'
+      return fecha ? `Iniciado — Trámite: ${fecha}` : 'Traslado iniciado'
     }
     case 'radicacion_iniciada': {
       const fecha = s(r, 'fecha_tramite')
-      return fecha ? `Iniciada - Trámite: ${fecha}` : 'Radicación iniciada'
+      return fecha ? `Iniciada — Trámite: ${fecha}` : 'Radicación iniciada'
     }
     case 'proceso_completado': {
       const nue = fmt(r.valor_nuevo || '')
-      return nue ? `Completado → ${nue}` : 'Completado'
+      return nue ? `Completado → ${nue}` : 'Proceso completado'
     }
     case 'proceso_devuelto': {
       const obs = s(r, 'observaciones')
-      return obs ? `Devuelto: ${obs}` : 'Devuelto'
+      return obs ? `Devuelto: ${obs}` : 'Proceso devuelto'
     }
     case 'estado_cambiado': {
       const ant = fmt(s(r, 'estado_anterior') || r.valor_anterior || '')
@@ -184,28 +242,24 @@ export function getDescripcion(r: RegistroAuditoria): string {
       return obs ? obs.substring(0, 60) + (obs.length > 60 ? '...' : '') : 'Observación agregada'
     }
 
-    // === Parqueadero ===
     case 'parq_vehiculo_creado': {
       const marca = s(r, 'marca'), modelo = s(r, 'modelo')
-      return marca && modelo ? `Vehículo registrado (${marca} ${modelo})` : 'Vehículo registrado'
+      return marca && modelo ? `Registrado: ${marca} ${modelo}` : 'Vehículo registrado'
     }
     case 'parq_vehiculo_editado': {
       const placaAnt = s(r, 'placa_anterior'), placaNue = s(r, 'placa_nueva')
       if (placaAnt && placaNue) return `Placa: ${placaAnt} → ${placaNue}`
-      const soatNue = s(r, 'soat_vencimiento_nuevo')
-      if (soatNue) return `SOAT actualizado → ${soatNue}`
-      const tecnoNue = s(r, 'tecno_vencimiento_nuevo')
-      if (tecnoNue) return `Tecnomecánica actualizada → ${tecnoNue}`
+      if (s(r, 'soat_vencimiento_nuevo')) return `SOAT actualizado → ${s(r, 'soat_vencimiento_nuevo')}`
+      if (s(r, 'tecno_vencimiento_nuevo')) return `Tecnomecánica → ${s(r, 'tecno_vencimiento_nuevo')}`
       return 'Datos del vehículo actualizados'
     }
     case 'parq_vehiculo_activado': return 'Vehículo reactivado'
     case 'parq_vehiculo_desactivado': return 'Vehículo desactivado'
     case 'parq_inspeccion_creada': {
       const consec = s(r, 'consecutivo'), turno = s(r, 'turno')
-      const apto = s(r, 'es_apto')
-      const resultado = apto === 'true' ? 'Apto' : 'No Apto'
-      if (consec && turno) return `#${consec} (${turno}) → ${resultado}`
-      return consec ? `Inspección #${consec} → ${resultado}` : `Inspección → ${resultado}`
+      const apto = s(r, 'es_apto') === 'true' ? 'Apto' : 'No Apto'
+      if (consec && turno) return `#${consec} (${turno}) → ${apto}`
+      return consec ? `#${consec} → ${apto}` : `Inspección → ${apto}`
     }
     case 'parq_novedad_subsanada': {
       const item = s(r, 'item_nombre'), obs = s(r, 'observacion_subsanacion')
@@ -213,9 +267,9 @@ export function getDescripcion(r: RegistroAuditoria): string {
       return item ? `Subsanado: ${item}` : 'Novedad subsanada'
     }
     case 'parq_personal_actualizado': {
-      const licCatNue = s(r, 'licencia_categoria_nueva'), licVencNue = s(r, 'licencia_vencimiento_nueva')
-      if (licCatNue) return `Licencia actualizada: categoría ${licCatNue}`
-      if (licVencNue) return `Licencia actualizada: vence ${licVencNue}`
+      const licCat = s(r, 'licencia_categoria_nueva')
+      if (licCat) return `Licencia: categoría ${licCat}`
+      if (s(r, 'licencia_vencimiento_nueva')) return `Licencia: vence ${s(r, 'licencia_vencimiento_nueva')}`
       const licNum = s(r, 'licencia_numero')
       if (licNum) return `Datos registrados (Lic. ${licNum})`
       return 'Datos de personal actualizados'
@@ -226,45 +280,63 @@ export function getDescripcion(r: RegistroAuditoria): string {
   }
 }
 
-// Fecha formateada
 function fmtFecha(iso: string): string {
   const d = new Date(iso)
-  const hoy = new Date()
+  const ahora = new Date()
+  const diffMs = ahora.getTime() - d.getTime()
+  const diffMin = Math.floor(diffMs / 60000)
+  const diffH = Math.floor(diffMs / 3600000)
+
+  if (diffMin < 1) return 'Ahora mismo'
+  if (diffMin < 60) return `Hace ${diffMin} min`
+  if (diffH < 24) return `Hace ${diffH}h`
+
   const ayer = new Date(); ayer.setDate(ayer.getDate() - 1)
   const hora = d.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })
-
-  if (d.toDateString() === hoy.toDateString()) return `Hoy, ${hora}`
+  if (d.toDateString() === ahora.toDateString()) return `Hoy, ${hora}`
   if (d.toDateString() === ayer.toDateString()) return `Ayer, ${hora}`
   return d.toLocaleDateString('es-CO', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
 }
 
+// ─── Columnas ─────────────────────────────────────────────────────────────────
+
 export const columnasAuditoria: ColumnDef<RegistroAuditoria>[] = [
   {
-    accessorKey: 'creado_en',
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Fecha" />,
-    cell: ({ row }) => (
-      <span className="text-sm text-muted-foreground whitespace-nowrap">{fmtFecha(row.getValue('creado_en'))}</span>
-    ),
-    sortingFn: 'datetime',
+    id: 'sev',
+    header: '',
+    cell: ({ row }) => {
+      const sev = getSeveridad(row.original.accion)
+      const cfg = SEV_CONFIG[sev]
+      if (sev === 'critica') return <AlertCircle className={`h-4 w-4 ${cfg.text} shrink-0`} />
+      if (sev === 'alta') return <AlertTriangle className={`h-4 w-4 ${cfg.text} shrink-0`} />
+      if (sev === 'media') return <Info className={`h-4 w-4 ${cfg.text} shrink-0`} />
+      return <span className={`inline-block h-2 w-2 rounded-full ${cfg.dot}`} />
+    },
+  },
+  {
+    id: 'evento',
+    header: 'Evento',
+    cell: ({ row }) => {
+      const cat = getCat(row.original.accion)
+      const desc = getDescripcion(row.original)
+      return (
+        <div className="space-y-0.5 min-w-0">
+          <Badge className={`${cat.color} font-normal text-xs`}>{cat.label}</Badge>
+          <p className="text-sm text-muted-foreground truncate max-w-[260px]">{desc}</p>
+        </div>
+      )
+    },
   },
   {
     id: 'responsable',
     accessorKey: 'usuario_nombre',
     header: ({ column }) => <DataTableColumnHeader column={column} title="Responsable" />,
     cell: ({ row }) => (
-      <div>
-        <p className="text-sm font-medium">{capitalizeName(row.original.usuario_nombre) || 'Sistema'}</p>
-        <p className="text-xs text-muted-foreground hidden lg:block">{row.original.usuario_correo}</p>
+      <div className="min-w-0">
+        <p className="text-sm font-medium truncate">{capitalizeName(row.original.usuario_nombre) || 'Sistema'}</p>
+        <p className="text-xs text-muted-foreground hidden lg:block truncate">{row.original.usuario_correo}</p>
       </div>
     ),
-  },
-  {
-    id: 'tipo',
-    header: 'Tipo',
-    cell: ({ row }) => {
-      const cat = getCat(row.original.accion)
-      return <Badge className={`${cat.color} font-normal`}>{cat.label}</Badge>
-    },
   },
   {
     id: 'afectado',
@@ -273,15 +345,16 @@ export const columnasAuditoria: ColumnDef<RegistroAuditoria>[] = [
       const afectado = getAfectado(row.original)
       return afectado
         ? <span className="text-sm font-medium">{afectado}</span>
-        : <span className="text-muted-foreground">-</span>
+        : <span className="text-muted-foreground text-sm">—</span>
     },
   },
   {
-    id: 'descripcion',
-    header: 'Descripción',
+    accessorKey: 'creado_en',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Cuándo" />,
     cell: ({ row }) => (
-      <span className="text-sm text-muted-foreground">{getDescripcion(row.original)}</span>
+      <span className="text-sm text-muted-foreground whitespace-nowrap">{fmtFecha(row.getValue('creado_en'))}</span>
     ),
+    sortingFn: 'datetime',
   },
   {
     id: 'ip',
@@ -289,14 +362,12 @@ export const columnasAuditoria: ColumnDef<RegistroAuditoria>[] = [
     cell: ({ row }) => (
       row.original.ip_address
         ? <span className="text-xs font-mono text-muted-foreground">{row.original.ip_address}</span>
-        : <span className="text-muted-foreground">-</span>
+        : <span className="text-muted-foreground text-sm">—</span>
     ),
   },
   {
     id: 'detalle',
     header: '',
-    cell: () => (
-      <ChevronRight className="h-4 w-4 text-muted-foreground" />
-    ),
+    cell: () => <ChevronRight className="h-4 w-4 text-muted-foreground" />,
   },
 ]

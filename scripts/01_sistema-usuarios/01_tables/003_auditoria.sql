@@ -12,6 +12,8 @@ CREATE TABLE IF NOT EXISTS public.sys_auditoria (
     'rol_modulo_removido',
     'rol_modulo_cambiado',
     'password_reseteado',
+    'password_cambiado',
+    'usuario_aprobado',
     'modulo_activado',
     'modulo_desactivado',
     'configuracion_modificada',

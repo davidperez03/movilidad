@@ -25,6 +25,8 @@ create table if not exists public.mov_historial_acciones (
   estado_nuevo text,
 
   realizado_por uuid not null references public.perfiles(id) on delete restrict,
+  ip_address inet,
+  user_agent text,
   creado_en timestamp with time zone default now() not null
 );
 

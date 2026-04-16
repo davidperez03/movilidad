@@ -1,7 +1,7 @@
 'use client'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { LogIn, Car, Users, Activity, Truck } from 'lucide-react'
+import { LogIn, Car, Users, Activity, Truck, AlertTriangle } from 'lucide-react'
 import { useMemo } from 'react'
 import type { RegistroAuditoria } from '@/app/superadmin/auditoria/auditoria-columns'
 import { getTipoAccion } from '@/lib/hooks/useAuditoria'
@@ -9,68 +9,86 @@ import { getTipoAccion } from '@/lib/hooks/useAuditoria'
 interface EstadisticasAuditoriaProps {
   registros: RegistroAuditoria[]
   onFiltrarTipo: (tipo: string) => void
+  onFiltrarQuick?: (quick: string) => void
 }
 
-export function EstadisticasAuditoria({ registros, onFiltrarTipo }: EstadisticasAuditoriaProps) {
+/** Devuelve YYYY-MM-DD en hora local del navegador (no UTC) */
+function fechaLocal(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+
+export function EstadisticasAuditoria({ registros, onFiltrarTipo, onFiltrarQuick }: EstadisticasAuditoriaProps) {
   const stats = useMemo(() => {
-    const hoy = new Date().toISOString().split('T')[0]
-    const accionesHoy = registros.filter((r) => r.creado_en.startsWith(hoy)).length
+    const hoy = fechaLocal(new Date())
+    const hace7 = new Date(); hace7.setDate(hace7.getDate() - 7); hace7.setHours(0, 0, 0, 0)
 
-    const porTipo: Record<string, number> = {}
-    for (const r of registros) {
-      const tipo = getTipoAccion(r.accion)
-      porTipo[tipo] = (porTipo[tipo] || 0) + 1
+    const registrosHoy     = registros.filter((r) => fechaLocal(new Date(r.creado_en)) === hoy)
+    const recientes        = registros.filter((r) => new Date(r.creado_en) >= hace7)
+
+    const loginsExitosos   = recientes.filter((r) => r.accion === 'login_exitoso').length
+    const loginsFallidos   = recientes.filter((r) => r.accion === 'login_fallido').length
+    const inspecciones     = recientes.filter((r) => r.accion === 'parq_inspeccion_creada').length
+    const subsanadas       = recientes.filter((r) => r.accion === 'parq_novedad_subsanada').length
+    const usuarios7d       = recientes.filter((r) => getTipoAccion(r.accion) === 'usuario').length
+    const roles7d          = recientes.filter((r) => getTipoAccion(r.accion) === 'rol').length
+    const movilidad7d      = recientes.filter((r) => getTipoAccion(r.accion) === 'movilidad').length
+
+    return {
+      accionesHoy: registrosHoy.length,
+      sesiones7d: loginsExitosos + loginsFallidos,
+      loginsExitosos,
+      loginsFallidos,
+      usuariosRoles7d: usuarios7d + roles7d,
+      usuarios7d,
+      roles7d,
+      movilidad7d,
+      parqueadero7d: inspecciones + subsanadas,
+      inspecciones,
+      subsanadas,
     }
-
-    const loginsExitosos = registros.filter((r) => r.accion === 'login_exitoso').length
-    const loginsFallidos = registros.filter((r) => r.accion === 'login_fallido').length
-
-    const inspeccionesCreadas = registros.filter((r) => r.accion === 'parq_inspeccion_creada').length
-    const novedadesSubsanadas = registros.filter((r) => r.accion === 'parq_novedad_subsanada').length
-
-    return { accionesHoy, porTipo, loginsExitosos, loginsFallidos, inspeccionesCreadas, novedadesSubsanadas }
   }, [registros])
 
   const cards = [
     {
-      title: 'Acciones Hoy',
+      title: 'Hoy',
       value: stats.accionesHoy,
-      desc: `de ${registros.length} totales`,
+      desc: 'Acciones registradas hoy',
       icon: Activity,
       color: 'text-blue-600',
-      tipo: 'todos',
+      onClick: () => onFiltrarQuick?.('hoy'),
     },
     {
-      title: 'Sesiones',
-      value: stats.porTipo['sesion'] || 0,
-      desc: `${stats.loginsExitosos} exitosos, ${stats.loginsFallidos} fallidos`,
+      title: 'Sesiones · 7 días',
+      value: stats.sesiones7d,
+      desc: `${stats.loginsExitosos} exitosos · ${stats.loginsFallidos} fallidos`,
       icon: LogIn,
-      color: 'text-slate-600',
-      tipo: 'sesion',
+      color: stats.loginsFallidos > 5 ? 'text-orange-500' : 'text-slate-600',
+      onClick: () => onFiltrarTipo('sesion'),
+      alert: stats.loginsFallidos > 5,
     },
     {
-      title: 'Usuarios y Roles',
-      value: (stats.porTipo['usuario'] || 0) + (stats.porTipo['rol'] || 0),
-      desc: `${stats.porTipo['usuario'] || 0} usuarios, ${stats.porTipo['rol'] || 0} roles`,
+      title: 'Usuarios · 7 días',
+      value: stats.usuariosRoles7d,
+      desc: `${stats.usuarios7d} en usuarios · ${stats.roles7d} en roles`,
       icon: Users,
       color: 'text-purple-600',
-      tipo: 'usuario',
+      onClick: () => onFiltrarTipo('usuario'),
     },
     {
-      title: 'Movilidad',
-      value: stats.porTipo['movilidad'] || 0,
+      title: 'Movilidad · 7 días',
+      value: stats.movilidad7d,
       desc: 'Cuentas, traslados, radicaciones',
       icon: Car,
       color: 'text-teal-600',
-      tipo: 'movilidad',
+      onClick: () => onFiltrarTipo('movilidad'),
     },
     {
-      title: 'Parqueadero',
-      value: stats.porTipo['parqueadero'] || 0,
-      desc: `${stats.inspeccionesCreadas} inspecciones, ${stats.novedadesSubsanadas} subsanadas`,
+      title: 'Parqueadero · 7 días',
+      value: stats.parqueadero7d,
+      desc: `${stats.inspecciones} inspecciones · ${stats.subsanadas} subsanadas`,
       icon: Truck,
       color: 'text-cyan-600',
-      tipo: 'parqueadero',
+      onClick: () => onFiltrarTipo('parqueadero'),
     },
   ]
 
@@ -82,15 +100,18 @@ export function EstadisticasAuditoria({ registros, onFiltrarTipo }: Estadisticas
           <Card
             key={card.title}
             className="cursor-pointer hover:shadow-md transition-shadow"
-            onClick={() => onFiltrarTipo(card.tipo)}
+            onClick={card.onClick}
           >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{card.title}</CardTitle>
-              <Icon className={`h-4 w-4 ${card.color}`} />
+              <CardTitle className="text-sm font-medium leading-tight">{card.title}</CardTitle>
+              <div className="flex items-center gap-1 shrink-0">
+                {card.alert && <AlertTriangle className="h-3.5 w-3.5 text-orange-500" />}
+                <Icon className={`h-4 w-4 ${card.color}`} />
+              </div>
             </CardHeader>
             <CardContent>
-              <div className={`text-2xl font-bold ${card.color}`}>{card.value}</div>
-              <p className="text-xs text-muted-foreground">{card.desc}</p>
+              <div className={`text-2xl font-bold ${card.color}`}>{card.value.toLocaleString('es-CO')}</div>
+              <p className="text-xs text-muted-foreground mt-0.5">{card.desc}</p>
             </CardContent>
           </Card>
         )

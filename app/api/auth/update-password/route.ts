@@ -4,6 +4,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { createClient } from '@/lib/supabase/server'
 import { logger } from '@/lib/logger'
 import { updatePasswordLimiter } from '@/lib/rate-limit'
+import { getClientIp } from '@/lib/utils/get-client-ip'
 
 const schema = z.object({
   newPassword: z.string()
@@ -16,15 +17,6 @@ const schema = z.object({
   clearFlag: z.boolean().optional(),
 })
 
-function getClientIp(request: Request): string {
-  const vercelIp = request.headers.get('x-vercel-forwarded-for')
-  if (vercelIp) return vercelIp.split(',')[0].trim()
-  const realIp = request.headers.get('x-real-ip')
-  if (realIp) return realIp
-  const forwarded = request.headers.get('x-forwarded-for')
-  if (forwarded) return forwarded.split(',')[0].trim()
-  return 'unknown'
-}
 
 export async function POST(request: Request) {
   const ip = getClientIp(request)
@@ -74,6 +66,18 @@ export async function POST(request: Request) {
       logger.error('Error actualizando contraseña', { error: error.message, userId: user.id })
       return NextResponse.json({ error: 'Error al actualizar la contraseña' }, { status: 500 })
     }
+
+    // Registrar cambio de contraseña por el propio usuario
+    await supabase.rpc('registrar_auditoria_sistema', {
+      p_accion: 'password_cambiado',
+      p_entidad_tipo: 'usuario',
+      p_entidad_id: user.id,
+      p_detalles: {
+        razon: clearFlag ? 'Cambio obligatorio al primer inicio de sesión' : 'Cambio voluntario por el usuario',
+      },
+      p_ip_address: ip,
+      p_user_agent: request.headers.get('user-agent'),
+    })
 
     return NextResponse.json({ ok: true })
   } catch (error) {

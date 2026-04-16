@@ -8,6 +8,10 @@ Registro manual de migraciones ejecutadas en producción.
 | 002 | 002_sistema_fotos_multiples_inspecciones.sql | 2026-02-26 | — | v1.9.0 |
 | 003 | 003_sesiones_auditoria_y_cron.sql | 2026-03-06 | — | v1.11.2 |
 | 004 | 004_registrar_login_fallido.sql | 2026-03-06 | — | v1.12.0 |
+| 005 | 005_auditoria_nuevas_acciones.sql | pendiente | — | v1.16.0 |
+| 006 | 006_historial_ip_user_agent.sql | pendiente | — | v1.16.0 |
+| 007 | 007_trigger_auditoria_modulos.sql | pendiente | — | v1.16.0 |
+| 008 | 008_rls_historial_movilidad.sql | pendiente | — | v1.16.0 |
 
 <!--
 Al aplicar una migración, agregar una fila:

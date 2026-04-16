@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { createClient } from '@/lib/supabase/server'
 import { requireSuperAdmin } from '@/lib/api/require-superadmin'
 import { generatePassword } from '@/lib/utils/generate-password'
 import { sendEmail } from '@/lib/email/send-email'
 import { cuentaAprobadaTemplate } from '@/lib/email/templates'
 import { logger } from '@/lib/logger'
+import { getClientIp } from '@/lib/utils/get-client-ip'
 
 const schema = z.object({
   userId: z.string().uuid('userId debe ser un UUID válido'),
@@ -52,6 +54,20 @@ export async function POST(request: NextRequest) {
       .from('perfiles')
       .update({ activo: true })
       .eq('id', userId)
+
+    // Registrar aprobación explícita (complementa el usuario_activado del trigger)
+    const supabase = await createClient()
+    await supabase.rpc('registrar_auditoria_sistema', {
+      p_accion: 'usuario_aprobado',
+      p_entidad_tipo: 'usuario',
+      p_entidad_id: userId,
+      p_detalles: {
+        correo: targetUser.email,
+        nombre_completo: targetUser.user_metadata?.nombre_completo,
+      },
+      p_ip_address: getClientIp(request),
+      p_user_agent: request.headers.get('user-agent'),
+    })
 
     const nombre = targetUser.user_metadata?.nombre_completo || 'Usuario'
     const email = targetUser.email || ''

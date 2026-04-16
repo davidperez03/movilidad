@@ -272,3 +272,6 @@ GRANT EXECUTE ON FUNCTION registrar_login_fallido TO authenticated;
 
 COMMENT ON FUNCTION registrar_login_fallido IS
   'Registra intentos de login fallidos. Solo inserta login_fallido — callable por anon sin sesión activa.';
+
+-- Permitir que usuarios autenticados llamen registrar_auditoria_sistema desde API routes del servidor
+GRANT EXECUTE ON FUNCTION registrar_auditoria_sistema TO authenticated;

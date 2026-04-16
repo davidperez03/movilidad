@@ -23,6 +23,8 @@ create table if not exists public.parq_historial_acciones (
   valor_nuevo text,
 
   realizado_por uuid references public.perfiles(id) on delete set null,
+  ip_address inet,
+  user_agent text,
   creado_en timestamp with time zone default now() not null
 );
 
