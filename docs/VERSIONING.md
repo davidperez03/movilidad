@@ -6,6 +6,7 @@ Para el proceso de release y reglas de versionamiento semántico ver [GITFLOW.md
 
 | Versión | Fecha | Descripción |
 |---------|-------|-------------|
+| 1.17.0 | 2026-04-17 | Feat(parqueadero): módulo de inventarios — stock por ubicación, stickers por rango, cierre de turno, useMutation/apiFetch reutilizables, migraciones 009-011 |
 | 1.16.0 | 2026-04-16 | Feat(auditoria): refactorizar vista completa, cerrar brechas de cobertura — severidad, filtros rápidos, alertas, auditoría de passwords, migraciones 005-008 |
 | 1.15.1 | 2026-04-15 | Fix(superadmin): corregir hydration mismatch en nav tabs — SuperAdminNavTabs como componente cliente propio |
 | 1.15.0 | 2026-04-15 | Feat(layout): refactorización navegación — ModuleSwitcher, ModuleHeader compartido, NavTabsGeneric, SuperAdmin RSC, mejoras de espaciado |
