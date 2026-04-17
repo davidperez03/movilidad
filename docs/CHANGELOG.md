@@ -5,6 +5,21 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.17.0] - 2026-04-17
+
+### Parqueadero — módulo de inventarios
+
+#### Agregado
+- **Control de stock por ubicación**: libretas y sellos con seguimiento por bodega y por grúa
+- **Gestión de stickers por rango**: numeración secuencial con inicialización, actualización y ampliación de rango
+- **Cierre de turno**: reporte de cantidades finales con descuento automático del stock total
+- **Permisos granulares**: `gestionar_inventario` — accesible por superadmin, parq_administrador y parq_auxiliar
+- **`requirePermisoParqueadero`**: helper de autorización reutilizable para rutas API del módulo
+- **`useMutation` + `apiFetch`**: hook y utilidad en `lib/` para mutaciones idempotentes con `useTransition`
+- **Migraciones SQL 009–011**: tablas de inventario, RLS, y permiso `gestionar_inventario` en roles existentes
+
+---
+
 ## [1.16.0] - 2026-04-16
 
 ### Auditoría — refactorización completa y cierre de brechas

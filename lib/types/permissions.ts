@@ -35,6 +35,7 @@ export type PermisoParqueadero =
   | 'editar_inspecciones'
   | 'eliminar_inspecciones'
   | 'gestionar_vehiculos'
+  | 'gestionar_inventario'
   | 'configurar';
 
 // Tipo unión de todos los permisos

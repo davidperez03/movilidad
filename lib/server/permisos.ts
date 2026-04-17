@@ -9,6 +9,7 @@ const PERMISOS_PARQUEADERO_COMPLETOS: Record<PermisoParqueadero, boolean> = {
   editar_inspecciones: true,
   eliminar_inspecciones: true,
   gestionar_vehiculos: true,
+  gestionar_inventario: true,
   configurar: true,
 }
 
@@ -18,6 +19,7 @@ const PERMISOS_PARQUEADERO_VACIOS: Record<PermisoParqueadero, boolean> = {
   editar_inspecciones: false,
   eliminar_inspecciones: false,
   gestionar_vehiculos: false,
+  gestionar_inventario: false,
   configurar: false,
 }
 

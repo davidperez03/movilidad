@@ -17,7 +17,7 @@ values
     'parq_auxiliar',
     'Auxiliar de Parqueadero',
     'Puede crear inspecciones de vehículos',
-    '{"ver": true, "crear_inspecciones": true, "editar_inspecciones": false, "eliminar_inspecciones": false, "gestionar_vehiculos": false, "configurar": false}'::jsonb,
+    '{"ver": true, "crear_inspecciones": true, "editar_inspecciones": false, "eliminar_inspecciones": false, "gestionar_vehiculos": false, "configurar": false, "gestionar_inventario": true}'::jsonb,
     1
   ),
   (
@@ -25,7 +25,7 @@ values
     'parq_administrador',
     'Administrador de Parqueadero',
     'Control total: vehículos, inspecciones, configuración',
-    '{"ver": true, "crear_inspecciones": true, "editar_inspecciones": true, "eliminar_inspecciones": true, "gestionar_vehiculos": true, "configurar": true}'::jsonb,
+    '{"ver": true, "crear_inspecciones": true, "editar_inspecciones": true, "eliminar_inspecciones": true, "gestionar_vehiculos": true, "configurar": true, "gestionar_inventario": true}'::jsonb,
     2
   )
 on conflict (modulo_id, codigo) do nothing;
