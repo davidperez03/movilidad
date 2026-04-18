@@ -20,7 +20,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from '@/components/ui/dialog'
 import {
-  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
@@ -28,7 +28,7 @@ import {
 import {
   Package, BookOpen, Tag, Layers, Warehouse, Truck, AlertTriangle,
   Plus, ArrowRightLeft, ChevronDown, Hash, Pencil, Check, X, ClipboardList,
-  FileText, Table, Download, Loader2,
+  FileText, Table, Download, Loader2, MoreHorizontal,
 } from 'lucide-react'
 
 export interface GruaItem { id: string; placa: string }
@@ -381,7 +381,40 @@ export function InventariosClient({ gruas, items: itemsIniciales, sticker: stick
           <h1 className="text-2xl font-bold tracking-tight">Inventarios</h1>
           <p className="text-muted-foreground">Stock en bodega, distribución por grúa y stickers por rango</p>
         </div>
-        <div className="flex gap-2 flex-wrap">
+        {/* Móvil: menú unificado + botón primario */}
+        <div className="flex gap-2 md:hidden">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" disabled={pending || loadingPDF || loadingExcel || loadingCSV}>
+                <MoreHorizontal className="h-4 w-4 mr-1.5" />Acciones
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuItem onClick={() => abrirMover()} disabled={pending}>
+                <ArrowRightLeft className="h-4 w-4 mr-2" />Mover stock
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={abrirTurno} disabled={pending}>
+                <ClipboardList className="h-4 w-4 mr-2" />Cierre de turno
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={exportarPDF} disabled={loadingPDF}>
+                <FileText className="h-4 w-4 mr-2" />Exportar PDF
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={exportarExcel} disabled={loadingExcel}>
+                <Table className="h-4 w-4 mr-2" />Exportar Excel
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={exportarCSV} disabled={loadingCSV}>
+                <Download className="h-4 w-4 mr-2" />Exportar CSV
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <Button size="sm" onClick={() => abrirAgregar()} disabled={pending}>
+            <Plus className="h-4 w-4 mr-1.5" />Agregar
+          </Button>
+        </div>
+
+        {/* Desktop: botones individuales */}
+        <div className="hidden md:flex gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm" disabled={loadingPDF || loadingExcel || loadingCSV}>
@@ -467,20 +500,23 @@ export function InventariosClient({ gruas, items: itemsIniciales, sticker: stick
         </Card>
       </div>
 
-      <div className="flex flex-wrap gap-2">
+      <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
         {(['todos', 'libretas', 'sellos', 'stickers'] as const).map(key => {
           const cfg    = key === 'todos' ? null : CAT_CONFIG[key]
           const Icon   = cfg?.icon ?? Package
           const label  = cfg?.label ?? 'Todos'
+          const labelCorto = key === 'stickers' ? 'Stickers' : label
           const active = categoriaActiva === key
           return (
             <button key={key} onClick={() => setCategoriaActiva(key)}
-              className={`inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition-colors border ${
+              className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition-colors border ${
                 active
                   ? key === 'todos' ? 'bg-cyan-600 text-white border-cyan-600' : `${cfg!.bg} ${cfg!.color} border-current`
                   : 'bg-muted/50 text-muted-foreground border-transparent hover:bg-muted hover:text-foreground'
               }`}>
-              <Icon className="h-4 w-4" />{label}
+              <Icon className="h-4 w-4" />
+              <span className="hidden sm:inline">{label}</span>
+              <span className="sm:hidden">{labelCorto}</span>
             </button>
           )
         })}
@@ -656,16 +692,14 @@ export function InventariosClient({ gruas, items: itemsIniciales, sticker: stick
                     />
                   </div>
                 </div>
-                <div className="flex flex-wrap justify-end gap-2">
-                  <Button variant="outline" size="sm" onClick={() => { setInputSticker(''); setModalSticker(true) }}>
-                    <Pencil className="h-4 w-4 sm:mr-2" />
+                <div className="grid grid-cols-2 gap-2 sm:flex sm:justify-end">
+                  <Button variant="outline" size="sm" className="w-full sm:w-auto" onClick={() => { setInputSticker(''); setModalSticker(true) }}>
+                    <Pencil className="h-4 w-4 mr-2" />
                     <span className="hidden sm:inline">Actualizar último usado</span>
                     <span className="sm:hidden">Actualizar</span>
                   </Button>
-                  <Button variant="outline" size="sm" onClick={() => { setInputNuevoFin(''); setModalAmpliar(true) }}>
-                    <Plus className="h-4 w-4 sm:mr-2" />
-                    <span className="hidden sm:inline">Ampliar rango</span>
-                    <span className="sm:hidden">Ampliar</span>
+                  <Button variant="outline" size="sm" className="w-full sm:w-auto" onClick={() => { setInputNuevoFin(''); setModalAmpliar(true) }}>
+                    <Plus className="h-4 w-4 mr-2" />Ampliar rango
                   </Button>
                 </div>
               </div>
