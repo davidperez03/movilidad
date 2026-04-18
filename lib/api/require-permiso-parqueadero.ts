@@ -18,33 +18,30 @@ export async function requirePermisoParqueadero(
   permiso: string
 ): Promise<PermisoResult | PermisoError> {
   const supabase = await createClient()
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  // getSession() lee el JWT firmado desde la cookie sin llamada de red.
+  // El middleware ya refresca la sesión en cada request.
+  const { data: { session } } = await supabase.auth.getSession()
 
-  if (authError || !user) {
+  if (!session?.user) {
     return {
       error: 'No autenticado',
       response: NextResponse.json({ error: 'No autenticado' }, { status: 401 }),
     }
   }
 
-  const admin = createAdminClient()
+  const userId = session.user.id
+  const admin  = createAdminClient()
 
-  const { data: perfil } = await admin
-    .from('perfiles')
-    .select('rol_global')
-    .eq('id', user.id)
-    .single()
+  // Ambas queries en paralelo — ahorra un round trip para usuarios no-superadmin
+  const [{ data: perfil }, { data: rolUsuario }] = await Promise.all([
+    admin.from('perfiles').select('rol_global').eq('id', userId).single(),
+    admin.from('usuarios_roles').select('roles_modulo(permisos)')
+      .eq('usuario_id', userId).eq('modulo_id', 'parqueadero').maybeSingle(),
+  ])
 
   if (perfil?.rol_global === 'superadmin') {
-    return { userId: user.id }
+    return { userId }
   }
-
-  const { data: rolUsuario } = await admin
-    .from('usuarios_roles')
-    .select('roles_modulo(permisos)')
-    .eq('usuario_id', user.id)
-    .eq('modulo_id', 'parqueadero')
-    .maybeSingle()
 
   const permisos = (rolUsuario?.roles_modulo as unknown as { permisos: Record<string, boolean> } | null)?.permisos
 
@@ -55,5 +52,5 @@ export async function requirePermisoParqueadero(
     }
   }
 
-  return { userId: user.id }
+  return { userId }
 }

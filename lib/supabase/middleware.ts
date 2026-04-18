@@ -55,6 +55,7 @@ export async function updateSession(request: NextRequest) {
   const isPublicRoute = publicRoutes.includes(request.nextUrl.pathname)
   const isPublicApi = request.nextUrl.pathname.startsWith("/api/consulta")
   const isAuthRoute = request.nextUrl.pathname.startsWith("/auth") || request.nextUrl.pathname.startsWith("/api/auth")
+  const isApiRoute  = request.nextUrl.pathname.startsWith("/api/")
   const isProtected = !isPublicRoute && !isPublicApi && !isAuthRoute
 
   // Fail-closed: si getUser() falla en rutas protegidas, redirigir a login
@@ -70,7 +71,7 @@ export async function updateSession(request: NextRequest) {
     }
   }
 
-  if (user && isProtected) {
+  if (user && isProtected && !isApiRoute) {
     // Verificar sys_sesiones para detectar cierres forzados por admin.
     // Solo bloqueamos si hay evidencia de cierre forzado DESPUÉS del último login.
     // No bloqueamos por ausencia de sesión (puede ser login fresco o registrarInicio pendiente).

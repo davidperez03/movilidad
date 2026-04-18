@@ -225,6 +225,28 @@ export function SessionProvider({ children }: SessionProviderProps) {
         return
       }
 
+      // Antes de crear sesión nueva, verificar si el admin forzó un cierre
+      // después del último login. Crítico en móvil: sessionStorage se limpia
+      // al cerrar el browser, pero el JWT sigue válido y sin esta verificación
+      // el provider crearía una sesión nueva saltándose el cierre forzado.
+      const lastSignIn = user.last_sign_in_at
+      if (lastSignIn) {
+        const { data: forcedClose } = await supabase
+          .from('sys_sesiones')
+          .select('id')
+          .eq('usuario_id', user.id)
+          .eq('estado', 'forzada_cierre')
+          .gte('fin_sesion', lastSignIn)
+          .limit(1)
+          .maybeSingle()
+
+        if (forcedClose) {
+          await supabase.auth.signOut()
+          window.location.href = '/auth/login?reason=session_closed'
+          return
+        }
+      }
+
       const sessionId = SessionManager.getSessionId()
 
       if (!sessionId) {

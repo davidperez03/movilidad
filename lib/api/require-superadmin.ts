@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient as createServerClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 
 interface SuperAdminResult {
   userId: string
@@ -15,19 +16,19 @@ interface SuperAdminError {
 
 export async function requireSuperAdmin(): Promise<SuperAdminResult | SuperAdminError> {
   const supabase = await createServerClient()
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  const { data: { session } } = await supabase.auth.getSession()
 
-  if (authError || !user) {
+  if (!session?.user) {
     return {
       error: 'No autenticado',
       response: NextResponse.json({ error: 'No autenticado' }, { status: 401 }),
     }
   }
 
-  const { data: perfil } = await supabase
+  const { data: perfil } = await createAdminClient()
     .from('perfiles')
     .select('rol_global')
-    .eq('id', user.id)
+    .eq('id', session.user.id)
     .single()
 
   if (perfil?.rol_global !== 'superadmin') {
@@ -37,5 +38,5 @@ export async function requireSuperAdmin(): Promise<SuperAdminResult | SuperAdmin
     }
   }
 
-  return { userId: user.id }
+  return { userId: session.user.id }
 }
