@@ -3,6 +3,13 @@
 import { useState, useMemo } from 'react'
 import { useMutation } from '@/lib/hooks/use-mutation'
 import { apiFetch } from '@/lib/utils/api-fetch'
+import { toast } from 'sonner'
+import { generarCSVInventario } from '@/lib/parqueadero/reportes/exportar-csv'
+import { generarExcelInventario } from '@/lib/parqueadero/reportes/exportar-excel'
+import { generarPDFReporte } from '@/lib/movilidad/reportes/exportar-pdf'
+import { DocumentoStockPDF } from '@/components/parqueadero/reportes/pdf/documento-inventarios-pdf'
+import type { FilaStock, FilaSticker } from '@/lib/parqueadero/reportes/tipos'
+import { UndoBanner } from '@/components/shared/undo-banner'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -13,11 +20,15 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from '@/components/ui/dialog'
 import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select'
 import {
   Package, BookOpen, Tag, Layers, Warehouse, Truck, AlertTriangle,
   Plus, ArrowRightLeft, ChevronDown, Hash, Pencil, Check, X, ClipboardList,
+  FileText, Table, Download, Loader2,
 } from 'lucide-react'
 
 export interface GruaItem { id: string; placa: string }
@@ -88,17 +99,10 @@ export function InventariosClient({ gruas, items: itemsIniciales, sticker: stick
 
   const [stickerUsados,   setStickerUsados]   = useState(stickerInicial?.usados ?? 0)
   const [stickerRangoFin, setStickerRangoFin] = useState(stickerInicial?.rango_fin ?? 0)
-  const [editandoSticker, setEditandoSticker] = useState(false)
+  const [modalSticker,    setModalSticker]    = useState(false)
   const [inputSticker,    setInputSticker]    = useState('')
-  const [confirmSticker,  setConfirmSticker]  = useState(false)
   const inputNum    = parseInt(inputSticker, 10)
   const inputValido = !isNaN(inputNum) && inputNum > stickerUsados && stickerInicial != null && inputNum <= stickerRangoFin
-
-  function cancelarEdicion() {
-    setEditandoSticker(false)
-    setConfirmSticker(false)
-    setInputSticker('')
-  }
 
   const [modalAmpliar,  setModalAmpliar]  = useState(false)
   const [inputNuevoFin, setInputNuevoFin] = useState('')
@@ -107,12 +111,18 @@ export function InventariosClient({ gruas, items: itemsIniciales, sticker: stick
 
   function confirmarAmpliarRango() {
     if (!ampliarValido || !stickerInicial) return
+    const rangoFinAnterior = stickerRangoFin
+    const nuevoFinCapturado = nuevoFinNum
     mutate(
-      () => apiFetch('/api/parqueadero/inventarios/ampliar-rango', 'PATCH', { item_id: stickerInicial.item_id, nuevo_fin: nuevoFinNum }),
+      () => apiFetch('/api/parqueadero/inventarios/ampliar-rango', 'PATCH', { item_id: stickerInicial.item_id, nuevo_fin: nuevoFinCapturado }),
       {
         refresh: false,
-        successMessage: `Rango ampliado hasta #${nuevoFinNum.toLocaleString('es-CO')}`,
-        onSuccess: () => { setStickerRangoFin(nuevoFinNum); setModalAmpliar(false); setInputNuevoFin('') },
+        onSuccess: () => {
+          setStickerRangoFin(nuevoFinCapturado)
+          setModalAmpliar(false)
+          setInputNuevoFin('')
+          setUndoBanner({ mensaje: `Rango ampliado hasta #${nuevoFinCapturado.toLocaleString('es-CO')}`, payload: { tipo: 'ampliar_rango', item_id: stickerInicial.item_id, rango_fin_anterior: rangoFinAnterior } })
+        },
       }
     )
   }
@@ -142,17 +152,23 @@ export function InventariosClient({ gruas, items: itemsIniciales, sticker: stick
 
   function confirmarActualizacionSticker() {
     if (!inputValido || !stickerInicial) return
+    const usadosAnterior = stickerUsados
     mutate(
       () => apiFetch('/api/parqueadero/inventarios/sticker', 'PATCH', { item_id: stickerInicial.item_id, usados: inputNum }),
       {
         refresh: false,
-        successMessage: 'Sticker actualizado',
-        onSuccess: () => { setStickerUsados(inputNum); cancelarEdicion() },
+        onSuccess: () => {
+          setStickerUsados(inputNum)
+          setModalSticker(false)
+          setInputSticker('')
+          setUndoBanner({ mensaje: 'Último sticker usado actualizado', payload: { tipo: 'sticker', item_id: stickerInicial.item_id, usados_anterior: usadosAnterior } })
+        },
       }
     )
   }
 
   const [modalAgregar,    setModalAgregar]    = useState(false)
+  const [agregarConfirmar, setAgregarConfirmar] = useState(false)
   const [agregarItemId,   setAgregarItemId]   = useState(itemsIniciales[0]?.id ?? '')
   const [agregarCantidad, setAgregarCantidad] = useState('')
   const agregarCant    = parseInt(agregarCantidad, 10)
@@ -162,14 +178,23 @@ export function InventariosClient({ gruas, items: itemsIniciales, sticker: stick
   function abrirAgregar(itemId?: string) {
     setAgregarItemId(itemId ?? itemsIniciales[0]?.id ?? '')
     setAgregarCantidad('')
+    setAgregarConfirmar(false)
     setModalAgregar(true)
   }
 
   function confirmarAgregar() {
     if (!agregarValido) return
+    const capturedItemId  = agregarItemId
+    const capturedCantidad = agregarCant
     mutate(
-      () => apiFetch('/api/parqueadero/inventarios/agregar', 'POST', { item_id: agregarItemId, cantidad: agregarCant }),
-      { successMessage: 'Stock agregado a bodega', onSuccess: () => setModalAgregar(false) }
+      () => apiFetch('/api/parqueadero/inventarios/agregar', 'POST', { item_id: capturedItemId, cantidad: capturedCantidad }),
+      {
+        onSuccess: () => {
+          setModalAgregar(false)
+          setAgregarConfirmar(false)
+          setUndoBanner({ mensaje: 'Stock agregado a bodega', payload: { tipo: 'agregar', item_id: capturedItemId, cantidad: capturedCantidad } })
+        },
+      }
     )
   }
 
@@ -195,9 +220,34 @@ export function InventariosClient({ gruas, items: itemsIniciales, sticker: stick
 
   function confirmarMover() {
     if (!moverValido) return
+    const capturedItemId  = moverItemId
+    const capturedOrigen  = moverOrigen
+    const capturedDestino = moverDestino
+    const capturedCantidad = moverCant
+    const capturedUnidad  = moverItem?.unidad ?? ''
     mutate(
-      () => apiFetch('/api/parqueadero/inventarios/mover', 'POST', { item_id: moverItemId, origen: moverOrigen, destino: moverDestino, cantidad: moverCant }),
-      { successMessage: `${moverCant} ${moverItem?.unidad} movidos`, onSuccess: () => setModalMover(false) }
+      () => apiFetch('/api/parqueadero/inventarios/mover', 'POST', { item_id: capturedItemId, origen: capturedOrigen, destino: capturedDestino, cantidad: capturedCantidad }),
+      {
+        onSuccess: () => {
+          setModalMover(false)
+          setUndoBanner({ mensaje: `${capturedCantidad} ${capturedUnidad} movidos`, payload: { tipo: 'mover', item_id: capturedItemId, origen: capturedOrigen, destino: capturedDestino, cantidad: capturedCantidad } })
+        },
+      }
+    )
+  }
+
+  type DeshacerPayload =
+    | { tipo: 'agregar';       item_id: string; cantidad: number }
+    | { tipo: 'mover';         item_id: string; cantidad: number; origen: string; destino: string }
+    | { tipo: 'sticker';       item_id: string; usados_anterior: number }
+    | { tipo: 'ampliar_rango'; item_id: string; rango_fin_anterior: number }
+
+  const [undoBanner, setUndoBanner] = useState<{ mensaje: string; payload: DeshacerPayload } | null>(null)
+
+  function deshacerOperacion(op: DeshacerPayload) {
+    mutate(
+      () => apiFetch('/api/parqueadero/inventarios/deshacer', 'POST', op),
+      { successMessage: 'Acción deshecha' }
     )
   }
 
@@ -239,6 +289,65 @@ export function InventariosClient({ gruas, items: itemsIniciales, sticker: stick
     )
   }
 
+  const [loadingPDF,   setLoadingPDF]   = useState(false)
+  const [loadingExcel, setLoadingExcel] = useState(false)
+  const [loadingCSV,   setLoadingCSV]   = useState(false)
+
+  function toFilaStock(): FilaStock[] {
+    return itemsIniciales.map(item => ({
+      item_id:      item.id,
+      nombre:       item.nombre,
+      categoria:    item.categoria,
+      unidad:       item.unidad,
+      stock_minimo: item.stock_minimo,
+      bodega:       item.bodega,
+      gruas:        Object.fromEntries(gruas.map(g => [g.placa, item.gruas[g.id] ?? 0])),
+      total:        totalItem(item),
+    }))
+  }
+
+  function toFilaSticker(): FilaSticker | null {
+    if (!stickerInicial) return null
+    return {
+      item_id:      stickerInicial.item_id,
+      nombre:       stickerInicial.nombre,
+      rango_inicio: stickerInicial.rango_inicio,
+      rango_fin:    stickerRangoFin,
+      usados:       stickerUsados,
+      disponibles:  stickerDisponibles,
+      stock_minimo: stickerInicial.stock_minimo,
+      pct_uso:      stickerPct,
+      configurado:  stickerConfigurado,
+    }
+  }
+
+  async function exportarPDF() {
+    try {
+      setLoadingPDF(true)
+      await generarPDFReporte(
+        <DocumentoStockPDF stock={toFilaStock()} sticker={toFilaSticker()} />,
+        `inventarios-stock-${new Date().toISOString().split('T')[0]}`
+      )
+      toast.success('PDF generado')
+    } catch { toast.error('Error al generar PDF') } finally { setLoadingPDF(false) }
+  }
+
+  async function exportarExcel() {
+    try {
+      setLoadingExcel(true)
+      await generarExcelInventario(toFilaStock(), 'stock', `inventarios-stock-${new Date().toISOString().split('T')[0]}`)
+      toast.success('Excel generado')
+    } catch { toast.error('Error al generar Excel') } finally { setLoadingExcel(false) }
+  }
+
+  function exportarCSV() {
+    try {
+      setLoadingCSV(true)
+      generarCSVInventario(toFilaStock(), 'stock', `inventarios-stock-${new Date().toISOString().split('T')[0]}`)
+      toast.success('CSV generado')
+    } catch { toast.error('Error al generar CSV') } finally { setLoadingCSV(false) }
+  }
+
   const mostrarTabla   = categoriaActiva !== 'stickers'
   const mostrarSticker = (categoriaActiva === 'todos' || categoriaActiva === 'stickers') && stickerInicial
 
@@ -273,6 +382,28 @@ export function InventariosClient({ gruas, items: itemsIniciales, sticker: stick
           <p className="text-muted-foreground">Stock en bodega, distribución por grúa y stickers por rango</p>
         </div>
         <div className="flex gap-2 flex-wrap">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" disabled={loadingPDF || loadingExcel || loadingCSV}>
+                {(loadingPDF || loadingExcel || loadingCSV)
+                  ? <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  : <Download className="h-4 w-4 mr-2" />}
+                Exportar
+                <ChevronDown className="h-3 w-3 ml-1 opacity-60" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={exportarPDF} disabled={loadingPDF}>
+                <FileText className="h-4 w-4 mr-2" />PDF
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={exportarExcel} disabled={loadingExcel}>
+                <Table className="h-4 w-4 mr-2" />Excel
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={exportarCSV} disabled={loadingCSV}>
+                <Download className="h-4 w-4 mr-2" />CSV
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           <Button variant="outline" size="sm" onClick={() => abrirMover()} disabled={pending}>
             <ArrowRightLeft className="h-4 w-4 mr-2" />Mover
           </Button>
@@ -525,83 +656,63 @@ export function InventariosClient({ gruas, items: itemsIniciales, sticker: stick
                     />
                   </div>
                 </div>
-                {!editandoSticker ? (
-                  <div className="flex justify-end gap-2">
-                    <Button variant="outline" size="sm" onClick={() => { setInputSticker(''); setConfirmSticker(false); setEditandoSticker(true) }}>
-                      <Pencil className="h-4 w-4 mr-2" />Actualizar último usado
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={() => { setInputNuevoFin(''); setModalAmpliar(true) }}>
-                      <Plus className="h-4 w-4 mr-2" />Ampliar rango
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="rounded-lg border bg-muted/30 p-4 space-y-3">
-                    {!confirmSticker ? (
-                      <>
-                        <p className="text-sm font-medium">Ingresa el último número de sticker usado</p>
-                        <p className="text-xs text-muted-foreground">Actual: #{stickerUsados.toLocaleString('es-CO')} · Máximo: #{stickerRangoFin.toLocaleString('es-CO')}</p>
-                        <div className="flex gap-2 flex-wrap">
-                          <Input type="number" placeholder={`Mayor a ${stickerUsados}`} value={inputSticker}
-                            onChange={e => setInputSticker(e.target.value)} className="h-9 w-48"
-                            min={stickerUsados + 1} max={stickerRangoFin} />
-                          <Button size="sm" disabled={!inputValido} onClick={() => setConfirmSticker(true)}>Continuar</Button>
-                          <Button size="sm" variant="ghost" onClick={cancelarEdicion}><X className="h-4 w-4" /></Button>
-                        </div>
-                        {inputSticker && !inputValido && (
-                          <p className="text-xs text-destructive">
-                            {parseInt(inputSticker, 10) <= stickerUsados
-                              ? 'El número debe ser mayor al último registrado — no se puede retroceder.'
-                              : 'No puede superar el rango máximo.'}
-                          </p>
-                        )}
-                      </>
-                    ) : (
-                      <>
-                        <p className="text-sm font-medium">¿Confirmar actualización?</p>
-                        <div className="rounded-md border bg-background p-3 text-sm space-y-1">
-                          <div className="flex justify-between"><span className="text-muted-foreground">Último usado anterior</span><span className="font-mono">#{stickerUsados.toLocaleString('es-CO')}</span></div>
-                          <div className="flex justify-between"><span className="text-muted-foreground">Nuevo último usado</span><span className="font-mono font-semibold">#{inputNum.toLocaleString('es-CO')}</span></div>
-                          <Separator />
-                          <div className="flex justify-between"><span className="text-muted-foreground">Quedarán disponibles</span><span className="font-semibold text-purple-600">{(stickerRangoFin - inputNum).toLocaleString('es-CO')}</span></div>
-                        </div>
-                        <p className="text-xs text-muted-foreground">Esta acción no se puede deshacer. El contador no puede retroceder.</p>
-                        <div className="flex gap-2">
-                          <Button size="sm" onClick={confirmarActualizacionSticker}><Check className="h-4 w-4 mr-2" />Confirmar</Button>
-                          <Button size="sm" variant="ghost" onClick={cancelarEdicion}>Cancelar</Button>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                )}
+                <div className="flex justify-end gap-2">
+                  <Button variant="outline" size="sm" onClick={() => { setInputSticker(''); setModalSticker(true) }}>
+                    <Pencil className="h-4 w-4 mr-2" />Actualizar último usado
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => { setInputNuevoFin(''); setModalAmpliar(true) }}>
+                    <Plus className="h-4 w-4 mr-2" />Ampliar rango
+                  </Button>
+                </div>
               </div>
             )}
           </CardContent>
         </Card>
       )}
 
-      <Dialog open={modalAgregar} onOpenChange={v => { if (!v) setModalAgregar(false) }}>
+      <Dialog open={modalAgregar} onOpenChange={v => { if (!v) { setModalAgregar(false); setAgregarConfirmar(false) } }}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader><DialogTitle className="flex items-center gap-2"><Plus className="h-5 w-5" />Agregar al stock</DialogTitle></DialogHeader>
-          <div className="space-y-4 py-2">
-            <div className="space-y-2">
-              <Label>Ítem</Label>
-              <Select value={agregarItemId} onValueChange={setAgregarItemId}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>{itemsIniciales.map(i => <SelectItem key={i.id} value={i.id}>{i.nombre}</SelectItem>)}</SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label>Cantidad a agregar</Label>
-              <Input type="number" placeholder="Ej: 50" min={1} value={agregarCantidad} onChange={e => setAgregarCantidad(e.target.value)} />
-              <p className="text-xs text-muted-foreground">
-                Stock actual en bodega: <span className="font-medium">{agregarItemAct?.bodega ?? 0} {agregarItemAct?.unidad}</span>
-              </p>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setModalAgregar(false)}>Cancelar</Button>
-            <Button disabled={!agregarValido || pending} onClick={confirmarAgregar}>Confirmar ingreso</Button>
-          </DialogFooter>
+          {!agregarConfirmar ? (
+            <>
+              <div className="space-y-4 py-2">
+                <div className="space-y-2">
+                  <Label>Ítem</Label>
+                  <Select value={agregarItemId} onValueChange={v => { setAgregarItemId(v); setAgregarCantidad('') }}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>{itemsIniciales.map(i => <SelectItem key={i.id} value={i.id}>{i.nombre}</SelectItem>)}</SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Cantidad a agregar</Label>
+                  <Input type="number" placeholder="Ej: 50" min={1} value={agregarCantidad} onChange={e => setAgregarCantidad(e.target.value)} />
+                  <p className="text-xs text-muted-foreground">
+                    Stock actual en bodega: <span className="font-medium">{agregarItemAct?.bodega ?? 0} {agregarItemAct?.unidad}</span>
+                  </p>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setModalAgregar(false)}>Cancelar</Button>
+                <Button disabled={!agregarValido} onClick={() => setAgregarConfirmar(true)}>Continuar</Button>
+              </DialogFooter>
+            </>
+          ) : (
+            <>
+              <div className="space-y-4 py-2">
+                <p className="text-sm text-muted-foreground">Revisa el ingreso antes de confirmar.</p>
+                <div className="rounded-md border bg-muted/30 p-3 text-sm space-y-1">
+                  <div className="flex justify-between"><span className="text-muted-foreground">Ítem</span><span className="font-semibold">{agregarItemAct?.nombre}</span></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">Cantidad a ingresar</span><span className="font-semibold text-green-600">+{agregarCant} {agregarItemAct?.unidad}</span></div>
+                  <Separator />
+                  <div className="flex justify-between"><span className="text-muted-foreground">Stock en bodega</span><span>{agregarItemAct?.bodega ?? 0} → <span className="font-bold">{(agregarItemAct?.bodega ?? 0) + agregarCant}</span> {agregarItemAct?.unidad}</span></div>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setAgregarConfirmar(false)}>Atrás</Button>
+                <Button disabled={pending} onClick={confirmarAgregar}><Check className="h-4 w-4 mr-2" />Confirmar ingreso</Button>
+              </DialogFooter>
+            </>
+          )}
         </DialogContent>
       </Dialog>
 
@@ -693,10 +804,10 @@ export function InventariosClient({ gruas, items: itemsIniciales, sticker: stick
                       <div className={`rounded-md p-1.5 shrink-0 ${cfg.bg}`}><Icon className={`h-4 w-4 ${cfg.color}`} /></div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium">{item.nombre}</p>
-                        <p className="text-xs text-muted-foreground">Al salir: {inicial} {item.unidad}</p>
+                        <p className="text-xs text-muted-foreground">Inicio: {inicial} {item.unidad}</p>
                       </div>
                       <div className="w-32 shrink-0">
-                        <Input type="number" placeholder="Al regresar" min={0} max={inicial}
+                        <Input type="number" placeholder="Final" min={0} max={inicial}
                           value={finalVal} onChange={e => setTurnoFinales(p => ({ ...p, [item.id]: e.target.value }))}
                           className={`h-8 text-sm ${invalido ? 'border-destructive' : ''}`} />
                         {invalido && <p className="text-xs text-destructive mt-0.5">Máx: {inicial}</p>}
@@ -832,6 +943,66 @@ export function InventariosClient({ gruas, items: itemsIniciales, sticker: stick
         </DialogContent>
       </Dialog>
 
+      <Dialog open={modalSticker} onOpenChange={v => { if (!v) { setModalSticker(false); setInputSticker('') } }}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2"><Hash className="h-5 w-5" />Actualizar último sticker usado</DialogTitle>
+          </DialogHeader>
+          {stickerInicial && (
+            <div className="space-y-4 py-2">
+              <div className="rounded-md border bg-muted/30 p-3 text-sm space-y-1">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Último usado actual</span>
+                  <span className="font-mono font-semibold">#{stickerUsados.toLocaleString('es-CO')}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Máximo habilitado</span>
+                  <span className="font-mono">#{stickerRangoFin.toLocaleString('es-CO')}</span>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>Nuevo último número usado</Label>
+                <Input
+                  type="number"
+                  placeholder={`Mayor a ${stickerUsados.toLocaleString('es-CO')}`}
+                  min={stickerUsados + 1}
+                  max={stickerRangoFin}
+                  value={inputSticker}
+                  onChange={e => setInputSticker(e.target.value)}
+                />
+                {inputValido && (
+                  <p className="text-xs text-muted-foreground">
+                    Quedarán disponibles: <span className="font-semibold text-purple-600">{(stickerRangoFin - inputNum).toLocaleString('es-CO')}</span>
+                    {' '}(−{(inputNum - stickerUsados).toLocaleString('es-CO')} usados)
+                  </p>
+                )}
+                {inputSticker && !inputValido && (
+                  <p className="text-xs text-destructive">
+                    {inputNum <= stickerUsados
+                      ? 'El número debe ser mayor al último registrado — no se puede retroceder.'
+                      : 'No puede superar el rango máximo habilitado.'}
+                  </p>
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground">Esta acción no se puede deshacer. El contador no puede retroceder.</p>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setModalSticker(false); setInputSticker('') }}>Cancelar</Button>
+            <Button disabled={!inputValido || pending} onClick={confirmarActualizacionSticker}>
+              <Check className="h-4 w-4 mr-2" />Confirmar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {undoBanner && (
+        <UndoBanner
+          mensaje={undoBanner.mensaje}
+          onDeshacer={() => deshacerOperacion(undoBanner.payload)}
+          onDismiss={() => setUndoBanner(null)}
+        />
+      )}
     </div>
   )
 }
