@@ -709,7 +709,7 @@ export function InventariosClient({ gruas, items: itemsIniciales, sticker: stick
       )}
 
       <Dialog open={modalAgregar} onOpenChange={v => { if (!v) { setModalAgregar(false); setAgregarConfirmar(false) } }}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent onOpenAutoFocus={(e) => e.preventDefault()} className="sm:max-w-md max-h-[90dvh] overflow-y-auto">
           <DialogHeader><DialogTitle className="flex items-center gap-2"><Plus className="h-5 w-5" />Agregar al stock</DialogTitle></DialogHeader>
           {!agregarConfirmar ? (
             <>
@@ -755,7 +755,7 @@ export function InventariosClient({ gruas, items: itemsIniciales, sticker: stick
       </Dialog>
 
       <Dialog open={modalMover} onOpenChange={v => { if (!v) setModalMover(false) }}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent onOpenAutoFocus={(e) => e.preventDefault()} className="sm:max-w-md max-h-[90dvh] overflow-y-auto">
           <DialogHeader><DialogTitle className="flex items-center gap-2"><ArrowRightLeft className="h-5 w-5" />Mover stock</DialogTitle></DialogHeader>
           <div className="space-y-4 py-2">
             <div className="space-y-2">
@@ -818,7 +818,7 @@ export function InventariosClient({ gruas, items: itemsIniciales, sticker: stick
       </Dialog>
 
       <Dialog open={modalTurno} onOpenChange={v => { if (!v) { setModalTurno(false); setTurnoConfirmar(false) } }}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent onOpenAutoFocus={(e) => e.preventDefault()} className="sm:max-w-lg max-h-[90dvh] overflow-y-auto">
           <DialogHeader><DialogTitle className="flex items-center gap-2"><ClipboardList className="h-5 w-5" />Reporte de cierre de turno</DialogTitle></DialogHeader>
           {!turnoConfirmar ? (
             <div className="space-y-4 py-2">
@@ -891,7 +891,7 @@ export function InventariosClient({ gruas, items: itemsIniciales, sticker: stick
       </Dialog>
 
       <Dialog open={modalInicializar} onOpenChange={v => { if (!v) setModalInicializar(false) }}>
-        <DialogContent className="sm:max-w-sm">
+        <DialogContent onOpenAutoFocus={(e) => e.preventDefault()} className="sm:max-w-sm max-h-[90dvh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2"><Hash className="h-5 w-5" />Configurar rango de stickers</DialogTitle>
           </DialogHeader>
@@ -933,7 +933,7 @@ export function InventariosClient({ gruas, items: itemsIniciales, sticker: stick
       </Dialog>
 
       <Dialog open={modalAmpliar} onOpenChange={v => { if (!v) setModalAmpliar(false) }}>
-        <DialogContent className="sm:max-w-sm">
+        <DialogContent onOpenAutoFocus={(e) => e.preventDefault()} className="sm:max-w-sm max-h-[90dvh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2"><Plus className="h-5 w-5" />Ampliar rango de stickers</DialogTitle>
           </DialogHeader>
@@ -982,7 +982,7 @@ export function InventariosClient({ gruas, items: itemsIniciales, sticker: stick
       </Dialog>
 
       <Dialog open={modalSticker} onOpenChange={v => { if (!v) { setModalSticker(false); setInputSticker('') } }}>
-        <DialogContent className="sm:max-w-sm">
+        <DialogContent onOpenAutoFocus={(e) => e.preventDefault()} className="sm:max-w-sm max-h-[90dvh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2"><Hash className="h-5 w-5" />Actualizar último sticker usado</DialogTitle>
           </DialogHeader>
