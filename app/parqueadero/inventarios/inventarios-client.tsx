@@ -656,12 +656,16 @@ export function InventariosClient({ gruas, items: itemsIniciales, sticker: stick
                     />
                   </div>
                 </div>
-                <div className="flex justify-end gap-2">
+                <div className="flex flex-wrap justify-end gap-2">
                   <Button variant="outline" size="sm" onClick={() => { setInputSticker(''); setModalSticker(true) }}>
-                    <Pencil className="h-4 w-4 mr-2" />Actualizar último usado
+                    <Pencil className="h-4 w-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Actualizar último usado</span>
+                    <span className="sm:hidden">Actualizar</span>
                   </Button>
                   <Button variant="outline" size="sm" onClick={() => { setInputNuevoFin(''); setModalAmpliar(true) }}>
-                    <Plus className="h-4 w-4 mr-2" />Ampliar rango
+                    <Plus className="h-4 w-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Ampliar rango</span>
+                    <span className="sm:hidden">Ampliar</span>
                   </Button>
                 </div>
               </div>
