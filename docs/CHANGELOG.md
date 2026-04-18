@@ -5,6 +5,50 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.20.0] - 2026-04-18
+
+### Inventarios — rediseño móvil completo
+
+#### Corregido
+- **Header en móvil**: botones de acción agrupados en dropdown "Acciones" + botón primario "Agregar" — elimina el caos de botones que se envolvían sin orden
+- **Filtros de categoría**: scroll horizontal con `shrink-0`, etiqueta "Stickers" en xs en lugar de "Stickers de Inventario"
+- **Card de sticker**: botones "Actualizar"/"Ampliar" en grid 2 columnas en móvil, lado a lado en desktop
+- **Teclado virtual**: `onOpenAutoFocus={(e) => e.preventDefault()}` y `max-h-[90dvh] overflow-y-auto` en todos los modales — evita el corte por teclado al abrir
+
+---
+
+## [1.19.0] - 2026-04-18
+
+### Performance API y sesiones móvil
+
+#### Corregido
+- **Sesiones móvil**: `SessionProvider` verifica `forzada_cierre` antes de crear sesión nueva — resuelve regeneración de sesiones con tokens que ya no debían servir en superadmin
+- **Middleware**: omite check de `sys_sesiones` en rutas `/api/` (tienen su propia capa de autenticación), eliminando queries innecesarias
+
+#### Cambiado
+- **Admin client**: singleton a nivel de módulo — reutiliza la misma instancia entre requests en lugar de crear una nueva por cada llamada
+- **Guards de API**: `getSession()` en lugar de `getUser()` en `requirePermisoParqueadero` y `requireSuperAdmin` — elimina la llamada de red a Supabase Auth (~100-400ms por request)
+- **`requirePermisoParqueadero`**: queries de perfil y rol en paralelo con `Promise.all` — ahorra un round-trip para usuarios no-superadmin
+
+---
+
+## [1.18.0] - 2026-04-18
+
+### Inventarios — UX, exportes y deshacer
+
+#### Agregado
+- **Banner de deshacer**: componente `UndoBanner` con barra de progreso de 10 segundos, centrado en la parte inferior — disponible tras agregar stock, mover stock, actualizar sticker y ampliar rango
+- **Endpoint `POST /api/parqueadero/inventarios/deshacer`**: revierte operaciones de tipo `agregar`, `mover`, `sticker` y `ampliar_rango`
+- **Exportes PDF/Excel/CSV**: informes de stock actual con detalle de stickers — botones agrupados en dropdown "Exportar" en el header
+- **Reportes de inventario**: `DocumentoStockPDF`, `generarExcelInventario`, `generarCSVInventario` usando plantillas compartidas del sistema
+- **Fix móvil superadmin**: nombre de usuario en `MobileNav` y botón de logout oculto en xs (disponible en el sheet)
+
+#### Cambiado
+- **Sticker — actualizar último usado**: ahora abre un modal (igual que ampliar rango) en lugar de edición inline
+- **Agregar stock**: paso de confirmación con preview del ítem, cantidad y stock bodega antes/después antes de ejecutar
+
+---
+
 ## [1.17.0] - 2026-04-17
 
 ### Parqueadero — módulo de inventarios

@@ -6,6 +6,9 @@ Para el proceso de release y reglas de versionamiento semántico ver [GITFLOW.md
 
 | Versión | Fecha | Descripción |
 |---------|-------|-------------|
+| 1.20.0 | 2026-04-18 | Fix(inventarios): rediseño móvil completo — header con dropdown, filtros scroll horizontal, card sticker grid, fix teclado en modales |
+| 1.19.0 | 2026-04-18 | Perf+Fix: admin client singleton, getSession() en guards, Promise.all en permisos, fix sesiones móvil superadmin |
+| 1.18.0 | 2026-04-18 | Feat(inventarios): banner deshacer 10s, exportes PDF/Excel/CSV, sticker como modal, confirmación agregar stock, fix móvil superadmin |
 | 1.17.0 | 2026-04-17 | Feat(parqueadero): módulo de inventarios — stock por ubicación, stickers por rango, cierre de turno, useMutation/apiFetch reutilizables, migraciones 009-011 |
 | 1.16.0 | 2026-04-16 | Feat(auditoria): refactorizar vista completa, cerrar brechas de cobertura — severidad, filtros rápidos, alertas, auditoría de passwords, migraciones 005-008 |
 | 1.15.1 | 2026-04-15 | Fix(superadmin): corregir hydration mismatch en nav tabs — SuperAdminNavTabs como componente cliente propio |
