@@ -1,0 +1,59 @@
+name: Backup Base de Datos
+
+on:
+  schedule:
+    - cron: '0 7 * * *'   # Cada día a las 2am Colombia (UTC-5 → 7am UTC)
+  workflow_dispatch:       # También ejecutable manualmente desde GitHub Actions
+
+jobs:
+  backup:
+    name: pg_dump → artifact
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Instalar cliente PostgreSQL
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y postgresql-client
+
+      - name: Generar nombre del archivo
+        id: nombre
+        run: |
+          FECHA=$(date -u +"%Y-%m-%d_%H-%M")
+          echo "archivo=movilidad_backup_${FECHA}.dump" >> $GITHUB_OUTPUT
+          echo "fecha=$FECHA" >> $GITHUB_OUTPUT
+
+      - name: Ejecutar pg_dump
+        env:
+          PGPASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+        run: |
+          pg_dump \
+            --host=${{ secrets.SUPABASE_DB_HOST }} \
+            --port=5432 \
+            --username=${{ secrets.SUPABASE_DB_USER }} \
+            --dbname=postgres \
+            --format=custom \
+            --no-acl \
+            --no-owner \
+            --compress=9 \
+            --file="${{ steps.nombre.outputs.archivo }}"
+
+      - name: Verificar tamaño del backup
+        run: |
+          SIZE=$(du -sh "${{ steps.nombre.outputs.archivo }}" | cut -f1)
+          echo "✅ Backup generado: ${{ steps.nombre.outputs.archivo }} ($SIZE)"
+
+      - name: Subir como artifact (retención 90 días)
+        uses: actions/upload-artifact@v4
+        with:
+          name: backup-${{ steps.nombre.outputs.fecha }}
+          path: ${{ steps.nombre.outputs.archivo }}
+          retention-days: 90
+          if-no-files-found: error
+
+      - name: Notificar fallo
+        if: failure()
+        run: |
+          echo "❌ El backup falló el $(date -u). Revisar logs en GitHub Actions." >&2
+          exit 1
