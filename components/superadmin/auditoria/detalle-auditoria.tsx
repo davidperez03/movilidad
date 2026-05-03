@@ -1,11 +1,14 @@
 'use client'
 
+import { useState } from 'react'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { Badge } from '@/components/ui/badge'
-import { Clock, User, Globe, Monitor, ArrowRight, Database, AlertCircle, AlertTriangle, Info } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Clock, User, Globe, Monitor, ArrowRight, Database, AlertCircle, AlertTriangle, Info, History } from 'lucide-react'
 import type { RegistroAuditoria } from '@/app/superadmin/auditoria/auditoria-columns'
 import { getDescripcion, getCat, getSeveridad, getAfectado, SEV_CONFIG } from '@/app/superadmin/auditoria/auditoria-columns'
 import { capitalizeName } from '@/lib/utils/capitalize'
+import { HistorialEntidad } from './historial-entidad'
 
 interface DetalleAuditoriaProps {
   registro: RegistroAuditoria | null
@@ -129,6 +132,8 @@ function SeveridadIcon({ accion }: { accion: string }) {
 }
 
 export function DetalleAuditoria({ registro, open, onClose }: DetalleAuditoriaProps) {
+  const [historialAbierto, setHistorialAbierto] = useState(false)
+
   if (!registro) return null
 
   const cat = getCat(registro.accion)
@@ -140,6 +145,7 @@ export function DetalleAuditoria({ registro, open, onClose }: DetalleAuditoriaPr
   const tieneValores = registro.valor_anterior || registro.valor_nuevo
 
   return (
+    <>
     <Sheet open={open} onOpenChange={(v) => !v && onClose()}>
       <SheetContent className="w-full sm:max-w-lg overflow-y-auto p-0">
         <SheetHeader className="px-6 pt-6 pb-4 border-b bg-muted/30">
@@ -261,7 +267,20 @@ export function DetalleAuditoria({ registro, open, onClose }: DetalleAuditoriaPr
             </div>
           )}
 
-          {/* 6. Referencia técnica */}
+          {/* 6. Historial completo de la entidad */}
+          {registro.entidad_id && registro.entidad_id !== 'undefined' && registro.entidad_tipo && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full"
+              onClick={() => setHistorialAbierto(true)}
+            >
+              <History className="h-4 w-4 mr-2" />
+              Ver historial completo de esta entidad
+            </Button>
+          )}
+
+          {/* 7. Referencia técnica */}
           <div className="rounded-lg border border-dashed bg-muted/20 px-4 py-3 space-y-1">
             <p className="text-xs text-muted-foreground">ID: <span className="font-mono">{registro.id}</span></p>
             <p className="text-xs text-muted-foreground">Módulo: {getModuloLabel(registro.modulo)} · Entidad: {registro.entidad_tipo || '—'}</p>
@@ -274,5 +293,14 @@ export function DetalleAuditoria({ registro, open, onClose }: DetalleAuditoriaPr
         </div>
       </SheetContent>
     </Sheet>
+
+    <HistorialEntidad
+      tipo={registro.entidad_tipo}
+      id={registro.entidad_id !== 'undefined' ? registro.entidad_id : null}
+      titulo={registro.placa ?? registro.entidad_tipo ?? undefined}
+      open={historialAbierto}
+      onClose={() => setHistorialAbierto(false)}
+    />
+    </>
   )
 }

@@ -15,6 +15,13 @@ Registro manual de migraciones ejecutadas en producción.
 | 009 | 009_inventarios_tablas.sql | 2026-04-17 | — | v1.17.0 |
 | 010 | 010_inventarios_rls.sql | 2026-04-17 | — | v1.17.0 |
 | 011 | 011_inventarios_permisos_roles.sql | — | — | v1.17.0 |
+| 012 | 012_auditoria_hash_chain.sql | 2026-05-03 | David | v1.21.0 |
+| 013 | 013_auditoria_sesion_id.sql | 2026-05-03 | David | v1.21.0 |
+| 014 | 014_auditoria_row_versioning.sql | 2026-05-03 | David | v1.21.0 |
+| 015 | 015_inv_auditoria_y_personal_activo.sql | 2026-05-03 | David | v1.21.0 |
+| 016 | 016_security_advisor_fixes.sql | 2026-05-03 | David | v1.21.0 |
+| 017 | 017_auditoria_hash_fix.sql | 2026-05-03 | David | v1.21.0 |
+| 018 | 018_hash_chain_todas_las_auditorias.sql | 2026-05-03 | David | v1.21.0 |
 
 <!--
 Al aplicar una migración, agregar una fila:

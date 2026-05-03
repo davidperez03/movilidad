@@ -98,6 +98,7 @@ export function getCat(accion: string): { label: string; color: string } {
     return { label: 'Sistema', color: 'bg-orange-100 text-orange-800' }
   }
   if (accion.startsWith('parq_')) return { label: 'Parqueadero', color: 'bg-cyan-100 text-cyan-800' }
+  if (accion.startsWith('inv_')) return { label: 'Inventarios', color: 'bg-amber-100 text-amber-800' }
   if (accion === 'cuenta_creada') return { label: 'Cuenta', color: 'bg-teal-100 text-teal-800' }
   if (accion.includes('traslado')) return { label: 'Traslado', color: 'bg-amber-100 text-amber-800' }
   if (accion.includes('radicacion')) return { label: 'Radicación', color: 'bg-sky-100 text-sky-800' }

@@ -21,7 +21,8 @@ create table if not exists public.parq_inspecciones (
   observaciones_fotos JSONB DEFAULT '[]'::jsonb, -- [{url: string, timestamp: string}]. Máximo 5.
   creado_por uuid references public.perfiles(id),
   creado_en timestamptz default now() not null,
-  actualizado_en timestamptz default now() not null
+  actualizado_en timestamptz default now() not null,
+  version integer not null default 1
 );
 
 create index if not exists idx_parq_inspecciones_vehiculo on public.parq_inspecciones(vehiculo_id);

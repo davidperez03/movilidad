@@ -6,6 +6,7 @@ Para el proceso de release y reglas de versionamiento semántico ver [GITFLOW.md
 
 | Versión | Fecha | Descripción |
 |---------|-------|-------------|
+| 1.21.0 | 2026-05-03 | feat(auditoria): no repudio con hash chain SHA-256 en 4 tablas, triggers de inmutabilidad, verificación de integridad, historial por entidad, inventarios en auditoría, CSP enforcement |
 | 1.20.0 | 2026-04-18 | Fix(inventarios): rediseño móvil completo — header con dropdown, filtros scroll horizontal, card sticker grid, fix teclado en modales |
 | 1.19.0 | 2026-04-18 | Perf+Fix: admin client singleton, getSession() en guards, Promise.all en permisos, fix sesiones móvil superadmin |
 | 1.18.0 | 2026-04-18 | Feat(inventarios): banner deshacer 10s, exportes PDF/Excel/CSV, sticker como modal, confirmación agregar stock, fix móvil superadmin |

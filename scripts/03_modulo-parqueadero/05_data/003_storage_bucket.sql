@@ -14,10 +14,11 @@ ON storage.objects FOR INSERT
 TO authenticated
 WITH CHECK (bucket_id = 'parqueadero');
 
--- Permitir lectura pública
+-- Permitir lectura pública por URL directa.
+-- TO public (sin rol) permite acceso por URL sin listar el bucket completo
+-- desde el cliente — el CDN de Supabase sirve las fotos por URL individual.
 CREATE POLICY "Archivos públicos de parqueadero"
 ON storage.objects FOR SELECT
-TO public
 USING (bucket_id = 'parqueadero');
 
 -- Permitir eliminar archivos (usuarios autenticados)

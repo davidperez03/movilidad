@@ -5,6 +5,40 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.21.0] - 2026-05-03
+
+### Auditoría — No repudio con hash chain SHA-256
+
+#### Agregado
+- **Hash chain SHA-256** en las 4 tablas de auditoría (`sys_auditoria`, `mov_historial_acciones`, `parq_historial_acciones`, `inv_movimientos`) — cada registro tiene firma criptográfica encadenada que detecta cualquier alteración
+- **Triggers de inmutabilidad** — bloquean físicamente UPDATE y DELETE en todos los logs de auditoría; lanza excepción si se intenta
+- **Botón "Verificar integridad"** en el panel de auditoría — revisa las 4 tablas y muestra qué tabla fue comprometida y desde qué fecha
+- **Modal "Historial completo"** — timeline cronológico de cualquier entidad accesible desde el detalle de cada registro de auditoría
+- **Módulo inventarios** integrado a la vista unificada de auditoría y tarjeta en estadísticas
+- **Row versioning** (columna `version`) en tablas críticas para optimistic locking: `mov_traslados`, `mov_radicaciones`, `mov_cuentas_vehiculos`, `parq_inspecciones`, `parq_vehiculos`
+- **`sesion_id`** en todas las tablas de historial — vincula cada evento con la sesión exacta en que ocurrió
+- Endpoint `GET /api/admin/auditoria/verificar` — verificación criptográfica de las 4 cadenas
+- Endpoint `GET /api/admin/auditoria/entidad` — historial completo de cualquier entidad por tipo e ID
+- 7 migraciones SQL (012-018) con rollback documentado
+
+#### Cambiado
+- **Vista unificada de auditoría** ahora incluye módulo inventarios (4 módulos en total)
+- **Personal inactivo** ocultado en la vista operativa de parqueadero; historial conservado en `parq_historial_acciones`
+- **CSP** activado en modo enforcement (antes era `Report-Only`)
+- `send-email.ts` usa `logger` estructurado en lugar de `console.error`
+- Filtro de tipos en auditoría incluye "Inventarios" como categoría separada
+
+#### Corregido
+- **Sesiones regeneradas** al volver al día siguiente — el refresh token de Supabase renovaba el JWT silenciosamente y `checkSession()` creaba una sesión nueva; ahora verifica si hay cierre forzado antes de crear
+- **Tabla de sesiones vacía** — ambigüedad entre versión 8-params y 9-params de `registrar_auditoria_sistema` causaba fallo silencioso en `registrar_inicio_sesion`; se eliminó la versión vieja con `DROP FUNCTION`
+- **Hash chain incorrecto** en registros pre-migración — backfill usaba `ORDER BY creado_en` pero verificación usaba `ORDER BY secuencia`; alineados en migración 017
+
+#### Seguridad
+- `REVOKE EXECUTE` en funciones CRON (`cerrar_sesiones_inactivas`, `cerrar_sesiones_token_expirado`) del rol `authenticated`
+- Política de storage del bucket `parqueadero` ajustada para no permitir listado completo de archivos
+
+---
+
 ## [1.20.0] - 2026-04-18
 
 ### Inventarios — rediseño móvil completo

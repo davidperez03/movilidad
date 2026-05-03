@@ -23,9 +23,12 @@ create table if not exists public.parq_historial_acciones (
   valor_nuevo text,
 
   realizado_por uuid references public.perfiles(id) on delete set null,
+  sesion_id uuid references public.sys_sesiones(id) on delete set null,
   ip_address inet,
   user_agent text,
-  creado_en timestamp with time zone default now() not null
+  creado_en timestamp with time zone default now() not null,
+  hash_anterior text,
+  hash_registro text
 );
 
 create index if not exists idx_parq_historial_vehiculo
@@ -46,6 +49,9 @@ create index if not exists idx_parq_historial_creado_en
 create index if not exists idx_parq_historial_detalles_gin
   on public.parq_historial_acciones using gin(detalles);
 
+create index if not exists idx_parq_historial_sesion_id
+  on public.parq_historial_acciones(sesion_id);
+
 comment on table public.parq_historial_acciones is
   'Registro de auditoría del módulo de parqueadero. Incluye inspecciones, vehículos, personal y novedades.';
 
@@ -60,3 +66,5 @@ comment on column public.parq_historial_acciones.accion is
 
 comment on column public.parq_historial_acciones.detalles is
   'Información adicional en formato JSON (varía según el tipo de acción)';
+comment on column public.parq_historial_acciones.hash_registro is
+  'SHA-256 encadenado para no repudio — ver _parq_historial_asignar_hash';

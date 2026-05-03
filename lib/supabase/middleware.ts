@@ -7,9 +7,7 @@ const SECURITY_HEADERS: Record<string, string> = {
   'Referrer-Policy': 'strict-origin-when-cross-origin',
   'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
   'Strict-Transport-Security': 'max-age=63072000; includeSubDomains; preload',
-  // CSP en modo Report-Only: monitorear violaciones sin bloquear (Ola 4).
-  // Cambiar a Content-Security-Policy para enforcement después de validar 24h en producción.
-  'Content-Security-Policy-Report-Only': [
+  'Content-Security-Policy': [
     "default-src 'self'",
     "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
     "style-src 'self' 'unsafe-inline'",
