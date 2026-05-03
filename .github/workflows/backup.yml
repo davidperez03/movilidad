@@ -26,13 +26,11 @@ jobs:
 
       - name: Ejecutar pg_dump
         env:
-          PGPASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+          # URL completa con pooler IPv4 — evita el problema de IPv6 del host directo
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
         run: |
           pg_dump \
-            --host=${{ secrets.SUPABASE_DB_HOST }} \
-            --port=5432 \
-            --username=${{ secrets.SUPABASE_DB_USER }} \
-            --dbname=postgres \
+            --dbname="$SUPABASE_DB_URL" \
             --format=custom \
             --no-acl \
             --no-owner \
