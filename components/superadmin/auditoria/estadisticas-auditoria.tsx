@@ -1,7 +1,7 @@
 'use client'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { LogIn, Car, Users, Activity, Truck, AlertTriangle } from 'lucide-react'
+import { LogIn, Car, Users, Activity, Truck, AlertTriangle, Package } from 'lucide-react'
 import { useMemo } from 'react'
 import type { RegistroAuditoria } from '@/app/superadmin/auditoria/auditoria-columns'
 import { getTipoAccion } from '@/lib/hooks/useAuditoria'
@@ -32,6 +32,7 @@ export function EstadisticasAuditoria({ registros, onFiltrarTipo, onFiltrarQuick
     const usuarios7d       = recientes.filter((r) => getTipoAccion(r.accion) === 'usuario').length
     const roles7d          = recientes.filter((r) => getTipoAccion(r.accion) === 'rol').length
     const movilidad7d      = recientes.filter((r) => getTipoAccion(r.accion) === 'movilidad').length
+    const inventarios7d    = recientes.filter((r) => getTipoAccion(r.accion) === 'inventarios').length
 
     return {
       accionesHoy: registrosHoy.length,
@@ -45,6 +46,7 @@ export function EstadisticasAuditoria({ registros, onFiltrarTipo, onFiltrarQuick
       parqueadero7d: inspecciones + subsanadas,
       inspecciones,
       subsanadas,
+      inventarios7d,
     }
   }, [registros])
 
@@ -90,10 +92,18 @@ export function EstadisticasAuditoria({ registros, onFiltrarTipo, onFiltrarQuick
       color: 'text-cyan-600',
       onClick: () => onFiltrarTipo('parqueadero'),
     },
+    {
+      title: 'Inventarios · 7 días',
+      value: stats.inventarios7d,
+      desc: 'Ingresos y traslados de insumos',
+      icon: Package,
+      color: 'text-amber-600',
+      onClick: () => onFiltrarTipo('inventarios'),
+    },
   ]
 
   return (
-    <div className="grid gap-4 grid-cols-2 lg:grid-cols-5">
+    <div className="grid gap-4 grid-cols-2 lg:grid-cols-6">
       {cards.map((card) => {
         const Icon = card.icon
         return (

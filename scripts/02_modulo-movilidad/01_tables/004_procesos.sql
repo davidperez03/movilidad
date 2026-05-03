@@ -39,7 +39,8 @@ create table if not exists public.mov_traslados (
   creado_por uuid not null references public.perfiles(id) on delete restrict,
   actualizado_por uuid references public.perfiles(id) on delete restrict,
   creado_en timestamp with time zone default now() not null,
-  actualizado_en timestamp with time zone default now() not null
+  actualizado_en timestamp with time zone default now() not null,
+  version integer not null default 1
 );
 
 create table if not exists public.mov_radicaciones (
@@ -70,7 +71,8 @@ create table if not exists public.mov_radicaciones (
   creado_por uuid not null references public.perfiles(id) on delete restrict,
   actualizado_por uuid references public.perfiles(id) on delete restrict,
   creado_en timestamp with time zone default now() not null,
-  actualizado_en timestamp with time zone default now() not null
+  actualizado_en timestamp with time zone default now() not null,
+  version integer not null default 1
 );
 
 -- Compatibilidad para bases ya existentes:

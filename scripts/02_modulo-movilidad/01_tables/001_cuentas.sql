@@ -7,7 +7,8 @@ create table if not exists public.mov_cuentas_vehiculos (
 
   creado_por uuid not null references public.perfiles(id) on delete restrict,
   creado_en timestamp with time zone default now() not null,
-  actualizado_en timestamp with time zone default now() not null
+  actualizado_en timestamp with time zone default now() not null,
+  version integer not null default 1
 );
 
 create index if not exists idx_mov_cuentas_placa on public.mov_cuentas_vehiculos(placa);
