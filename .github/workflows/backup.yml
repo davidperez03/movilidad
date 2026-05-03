@@ -2,7 +2,7 @@ name: Backup Base de Datos
 
 on:
   schedule:
-    - cron: '0 7 * * *'   # Cada día a las 2am Colombia (UTC-5 → 7am UTC)
+    - cron: '0 0 * * *'   # Cada día a las 7pm Colombia (UTC-5 → 0am UTC)
   workflow_dispatch:       # También ejecutable manualmente desde GitHub Actions
 
 jobs:
