@@ -22,6 +22,7 @@ jobs:
             | sudo tee /etc/apt/sources.list.d/postgresql.list
           sudo apt-get update -qq
           sudo apt-get install -y postgresql-client-17
+          echo "Versión instalada: $(/usr/lib/postgresql/17/bin/pg_dump --version)"
 
       - name: Generar nombre del archivo
         id: nombre
@@ -32,10 +33,9 @@ jobs:
 
       - name: Ejecutar pg_dump
         env:
-          # URL completa con pooler IPv4 — evita el problema de IPv6 del host directo
           SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
         run: |
-          pg_dump \
+          /usr/lib/postgresql/17/bin/pg_dump \
             --dbname="$SUPABASE_DB_URL" \
             --format=custom \
             --no-acl \
