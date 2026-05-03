@@ -13,7 +13,8 @@ from public.usuarios_roles ur
 join public.roles_modulo rm on ur.rol_id = rm.id
 join public.perfiles p on ur.usuario_id = p.id
 left join public.parq_datos_personal dp on dp.perfil_id = p.id
-where ur.modulo_id = 'parqueadero';
+where ur.modulo_id = 'parqueadero'
+  and coalesce(p.activo, true) = true;
 
 alter view public.parq_vista_personal set (security_invoker = true);
 

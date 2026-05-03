@@ -225,24 +225,26 @@ export function SessionProvider({ children }: SessionProviderProps) {
         return
       }
 
-      // Antes de crear sesión nueva, verificar si el admin forzó un cierre
-      // después del último login. Crítico en móvil: sessionStorage se limpia
-      // al cerrar el browser, pero el JWT sigue válido y sin esta verificación
-      // el provider crearía una sesión nueva saltándose el cierre forzado.
+      // Antes de crear sesión nueva, verificar si hay alguna sesión cerrada/expirada
+      // después del último login. Esto evita que el refresh token de Supabase (~60 días)
+      // regenere sesiones automáticamente cuando el usuario ya cerró la app y su sesión
+      // en sys_sesiones fue cerrada/expirada por inactividad.
       const lastSignIn = user.last_sign_in_at
       if (lastSignIn) {
-        const { data: forcedClose } = await supabase
+        const { data: closedSession } = await supabase
           .from('sys_sesiones')
-          .select('id')
+          .select('id, estado')
           .eq('usuario_id', user.id)
-          .eq('estado', 'forzada_cierre')
+          .in('estado', ['forzada_cierre', 'cerrada', 'expirada'])
           .gte('fin_sesion', lastSignIn)
+          .order('fin_sesion', { ascending: false })
           .limit(1)
           .maybeSingle()
 
-        if (forcedClose) {
+        if (closedSession) {
           await supabase.auth.signOut()
-          window.location.href = '/auth/login?reason=session_closed'
+          const reason = closedSession.estado === 'forzada_cierre' ? 'session_closed' : 'session_expired'
+          window.location.href = `/auth/login?reason=${reason}`
           return
         }
       }

@@ -10,7 +10,8 @@ create table if not exists public.parq_vehiculos (
   tecnomecanica_vencimiento date,
   creado_por uuid references public.perfiles(id),
   creado_en timestamptz default now() not null,
-  actualizado_en timestamptz default now() not null
+  actualizado_en timestamptz default now() not null,
+  version integer not null default 1
 );
 
 create index if not exists idx_parq_vehiculos_placa on public.parq_vehiculos(placa);

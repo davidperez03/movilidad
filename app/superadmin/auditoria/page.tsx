@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { RefreshCw, Download, ShieldAlert, AlertTriangle, X } from 'lucide-react'
+import { RefreshCw, Download, ShieldAlert, AlertTriangle, X, ShieldCheck } from 'lucide-react'
+import { toast } from 'sonner'
 import { DataTable } from '@/components/ui/data-table/data-table'
 import { columnasAuditoria, type RegistroAuditoria } from './auditoria-columns'
 import { useAuditoria } from '@/lib/hooks/useAuditoria'
@@ -29,6 +30,28 @@ export default function AuditoriaPage() {
   const [registroSeleccionado, setRegistroSeleccionado] = useState<RegistroAuditoria | null>(null)
   const [detalleAbierto, setDetalleAbierto] = useState(false)
   const [alertasDismissed, setAlertasDismissed] = useState(false)
+  const [verificando, setVerificando] = useState(false)
+
+  async function verificarIntegridad() {
+    setVerificando(true)
+    try {
+      const res = await fetch('/api/admin/auditoria/verificar')
+      const data = await res.json()
+      if (data.todo_integro) {
+        toast.success(`Todas las cadenas íntegras — ${data.total_registros.toLocaleString('es-CO')} registros verificados`)
+      } else {
+        const corruptas = (data.tablas ?? []).filter((t: { cadena_integra: boolean }) => !t.cadena_integra)
+        const detalle = corruptas.map((t: { tabla: string; registros_corruptos: number }) =>
+          `${t.tabla}: ${t.registros_corruptos} alterado(s)`
+        ).join(' · ')
+        toast.error(`Alteración detectada — ${detalle}`, { duration: 10000 })
+      }
+    } catch {
+      toast.error('Error al verificar integridad')
+    } finally {
+      setVerificando(false)
+    }
+  }
 
   function abrirDetalle(registro: RegistroAuditoria) {
     setRegistroSeleccionado(registro)
@@ -69,6 +92,12 @@ export default function AuditoriaPage() {
           </div>
         </div>
         <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={verificarIntegridad} disabled={verificando}>
+            {verificando
+              ? <RefreshCw className="h-4 w-4 mr-1 animate-spin" />
+              : <ShieldCheck className="h-4 w-4 mr-1" />}
+            Verificar
+          </Button>
           <Button variant="outline" size="sm" onClick={exportarCSV} disabled={registros.length === 0}>
             <Download className="h-4 w-4 mr-1" /> CSV
           </Button>

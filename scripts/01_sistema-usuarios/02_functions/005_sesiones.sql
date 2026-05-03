@@ -334,4 +334,7 @@ GRANT EXECUTE ON FUNCTION registrar_inicio_sesion     TO authenticated;
 GRANT EXECUTE ON FUNCTION registrar_fin_sesion        TO authenticated;
 GRANT EXECUTE ON FUNCTION actualizar_actividad_sesion TO authenticated;
 GRANT EXECUTE ON FUNCTION obtener_sesion_activa       TO authenticated;
-GRANT EXECUTE ON FUNCTION cerrar_sesiones_inactivas   TO authenticated;
+-- cerrar_sesiones_inactivas y cerrar_sesiones_token_expirado solo las llama pg_cron (service_role).
+-- No conceder EXECUTE a authenticated para reducir superficie de ataque.
+REVOKE EXECUTE ON FUNCTION cerrar_sesiones_inactivas(integer) FROM authenticated;
+REVOKE EXECUTE ON FUNCTION cerrar_sesiones_token_expirado()   FROM authenticated;

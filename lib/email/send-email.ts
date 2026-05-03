@@ -1,4 +1,5 @@
 import { createTransporter } from './transporter'
+import { logger } from '@/lib/logger'
 
 interface EmailOptions {
   to: string
@@ -20,9 +21,7 @@ export async function sendEmail({ to, subject, html }: EmailOptions): Promise<bo
 
     return true
   } catch (error) {
-    if (process.env.NODE_ENV === 'development') {
-      console.error('Error enviando email:', error)
-    }
+    logger.error('Error enviando email', { to, subject, error: String(error) })
     return false
   }
 }

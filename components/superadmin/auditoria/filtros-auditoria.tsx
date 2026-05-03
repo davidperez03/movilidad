@@ -18,6 +18,7 @@ const TIPOS = [
   { value: 'sesion',      label: 'Sesiones'            },
   { value: 'movilidad',   label: 'Movilidad'           },
   { value: 'parqueadero', label: 'Parqueadero'         },
+  { value: 'inventarios', label: 'Inventarios'         },
   { value: 'sistema',     label: 'Sistema'             },
 ]
 

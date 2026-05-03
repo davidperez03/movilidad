@@ -41,9 +41,15 @@ CREATE TABLE IF NOT EXISTS public.sys_auditoria (
   valor_nuevo TEXT,
 
   realizado_por UUID REFERENCES public.perfiles(id) ON DELETE SET NULL,
+  sesion_id UUID REFERENCES public.sys_sesiones(id) ON DELETE SET NULL,
 
   ip_address INET,
   user_agent TEXT,
+
+  -- Hash chain para no repudio (SHA-256 encadenado — ver función _auditoria_compute_hash)
+  secuencia    BIGINT GENERATED ALWAYS AS IDENTITY,
+  hash_anterior TEXT,
+  hash_registro TEXT,
 
   creado_en TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL
 );
@@ -62,6 +68,12 @@ CREATE INDEX IF NOT EXISTS idx_sys_auditoria_creado_en
 
 CREATE INDEX IF NOT EXISTS idx_sys_auditoria_detalles_gin
   ON public.sys_auditoria USING gin(detalles);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_sys_auditoria_secuencia
+  ON public.sys_auditoria(secuencia);
+
+CREATE INDEX IF NOT EXISTS idx_sys_auditoria_sesion_id
+  ON public.sys_auditoria(sesion_id);
 
 COMMENT ON TABLE public.sys_auditoria IS
   'Registro de auditoría para acciones administrativas del sistema. Incluye creación/edición de usuarios, cambios de roles, modificaciones de configuración, y eventos de autenticación.';
@@ -98,3 +110,15 @@ COMMENT ON COLUMN public.sys_auditoria.user_agent IS
 
 COMMENT ON COLUMN public.sys_auditoria.creado_en IS
   'Fecha y hora en que se realizó la acción';
+
+COMMENT ON COLUMN public.sys_auditoria.sesion_id IS
+  'Sesión activa (sys_sesiones) al momento del evento';
+
+COMMENT ON COLUMN public.sys_auditoria.secuencia IS
+  'Orden canónico autoincremental del hash chain';
+
+COMMENT ON COLUMN public.sys_auditoria.hash_anterior IS
+  'hash_registro del registro anterior (GENESIS para el primero)';
+
+COMMENT ON COLUMN public.sys_auditoria.hash_registro IS
+  'SHA-256 del contenido + hash_anterior — garantiza no repudio';

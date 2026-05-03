@@ -11,12 +11,18 @@ CREATE TABLE IF NOT EXISTS public.inv_movimientos (
   destino    text        NOT NULL,
   cantidad   int         NOT NULL CHECK (cantidad > 0),
   notas      text,
-  creado_por uuid        REFERENCES public.perfiles(id),
-  creado_en  timestamptz NOT NULL DEFAULT now()
+  creado_por    uuid        REFERENCES public.perfiles(id),
+  sesion_id     uuid        REFERENCES public.sys_sesiones(id) ON DELETE SET NULL,
+  creado_en     timestamptz NOT NULL DEFAULT now(),
+  hash_anterior text,
+  hash_registro text
 );
 
 CREATE INDEX IF NOT EXISTS idx_inv_movimientos_item   ON public.inv_movimientos(item_id);
 CREATE INDEX IF NOT EXISTS idx_inv_movimientos_modulo ON public.inv_movimientos(modulo);
-CREATE INDEX IF NOT EXISTS idx_inv_movimientos_fecha  ON public.inv_movimientos(creado_en DESC);
+CREATE INDEX IF NOT EXISTS idx_inv_movimientos_fecha    ON public.inv_movimientos(creado_en DESC);
+CREATE INDEX IF NOT EXISTS idx_inv_movimientos_sesion   ON public.inv_movimientos(sesion_id);
+CREATE INDEX IF NOT EXISTS idx_inv_movimientos_creado_por ON public.inv_movimientos(creado_por);
 
 COMMENT ON TABLE public.inv_movimientos IS 'Log inmutable de ingresos y traslados. No se modifica ni elimina.';
+COMMENT ON COLUMN public.inv_movimientos.sesion_id IS 'Sesión activa al momento del movimiento (trazabilidad)';

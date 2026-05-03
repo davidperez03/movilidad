@@ -28,6 +28,7 @@ export function getTipoAccion(accion: string): string {
   if (accion.startsWith('rol_')) return 'rol'
   if (accion.includes('login') || accion.includes('logout') || accion.includes('sesion') || accion.includes('token')) return 'sesion'
   if (accion.startsWith('parq_')) return 'parqueadero'
+  if (accion.startsWith('inv_')) return 'inventarios'
   if (accion === 'modulo_activado' || accion === 'modulo_desactivado' || accion === 'configuracion_modificada') return 'sistema'
   return 'movilidad'
 }
