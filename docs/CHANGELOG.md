@@ -5,6 +5,20 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.22.1] - 2026-05-05
+
+### Correcciones de sesión y navegación
+
+#### Corregido
+- **Contraseñas**: se permite el carácter `.` como especial en la validación visual del frontend, alineado con la validación backend.
+- **Logout al recargar**: se evita expulsar al usuario por sesiones en estado `cerrada` generadas por `pagehide/beforeunload` durante recargas normales.
+- **Navegación lenta entre módulos/pestañas**: se reduce el costo del middleware con un throttle de 30s para el chequeo de `sys_sesiones`, evitando consultar BD en cada navegación inmediata.
+
+#### Cambiado
+- `SessionProvider` deja de re-ejecutar validaciones pesadas en cada cambio de ruta cliente, mejorando fluidez de transición.
+
+---
+
 ## [1.22.0] - 2026-05-05
 
 ### Performance y estabilidad en movilidad/auth
