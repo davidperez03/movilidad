@@ -7,7 +7,7 @@ const requirements = [
   { label: "Una letra mayuscula", test: (p: string) => /[A-Z]/.test(p) },
   { label: "Una letra minuscula", test: (p: string) => /[a-z]/.test(p) },
   { label: "Un numero", test: (p: string) => /[0-9]/.test(p) },
-  { label: "Un caracter especial (!@#$%&*)", test: (p: string) => /[!@#$%&*]/.test(p) },
+  { label: "Un caracter especial (ej: . ! @ # $ % & *)", test: (p: string) => /[^A-Za-z0-9]/.test(p) },
 ]
 
 export function validatePassword(password: string): boolean {

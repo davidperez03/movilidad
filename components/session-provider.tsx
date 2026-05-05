@@ -160,15 +160,16 @@ export function SessionProvider({ children }: SessionProviderProps) {
         return
       }
 
-      // Evitar que el refresh token de Supabase (~60 días) regenere sesiones que el
-      // usuario ya cerró. Se detecta buscando un cierre post último login.
+      // Evitar que el refresh token de Supabase (~60 días) regenere sesiones bloqueadas.
+      // Solo considerar cierres terminales (forzada_cierre/expirada). "cerrada" puede
+      // provenir de pagehide/beforeunload en recargas y no debe expulsar al usuario.
       const lastSignIn = user.last_sign_in_at
       if (lastSignIn) {
         const { data: closedSession } = await supabase
           .from('sys_sesiones')
           .select('id, estado')
           .eq('usuario_id', user.id)
-          .in('estado', ['forzada_cierre', 'cerrada', 'expirada'])
+          .in('estado', ['forzada_cierre', 'expirada'])
           .gte('fin_sesion', lastSignIn)
           .order('fin_sesion', { ascending: false })
           .limit(1)
@@ -213,7 +214,7 @@ export function SessionProvider({ children }: SessionProviderProps) {
       if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current)
       if (warningTimerRef.current) clearTimeout(warningTimerRef.current)
     }
-  }, [pathname, isPublicRoute])
+  }, [isPublicRoute])
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
@@ -227,7 +228,7 @@ export function SessionProvider({ children }: SessionProviderProps) {
       }
     })
     return () => { subscription.unsubscribe() }
-  }, [pathname, isPublicRoute])
+  }, [isPublicRoute])
 
   return <>{children}</>
 }

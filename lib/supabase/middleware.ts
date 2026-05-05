@@ -1,6 +1,9 @@
 import { createServerClient } from "@supabase/ssr"
 import { NextResponse, type NextRequest } from "next/server"
 
+const SESSION_CHECK_COOKIE = 'mov_session_check_at'
+const SESSION_CHECK_INTERVAL_MS = 30_000
+
 const SECURITY_HEADERS: Record<string, string> = {
   'X-Frame-Options': 'DENY',
   'X-Content-Type-Options': 'nosniff',
@@ -67,50 +70,63 @@ export async function updateSession(request: NextRequest) {
   }
 
   if (user && isProtected && !isApiRoute) {
+    const lastSessionCheck = Number(request.cookies.get(SESSION_CHECK_COOKIE)?.value || 0)
+    const shouldCheckSessionState = Date.now() - lastSessionCheck >= SESSION_CHECK_INTERVAL_MS
+
     // Detectar cierres forzados por admin: solo bloquear si hay evidencia post último login.
     // Ausencia de sesión activa no es suficiente (puede ser login fresco con registrarInicio pendiente).
-    try {
-      const { data: sesion } = await supabase
-        .from('sys_sesiones')
-        .select('id, ultima_actividad')
-        .eq('usuario_id', user.id)
-        .eq('estado', 'activa')
-        .order('inicio_sesion', { ascending: false })
-        .limit(1)
-        .maybeSingle()
+    if (shouldCheckSessionState) {
+      try {
+        const { data: sesion } = await supabase
+          .from('sys_sesiones')
+          .select('id, ultima_actividad')
+          .eq('usuario_id', user.id)
+          .eq('estado', 'activa')
+          .order('inicio_sesion', { ascending: false })
+          .limit(1)
+          .maybeSingle()
 
-      const buildLogoutRedirect = (reason: string) => {
-        const url = request.nextUrl.clone()
-        url.pathname = "/auth/login"
-        url.searchParams.set('reason', reason)
-        const response = NextResponse.redirect(url)
-        supabaseResponse.cookies.getAll().forEach(({ name, value, ...options }) => {
-          response.cookies.set({ name, value, ...options })
-        })
-        return applySecurityHeaders(response)
-      }
+        const buildLogoutRedirect = (reason: string) => {
+          const url = request.nextUrl.clone()
+          url.pathname = "/auth/login"
+          url.searchParams.set('reason', reason)
+          const response = NextResponse.redirect(url)
+          supabaseResponse.cookies.getAll().forEach(({ name, value, ...options }) => {
+            response.cookies.set({ name, value, ...options })
+          })
+          return applySecurityHeaders(response)
+        }
 
-      if (!sesion) {
-        const lastSignIn = user.last_sign_in_at
-        if (lastSignIn) {
-          const { data: forcedClose } = await supabase
-            .from('sys_sesiones')
-            .select('id')
-            .eq('usuario_id', user.id)
-            .eq('estado', 'forzada_cierre')
-            .gte('fin_sesion', lastSignIn)
-            .limit(1)
-            .maybeSingle()
+        if (!sesion) {
+          const lastSignIn = user.last_sign_in_at
+          if (lastSignIn) {
+            const { data: forcedClose } = await supabase
+              .from('sys_sesiones')
+              .select('id')
+              .eq('usuario_id', user.id)
+              .eq('estado', 'forzada_cierre')
+              .gte('fin_sesion', lastSignIn)
+              .limit(1)
+              .maybeSingle()
 
-          if (forcedClose) {
-            await supabase.auth.signOut()
-            return buildLogoutRedirect('session_closed')
+            if (forcedClose) {
+              await supabase.auth.signOut()
+              return buildLogoutRedirect('session_closed')
+            }
           }
         }
+      } catch {
+        // Error de BD: no bloquear — identidad ya verificada por getUser().
       }
-    } catch {
-      // Error de BD: no bloquear — identidad ya verificada por getUser().
     }
+
+    supabaseResponse.cookies.set(SESSION_CHECK_COOKIE, String(Date.now()), {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 60 * 60 * 24,
+    })
   }
 
   if (!user && isProtected) {
