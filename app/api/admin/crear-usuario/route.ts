@@ -29,7 +29,6 @@ export async function POST(request: NextRequest) {
 
     const supabaseAdmin = createAdminClient()
 
-    // Crear usuario pendiente de aprobación (sin confirmar email, password random)
     const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
       email,
       password: crypto.randomUUID() + 'A1!',
@@ -52,7 +51,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Error al crear el usuario' }, { status: 400 })
     }
 
-    // Asegurar que el perfil quede inactivo
     if (newUser.user) {
       await supabaseAdmin
         .from('perfiles')

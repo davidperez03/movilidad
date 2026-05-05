@@ -16,7 +16,6 @@ class RateLimiter {
     const entry = this.store.get(key)
 
     if (!entry || now >= entry.resetAt) {
-      // Nueva ventana
       this.store.set(key, { count: 1, resetAt: now + this.windowMs })
       this.cleanup(now)
       return { allowed: true, retryAfter: 0 }
@@ -40,17 +39,14 @@ class RateLimiter {
   }
 }
 
-// 3 requests / 15 min por IP (OWASP recommendation)
+// 3 req / 15 min por IP — recomendación OWASP para recuperación de contraseña.
 export const forgotPasswordLimiter = new RateLimiter(3, 15 * 60 * 1000)
 
-// 3 requests / 60 min por email (previene spam focalizado con rotación de IP)
+// 3 req / 60 min por email — previene spam dirigido con rotación de IP.
 export const forgotPasswordEmailLimiter = new RateLimiter(3, 60 * 60 * 1000)
 
-// 3 requests / 60 min por IP
 export const signUpLimiter = new RateLimiter(3, 60 * 60 * 1000)
 
-// 10 requests / 1 min por IP
 export const consultaLimiter = new RateLimiter(10, 60 * 1000)
 
-// 10 requests / 15 min por IP
 export const updatePasswordLimiter = new RateLimiter(10, 15 * 60 * 1000)

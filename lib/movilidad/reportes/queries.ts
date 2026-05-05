@@ -9,7 +9,6 @@ import type {
   Organismo,
   Responsable,
 } from './tipos'
-import { transformarTraslado, transformarRadicacion, ordenarPorFechaCompletado } from './transformers'
 
 export async function obtenerDatosActivos(
   filtros: FiltrosReporte
@@ -61,116 +60,25 @@ export async function obtenerDatosCompletados(
 ): Promise<DatosReporteCompletados[]> {
   const supabase = await createClient()
 
-  // Obtener traslados completados
-  let queryTraslados = supabase
-    .from('mov_traslados')
-    .select(
-      `
-      id,
-      cuenta_id,
-      estado,
-      fecha_tramite,
-      fecha_completado,
-      observaciones,
-      creado_en,
-      organismo_destino:mov_organismos_transito!organismo_destino_id(nombre),
-      cuenta:mov_cuentas_vehiculos!cuenta_id(placa, numero_cuenta, tipo_servicio),
-      creado_por_perfil:perfiles!creado_por(nombre_completo)
-    `
-    )
-    .in('estado', ['trasladado', 'devuelto'])
-    .not('fecha_completado', 'is', null)
+  let query = supabase
+    .from('mov_vista_procesos_completados')
+    .select('*')
+    .order('fecha_completado', { ascending: false })
 
-  // Obtener radicaciones completadas
-  let queryRadicaciones = supabase
-    .from('mov_radicaciones')
-    .select(
-      `
-      id,
-      cuenta_id,
-      estado,
-      fecha_tramite,
-      fecha_completado,
-      observaciones,
-      creado_en,
-      organismo_origen:mov_organismos_transito!organismo_origen_id(nombre),
-      cuenta:mov_cuentas_vehiculos!cuenta_id(placa, numero_cuenta, tipo_servicio),
-      creado_por_perfil:perfiles!creado_por(nombre_completo)
-    `
-    )
-    .in('estado', ['radicado', 'devuelto'])
-    .not('fecha_completado', 'is', null)
+  if (filtros.fechaInicio) query = query.gte('fecha_completado', filtros.fechaInicio)
+  if (filtros.fechaFin)    query = query.lte('fecha_completado', filtros.fechaFin)
+  if (filtros.estado !== 'todos')      query = query.eq('estado', filtros.estado)
+  if (filtros.tipoProceso !== 'todos') query = query.eq('proceso_tipo', filtros.tipoProceso)
+  if (filtros.responsable !== 'todos') query = query.eq('responsable', filtros.responsable)
 
-  // Aplicar filtros de fecha
-  if (filtros.fechaInicio) {
-    queryTraslados = queryTraslados.gte('fecha_completado', filtros.fechaInicio)
-    queryRadicaciones = queryRadicaciones.gte('fecha_completado', filtros.fechaInicio)
+  const { data, error } = await query
+
+  if (error) {
+    logger.error('Error obteniendo datos completados:', error)
+    return []
   }
 
-  if (filtros.fechaFin) {
-    queryTraslados = queryTraslados.lte('fecha_completado', filtros.fechaFin)
-    queryRadicaciones = queryRadicaciones.lte('fecha_completado', filtros.fechaFin)
-  }
-
-  // Filtro por estado
-  if (filtros.estado !== 'todos') {
-    queryTraslados = queryTraslados.eq('estado', filtros.estado)
-    queryRadicaciones = queryRadicaciones.eq('estado', filtros.estado)
-  }
-
-  // Ordenar por fecha completado descendente
-  queryTraslados = queryTraslados.order('fecha_completado', { ascending: false })
-  queryRadicaciones = queryRadicaciones.order('fecha_completado', { ascending: false })
-
-  const [{ data: traslados, error: errorTraslados }, { data: radicaciones, error: errorRadicaciones }] =
-    await Promise.all([queryTraslados, queryRadicaciones])
-
-  if (errorTraslados) {
-    logger.error('Error obteniendo traslados completados:', errorTraslados)
-  }
-
-  if (errorRadicaciones) {
-    logger.error('Error obteniendo radicaciones completadas:', errorRadicaciones)
-  }
-
-  // Transformar y combinar resultados
-  const resultados: DatosReporteCompletados[] = []
-
-  // Transformar traslados
-  if (traslados) {
-    for (const traslado of traslados) {
-      const transformado = transformarTraslado(traslado as unknown as Parameters<typeof transformarTraslado>[0])
-      if (transformado) {
-        resultados.push(transformado)
-      }
-    }
-  }
-
-  // Transformar radicaciones
-  if (radicaciones) {
-    for (const radicacion of radicaciones) {
-      const transformado = transformarRadicacion(radicacion as unknown as Parameters<typeof transformarRadicacion>[0])
-      if (transformado) {
-        resultados.push(transformado)
-      }
-    }
-  }
-
-  // Ordenar por fecha completado
-  const resultadosOrdenados = ordenarPorFechaCompletado(resultados)
-
-  // Aplicar filtros adicionales en memoria
-  let resultadosFiltrados = resultadosOrdenados
-
-  if (filtros.tipoProceso !== 'todos') {
-    resultadosFiltrados = resultadosFiltrados.filter((r) => r.proceso_tipo === filtros.tipoProceso)
-  }
-
-  if (filtros.responsable !== 'todos') {
-    resultadosFiltrados = resultadosFiltrados.filter((r) => r.responsable === filtros.responsable)
-  }
-
-  return resultadosFiltrados
+  return data as DatosReporteCompletados[]
 }
 
 export async function obtenerDatosPorVencer(
@@ -284,6 +192,7 @@ export async function obtenerResponsables(): Promise<Responsable[]> {
   const { data, error } = await supabase
     .from('perfiles')
     .select('id, nombre_completo, correo')
+    .eq('activo', true)
     .order('nombre_completo')
 
   if (error) {

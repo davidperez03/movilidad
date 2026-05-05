@@ -27,6 +27,7 @@ create table if not exists public.parq_inspecciones (
 
 create index if not exists idx_parq_inspecciones_vehiculo on public.parq_inspecciones(vehiculo_id);
 create index if not exists idx_parq_inspecciones_fecha on public.parq_inspecciones(fecha desc);
+create index if not exists idx_parq_inspecciones_fecha_creado on public.parq_inspecciones(fecha desc, creado_en desc);
 create index if not exists idx_parq_inspecciones_operador on public.parq_inspecciones(operador_id);
 
 alter table public.parq_inspecciones

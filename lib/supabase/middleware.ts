@@ -45,10 +45,7 @@ export async function updateSession(request: NextRequest) {
     },
   )
 
-  // Do not run code between createServerClient and
-  // supabase.auth.getUser(). A simple mistake could make it very hard to debug
-  // issues with users being randomly logged out.
-
+  // No ejecutar código entre createServerClient y getUser() — requisito de Supabase SSR.
   const publicRoutes = ["/", "/consulta"]
   const isPublicRoute = publicRoutes.includes(request.nextUrl.pathname)
   const isPublicApi = request.nextUrl.pathname.startsWith("/api/consulta")
@@ -56,7 +53,7 @@ export async function updateSession(request: NextRequest) {
   const isApiRoute  = request.nextUrl.pathname.startsWith("/api/")
   const isProtected = !isPublicRoute && !isPublicApi && !isAuthRoute
 
-  // Fail-closed: si getUser() falla en rutas protegidas, redirigir a login
+  // Fail-closed: si getUser() falla en rutas protegidas, redirigir a login.
   let user = null
   try {
     const { data } = await supabase.auth.getUser()
@@ -70,9 +67,8 @@ export async function updateSession(request: NextRequest) {
   }
 
   if (user && isProtected && !isApiRoute) {
-    // Verificar sys_sesiones para detectar cierres forzados por admin.
-    // Solo bloqueamos si hay evidencia de cierre forzado DESPUÉS del último login.
-    // No bloqueamos por ausencia de sesión (puede ser login fresco o registrarInicio pendiente).
+    // Detectar cierres forzados por admin: solo bloquear si hay evidencia post último login.
+    // Ausencia de sesión activa no es suficiente (puede ser login fresco con registrarInicio pendiente).
     try {
       const { data: sesion } = await supabase
         .from('sys_sesiones')
@@ -95,8 +91,6 @@ export async function updateSession(request: NextRequest) {
       }
 
       if (!sesion) {
-        // Sin sesión activa. Solo cerrar si el admin forzó el cierre DESPUÉS del último login.
-        // Si no hay evidencia de cierre forzado, es un login fresco: permitir el paso.
         const lastSignIn = user.last_sign_in_at
         if (lastSignIn) {
           const { data: forcedClose } = await supabase
@@ -113,12 +107,9 @@ export async function updateSession(request: NextRequest) {
             return buildLogoutRedirect('session_closed')
           }
         }
-        // Sin cierre forzado post-login → login fresco o registrarInicio pendiente.
-        // Permitir el paso; SessionManager registrará la sesión en cliente.
       }
     } catch {
-      // Error de BD: no bloquear a usuarios autenticados válidos.
-      // La identidad ya fue verificada por getUser() arriba.
+      // Error de BD: no bloquear — identidad ya verificada por getUser().
     }
   }
 

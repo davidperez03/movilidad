@@ -1,6 +1,6 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
 
-// Singleton — reutiliza la misma instancia entre requests (no usa cookies, es seguro)
+// Singleton seguro: no usa cookies, solo service role key.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let _instance: SupabaseClient<any> | null = null
 
@@ -16,10 +16,7 @@ export function createAdminClient(): SupabaseClient<any> {
   }
 
   _instance = createClient(supabaseUrl, serviceRoleKey, {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-    },
+    auth: { autoRefreshToken: false, persistSession: false },
   })
 
   return _instance

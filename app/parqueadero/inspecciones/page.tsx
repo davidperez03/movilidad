@@ -19,7 +19,6 @@ export default async function InspeccionesPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Inspecciones</h1>
@@ -38,7 +37,6 @@ export default async function InspeccionesPage() {
         </div>
       </div>
 
-      {/* Tabla */}
       <TablaInspecciones
         inspecciones={inspecciones || []}
         permisos={permisos}

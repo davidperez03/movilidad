@@ -4,12 +4,6 @@ import { requireSuperAdmin } from '@/lib/api/require-superadmin'
 import { logger } from '@/lib/logger'
 import type { ResultadoVerificacion } from '@/lib/audit'
 
-/**
- * GET /api/admin/auditoria/verificar
- * Verifica el hash chain de las 4 tablas de auditoría.
- * Retorna una fila por tabla + resumen global.
- * Solo superadmin.
- */
 export async function GET() {
   try {
     const auth = await requireSuperAdmin()

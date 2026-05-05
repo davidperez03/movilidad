@@ -11,21 +11,33 @@ interface UsuarioRolRow {
   } | null
 }
 
+interface PermissionsCache {
+  userId: string
+  data: { esSuperAdmin: boolean; roles: RolUsuarioModulo[] }
+  expiresAt: number
+}
+
+let cache: PermissionsCache | null = null
+const CACHE_TTL = 5 * 60 * 1000
+
+export function invalidarCachePermisos(): void {
+  cache = null
+}
+
 export async function cargarPermisosUsuario(): Promise<{
   esSuperAdmin: boolean
   roles: RolUsuarioModulo[]
 }> {
   const supabase = createClient()
 
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser()
-
+  const { data: { user }, error: userError } = await supabase.auth.getUser()
   if (userError) throw userError
   if (!user) return { esSuperAdmin: false, roles: [] }
 
-  // Verificar si es superadmin
+  if (cache && cache.userId === user.id && Date.now() < cache.expiresAt) {
+    return cache.data
+  }
+
   const { data: perfil, error: perfilError } = await supabase
     .from('perfiles')
     .select('rol_global')
@@ -34,14 +46,14 @@ export async function cargarPermisosUsuario(): Promise<{
 
   if (perfilError) throw perfilError
 
-  const isSuperAdmin = perfil?.rol_global === 'superadmin'
-  if (isSuperAdmin) return { esSuperAdmin: true, roles: [] }
+  if (perfil?.rol_global === 'superadmin') {
+    cache = { userId: user.id, data: { esSuperAdmin: true, roles: [] }, expiresAt: Date.now() + CACHE_TTL }
+    return cache.data
+  }
 
-  // Cargar roles del usuario en cada módulo
   const { data: rolesData, error: rolesError } = await supabase
     .from('usuarios_roles')
-    .select(
-      `
+    .select(`
       modulo_id,
       roles_modulo (
         codigo,
@@ -49,8 +61,7 @@ export async function cargarPermisosUsuario(): Promise<{
         permisos,
         nivel
       )
-    `
-    )
+    `)
     .eq('usuario_id', user.id)
 
   if (rolesError) throw rolesError
@@ -65,5 +76,6 @@ export async function cargarPermisosUsuario(): Promise<{
       nivel: r.roles_modulo!.nivel,
     }))
 
-  return { esSuperAdmin: false, roles }
+  cache = { userId: user.id, data: { esSuperAdmin: false, roles }, expiresAt: Date.now() + CACHE_TTL }
+  return cache.data
 }

@@ -23,7 +23,6 @@ export default async function DetalleVehiculoPage({
 }) {
   const { placa } = await params
 
-  // Obtener datos del vehículo
   let cuenta
   try {
     cuenta = await obtenerCuentaVehiculo(placa)
@@ -31,7 +30,6 @@ export default async function DetalleVehiculoPage({
     notFound()
   }
 
-  // Obtener todos los datos en paralelo
   const [procesoActivo, traslados, radicaciones, historial] = await Promise.all([
     obtenerProcesoActivo(cuenta.id),
     obtenerHistorialTraslados(cuenta.id),
@@ -39,7 +37,6 @@ export default async function DetalleVehiculoPage({
     obtenerHistorialAcciones(cuenta.id),
   ])
 
-  // Obtener novedades si hay proceso activo
   const novedades = procesoActivo?.proceso_id
     ? await obtenerNovedadesProceso(
         procesoActivo.proceso_id,
@@ -49,7 +46,6 @@ export default async function DetalleVehiculoPage({
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-4">
           <Button asChild variant="ghost" size="sm">
@@ -63,9 +59,7 @@ export default async function DetalleVehiculoPage({
               <Car className="h-6 w-6 sm:h-8 sm:w-8" />
               <span className="font-plate">{cuenta.placa}</span>
             </h1>
-            <p className="text-muted-foreground">
-              Cuenta: {cuenta.numero_cuenta}
-            </p>
+            <p className="text-muted-foreground">Cuenta: {cuenta.numero_cuenta}</p>
           </div>
         </div>
         <Badge variant="outline" className="text-sm sm:text-lg py-1 sm:py-2 px-3 sm:px-4 w-fit">
@@ -75,20 +69,9 @@ export default async function DetalleVehiculoPage({
         </Badge>
       </div>
 
-      {/* Información de la cuenta */}
       <InformacionCuenta cuenta={cuenta} />
-
-      {/* Proceso activo */}
       <ProcesoActivo proceso={procesoActivo} novedades={novedades} placa={placa} />
-
-      {/* Historial de procesos */}
-      <HistorialProcesos
-        traslados={traslados}
-        radicaciones={radicaciones}
-        placa={placa}
-      />
-
-      {/* Historial de acciones */}
+      <HistorialProcesos traslados={traslados} radicaciones={radicaciones} placa={placa} />
       <HistorialAcciones acciones={historial} />
     </div>
   )

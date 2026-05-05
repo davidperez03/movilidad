@@ -41,7 +41,7 @@ export async function POST(request: Request) {
 
     const supabase = createAdminClient()
 
-    // admin.createUser NO envía emails de verificación (a diferencia de auth.signUp)
+    // admin.createUser no envía emails de verificación, a diferencia de auth.signUp.
     const { data, error } = await supabase.auth.admin.createUser({
       email,
       password: crypto.randomUUID() + 'A1!',
@@ -54,7 +54,7 @@ export async function POST(request: Request) {
     })
 
     if (error) {
-      // No revelar si el email ya existe (seguridad)
+      // Respuesta idéntica si el email ya existe: no revelar si está registrado.
       if (error.message.includes('already registered') || error.message.includes('already been registered')) {
         return NextResponse.json({ ok: true })
       }
@@ -62,7 +62,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Error al procesar la solicitud' }, { status: 500 })
     }
 
-    // Asegurar que el perfil quede inactivo
     if (data.user) {
       await supabase
         .from('perfiles')

@@ -5,6 +5,26 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.22.0] - 2026-05-05
+
+### Performance y estabilidad en movilidad/auth
+
+#### Agregado
+- **Migración 019**: índices de rendimiento en `sys_sesiones`, `parq_inspecciones` y `mov_novedades` para reducir costo de consultas frecuentes en middleware, dashboard y reportes.
+- **Migración 020**: vista `mov_vista_proceso_activo_detalle` para consolidar en una sola query el proceso activo con usuario creador/actualizador, empresa transportadora y notificación.
+- **Migración 021**: vista `mov_vista_procesos_completados` para unificar traslados y radicaciones completadas y simplificar reportes.
+- Sincronización de scripts base (`scripts/`) con las migraciones 019-021 para instalaciones desde cero.
+
+#### Cambiado
+- Endpoints y utilidades de auth/sesiones con ajustes de performance y robustez en cliente admin, cliente server y middleware.
+- Mejoras transversales en vistas de movilidad, parqueadero y consulta para reducir round-trips y estabilizar carga inicial.
+
+#### Corregido
+- Validaciones y manejo de sesión en rutas protegidas para evitar cierres o regeneraciones incorrectas en navegación autenticada.
+- Ajustes en páginas y componentes de carga (`loading`) para comportamiento más consistente entre segmentos.
+
+---
+
 ## [1.21.0] - 2026-05-03
 
 ### Auditoría — No repudio con hash chain SHA-256

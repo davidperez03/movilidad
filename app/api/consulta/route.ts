@@ -39,7 +39,7 @@ export async function POST(req: Request) {
   }
 
   try {
-    // Cliente anon sin cookies — la RPC tiene GRANT EXECUTE TO anon
+    // Cliente anon sin cookies: la RPC tiene GRANT EXECUTE TO anon, no requiere sesión.
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -59,7 +59,6 @@ export async function POST(req: Request) {
 
     const item = Array.isArray(data) ? data[0] : data
     if (!item) {
-      // Verificar si la placa existe pero no tiene procesos
       const { data: cuenta } = await supabase
         .from("mov_cuentas_vehiculos")
         .select("placa")

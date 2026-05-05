@@ -9,11 +9,6 @@ const querySchema = z.object({
   id:   z.string().uuid(),
 })
 
-/**
- * GET /api/admin/auditoria/entidad?tipo=traslado&id=<uuid>
- * Historial cronológico completo de una entidad cruzando los 4 módulos.
- * Solo superadmin.
- */
 export async function GET(request: NextRequest) {
   try {
     const auth = await requireSuperAdmin()
@@ -44,7 +39,6 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Error al consultar historial' }, { status: 500 })
     }
 
-    // Para cuentas de movilidad incluir eventos de procesos hijos
     let eventos = data ?? []
     if (tipo === 'cuenta') {
       const { data: hijos } = await admin

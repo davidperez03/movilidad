@@ -33,27 +33,23 @@ export default async function InspeccionDetallePage({ params }: PageProps) {
   const { id } = await params
   const supabase = await createClient()
 
-  const { data: inspeccion } = await supabase
-    .from("parq_vista_inspecciones")
-    .select("*")
-    .eq("id", id)
-    .single()
+  // firmas y observaciones_fotos no están en la vista, se leen directamente de la tabla.
+  const [
+    { data: inspeccion },
+    { data: firmas },
+    { data: itemsInspeccion },
+  ] = await Promise.all([
+    supabase.from("parq_vista_inspecciones").select("*").eq("id", id).single(),
+    supabase.from("parq_inspecciones").select("firma_inspector, firma_operador, observaciones_fotos").eq("id", id).single(),
+    supabase.from("parq_items_inspeccion").select("*, item_catalogo:parq_items_catalogo (codigo, nombre, categoria, descripcion, orden)").eq("inspeccion_id", id),
+  ])
 
   if (!inspeccion) {
     notFound()
   }
 
-  // Obtener firmas y fotos de observaciones (no están en la vista)
-  const { data: firmas } = await supabase
-    .from("parq_inspecciones")
-    .select("firma_inspector, firma_operador, observaciones_fotos")
-    .eq("id", id)
-    .single()
-
   const observacionesFotos = (firmas?.observaciones_fotos as FotoConTimestamp[] | null | undefined) ?? null
 
-  // Determinar si esta es la inspección más reciente del vehículo
-  // Si existe una inspección posterior para la misma placa, esta pasa a ser historial (solo lectura)
   const { count: inspeccionesPosteriores } = await supabase
     .from("parq_inspecciones")
     .select("id", { count: "exact", head: true })
@@ -62,23 +58,9 @@ export default async function InspeccionDetallePage({ params }: PageProps) {
 
   const esEditable = inspeccionesPosteriores === 0
 
-  const { data: itemsInspeccion } = await supabase
-    .from("parq_items_inspeccion")
-    .select(`
-      *,
-      item_catalogo:parq_items_catalogo (
-        codigo,
-        nombre,
-        categoria,
-        descripcion,
-        orden
-      )
-    `)
-    .eq("inspeccion_id", id)
-
   type ItemInspeccionConCatalogo = NonNullable<typeof itemsInspeccion>[number]
 
-  // Helper para obtener datos del item (snapshot o catálogo como fallback)
+  // Prioriza el snapshot del item; usa el catálogo como fallback para inspecciones antiguas.
   const getItemData = (item: ItemInspeccionConCatalogo) => {
     const catalogo = item.item_catalogo as { nombre?: string; categoria?: string; orden?: number } | null
     return {
@@ -88,12 +70,10 @@ export default async function InspeccionDetallePage({ params }: PageProps) {
     }
   }
 
-  // Separar novedades (regular/malo)
   const novedades = (itemsInspeccion || []).filter(
     (item) => item.estado === "regular" || item.estado === "malo"
   )
 
-  // Agrupar items por categoría y ordenar por el campo orden (snapshot o catálogo)
   const itemsPorCategoria = (itemsInspeccion || [])
     .sort((a, b) => getItemData(a).orden - getItemData(b).orden)
     .reduce((acc, item) => {
@@ -108,7 +88,6 @@ export default async function InspeccionDetallePage({ params }: PageProps) {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" asChild>
           <Link href="/parqueadero/inspecciones">
@@ -149,7 +128,6 @@ export default async function InspeccionDetallePage({ params }: PageProps) {
         </div>
       </div>
 
-      {/* Info general - 4 cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardContent className="p-4 flex items-center gap-3">
@@ -215,7 +193,6 @@ export default async function InspeccionDetallePage({ params }: PageProps) {
         </Card>
       </div>
 
-      {/* Documentación */}
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2 text-base">
@@ -269,7 +246,6 @@ export default async function InspeccionDetallePage({ params }: PageProps) {
         </CardContent>
       </Card>
 
-      {/* Novedades - solo si hay */}
       {novedades.length > 0 && (
         <SeccionNovedades
           novedades={novedades}
@@ -278,7 +254,6 @@ export default async function InspeccionDetallePage({ params }: PageProps) {
         />
       )}
 
-      {/* Resumen de items */}
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2 text-base">
@@ -313,7 +288,6 @@ export default async function InspeccionDetallePage({ params }: PageProps) {
         </CardContent>
       </Card>
 
-      {/* Items por categoría */}
       {Object.keys(itemsPorCategoria)
         .sort((a, b) => {
           const ordenA = getItemData(itemsPorCategoria[a][0]).orden
@@ -368,7 +342,6 @@ export default async function InspeccionDetallePage({ params }: PageProps) {
                               Subsanado{item.subsanado_observacion && `: ${item.subsanado_observacion}`}
                             </p>
                           )}
-                          {/* Fotos de evidencia múltiples */}
                           {item.fotos && Array.isArray(item.fotos) && item.fotos.length > 0 && (
                             <div className="mt-2">
                               <p className="text-xs text-muted-foreground mb-2">Evidencia:</p>
@@ -401,7 +374,7 @@ export default async function InspeccionDetallePage({ params }: PageProps) {
                             </div>
                           )}
 
-                          {/* Retrocompatibilidad: mostrar foto_url si fotos está vacío */}
+                          {/* foto_url es el campo legado; fotos[] es el campo actual con múltiples fotos. */}
                           {(!item.fotos || item.fotos.length === 0) && item.foto_url && (
                             <div className="mt-2">
                               <a href={item.foto_url} target="_blank" rel="noopener noreferrer">
@@ -414,7 +387,6 @@ export default async function InspeccionDetallePage({ params }: PageProps) {
                             </div>
                           )}
 
-                          {/* Foto de subsanación */}
                           {item.subsanado_foto_url && (
                             <div className="mt-2">
                               <p className="text-xs text-muted-foreground mb-1">Subsanación:</p>
@@ -448,7 +420,6 @@ export default async function InspeccionDetallePage({ params }: PageProps) {
         )
       })}
 
-      {/* Observaciones generales con fotos */}
       {(inspeccion.observaciones || (observacionesFotos && observacionesFotos.length > 0)) && (
         <Card>
           <CardHeader className="pb-3">
@@ -493,7 +464,6 @@ export default async function InspeccionDetallePage({ params }: PageProps) {
         </Card>
       )}
 
-      {/* Firmas */}
       {(firmas?.firma_operador || firmas?.firma_inspector) && (
         <Card>
           <CardHeader className="pb-3">
@@ -547,7 +517,6 @@ export default async function InspeccionDetallePage({ params }: PageProps) {
         </Card>
       )}
 
-      {/* Inspector */}
       <Card>
         <CardContent className="py-4">
           <p className="text-sm text-muted-foreground">

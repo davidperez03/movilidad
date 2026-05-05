@@ -8,11 +8,6 @@ const schema = z.object({
   sesion_id: z.string().uuid('sesion_id debe ser un UUID válido'),
 })
 
-/**
- * API Route: Cerrar sesión manualmente (Superadmin)
- *
- * Permite a los superadmins cerrar sesiones huérfanas o problemáticas
- */
 export async function POST(request: NextRequest) {
   try {
     const auth = await requireSuperAdmin()

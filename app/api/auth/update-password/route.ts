@@ -37,8 +37,7 @@ export async function POST(request: Request) {
 
     const { newPassword, clearFlag } = parsed.data
 
-    // Sesión siempre desde cookies — la sesión de recovery se establece en el
-    // cliente via verifyOtp() antes de llegar a este endpoint
+    // La sesión de recovery se establece en el cliente via verifyOtp() antes de llegar a este endpoint.
     const supabase = await createClient()
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) {
@@ -49,7 +48,7 @@ export async function POST(request: Request) {
     const updateData: Record<string, unknown> = { password: newPassword }
 
     if (clearFlag) {
-      // Merge explícito: preservar todas las claves existentes de user_metadata
+      // Merge explícito vía admin para preservar las claves existentes de user_metadata.
       const { data: { user: currentUser } } = await admin.auth.admin.getUserById(user.id)
       updateData.user_metadata = {
         ...currentUser?.user_metadata,
@@ -67,7 +66,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Error al actualizar la contraseña' }, { status: 500 })
     }
 
-    // Registrar cambio de contraseña por el propio usuario
     await supabase.rpc('registrar_auditoria_sistema', {
       p_accion: 'password_cambiado',
       p_entidad_tipo: 'usuario',

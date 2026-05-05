@@ -26,43 +26,29 @@ export default async function ParqueaderoDashboard() {
 
   const hoy = getNowDateColombia()
 
-  // Estadísticas
   const [
     { count: totalVehiculos },
     { count: inspeccionesHoy },
     { data: inspeccionesResumen },
+    { data: ultimasInspecciones },
+    { data: alertasVencimientos },
   ] = await Promise.all([
     supabase.from("parq_vehiculos").select("*", { count: "exact", head: true }).eq("activo", true),
     supabase.from("parq_inspecciones").select("*", { count: "exact", head: true }).eq("fecha", hoy),
     supabase.from("parq_vista_inspecciones").select("*").eq("fecha", hoy).order("creado_en", { ascending: false }).limit(10),
+    supabase.from("parq_vista_inspecciones").select("*").order("creado_en", { ascending: false }).limit(5),
+    supabase.from("parq_vista_alertas_vencimientos").select("*").order("fecha_vencimiento", { ascending: true }).limit(10),
   ])
 
-  // Contar aptos y no aptos de hoy
   const inspeccionesAptas = inspeccionesResumen?.filter(i => i.es_apto).length || 0
   const inspeccionesNoAptas = inspeccionesResumen?.filter(i => !i.es_apto).length || 0
 
-  // Últimas inspecciones
-  const { data: ultimasInspecciones } = await supabase
-    .from("parq_vista_inspecciones")
-    .select("*")
-    .order("creado_en", { ascending: false })
-    .limit(5)
-
-  // Alertas de vencimientos (vehículos y licencias)
-  const { data: alertasVencimientos } = await supabase
-    .from("parq_vista_alertas_vencimientos")
-    .select("*")
-    .order("fecha_vencimiento", { ascending: true })
-    .limit(10)
-
-  // Contador de alertas por tipo
   const alertasVehiculos = alertasVencimientos?.filter(a => a.tipo === 'vehiculo') || []
   const alertasConductores = alertasVencimientos?.filter(a => a.tipo === 'conductor') || []
   const totalAlertas = (alertasVencimientos?.length || 0)
 
   return (
     <div className="space-y-8">
-      {/* Header */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
@@ -80,7 +66,6 @@ export default async function ParqueaderoDashboard() {
         </div>
       </div>
 
-      {/* Stats */}
       <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-5">
         <StatCard
           title="Vehículos"
@@ -114,7 +99,6 @@ export default async function ParqueaderoDashboard() {
         />
       </div>
 
-      {/* Quick Actions */}
       <div className="grid gap-3 grid-cols-1 md:grid-cols-2">
         <Link href="/parqueadero/inspecciones" className="group">
           <Card className="transition-all hover:shadow-md hover:border-blue-300">
@@ -147,9 +131,7 @@ export default async function ParqueaderoDashboard() {
         </Link>
       </div>
 
-      {/* Recent Activity & Alerts */}
       <div className="grid gap-6 lg:grid-cols-2">
-        {/* Últimas inspecciones */}
         <Card>
           <CardContent className="p-6">
             <h3 className="font-semibold mb-4">Últimas Inspecciones</h3>
@@ -177,7 +159,6 @@ export default async function ParqueaderoDashboard() {
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      {/* Mostrar alertas de documentación del operador */}
                       {inspeccion.operador_estado_licencia === 'vencido' && (
                         <Badge variant="destructive" className="text-xs">
                           Lic. vencida
@@ -201,7 +182,6 @@ export default async function ParqueaderoDashboard() {
           </CardContent>
         </Card>
 
-        {/* Alertas de documentación unificadas */}
         <Card>
           <CardContent className="p-6">
             <h3 className="font-semibold mb-4 flex items-center gap-2">
@@ -239,7 +219,6 @@ export default async function ParqueaderoDashboard() {
                   </div>
                 ))}
 
-                {/* Resumen de alertas */}
                 <div className="border-t pt-3 mt-3 flex gap-4 text-xs text-muted-foreground">
                   <span className="flex items-center gap-1">
                     <Truck className="h-3 w-3" />

@@ -9,7 +9,6 @@ export async function GET(request: NextRequest) {
   const code = searchParams.get('code')
   const next = searchParams.get('next') || '/auth/login'
 
-  // URL de redirección exitosa
   const redirectTo = request.nextUrl.clone()
   redirectTo.pathname = next
   redirectTo.searchParams.delete('token_hash')
@@ -17,10 +16,7 @@ export async function GET(request: NextRequest) {
   redirectTo.searchParams.delete('code')
   redirectTo.searchParams.delete('next')
 
-  // Crear cliente Supabase que escribe cookies directamente en el NextResponse.
-  // Esto es NECESARIO en Route Handlers que hacen redirect, porque cookies()
-  // de next/headers no transfiere las cookies al NextResponse.redirect().
-  // Ref: https://supabase.com/docs/guides/auth/server-side/nextjs
+  // cookies() de next/headers no transfiere cookies al NextResponse.redirect() — se debe usar createServerClient aquí.
   const response = NextResponse.redirect(redirectTo)
 
   const supabase = createServerClient(
@@ -40,7 +36,6 @@ export async function GET(request: NextRequest) {
     }
   )
 
-  // Flujo 1: token_hash + type (verificación de email / recovery)
   if (token_hash && type) {
     const { error } = await supabase.auth.verifyOtp({ token_hash, type })
     if (!error) {
@@ -48,7 +43,6 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  // Flujo 2: code (PKCE - exchangeCodeForSession)
   if (code) {
     const { error } = await supabase.auth.exchangeCodeForSession(code)
     if (!error) {
@@ -56,7 +50,6 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  // Error: redirigir a login
   const errorUrl = request.nextUrl.clone()
   errorUrl.pathname = '/auth/login'
   errorUrl.searchParams.set('error', 'invalid_token')

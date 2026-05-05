@@ -57,7 +57,6 @@ function NuevaCuentaForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    // Validar todos los campos
     setPlacaTouched(true)
     setTipoServicioTouched(true)
     const placaValidationError = validatePlaca(placa)
@@ -77,10 +76,8 @@ function NuevaCuentaForm() {
 
     try {
 
-      // Normalizar placa (convertir a mayúsculas y eliminar espacios)
       const placaNormalizada = placa.trim().toUpperCase()
 
-      // Verificar si la placa ya existe
       const { data: cuentaExistente } = await supabase
         .from("mov_cuentas_vehiculos")
         .select("placa, numero_cuenta")
@@ -97,7 +94,6 @@ function NuevaCuentaForm() {
         return
       }
 
-      // Obtener el usuario actual
       const { data: { user } } = await supabase.auth.getUser()
 
       if (!user) {
@@ -106,7 +102,6 @@ function NuevaCuentaForm() {
         return
       }
 
-      // Crear la nueva cuenta
       const { data, error } = await supabase
         .from("mov_cuentas_vehiculos")
         .insert({
