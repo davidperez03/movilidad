@@ -2,7 +2,7 @@ import { createServerClient } from "@supabase/ssr"
 import { NextResponse, type NextRequest } from "next/server"
 
 const SESSION_CHECK_COOKIE = 'mov_session_check_at'
-const SESSION_CHECK_INTERVAL_MS = 30_000
+const SESSION_CHECK_INTERVAL_MS = 120_000
 
 const SECURITY_HEADERS: Record<string, string> = {
   'X-Frame-Options': 'DENY',

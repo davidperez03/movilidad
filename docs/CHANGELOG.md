@@ -5,6 +5,21 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.22.2] - 2026-05-05
+
+### Optimización de navegación entre módulos
+
+#### Rendimiento
+- Se reemplazó `auth.getUser()` por `auth.getSession()` en layouts server de `movilidad`, `parqueadero` y `superadmin`, evitando revalidaciones remotas redundantes durante navegación.
+- Se removieron queries duplicadas de validación de rol en layouts de módulo; ahora se reutiliza el resultado de `obtenerLayoutData`.
+- Se amplió el throttle del chequeo de estado de sesión en middleware de `30s` a `120s` para reducir carga de BD en transiciones frecuentes.
+
+#### Impacto esperado
+- Menor latencia al cambiar entre pestañas y módulos autenticados.
+- Menos round-trips a Supabase Auth y a `sys_sesiones` por navegación.
+
+---
+
 ## [1.22.1] - 2026-05-05
 
 ### Correcciones de sesión y navegación

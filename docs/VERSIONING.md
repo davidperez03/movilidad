@@ -6,6 +6,7 @@ Para el proceso de release y reglas de versionamiento semántico ver [GITFLOW.md
 
 | Versión | Fecha | Descripción |
 |---------|-------|-------------|
+| 1.22.2 | 2026-05-05 | Perf(auth/navigation): reduce latencia entre módulos eliminando consultas redundantes de auth/roles en layouts server y ampliando throttle de verificación de sesión en middleware |
 | 1.22.1 | 2026-05-05 | Fix(auth/perf): permite "." en contraseña, corrige logout al recargar, reduce latencia de navegación entre módulos con throttle de chequeo de sesión |
 | 1.22.0 | 2026-05-05 | Perf+Fix(movilidad/auth): optimización de consultas de sesión y reportes, vistas consolidadas para detalle/completados, índices de rendimiento y mejoras generales de estabilidad |
 | 1.21.0 | 2026-05-03 | feat(auditoria): no repudio con hash chain SHA-256 en 4 tablas, triggers de inmutabilidad, verificación de integridad, historial por entidad, inventarios en auditoría, CSP enforcement |
