@@ -381,7 +381,6 @@ export function InventariosClient({ gruas, items: itemsIniciales, sticker: stick
           <h1 className="text-2xl font-bold tracking-tight">Inventarios</h1>
           <p className="text-muted-foreground">Stock en bodega, distribución por grúa y stickers por rango</p>
         </div>
-        {/* Móvil: menú unificado + botón primario */}
         <div className="flex gap-2 md:hidden">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -413,7 +412,6 @@ export function InventariosClient({ gruas, items: itemsIniciales, sticker: stick
           </Button>
         </div>
 
-        {/* Desktop: botones individuales */}
         <div className="hidden md:flex gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

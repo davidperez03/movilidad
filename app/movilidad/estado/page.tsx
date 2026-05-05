@@ -6,7 +6,6 @@ import { TablaProcesosActivos } from "@/components/movilidad/estado/tabla-proces
 export default async function EstadoGeneralPage() {
   const supabase = await createClient()
 
-  // Obtener solo procesos activos (donde proceso_tipo no es null)
   const { data: procesosActivos } = await supabase
     .from("mov_vista_proceso_activo")
     .select("*")
@@ -14,8 +13,6 @@ export default async function EstadoGeneralPage() {
     .order("numero_cuenta", { ascending: false })
 
   const procesos = procesosActivos || []
-
-  // Calcular stats
   const total = procesos.length
   const vencidos = procesos.filter(p => p.dias_restantes !== null && p.dias_restantes < 0).length
   const porVencer = procesos.filter(p => p.dias_restantes !== null && p.dias_restantes >= 0 && p.dias_restantes <= 7).length
@@ -28,7 +25,6 @@ export default async function EstadoGeneralPage() {
         <p className="text-muted-foreground">Procesos activos ordenados por urgencia</p>
       </div>
 
-      {/* Stats */}
       <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardContent className="p-4 flex items-center gap-3">
@@ -79,7 +75,6 @@ export default async function EstadoGeneralPage() {
         </Card>
       </div>
 
-      {/* Tabla */}
       <Card>
         <CardContent className="pt-6">
           <TablaProcesosActivos procesos={procesos} />

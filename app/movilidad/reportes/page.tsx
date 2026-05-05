@@ -1,8 +1,3 @@
-// =====================================================
-// DASHBOARD PRINCIPAL DE REPORTES
-// Página con cards que enlazan a cada tipo de reporte
-// =====================================================
-
 import { redirect } from 'next/navigation'
 import { Activity, CheckCircle, Clock, AlertTriangle } from 'lucide-react'
 import { obtenerPermisosUsuario } from '@/lib/server/permisos'
@@ -10,14 +5,12 @@ import { obtenerContadores } from '@/lib/movilidad/reportes/queries'
 import { CardTipoReporte } from '@/components/movilidad/reportes/card-tipo-reporte'
 
 export default async function ReportesPage() {
-  // Verificar permisos
   const { movilidad: permisos } = await obtenerPermisosUsuario()
 
   if (!permisos.ver) {
     redirect('/sin-acceso')
   }
 
-  // Obtener contadores
   const contadores = await obtenerContadores()
 
   return (

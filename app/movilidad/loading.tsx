@@ -4,13 +4,11 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card"
 export default function MovilidadLoading() {
   return (
     <div className="space-y-6">
-      {/* Header skeleton */}
       <div className="space-y-2">
         <Skeleton className="h-8 w-48" />
         <Skeleton className="h-4 w-64" />
       </div>
 
-      {/* Stats cards skeleton */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {[...Array(4)].map((_, i) => (
           <Card key={i}>
@@ -26,7 +24,6 @@ export default function MovilidadLoading() {
         ))}
       </div>
 
-      {/* Table skeleton */}
       <Card>
         <CardHeader>
           <Skeleton className="h-6 w-40" />

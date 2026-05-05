@@ -119,7 +119,6 @@ export default function ConsultaPublicaPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-      {/* Header */}
       <header className="border-b bg-white/80 backdrop-blur-sm dark:bg-gray-900/80">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <div className="flex items-center gap-2">
@@ -134,10 +133,8 @@ export default function ConsultaPublicaPage() {
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="container mx-auto px-4 py-12">
         <div className="mx-auto max-w-2xl">
-          {/* Title Section */}
           <div className="text-center mb-8">
             <h1 className="text-2xl sm:text-4xl font-bold tracking-tight mb-3">
               Consulta el Estado de tu Trámite
@@ -147,7 +144,6 @@ export default function ConsultaPublicaPage() {
             </p>
           </div>
 
-          {/* Search Form */}
           <Card className="mb-8 shadow-lg">
             <CardHeader>
               <CardTitle>Buscar Vehículo</CardTitle>
@@ -188,7 +184,6 @@ export default function ConsultaPublicaPage() {
             </CardContent>
           </Card>
 
-          {/* Error Message */}
           {error && (() => {
             const isRegisteredNoProcesses = error.includes("registrado pero no tiene")
             const isNotFound = error.includes("No se encontró")
@@ -278,11 +273,9 @@ export default function ConsultaPublicaPage() {
             )
           })()}
 
-          {/* Results */}
           {resultado && (
             <Card className="shadow-lg">
               <CardContent className="p-6 space-y-6">
-                {/* Header con placa centrada */}
                 <div className="text-center pb-4 border-b">
                   <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 mb-3">
                     <Car className="h-6 w-6 text-primary" />
@@ -310,7 +303,6 @@ export default function ConsultaPublicaPage() {
                   </div>
                 )}
 
-                {/* Info básica en grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="text-center p-4 rounded-lg border">
                     <p className="text-xs text-muted-foreground mb-1">Tipo de Servicio</p>
@@ -537,7 +529,6 @@ export default function ConsultaPublicaPage() {
             </Card>
           )}
 
-          {/* Info Footer */}
           <div className="mt-8 text-center text-sm text-muted-foreground">
             <p>
               Si tienes alguna pregunta o necesitas más información,{" "}

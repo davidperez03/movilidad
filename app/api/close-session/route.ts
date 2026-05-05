@@ -7,13 +7,6 @@ const schema = z.object({
   sessionId: z.string().uuid('sessionId debe ser un UUID válido'),
 })
 
-/**
- * API Route: Cerrar sesión cuando se cierra la ventana
- *
- * Este endpoint es llamado por sendBeacon cuando el usuario cierra
- * la ventana o pestaña del navegador. sendBeacon garantiza que la
- * petición se envíe incluso si la ventana se cierra inmediatamente.
- */
 export async function POST(request: NextRequest) {
   try {
     const body = await request.text()
@@ -31,13 +24,11 @@ export async function POST(request: NextRequest) {
     const { sessionId } = parsed.data
     const supabase = await createClient()
 
-    // Verificar usuario autenticado
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) {
       return NextResponse.json({ error: 'No autenticado' }, { status: 401 })
     }
 
-    // Verificar que el sessionId pertenece al usuario autenticado
     const { data: sesion } = await supabase
       .from('sys_sesiones')
       .select('id')
@@ -49,9 +40,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Sesión no encontrada' }, { status: 403 })
     }
 
-    // Registrar cierre en BD — auth aún válida, auth.uid() disponible para auditoría.
-    // No se llama signOut() aquí: este endpoint es invocado via sendBeacon en beforeunload.
-    // El JWT expira naturalmente. Si el usuario recarga la página, Supabase mantiene su sesión.
+    // No se llama signOut(): invocado via sendBeacon en beforeunload, el JWT expira naturalmente.
     const { error } = await supabase.rpc('registrar_fin_sesion', {
       p_sesion_id: sessionId,
       p_estado: 'cerrada',

@@ -22,6 +22,9 @@ Registro manual de migraciones ejecutadas en producción.
 | 016 | 016_security_advisor_fixes.sql | 2026-05-03 | David | v1.21.0 |
 | 017 | 017_auditoria_hash_fix.sql | 2026-05-03 | David | v1.21.0 |
 | 018 | 018_hash_chain_todas_las_auditorias.sql | 2026-05-03 | David | v1.21.0 |
+| 019 | 019_performance_indexes.sql | 2026-05-05 | — | v1.22.0 |
+| 020 | 020_vista_proceso_activo_detalle.sql | 2026-05-05 | — | v1.22.0 |
+| 021 | 021_vista_procesos_completados.sql | 2026-05-05 | — | v1.22.0 |
 
 <!--
 Al aplicar una migración, agregar una fila:

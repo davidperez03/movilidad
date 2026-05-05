@@ -84,7 +84,6 @@ export function MobileNav({ title, items, userInfo }: MobileNavProps) {
 
           {userInfo && (
             <div className="mt-auto border-t pt-5 pb-3 space-y-4">
-              {/* Otros módulos */}
               {userInfo.otrosModulos && userInfo.otrosModulos.length > 0 && (
                 <div>
                   <p className="px-3 mb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Ir a</p>
@@ -116,7 +115,6 @@ export function MobileNav({ title, items, userInfo }: MobileNavProps) {
                 </Link>
               )}
 
-              {/* Info usuario */}
               <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-muted/50">
                 <User className="h-4 w-4 text-muted-foreground shrink-0" />
                 <div className="min-w-0">

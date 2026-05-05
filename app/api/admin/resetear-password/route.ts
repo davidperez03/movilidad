@@ -48,7 +48,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Error al restablecer la contraseña' }, { status: 400 })
     }
 
-    // Registrar reseteo de contraseña por admin
     const supabase = await createClient()
     await supabase.rpc('registrar_auditoria_sistema', {
       p_accion: 'password_reseteado',

@@ -43,11 +43,15 @@ CREATE INDEX IF NOT EXISTS idx_sys_sesiones_estado
 CREATE INDEX IF NOT EXISTS idx_sys_sesiones_inicio
   ON public.sys_sesiones(inicio_sesion DESC);
 
+CREATE INDEX IF NOT EXISTS idx_sys_sesiones_fin_sesion
+  ON public.sys_sesiones(fin_sesion DESC)
+  WHERE fin_sesion IS NOT NULL;
+
 CREATE INDEX IF NOT EXISTS idx_sys_sesiones_ultima_actividad
   ON public.sys_sesiones(ultima_actividad DESC);
 
-CREATE INDEX IF NOT EXISTS idx_sys_sesiones_usuario_estado
-  ON public.sys_sesiones(usuario_id, estado);
+CREATE INDEX IF NOT EXISTS idx_sys_sesiones_usuario_estado_inicio
+  ON public.sys_sesiones(usuario_id, estado, inicio_sesion DESC);
 
 CREATE INDEX IF NOT EXISTS idx_sys_sesiones_token_expira
   ON public.sys_sesiones(token_expira_en)

@@ -67,7 +67,6 @@ export default async function CuentasPage() {
     (ultimosCompletados as ProcesoCompletado[] | null)?.map(uc => [uc.cuenta_id, uc]) || []
   )
 
-  // Enriquecer cuentas con procesos en memoria
   const cuentasConProcesos = (cuentas || []).map((cuenta) => ({
     ...cuenta,
     procesoActivo: procesosActivosMap.get(cuenta.id) || null,
@@ -84,7 +83,6 @@ export default async function CuentasPage() {
         <BotonNuevaCuenta permisos={permisos} />
       </div>
 
-      {/* Tabla de cuentas */}
       <Card>
         <CardContent className="pt-6">
           <CuentasTable cuentas={cuentasConProcesos || []} permisos={permisos} />
