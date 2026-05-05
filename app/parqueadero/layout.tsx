@@ -15,8 +15,9 @@ export default async function ParqueaderoLayout({
   const supabase = await createClient()
 
   const {
-    data: { user },
-  } = await supabase.auth.getUser()
+    data: { session },
+  } = await supabase.auth.getSession()
+  const user = session?.user ?? null
 
   if (!user) redirect("/auth/login")
 
@@ -28,21 +29,14 @@ export default async function ParqueaderoLayout({
 
   const esSuperAdmin = perfil?.rol_global === "superadmin"
 
-  if (!esSuperAdmin) {
-    const { data: rolParqueadero } = await supabase
-      .from("usuarios_roles")
-      .select("id")
-      .eq("usuario_id", user.id)
-      .eq("modulo_id", "parqueadero")
-      .single()
-
-    if (!rolParqueadero) redirect("/sin-acceso")
-  }
-
   const { contadores, rolModulo, rolColors, tieneMovilidad } = await obtenerLayoutData(
     user.id,
     esSuperAdmin
   )
+
+  if (!esSuperAdmin && rolModulo.codigo === "sin_rol") {
+    redirect("/sin-acceso")
+  }
 
   const nombreCapitalizado = capitalizeName(perfil?.nombre_completo) || perfil?.correo || ""
 
