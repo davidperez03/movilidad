@@ -24,25 +24,17 @@ export default async function VehiculoDetallePage({ params }: PageProps) {
   const { id } = await params
   const supabase = await createClient()
 
-  // Obtener el vehículo
-  const { data: vehiculo } = await supabase
-    .from("parq_vista_vehiculos")
-    .select("*")
-    .eq("id", id)
-    .single()
+  const [
+    { data: vehiculo },
+    { data: inspecciones },
+  ] = await Promise.all([
+    supabase.from("parq_vista_vehiculos").select("*").eq("id", id).single(),
+    supabase.from("parq_vista_inspecciones").select("*").eq("vehiculo_id", id).order("fecha", { ascending: false }).order("hora", { ascending: false }).limit(10),
+  ])
 
   if (!vehiculo) {
     notFound()
   }
-
-  // Obtener últimas inspecciones
-  const { data: inspecciones } = await supabase
-    .from("parq_vista_inspecciones")
-    .select("*")
-    .eq("vehiculo_id", id)
-    .order("fecha", { ascending: false })
-    .order("hora", { ascending: false })
-    .limit(10)
 
   const tipoConfig = TIPOS_VEHICULO[vehiculo.tipo]
   const soatConfig = ESTADOS_DOCUMENTO[vehiculo.estado_soat]

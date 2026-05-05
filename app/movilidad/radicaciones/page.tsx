@@ -10,18 +10,15 @@ import { RadicacionesTable } from "@/components/movilidad/radicaciones/radicacio
 export default async function RadicacionesPage() {
   const supabase = await createClient()
 
-  // Obtener datos de vencimiento desde la vista
   const { data: vistaActivas } = await supabase
     .from("mov_vista_proceso_activo")
     .select("proceso_id, dias_restantes")
     .eq("proceso_tipo", "radicacion")
 
-  // Crear mapa de proceso_id -> dias_restantes
   const diasPorProceso = new Map(
     vistaActivas?.map(v => [v.proceso_id, v.dias_restantes]) || []
   )
 
-  // Obtener radicaciones activas con todos sus datos
   const { data: radicacionesActivasRaw, error: errorActivas } = await supabase
     .from("mov_radicaciones")
     .select(`
@@ -61,7 +58,6 @@ export default async function RadicacionesPage() {
     (notificacionesData || []).map((notificacion) => [notificacion.radicacion_id, notificacion])
   )
 
-  // Agregar días restantes a cada radicación
   const radicacionesActivas = radicacionesActivasRaw?.map((radicacion) => ({
     ...radicacion,
     dias_restantes: diasPorProceso.get(radicacion.id) ?? null,
@@ -72,7 +68,6 @@ export default async function RadicacionesPage() {
     logger.error("Error cargando radicaciones activas", { error: errorActivas })
   }
 
-  // Obtener radicaciones completadas
   const { data: radicacionesCompletadas } = await supabase
     .from("mov_radicaciones")
     .select(`

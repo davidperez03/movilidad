@@ -4,29 +4,17 @@ import { redirect } from "next/navigation"
 export default async function HomePage() {
   const supabase = await createClient()
 
-  // Verificar si hay usuario autenticado
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect("/consulta")
 
-  // Si no hay usuario, redirigir a consulta pública
-  if (!user) {
-    redirect("/consulta")
-  }
-
-  // Obtener perfil para verificar si es superadmin
   const { data: profile } = await supabase
     .from("perfiles")
     .select("rol_global")
     .eq("id", user.id)
     .single()
 
-  // Si es superadmin, redirigir al panel de administración
-  if (profile?.rol_global === "superadmin") {
-    redirect("/superadmin/dashboard")
-  }
+  if (profile?.rol_global === "superadmin") redirect("/superadmin/dashboard")
 
-  // Verificar si tiene acceso al módulo de movilidad
   const { data: rolMovilidad } = await supabase
     .from("usuarios_roles")
     .select("id")
@@ -34,11 +22,7 @@ export default async function HomePage() {
     .eq("modulo_id", "movilidad")
     .single()
 
-  // Si tiene acceso a movilidad, redirigir allí
-  if (rolMovilidad) {
-    redirect("/movilidad")
-  }
+  if (rolMovilidad) redirect("/movilidad")
 
-  // Si no tiene acceso a ningún módulo, redirigir a página de sin acceso
   redirect("/sin-acceso")
 }

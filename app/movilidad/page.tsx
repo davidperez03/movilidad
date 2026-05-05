@@ -24,29 +24,21 @@ export default async function MovilidadDashboard() {
   const supabase = await createClient()
   const { movilidad: permisos } = await obtenerPermisosUsuario()
 
-  // Estadísticas
   const [
     { count: totalCuentas },
     { count: trasladosActivos },
     { count: radicacionesActivas },
     { count: novedadesPendientes },
+    { data: procesosConAlerta },
+    { data: actividadReciente },
   ] = await Promise.all([
     supabase.from("mov_cuentas_vehiculos").select("*", { count: "exact", head: true }),
     supabase.from("mov_traslados").select("*", { count: "exact", head: true }).not("estado", "in", "(trasladado,devuelto)"),
     supabase.from("mov_radicaciones").select("*", { count: "exact", head: true }).not("estado", "in", "(radicado,devuelto)"),
     supabase.from("mov_novedades").select("*", { count: "exact", head: true }).neq("estado", "resuelta"),
+    supabase.from("mov_vista_proceso_activo").select("*").not("proceso_tipo", "is", null).not("dias_restantes", "is", null).gte("dias_restantes", 0).lte("dias_restantes", 10).order("dias_restantes", { ascending: true }).limit(50),
+    supabase.from("mov_historial_acciones").select("id, accion, estado_anterior, estado_nuevo, creado_en, cuenta:mov_cuentas_vehiculos!cuenta_id (placa), usuario:perfiles!realizado_por (nombre_completo)").order("creado_en", { ascending: false }).limit(5),
   ])
-
-  // Procesos para alertas prioritarias (urgencia media y vence hoy)
-  const { data: procesosConAlerta } = await supabase
-    .from("mov_vista_proceso_activo")
-    .select("*")
-    .not("proceso_tipo", "is", null)
-    .not("dias_restantes", "is", null)
-    .gte("dias_restantes", 0)
-    .lte("dias_restantes", 10)
-    .order("dias_restantes", { ascending: true })
-    .limit(50)
 
   const alerts = (procesosConAlerta || [])
     .filter((proceso) => {
@@ -69,17 +61,6 @@ export default async function MovilidadDashboard() {
       daysRemaining,
     }
   })
-
-  // Actividad reciente
-  const { data: actividadReciente } = await supabase
-    .from("mov_historial_acciones")
-    .select(`
-      id, accion, estado_anterior, estado_nuevo, creado_en,
-      cuenta:mov_cuentas_vehiculos!cuenta_id (placa),
-      usuario:perfiles!realizado_por (nombre_completo)
-    `)
-    .order("creado_en", { ascending: false })
-    .limit(5)
 
   interface ActividadItem {
     id: string
@@ -111,7 +92,6 @@ export default async function MovilidadDashboard() {
 
   return (
     <div className="space-y-8">
-      {/* Header */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
@@ -132,7 +112,6 @@ export default async function MovilidadDashboard() {
         </div>
       </div>
 
-      {/* Stats */}
       <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Cuentas"
@@ -160,7 +139,6 @@ export default async function MovilidadDashboard() {
         />
       </div>
 
-      {/* Quick Actions - Mismo orden que nav */}
       <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
         <Link href="/movilidad/estado" className="group">
           <Card className="transition-all hover:shadow-md hover:border-cyan-300">
@@ -234,7 +212,6 @@ export default async function MovilidadDashboard() {
       </div>
 
 
-      {/* Alerts & Activity */}
       <div className="grid gap-6 lg:grid-cols-2">
         <AlertCard
           alerts={alerts}

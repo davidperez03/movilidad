@@ -28,14 +28,12 @@ export function AccessibleModal({
   const modalRef = useRef<HTMLDivElement>(null)
   const previousActiveElement = useRef<HTMLElement | null>(null)
 
-  // Handle escape key
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (e.key === 'Escape') {
       onClose()
     }
   }, [onClose])
 
-  // Focus trap
   const handleTabKey = useCallback((e: KeyboardEvent) => {
     if (e.key !== 'Tab' || !modalRef.current) return
 
@@ -56,17 +54,13 @@ export function AccessibleModal({
 
   useEffect(() => {
     if (open) {
-      // Store current active element
       previousActiveElement.current = document.activeElement as HTMLElement
 
-      // Add event listeners
       document.addEventListener('keydown', handleKeyDown)
       document.addEventListener('keydown', handleTabKey)
 
-      // Prevent body scroll
       document.body.style.overflow = 'hidden'
 
-      // Focus first focusable element
       setTimeout(() => {
         const firstFocusable = modalRef.current?.querySelector<HTMLElement>(
           'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
@@ -80,7 +74,6 @@ export function AccessibleModal({
       document.removeEventListener('keydown', handleTabKey)
       document.body.style.overflow = ''
 
-      // Restore focus
       previousActiveElement.current?.focus()
     }
   }, [open, handleKeyDown, handleTabKey])
@@ -95,14 +88,12 @@ export function AccessibleModal({
       className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto p-4"
       role="presentation"
     >
-      {/* Backdrop */}
       <div
         className="fixed inset-0 bg-black/50 transition-opacity"
         onClick={onClose}
         aria-hidden="true"
       />
 
-      {/* Modal */}
       <Card
         ref={modalRef}
         role="dialog"

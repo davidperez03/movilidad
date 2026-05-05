@@ -1,8 +1,3 @@
-// =====================================================
-// REPORTE DE PROCESOS POR VENCER
-// Página con tabla y exportación de procesos por vencer
-// =====================================================
-
 import { redirect } from 'next/navigation'
 import { obtenerPermisosUsuario } from '@/lib/server/permisos'
 import { obtenerDatosPorVencer, obtenerOrganismos, obtenerResponsables } from '@/lib/movilidad/reportes/queries'
@@ -12,21 +7,18 @@ import { ReporteWrapper } from '@/components/movilidad/reportes/reporte-wrapper'
 import { TablaPorVencer } from '@/components/movilidad/reportes/tabla-por-vencer'
 
 export default async function ReportePorVencerPage() {
-  // Verificar permisos
   const { movilidad: permisos } = await obtenerPermisosUsuario()
 
   if (!permisos.ver) {
     redirect('/sin-acceso')
   }
 
-  // Obtener datos
   const [datos, organismos, responsables] = await Promise.all([
     obtenerDatosPorVencer(FILTROS_INICIALES),
     obtenerOrganismos(),
     obtenerResponsables(),
   ])
 
-  // Calcular estadísticas con la misma regla de urgencia que usa la tabla
   const resumenUrgencia = datos.reduce(
     (acc, d) => {
       const nivel = obtenerNivelUrgenciaPorVencer(d.dias_restantes)

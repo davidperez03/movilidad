@@ -95,7 +95,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true })
   }
 
-  // tipo === 'mover' → revertir: mover de destino a origen
   const { origen, destino, item_id, cantidad } = body as Extract<Payload, { tipo: 'mover' }>
 
   const { data: destinoRow } = await admin

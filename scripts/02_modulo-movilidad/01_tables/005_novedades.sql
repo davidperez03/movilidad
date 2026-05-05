@@ -49,6 +49,7 @@ create index if not exists idx_mov_novedades_estado on public.mov_novedades(esta
 create index if not exists idx_mov_novedades_prioridad on public.mov_novedades(prioridad);
 create index if not exists idx_mov_novedades_creado_por on public.mov_novedades(creado_por);
 create index if not exists idx_mov_novedades_creado_en on public.mov_novedades(creado_en desc);
+create index if not exists idx_mov_novedades_pendientes on public.mov_novedades(creado_en desc) where estado != 'resuelta';
 
 create index if not exists idx_mov_adjuntos_novedades_novedad on public.mov_adjuntos_novedades(novedad_id);
 create index if not exists idx_mov_adjuntos_novedades_subido_por on public.mov_adjuntos_novedades(subido_por);

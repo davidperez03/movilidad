@@ -41,7 +41,6 @@ function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
 
-  // Si ya hay sesión activa (ej: usuario presionó "atrás"), redirigir al dashboard
   useEffect(() => {
     const supabase = createClient()
     supabase.auth.getSession().then(async ({ data: { session } }) => {
@@ -111,7 +110,6 @@ function LoginForm() {
       if (error) throw error
 
       if (data.user) {
-        // Verificar si debe cambiar contraseña
         if (data.user.user_metadata?.debe_cambiar_password) {
           router.push("/auth/cambiar-password")
           return
@@ -127,9 +125,7 @@ function LoginForm() {
           throw new Error("Error al verificar perfil de usuario")
         }
 
-        // Verificar si el usuario está activo
         if (!profile.activo) {
-          // Cerrar sesión inmediatamente
           await supabase.auth.signOut()
           throw new Error(
             profile.razon_suspension
@@ -138,7 +134,6 @@ function LoginForm() {
           )
         }
 
-        // Verificar si está suspendido temporalmente
         if (profile.suspendido_hasta) {
           const suspendidoHasta = new Date(profile.suspendido_hasta)
           if (suspendidoHasta > new Date()) {
@@ -149,22 +144,18 @@ function LoginForm() {
           }
         }
 
-        // Actualizar última conexión
         await supabase
           .from("perfiles")
           .update({ ultima_conexion: new Date().toISOString() })
           .eq("id", data.user.id)
 
-        // Registrar inicio de sesión en BD (no bloquea el login si falla)
         await SessionManager.registrarInicio(data.user.id)
 
-        // Si es superadmin, redirigir al dashboard
         if (profile?.rol_global === "superadmin") {
           window.location.href = "/superadmin/dashboard"
           return
         }
 
-        // Verificar roles en módulos
         const { data: rolesUsuario } = await supabase
           .from("usuarios_roles")
           .select("modulo_id")
@@ -173,7 +164,6 @@ function LoginForm() {
         const tieneMovilidad = rolesUsuario?.some(r => r.modulo_id === "movilidad")
         const tieneParqueadero = rolesUsuario?.some(r => r.modulo_id === "parqueadero")
 
-        // Prioridad: movilidad > parqueadero
         if (tieneMovilidad) {
           window.location.href = "/movilidad"
           return
@@ -184,14 +174,12 @@ function LoginForm() {
           return
         }
 
-        // Si no tiene acceso a ningún módulo, redirigir a sin-acceso
         window.location.href = "/sin-acceso"
       }
     } catch (error: unknown) {
       const msg = error instanceof Error ? error.message : "Error al iniciar sesión"
       setError(traducirErrorAuth(msg))
 
-      // Registrar intento fallido en auditoría (no bloquea si falla)
       try {
         const ipRes = await fetch('/api/client-info').then(r => r.json()).catch(() => ({}))
         await supabase.rpc('registrar_login_fallido', {
@@ -208,10 +196,8 @@ function LoginForm() {
 
   return (
     <div className="min-h-screen w-full lg:grid lg:grid-cols-2">
-      {/* Left side - Login Form */}
       <div className="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="mx-auto w-full max-w-md space-y-8">
-          {/* Logo and Title */}
           <div className="text-center">
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-primary">
               <Car className="h-8 w-8 text-primary-foreground" />
@@ -233,7 +219,6 @@ function LoginForm() {
             </AlertBox>
           )}
 
-          {/* Login Form */}
           <form onSubmit={handleLogin} className="mt-8 space-y-6">
             <div className="space-y-4 rounded-xl border bg-card p-8 shadow-sm">
               <div className="space-y-2">
@@ -300,7 +285,6 @@ function LoginForm() {
         </div>
       </div>
 
-      {/* Right side - Branding */}
       <div className="hidden lg:block relative bg-gradient-to-br from-primary to-primary/80">
         <div className="absolute inset-0 bg-grid-white/10" />
         <div className="relative flex h-full flex-col items-center justify-center p-12 text-white">
