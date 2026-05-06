@@ -5,6 +5,17 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.24.1] - 2026-05-06
+
+### Hash chain e inmutabilidad en auditoría NUNC
+
+#### Agregado
+- Hash chain SHA-256 encadenado en `nunc_historial_acciones` — trigger `BEFORE INSERT` calcula `hash_anterior` y `hash_registro` con advisory lock para garantizar orden
+- Inmutabilidad criptográfica: triggers `BEFORE UPDATE` y `BEFORE DELETE` bloquean modificaciones con `AUDIT_IMMUTABLE`
+- `nunc_historial_acciones` incluida en `verificar_integridad_auditoria_completa()` — ahora verifica 5 tablas: sys_auditoria, movilidad, parqueadero, inventarios y NUNC
+
+---
+
 ## [1.24.0] - 2026-05-06
 
 ### Auditoría NUNC, Excel, seguridad y correcciones
