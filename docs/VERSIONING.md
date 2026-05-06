@@ -6,6 +6,7 @@ Para el proceso de release y reglas de versionamiento semántico ver [GITFLOW.md
 
 | Versión | Fecha | Descripción |
 |---------|-------|-------------|
+| 1.24.4 | 2026-05-06 | Perf+Fix(nunc): React.cache() en permisos, múltiples placas por NUNC permitidas |
 | 1.24.3 | 2026-05-06 | Security: getUser() en permisos.ts, require-superadmin y require-permiso-parqueadero |
 | 1.24.2 | 2026-05-06 | Fix(session): timeout móvil/tablet a 1h, advertencia 60s, toast sin duplicados |
 | 1.24.1 | 2026-05-06 | Feat(nunc): hash chain SHA-256 + inmutabilidad en nunc_historial_acciones, verificación de integridad completa |

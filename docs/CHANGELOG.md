@@ -5,6 +5,18 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.24.4] - 2026-05-06
+
+### Perf+Fix(nunc): deduplicación de permisos y múltiples placas por NUNC
+
+#### Corregido
+- NUNC permite ahora múltiples placas bajo el mismo número de caso — eliminado índice único `idx_nunc_registros_nunc_unico` y validaciones de duplicado en API de registro y edición
+
+#### Rendimiento
+- `obtenerPermisosUsuario()` envuelto en `React.cache()` — las queries de perfil y roles se ejecutan una sola vez por request aunque múltiples Server Components la llamen
+
+---
+
 ## [1.24.3] - 2026-05-06
 
 ### Security: getUser() en funciones core de autorización
