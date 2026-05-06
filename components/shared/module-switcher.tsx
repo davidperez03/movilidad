@@ -2,10 +2,10 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { Car, Truck, ShieldCheck, ChevronDown } from "lucide-react"
+import { Car, Truck, ShieldCheck, ChevronDown, Scale } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 
-const iconMap: Record<string, LucideIcon> = { Car, Truck, ShieldCheck }
+const iconMap: Record<string, LucideIcon> = { Car, Truck, ShieldCheck, Scale }
 
 export interface SwitcherModulo {
   href: string

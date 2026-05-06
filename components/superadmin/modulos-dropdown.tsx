@@ -8,6 +8,7 @@ import { ChevronDown } from "lucide-react"
 const modulos = [
   { href: "/movilidad", label: "Movilidad", descripcion: "Gestión de movilidad vehicular" },
   { href: "/parqueadero", label: "Parqueadero", descripcion: "Inspecciones de grúas" },
+  { href: "/nunc", label: "Estudios NUNC", descripcion: "Sesiones de estudio externo" },
 ]
 
 export function ModulosDropdown() {
@@ -15,7 +16,7 @@ export function ModulosDropdown() {
   const [open, setOpen] = useState(false)
 
   const isActive =
-    pathname.startsWith("/movilidad") || pathname.startsWith("/parqueadero")
+    pathname.startsWith("/movilidad") || pathname.startsWith("/parqueadero") || pathname.startsWith("/nunc")
 
   return (
     <div className="relative">
