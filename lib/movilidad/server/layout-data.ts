@@ -14,6 +14,7 @@ interface LayoutData {
   }
   rolModulo: RolModulo
   tieneParqueadero: boolean
+  tieneNunc: boolean
 }
 
 /**
@@ -52,6 +53,7 @@ export async function obtenerLayoutData(
   // Verificar acceso a parqueadero
   const modulosUsuario = new Set(rolesUsuario?.map(r => r.modulo_id) || [])
   const tieneParqueadero = esSuperAdmin || modulosUsuario.has('parqueadero')
+  const tieneNunc        = esSuperAdmin || modulosUsuario.has('nunc')
 
   // Contadores
   const c = (contadoresData ?? {}) as Record<string, number>
@@ -67,5 +69,6 @@ export async function obtenerLayoutData(
     },
     rolModulo,
     tieneParqueadero,
+    tieneNunc,
   }
 }
