@@ -1,3 +1,6 @@
+-- Hash chain: ver scripts/migrations/024_nunc_hash_chain.sql
+-- (_nunc_historial_asignar_hash + _nunc_historial_inmutable)
+
 CREATE OR REPLACE FUNCTION registrar_auditoria_nunc(
   p_sesion_id      UUID  DEFAULT NULL,
   p_registro_id    UUID  DEFAULT NULL,
