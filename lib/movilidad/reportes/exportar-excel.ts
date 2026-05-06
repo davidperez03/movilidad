@@ -1,9 +1,5 @@
-// =====================================================
-// EXPORTACIÓN A EXCEL
-// Función para generar archivos Excel (.xlsx) usando exceljs
-// =====================================================
-
 import ExcelJS from 'exceljs'
+import { excelBorder as sharedBorder, formatFecha as sharedFecha, formatFechaHora as sharedFechaHora, descargarExcel } from '@/lib/shared/excel-base'
 import type {
   TipoReporte,
   FiltrosReporte,
@@ -82,17 +78,7 @@ export async function generarExcelReporte(
   }
 
   generarHojaResumen(wb, tipoReporte, filtros, datos.length)
-
-  const buffer = await wb.xlsx.writeBuffer()
-  const blob = new Blob([buffer], {
-    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-  })
-  const url = URL.createObjectURL(blob)
-  const link = document.createElement('a')
-  link.href = url
-  link.download = `${nombreArchivo}.xlsx`
-  link.click()
-  URL.revokeObjectURL(url)
+  await descargarExcel(wb, nombreArchivo)
 }
 
 // =====================================================
@@ -387,44 +373,9 @@ function agregarFilaResumen(
   }
 }
 
-function bordesDelgados(colorArgb: string = COLOR.border): Partial<ExcelJS.Borders> {
-  return {
-    top: { style: 'hair', color: { argb: colorArgb } },
-    left: { style: 'hair', color: { argb: colorArgb } },
-    bottom: { style: 'hair', color: { argb: colorArgb } },
-    right: { style: 'hair', color: { argb: colorArgb } },
-  }
-}
-
-// =====================================================
-// UTILIDADES
-// =====================================================
-
-function formatearFecha(fecha: string | null | undefined): string {
-  if (!fecha) return ''
-  try {
-    const date = new Date(fecha)
-    const dia = String(date.getDate()).padStart(2, '0')
-    const mes = String(date.getMonth() + 1).padStart(2, '0')
-    return `${dia}/${mes}/${date.getFullYear()}`
-  } catch {
-    return fecha
-  }
-}
-
-function formatearFechaHora(fecha: string | null | undefined): string {
-  if (!fecha) return ''
-  try {
-    const date = new Date(fecha)
-    const dia = String(date.getDate()).padStart(2, '0')
-    const mes = String(date.getMonth() + 1).padStart(2, '0')
-    const horas = String(date.getHours()).padStart(2, '0')
-    const minutos = String(date.getMinutes()).padStart(2, '0')
-    return `${dia}/${mes}/${date.getFullYear()} ${horas}:${minutos}`
-  } catch {
-    return fecha
-  }
-}
+const bordesDelgados = (colorArgb: string = COLOR.border) => sharedBorder(colorArgb)
+const formatearFecha = sharedFecha
+const formatearFechaHora = sharedFechaHora
 
 function obtenerTituloReporte(tipo: TipoReporte): string {
   const titulos: Record<TipoReporte, string> = {

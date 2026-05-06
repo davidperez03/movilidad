@@ -1,67 +1,18 @@
 import ExcelJS from 'exceljs'
-import type { FilaSesionNunc, FilaRegistroNunc, FiltrosNunc } from './tipos'
+import { excelBorder, aplicarEstilosTabla, formatFecha, formatFechaHora, descargarExcel } from '@/lib/shared/excel-base'
+import type { FilaSesionNunc, FilaRegistroNunc, FilaCustodiaNunc, FiltrosNunc } from './tipos'
 
 const COLOR = {
-  headerBg: 'FF78350F',
-  headerFg: 'FFFFFFFF',
+  headerBg:  'FF78350F',
+  headerFg:  'FFFFFFFF',
   resumenBg: 'FF92400E',
   resumenFg: 'FFFFFFFF',
   altRow:    'FFFFFFED',
-  border:    'FFE2E8F0',
   labelFg:   'FF64748B',
   verde:     'FF16A34A',
   gris:      'FF6B7280',
   rojo:      'FFDC2626',
 } as const
-
-function celBorder(): Partial<ExcelJS.Borders> {
-  const s: Partial<ExcelJS.Border> = { style: 'hair', color: { argb: COLOR.border } }
-  return { top: s, left: s, bottom: s, right: s }
-}
-
-function aplicarEstilosHoja(ws: ExcelJS.Worksheet): void {
-  const totalColumnas = ws.columnCount
-  const headerRow = ws.getRow(1)
-  headerRow.height = 24
-  headerRow.eachCell(c => {
-    c.style = {
-      fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: COLOR.headerBg } },
-      font: { bold: true, color: { argb: COLOR.headerFg }, size: 9 },
-      alignment: { vertical: 'middle', horizontal: 'center', wrapText: true },
-      border: celBorder(),
-    }
-  })
-  ws.autoFilter = { from: { row: 1, column: 1 }, to: { row: 1, column: totalColumnas } }
-  ws.views = [{ state: 'frozen', ySplit: 1 }]
-  ws.eachRow((row, rowNumber) => {
-    if (rowNumber <= 1) return
-    row.height = 18
-    row.eachCell({ includeEmpty: true }, c => {
-      c.style = {
-        fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: rowNumber % 2 === 0 ? COLOR.altRow : 'FFFFFFFF' } },
-        font: { size: 9, color: { argb: 'FF1E293B' } },
-        alignment: { vertical: 'middle' },
-        border: celBorder(),
-      }
-    })
-  })
-}
-
-function formatFecha(f: string | null | undefined): string {
-  if (!f) return ''
-  try {
-    const d = new Date(f)
-    return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`
-  } catch { return f ?? '' }
-}
-
-function formatFechaHora(f: string | null | undefined): string {
-  if (!f) return ''
-  try {
-    const d = new Date(f)
-    return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`
-  } catch { return f ?? '' }
-}
 
 function labelEstado(estado: string): string {
   if (estado === 'activa') return 'Activa'
@@ -106,8 +57,8 @@ function agregarResumen(
     const row = ws.addRow([label, value])
     row.height = 17
     const bg = alt ? COLOR.altRow : 'FFFFFFFF'
-    row.getCell(1).style = { fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: bg } }, font: { bold: true, size: 9, color: { argb: COLOR.labelFg } }, alignment: { vertical: 'middle' }, border: celBorder() }
-    row.getCell(2).style = { fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: bg } }, font: { bold, size: 9, color: { argb: 'FF1E293B' } }, alignment: { vertical: 'middle' }, border: celBorder() }
+    row.getCell(1).style = { fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: bg } }, font: { bold: true, size: 9, color: { argb: COLOR.labelFg } }, alignment: { vertical: 'middle' }, border: excelBorder() }
+    row.getCell(2).style = { fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: bg } }, font: { bold, size: 9, color: { argb: 'FF1E293B' } }, alignment: { vertical: 'middle' }, border: excelBorder() }
   }
 
   addFila('Módulo', 'Estudios NUNC', true)
@@ -122,7 +73,7 @@ function agregarResumen(
       fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFDE68A' } },
       font: { bold: true, size: 9, color: { argb: COLOR.resumenBg } },
       alignment: { vertical: 'middle', horizontal: 'left' },
-      border: celBorder(),
+      border: excelBorder(),
     }
     addFila('Fecha Inicio', filtros.fechaInicio || 'Todas')
     addFila('Fecha Fin', filtros.fechaFin || 'Todas', false, true)
@@ -142,14 +93,14 @@ export async function generarExcelSesiones(
 
   const ws = wb.addWorksheet('Sesiones NUNC')
   ws.columns = [
-    { header: 'Código',        key: 'codigo',          width: 10 },
-    { header: 'Entidad',       key: 'entidad_nombre',  width: 30 },
-    { header: 'Peritos',       key: 'nombre_peritos',  width: 30 },
-    { header: 'Estado',        key: 'estado',          width: 12 },
-    { header: 'Vehículos',     key: 'total_registros', width: 12 },
-    { header: 'Generada por',  key: 'generado_por',    width: 28 },
-    { header: 'Fecha Creación',key: 'creado_en',       width: 18 },
-    { header: 'Expira',        key: 'expira_en',       width: 18 },
+    { header: 'Código',         key: 'codigo',          width: 10 },
+    { header: 'Entidad',        key: 'entidad_nombre',  width: 30 },
+    { header: 'Peritos',        key: 'nombre_peritos',  width: 30 },
+    { header: 'Estado',         key: 'estado',          width: 12 },
+    { header: 'Vehículos',      key: 'total_registros', width: 12 },
+    { header: 'Generada por',   key: 'generado_por',    width: 28 },
+    { header: 'Fecha Creación', key: 'creado_en',       width: 18 },
+    { header: 'Expira',         key: 'expira_en',       width: 18 },
   ]
   ws.addRows(datos.map(d => ({
     codigo:          d.codigo,
@@ -161,9 +112,8 @@ export async function generarExcelSesiones(
     creado_en:       formatFechaHora(d.creado_en),
     expira_en:       formatFecha(d.expira_en),
   })))
-  aplicarEstilosHoja(ws)
+  aplicarEstilosTabla(ws)
 
-  // Color por estado
   ws.eachRow((row, n) => {
     if (n <= 1) return
     const estadoCell = row.getCell('estado')
@@ -173,13 +123,7 @@ export async function generarExcelSesiones(
   })
 
   agregarResumen(wb, 'REPORTE ESTUDIOS NUNC — Sesiones', datos.length, filtros)
-
-  const buffer = await wb.xlsx.writeBuffer()
-  const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url; a.download = `${nombreArchivo}.xlsx`; a.click()
-  URL.revokeObjectURL(url)
+  await descargarExcel(wb, nombreArchivo)
 }
 
 export async function generarExcelRegistros(
@@ -196,45 +140,71 @@ export async function generarExcelRegistros(
 
   const ws = wb.addWorksheet('Registros')
   ws.columns = [
-    { header: '#',             key: 'num',             width: 6  },
-    { header: 'Placa',         key: 'placa',           width: 12 },
-    { header: 'NUNC Completo', key: 'nunc_completo',   width: 32 },
-    { header: 'Departamento',  key: 'nunc_dpto',       width: 14 },
-    { header: 'Municipio',     key: 'nunc_municipio',  width: 14 },
-    { header: 'Entidad',       key: 'nunc_entidad',    width: 12 },
-    { header: 'Unidad',        key: 'nunc_unidad',     width: 12 },
-    { header: 'Año',           key: 'nunc_anio',       width: 8  },
-    { header: 'Consecutivo',   key: 'nunc_consecutivo',width: 14 },
-    { header: 'Observaciones', key: 'observaciones',   width: 30 },
-    { header: 'Hora Registro', key: 'registrado_en',   width: 16 },
+    { header: '#',             key: 'num',              width: 6  },
+    { header: 'Placa',         key: 'placa',            width: 12 },
+    { header: 'NUNC',          key: 'nunc_completo',    width: 28 },
+    { header: 'Departamento',  key: 'nunc_dpto',        width: 14 },
+    { header: 'Municipio',     key: 'nunc_municipio',   width: 14 },
+    { header: 'Entidad',       key: 'nunc_entidad',     width: 12 },
+    { header: 'Unidad',        key: 'nunc_unidad',      width: 12 },
+    { header: 'Año',           key: 'nunc_anio',        width: 8  },
+    { header: 'Consecutivo',   key: 'nunc_consecutivo', width: 14 },
+    { header: 'Observaciones', key: 'observaciones',    width: 30 },
+    { header: 'Hora Registro', key: 'registrado_en',    width: 16 },
   ]
   ws.addRows(datos.map((d, i) => ({
-    num:             i + 1,
-    placa:           d.placa,
-    nunc_completo:   d.nunc_completo,
-    nunc_dpto:       d.nunc_dpto,
-    nunc_municipio:  d.nunc_municipio,
-    nunc_entidad:    d.nunc_entidad,
-    nunc_unidad:     d.nunc_unidad,
-    nunc_anio:       d.nunc_anio,
-    nunc_consecutivo:d.nunc_consecutivo,
-    observaciones:   d.observaciones || '',
-    registrado_en:   formatFechaHora(d.registrado_en),
+    num:              i + 1,
+    placa:            d.placa,
+    nunc_completo:    d.nunc_completo,
+    nunc_dpto:        d.nunc_dpto,
+    nunc_municipio:   d.nunc_municipio,
+    nunc_entidad:     d.nunc_entidad,
+    nunc_unidad:      d.nunc_unidad,
+    nunc_anio:        d.nunc_anio,
+    nunc_consecutivo: d.nunc_consecutivo,
+    observaciones:    d.observaciones || '',
+    registrado_en:    formatFechaHora(d.registrado_en),
   })))
-  aplicarEstilosHoja(ws)
+  aplicarEstilosTabla(ws)
 
-  agregarResumen(
-    wb,
-    'REPORTE ESTUDIOS NUNC — Registros',
-    datos.length,
-    undefined,
-    `Sesión: ${codigoSesion} | ${entidad}`
-  )
+  agregarResumen(wb, 'REPORTE ESTUDIOS NUNC — Registros', datos.length, undefined, `Sesión: ${codigoSesion} | ${entidad}`)
+  await descargarExcel(wb, nombreArchivo)
+}
 
-  const buffer = await wb.xlsx.writeBuffer()
-  const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url; a.download = `${nombreArchivo}.xlsx`; a.click()
-  URL.revokeObjectURL(url)
+export async function generarExcelCustodia(
+  datos: FilaCustodiaNunc[],
+  filtros: FiltrosNunc,
+  nombreArchivo: string
+): Promise<void> {
+  if (!datos.length) throw new Error('No hay registros para exportar')
+
+  const wb = new ExcelJS.Workbook()
+  wb.creator = 'Sistema Movilidad'
+  wb.created = new Date()
+
+  const ws = wb.addWorksheet('Cadenas de Custodia')
+  ws.columns = [
+    { header: '#',               key: 'num',            width: 6  },
+    { header: 'NUNC',            key: 'nunc',           width: 30 },
+    { header: 'Placa',           key: 'placa',          width: 12 },
+    { header: 'Entidad',         key: 'entidad_nombre', width: 30 },
+    { header: 'Peritos',         key: 'nombre_peritos', width: 30 },
+    { header: 'Código Sesión',   key: 'codigo_sesion',  width: 14 },
+    { header: 'Observaciones',   key: 'observaciones',  width: 30 },
+    { header: 'Fecha Registro',  key: 'registrado_en',  width: 20 },
+  ]
+  ws.addRows(datos.map((d, i) => ({
+    num:            i + 1,
+    nunc:           d.nunc,
+    placa:          d.placa,
+    entidad_nombre: d.entidad_nombre,
+    nombre_peritos: d.nombre_peritos,
+    codigo_sesion:  d.codigo_sesion,
+    observaciones:  d.observaciones || '',
+    registrado_en:  formatFechaHora(d.registrado_en),
+  })))
+  aplicarEstilosTabla(ws)
+
+  agregarResumen(wb, 'CADENAS DE CUSTODIA — Estudios NUNC', datos.length, filtros)
+  await descargarExcel(wb, nombreArchivo)
 }
