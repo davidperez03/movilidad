@@ -4,19 +4,21 @@ import { redirect } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Plus, Scale, Clock, CheckCircle, XCircle } from "lucide-react"
 import { formatearFechaHora } from "@/lib/parqueadero/utils"
+import { ExportarSesionesNunc } from "@/components/nunc/exportar-sesiones"
+import type { FilaSesionNunc } from "@/lib/nunc/reportes/tipos"
 
 function estadoBadge(estado: string) {
-  if (estado === "activa") return <Badge className="bg-green-100 text-green-700 border-green-200">Activa</Badge>
+  if (estado === "activa")  return <Badge className="bg-green-100 text-green-700 border-green-200">Activa</Badge>
   if (estado === "cerrada") return <Badge variant="secondary">Cerrada</Badge>
   return <Badge variant="destructive">Expirada</Badge>
 }
 
 export default async function NuncAdminPage() {
-  const { movilidad: permisos, esSuperadmin } = await obtenerPermisosUsuario()
-  if (!esSuperadmin && !permisos.ver) redirect("/sin-acceso")
+  const { nunc, esSuperadmin } = await obtenerPermisosUsuario()
+  if (!esSuperadmin && !nunc.ver) redirect("/sin-acceso")
 
   const supabase = await createClient()
   const { data: sesiones } = await supabase
@@ -27,33 +29,55 @@ export default async function NuncAdminPage() {
       registros:nunc_registros(count)
     `)
     .order("creado_en", { ascending: false })
-    .limit(50)
+    .limit(200)
+
+  const filasExcel: FilaSesionNunc[] = (sesiones ?? []).map(s => {
+    const totalRegistros = Array.isArray(s.registros) && s.registros.length > 0
+      ? (s.registros[0] as { count: number }).count
+      : 0
+    const perfil = s.generado_por_perfil as unknown as { nombre_completo: string } | null
+    return {
+      codigo:          s.codigo,
+      entidad_nombre:  s.entidad_nombre,
+      nombre_peritos:  s.nombre_peritos,
+      estado:          s.estado,
+      total_registros: totalRegistros,
+      creado_en:       s.creado_en,
+      expira_en:       s.expira_en,
+      generado_por:    perfil?.nombre_completo ?? null,
+    }
+  })
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
             <Scale className="h-6 w-6" />
-            Peritajes
+            Estudios NUNC
           </h1>
-          <p className="text-muted-foreground">Sesiones de nunc externo</p>
+          <p className="text-muted-foreground">Sesiones de estudio externo</p>
         </div>
-        {permisos.configurar && (
-          <Button asChild>
-            <Link href="/nunc/nueva">
-              <Plus className="h-4 w-4 mr-2" />
-              Nueva sesión
-            </Link>
-          </Button>
-        )}
+        <div className="relative flex items-center gap-2">
+          {sesiones && sesiones.length > 0 && (
+            <ExportarSesionesNunc sesiones={filasExcel} />
+          )}
+          {(esSuperadmin || nunc.configurar) && (
+            <Button asChild>
+              <Link href="/nunc/nueva">
+                <Plus className="h-4 w-4 mr-2" />
+                Nueva sesión
+              </Link>
+            </Button>
+          )}
+        </div>
       </div>
 
       {!sesiones || sesiones.length === 0 ? (
         <Card className="border-dashed">
           <CardContent className="py-12 text-center">
             <Scale className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
-            <p className="font-medium">Sin sesiones de nunc</p>
+            <p className="font-medium">Sin sesiones de estudio</p>
             <p className="text-sm text-muted-foreground">Las sesiones generadas aparecerán aquí</p>
           </CardContent>
         </Card>

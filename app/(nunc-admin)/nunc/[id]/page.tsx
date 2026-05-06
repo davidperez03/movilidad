@@ -8,13 +8,15 @@ import { Button } from "@/components/ui/button"
 import { ArrowLeft } from "lucide-react"
 import { CerrarSesionNunc } from "@/components/nunc/cerrar-sesion"
 import { CopiarCodigoNunc } from "@/components/nunc/copiar-codigo"
+import { ExportarRegistrosNunc } from "@/components/nunc/exportar-registros"
+import type { FilaRegistroNunc } from "@/lib/nunc/reportes/tipos"
 
 function nuncCompleto(r: { nunc_dpto: string; nunc_municipio: string; nunc_entidad: string; nunc_unidad: string; nunc_anio: number; nunc_consecutivo: string }) {
   return `${r.nunc_dpto}-${r.nunc_municipio}-${r.nunc_entidad}-${r.nunc_unidad}-${r.nunc_anio}-${r.nunc_consecutivo}`
 }
 
 function estadoBadge(estado: string) {
-  if (estado === "activa") return <Badge className="bg-green-100 text-green-700 border-green-200">Activa</Badge>
+  if (estado === "activa")  return <Badge className="bg-green-100 text-green-700 border-green-200">Activa</Badge>
   if (estado === "cerrada") return <Badge variant="secondary">Cerrada</Badge>
   return <Badge variant="destructive">Expirada</Badge>
 }
@@ -37,6 +39,19 @@ export default async function DetalleSesionPage({ params }: { params: Promise<{ 
   ])
 
   if (!sesion) notFound()
+
+  const filasExcel: FilaRegistroNunc[] = (registros ?? []).map(r => ({
+    placa:            r.placa,
+    nunc_completo:    nuncCompleto(r),
+    nunc_dpto:        r.nunc_dpto,
+    nunc_municipio:   r.nunc_municipio,
+    nunc_entidad:     r.nunc_entidad,
+    nunc_unidad:      r.nunc_unidad,
+    nunc_anio:        r.nunc_anio,
+    nunc_consecutivo: r.nunc_consecutivo,
+    observaciones:    r.observaciones ?? null,
+    registrado_en:    r.registrado_en,
+  }))
 
   return (
     <div className="space-y-6">
@@ -88,9 +103,16 @@ export default async function DetalleSesionPage({ params }: { params: Promise<{ 
                 vehículo{(registros?.length ?? 0) !== 1 ? "s" : ""} registrado{(registros?.length ?? 0) !== 1 ? "s" : ""}
               </p>
             </div>
-            {sesion.estado === "activa" && (
-              <CerrarSesionNunc codigo={sesion.codigo} />
-            )}
+            <div className="flex gap-2 flex-wrap">
+              <ExportarRegistrosNunc
+                registros={filasExcel}
+                codigoSesion={sesion.codigo}
+                entidad={sesion.entidad_nombre}
+              />
+              {sesion.estado === "activa" && (
+                <CerrarSesionNunc codigo={sesion.codigo} />
+              )}
+            </div>
           </CardContent>
         </Card>
       </div>
