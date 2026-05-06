@@ -1,8 +1,17 @@
 import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { logger } from '@/lib/logger'
+import { nuncCerrarLimiter, getClientIp } from '@/lib/rate-limit'
 
 export async function POST(request: Request) {
+  const { allowed, retryAfter } = nuncCerrarLimiter.check(getClientIp(request))
+  if (!allowed) {
+    return NextResponse.json(
+      { error: 'Demasiadas solicitudes. Intenta más tarde.' },
+      { status: 429, headers: { 'Retry-After': String(retryAfter) } }
+    )
+  }
+
   try {
     const body = await request.json().catch(() => null)
     const codigo = typeof body?.codigo === 'string' ? body.codigo.trim().toUpperCase() : null

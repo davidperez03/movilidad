@@ -50,3 +50,24 @@ export const signUpLimiter = new RateLimiter(3, 60 * 60 * 1000)
 export const consultaLimiter = new RateLimiter(10, 60 * 1000)
 
 export const updatePasswordLimiter = new RateLimiter(10, 15 * 60 * 1000)
+
+// NUNC — rutas públicas sin autenticación
+// 10 intentos / 15 min por IP — previene fuerza bruta de códigos de sesión.
+export const nuncValidarLimiter = new RateLimiter(10, 15 * 60 * 1000)
+
+// 60 ops / 10 min por IP — permite sesiones con muchos vehículos sin bloquear operadores legítimos.
+export const nuncRegistroLimiter = new RateLimiter(60, 10 * 60 * 1000)
+
+// 5 req / 15 min por IP — cerrar sesión solo ocurre una vez por sesión.
+export const nuncCerrarLimiter = new RateLimiter(5, 15 * 60 * 1000)
+
+// Extrae la IP real del cliente considerando proxies (Vercel, Nginx).
+export function getClientIp(request: Request): string {
+  const vercelIp  = request.headers.get('x-vercel-forwarded-for')
+  if (vercelIp)  return vercelIp.split(',')[0].trim()
+  const realIp    = request.headers.get('x-real-ip')
+  if (realIp)    return realIp
+  const forwarded = request.headers.get('x-forwarded-for')
+  if (forwarded) return forwarded.split(',')[0].trim()
+  return 'unknown'
+}
