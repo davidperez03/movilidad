@@ -18,18 +18,16 @@ export async function requirePermisoParqueadero(
   permiso: string
 ): Promise<PermisoResult | PermisoError> {
   const supabase = await createClient()
-  // getSession() lee el JWT firmado desde la cookie sin llamada de red.
-  // El middleware ya refresca la sesión en cada request.
-  const { data: { session } } = await supabase.auth.getSession()
+  const { data: { user } } = await supabase.auth.getUser()
 
-  if (!session?.user) {
+  if (!user) {
     return {
       error: 'No autenticado',
       response: NextResponse.json({ error: 'No autenticado' }, { status: 401 }),
     }
   }
 
-  const userId = session.user.id
+  const userId = user.id
   const admin  = createAdminClient()
 
   // Ambas queries en paralelo — ahorra un round trip para usuarios no-superadmin
