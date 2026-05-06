@@ -26,7 +26,8 @@ Registro manual de migraciones ejecutadas en producción.
 | 020 | 020_vista_proceso_activo_detalle.sql | 2026-05-05 | David | v1.22.0 |
 | 021 | 021_vista_procesos_completados.sql | 2026-05-05 | David | v1.22.0 |
 | 022 | 022_peritajes.sql | 2026-05-06 | David | v1.23.0 |
-| 023 | 023_nunc_auditoria.sql | — | — | v1.24.0 |
+| 023 | 023_nunc_auditoria.sql | 2026-05-06 | David | v1.24.0 |
+| 024 | 024_nunc_hash_chain.sql | 2026-05-06 | David | v1.24.1 |
 
 <!--
 Al aplicar una migración, agregar una fila:
