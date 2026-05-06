@@ -3,7 +3,7 @@
 // ============================================================================
 
 // Módulos disponibles en la aplicación
-export type Modulo = 'movilidad' | 'parqueadero';
+export type Modulo = 'movilidad' | 'parqueadero' | 'nunc';
 
 // Rol global del usuario
 export type RolGlobal = 'usuario' | 'superadmin';
@@ -11,7 +11,8 @@ export type RolGlobal = 'usuario' | 'superadmin';
 // Códigos de roles por módulo
 export type RolMovilidad = 'mov_usuario' | 'mov_operador' | 'mov_administrador';
 export type RolParqueadero = 'parq_operario' | 'parq_auxiliar' | 'parq_administrador';
-export type CodigoRol = RolMovilidad | RolParqueadero | 'superadmin';
+export type RolNunc = 'nunc_operador' | 'nunc_admin';
+export type CodigoRol = RolMovilidad | RolParqueadero | RolNunc | 'superadmin';
 
 // Permisos del módulo Movilidad
 export type PermisoMovilidad =
@@ -38,8 +39,14 @@ export type PermisoParqueadero =
   | 'gestionar_inventario'
   | 'configurar';
 
+// Permisos del módulo Peritaje
+export type PermisoNunc =
+  | 'ver'
+  | 'crear_sesiones'
+  | 'configurar';
+
 // Tipo unión de todos los permisos
-export type Permiso = PermisoMovilidad | PermisoParqueadero;
+export type Permiso = PermisoMovilidad | PermisoParqueadero | PermisoNunc;
 
 // Tipo Record de permisos de movilidad (para compatibilidad)
 export type PermisosModulo = Record<PermisoMovilidad, boolean>;
@@ -161,6 +168,8 @@ export type PermisoPorModulo<M extends Modulo> = M extends 'movilidad'
   ? PermisoMovilidad
   : M extends 'parqueadero'
   ? PermisoParqueadero
+  : M extends 'nunc'
+  ? PermisoNunc
   : never;
 
 // Mapeo de módulo a sus roles
@@ -168,4 +177,6 @@ export type RolPorModulo<M extends Modulo> = M extends 'movilidad'
   ? RolMovilidad
   : M extends 'parqueadero'
   ? RolParqueadero
+  : M extends 'nunc'
+  ? RolNunc
   : never;

@@ -49,9 +49,9 @@ export async function updateSession(request: NextRequest) {
   )
 
   // No ejecutar código entre createServerClient y getUser() — requisito de Supabase SSR.
-  const publicRoutes = ["/", "/consulta"]
+  const publicRoutes = ["/", "/consulta", "/nunc/acceso"]
   const isPublicRoute = publicRoutes.includes(request.nextUrl.pathname)
-  const isPublicApi = request.nextUrl.pathname.startsWith("/api/consulta")
+  const isPublicApi = request.nextUrl.pathname.startsWith("/api/consulta") || request.nextUrl.pathname.startsWith("/api/nunc")
   const isAuthRoute = request.nextUrl.pathname.startsWith("/auth") || request.nextUrl.pathname.startsWith("/api/auth")
   const isApiRoute  = request.nextUrl.pathname.startsWith("/api/")
   const isProtected = !isPublicRoute && !isPublicApi && !isAuthRoute

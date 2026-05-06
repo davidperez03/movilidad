@@ -3,14 +3,14 @@
 import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Menu, User, ShieldCheck, Car, Truck } from "lucide-react"
+import { Menu, User, ShieldCheck, Car, Truck, Scale } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { Badge } from "@/components/ui/badge"
 import { BotonCerrarSesion } from "@/components/logout-button"
 import type { LucideIcon } from "lucide-react"
 
-const iconMap: Record<string, LucideIcon> = { Car, Truck }
+const iconMap: Record<string, LucideIcon> = { Car, Truck, Scale }
 
 export interface NavItem {
   href: string

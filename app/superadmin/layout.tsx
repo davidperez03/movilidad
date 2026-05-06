@@ -5,6 +5,7 @@ import { BotonCerrarSesion } from "@/components/logout-button"
 import { MobileNav } from "@/components/shared/mobile-nav"
 import { SuperAdminNavTabs, superAdminNavItems } from "@/components/superadmin/nav-tabs"
 import { capitalizeName } from "@/lib/utils/capitalize"
+import { Suspense } from "react"
 
 export const dynamic = "force-dynamic"
 
@@ -68,7 +69,9 @@ export default async function SuperAdminLayout({
         </div>
       </header>
 
-      <main className="container mx-auto px-4 sm:px-6 py-8 sm:py-10">{children}</main>
+      <main className="container mx-auto px-4 sm:px-6 py-8 sm:py-10">
+        <Suspense>{children}</Suspense>
+      </main>
     </div>
   )
 }

@@ -24,3 +24,10 @@ export const PARQUEADERO_ROL_COLORS: Record<string, string> = {
   parq_auxiliar: "bg-blue-100 text-blue-700 border-blue-300",
   parq_operario: "bg-gray-100 text-gray-700 border-gray-300",
 }
+
+/** Colores de roles del módulo Peritaje */
+export const NUNC_ROL_COLORS: Record<string, string> = {
+  ...BASE_ROL_COLORS,
+  nunc_admin: "bg-amber-100 text-amber-700 border-amber-300",
+  nunc_operador: "bg-yellow-100 text-yellow-700 border-yellow-300",
+}
