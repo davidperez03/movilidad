@@ -5,6 +5,18 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.24.2] - 2026-05-06
+
+### Fix(session): timeouts de sesión y advertencia sin duplicados
+
+#### Corregido
+- Timeout de inactividad en móvil y tablet aumentado de 10 min a **1 hora** — inspectores que se alejan del dispositivo durante inspecciones físicas ya no pierden la sesión
+- Advertencia de cierre ampliada de 30 s a **60 s** para dar más tiempo de reacción
+- Toast de advertencia usa `id: 'session-warning'` en Sonner — evita que se acumulen múltiples toasts si el timer se reinicia
+- Al retomar actividad, el toast pendiente se descarta con `toast.dismiss('session-warning')`
+
+---
+
 ## [1.24.1] - 2026-05-06
 
 ### Hash chain e inmutabilidad en auditoría NUNC

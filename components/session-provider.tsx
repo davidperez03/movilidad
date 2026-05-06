@@ -66,6 +66,7 @@ export function SessionProvider({ children }: SessionProviderProps) {
 
     if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current)
     if (warningTimerRef.current) clearTimeout(warningTimerRef.current)
+    toast.dismiss('session-warning')
 
     const timeout = getInactivityTimeout()
 
@@ -73,7 +74,7 @@ export function SessionProvider({ children }: SessionProviderProps) {
       warningTimerRef.current = setTimeout(() => {
         toast.warning(
           `Tu sesión se cerrará en ${SESSION_CONFIG.WARNING_BEFORE_TIMEOUT / 1000} segundos por inactividad. Haz click en cualquier lugar para continuar.`,
-          { duration: SESSION_CONFIG.WARNING_BEFORE_TIMEOUT }
+          { id: 'session-warning', duration: SESSION_CONFIG.WARNING_BEFORE_TIMEOUT }
         )
       }, timeout - SESSION_CONFIG.WARNING_BEFORE_TIMEOUT)
     }
@@ -120,7 +121,7 @@ export function SessionProvider({ children }: SessionProviderProps) {
           warningTimerRef.current = setTimeout(() => {
             toast.warning(
               `Tu sesión se cerrará en ${SESSION_CONFIG.WARNING_BEFORE_TIMEOUT / 1000} segundos por inactividad. Haz click en cualquier lugar para continuar.`,
-              { duration: SESSION_CONFIG.WARNING_BEFORE_TIMEOUT }
+              { id: 'session-warning', duration: SESSION_CONFIG.WARNING_BEFORE_TIMEOUT }
             )
           }, warningRemaining)
         }
