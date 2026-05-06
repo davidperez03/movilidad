@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { logger } from '@/lib/logger'
-import type { PermisosModulo, PermisoParqueadero } from '@/lib/types/permissions'
+import type { PermisosModulo, PermisoParqueadero, PermisoNunc } from '@/lib/types/permissions'
 import { PERMISOS_COMPLETOS, PERMISOS_VACIOS } from '@/lib/types/permissions'
 
 const PERMISOS_PARQUEADERO_COMPLETOS: Record<PermisoParqueadero, boolean> = {
@@ -23,6 +23,18 @@ const PERMISOS_PARQUEADERO_VACIOS: Record<PermisoParqueadero, boolean> = {
   configurar: false,
 }
 
+const PERMISOS_NUNC_COMPLETOS: Record<PermisoNunc, boolean> = {
+  ver: true,
+  crear_sesiones: true,
+  configurar: true,
+}
+
+const PERMISOS_NUNC_VACIOS: Record<PermisoNunc, boolean> = {
+  ver: false,
+  crear_sesiones: false,
+  configurar: false,
+}
+
 export async function obtenerPermisosUsuario() {
   try {
     const supabase = await createClient()
@@ -34,10 +46,10 @@ export async function obtenerPermisosUsuario() {
         esSuperadmin: false,
         movilidad: PERMISOS_VACIOS,
         parqueadero: PERMISOS_PARQUEADERO_VACIOS,
+        nunc: PERMISOS_NUNC_VACIOS,
       }
     }
 
-    // Obtener perfil del usuario
     const { data: perfil } = await supabase
       .from('perfiles')
       .select('rol_global')
@@ -46,40 +58,34 @@ export async function obtenerPermisosUsuario() {
 
     const esSuperadmin = perfil?.rol_global === 'superadmin'
 
-    // Si es superadmin, tiene todos los permisos
     if (esSuperadmin) {
       return {
         esSuperadmin: true,
         movilidad: PERMISOS_COMPLETOS,
         parqueadero: PERMISOS_PARQUEADERO_COMPLETOS,
+        nunc: PERMISOS_NUNC_COMPLETOS,
       }
     }
 
-    // Obtener roles modulares del usuario
     const { data: rolesUsuario } = await supabase
       .from('usuarios_roles')
-      .select(`
-        modulo_id,
-        roles_modulo (
-          permisos
-        )
-      `)
+      .select(`modulo_id, roles_modulo (permisos)`)
       .eq('usuario_id', user.id)
 
-    // Extraer permisos de movilidad
     const rolMovilidad = rolesUsuario?.find(r => r.modulo_id === 'movilidad')
     const rolMovData = rolMovilidad?.roles_modulo as unknown as { permisos: PermisosModulo } | null
-    const permisosMovilidad = rolMovData?.permisos ?? null
 
-    // Extraer permisos de parqueadero
     const rolParqueadero = rolesUsuario?.find(r => r.modulo_id === 'parqueadero')
     const rolParqData = rolParqueadero?.roles_modulo as unknown as { permisos: Record<PermisoParqueadero, boolean> } | null
-    const permisosParqueadero = rolParqData?.permisos ?? null
+
+    const rolPeritaje = rolesUsuario?.find(r => r.modulo_id === 'nunc')
+    const rolPeritajeData = rolPeritaje?.roles_modulo as unknown as { permisos: Record<PermisoNunc, boolean> } | null
 
     return {
       esSuperadmin: false,
-      movilidad: permisosMovilidad || PERMISOS_VACIOS,
-      parqueadero: permisosParqueadero || PERMISOS_PARQUEADERO_VACIOS,
+      movilidad: rolMovData?.permisos ?? PERMISOS_VACIOS,
+      parqueadero: rolParqData?.permisos ?? PERMISOS_PARQUEADERO_VACIOS,
+      nunc: rolPeritajeData?.permisos ?? PERMISOS_NUNC_VACIOS,
     }
 
   } catch (error) {
@@ -88,6 +94,7 @@ export async function obtenerPermisosUsuario() {
       esSuperadmin: false,
       movilidad: PERMISOS_VACIOS,
       parqueadero: PERMISOS_PARQUEADERO_VACIOS,
+      nunc: PERMISOS_NUNC_VACIOS,
     }
   }
 }

@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import { BotonCerrarSesion } from "@/components/logout-button"
-import { ShieldAlert, Car, Truck, ArrowRight } from "lucide-react"
+import { ShieldAlert, Car, Truck, Scale, ArrowRight } from "lucide-react"
 import { AlertBox } from "@/components/ui/alert-box"
 import { capitalizeName } from "@/lib/utils/capitalize"
 import Link from "next/link"
@@ -9,6 +9,7 @@ import Link from "next/link"
 const MODULOS_SISTEMA = [
   { id: "movilidad", nombre: "Movilidad", descripcion: "Traslados y radicaciones", href: "/movilidad", icon: Car },
   { id: "parqueadero", nombre: "Parqueadero", descripcion: "Inspecciones de grúas", href: "/parqueadero", icon: Truck },
+  { id: "nunc", nombre: "Estudios NUNC", descripcion: "Sesiones de estudio externo", href: "/nunc", icon: Scale },
 ]
 
 export default async function SinAccesoPage() {

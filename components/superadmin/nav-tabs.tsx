@@ -16,6 +16,7 @@ export const superAdminNavItems: NavItem[] = [
   ...tabItems.map((i) => ({ href: i.href, label: i.label, icon: i.icon, exact: i.exact })),
   { href: "/movilidad", label: "Movilidad" },
   { href: "/parqueadero", label: "Parqueadero" },
+  { href: "/nunc", label: "Estudios NUNC" },
 ]
 
 export function SuperAdminNavTabs() {
