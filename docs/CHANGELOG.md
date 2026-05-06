@@ -5,6 +5,29 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.23.0] - 2026-05-06
+
+### Módulo Estudios NUNC
+
+#### Agregado
+- **Módulo independiente Estudios NUNC** — registro de estudios externos sin cuenta de usuario
+- Sesiones con código `PER-XXXXXX` generadas por admin, expiran automáticamente a medianoche Colombia
+- Formulario público `/nunc/acceso`: registro de vehículos con NUNC completo, edición y eliminación inline con confirmación, vista toggle Registrar/Registros para sesiones con muchos vehículos
+- Admin en `/nunc`: lista de sesiones con estado, detalle con tabla de vehículos, cierre manual de sesión
+- NUNC único garantizado: validación en API + `UNIQUE INDEX` en BD (6 campos)
+- Roles propios `nunc_admin` y `nunc_operador` con sistema de permisos independiente de movilidad
+- Migración 022: tablas `nunc_sesiones` + `nunc_registros`, módulo y roles en BD
+- Módulo visible en superadmin: dropdown, nav móvil y página sin-acceso
+
+#### Rendimiento (sesión anterior)
+- Dashboards Movilidad y Parqueadero: reducción de 3 round-trips a 1 (Promise.all)
+- Admin dashboard: carga inicial en 1 round-trip paralelo + actividad
+- Índices de rendimiento (migración 019): `fin_sesion`, compuesto sesiones, inspecciones, novedades pendientes
+- Vista `mov_vista_proceso_activo_detalle` (migración 020): detalle de vehículo en 1 query
+- Vista `mov_vista_procesos_completados` (migración 021): reporte completados con UNION SQL
+
+---
+
 ## [1.22.2] - 2026-05-05
 
 ### Optimización de navegación entre módulos
