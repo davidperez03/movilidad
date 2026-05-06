@@ -6,6 +6,7 @@ Para el proceso de release y reglas de versionamiento semántico ver [GITFLOW.md
 
 | Versión | Fecha | Descripción |
 |---------|-------|-------------|
+| 1.24.0 | 2026-05-06 | Security+Feat(nunc): auditoría con triggers, Excel sesiones/registros, rate limiting rutas públicas, getUser() en layouts |
 | 1.23.0 | 2026-05-06 | Feat(nunc): módulo Estudios NUNC — sesiones con código temporal, formulario público sin auth, roles independientes, NUNC único validado en API y BD |
 | 1.22.2 | 2026-05-05 | Perf(auth/navigation): reduce latencia entre módulos eliminando consultas redundantes de auth/roles en layouts server y ampliando throttle de verificación de sesión en middleware |
 | 1.22.1 | 2026-05-05 | Fix(auth/perf): permite "." en contraseña, corrige logout al recargar, reduce latencia de navegación entre módulos con throttle de chequeo de sesión |
