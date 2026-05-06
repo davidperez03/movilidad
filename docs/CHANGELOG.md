@@ -5,6 +5,17 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.24.3] - 2026-05-06
+
+### Security: getUser() en funciones core de autorización
+
+#### Seguridad
+- `lib/server/permisos.ts`: `getSession()` → `getUser()` — la función que resuelve permisos para todos los Server Components ahora valida el JWT contra el servidor de Supabase
+- `lib/api/require-superadmin.ts`: mismo fix — protege todas las API routes de superadmin
+- `lib/api/require-permiso-parqueadero.ts`: mismo fix — protege todas las API routes de parqueadero
+
+---
+
 ## [1.24.2] - 2026-05-06
 
 ### Fix(session): timeouts de sesión y advertencia sin duplicados

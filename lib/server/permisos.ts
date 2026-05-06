@@ -38,8 +38,7 @@ const PERMISOS_NUNC_VACIOS: Record<PermisoNunc, boolean> = {
 export async function obtenerPermisosUsuario() {
   try {
     const supabase = await createClient()
-    const { data: { session } } = await supabase.auth.getSession()
-    const user = session?.user ?? null
+    const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) {
       return {

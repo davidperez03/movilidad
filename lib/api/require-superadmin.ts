@@ -16,9 +16,9 @@ interface SuperAdminError {
 
 export async function requireSuperAdmin(): Promise<SuperAdminResult | SuperAdminError> {
   const supabase = await createServerClient()
-  const { data: { session } } = await supabase.auth.getSession()
+  const { data: { user } } = await supabase.auth.getUser()
 
-  if (!session?.user) {
+  if (!user) {
     return {
       error: 'No autenticado',
       response: NextResponse.json({ error: 'No autenticado' }, { status: 401 }),
@@ -28,7 +28,7 @@ export async function requireSuperAdmin(): Promise<SuperAdminResult | SuperAdmin
   const { data: perfil } = await createAdminClient()
     .from('perfiles')
     .select('rol_global')
-    .eq('id', session.user.id)
+    .eq('id', user.id)
     .single()
 
   if (perfil?.rol_global !== 'superadmin') {
@@ -38,5 +38,5 @@ export async function requireSuperAdmin(): Promise<SuperAdminResult | SuperAdmin
     }
   }
 
-  return { userId: session.user.id }
+  return { userId: user.id }
 }
