@@ -60,24 +60,6 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     if (!registro || registro.sesion_id !== sesionId)
       return NextResponse.json({ error: 'Registro no encontrado' }, { status: 404 })
 
-    // Verificar NUNC único (excluyendo el registro actual)
-    const { data: existente } = await admin
-      .from('nunc_registros')
-      .select('id')
-      .eq('nunc_dpto', campos.nunc_dpto)
-      .eq('nunc_municipio', campos.nunc_municipio)
-      .eq('nunc_entidad', campos.nunc_entidad)
-      .eq('nunc_unidad', campos.nunc_unidad)
-      .eq('nunc_anio', campos.nunc_anio)
-      .eq('nunc_consecutivo', campos.nunc_consecutivo)
-      .neq('id', id)
-      .maybeSingle()
-
-    if (existente) {
-      const nuncCompleto = `${campos.nunc_dpto}-${campos.nunc_municipio}-${campos.nunc_entidad}-${campos.nunc_unidad}-${campos.nunc_anio}-${campos.nunc_consecutivo}`
-      return NextResponse.json({ error: `El NUNC ${nuncCompleto} ya existe en otro registro` }, { status: 409 })
-    }
-
     const { error } = await admin
       .from('nunc_registros')
       .update({ ...campos, placa: campos.placa.toUpperCase() })

@@ -1,3 +1,4 @@
+import { cache } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import { logger } from '@/lib/logger'
 import type { PermisosModulo, PermisoParqueadero, PermisoNunc } from '@/lib/types/permissions'
@@ -35,7 +36,7 @@ const PERMISOS_NUNC_VACIOS: Record<PermisoNunc, boolean> = {
   configurar: false,
 }
 
-export async function obtenerPermisosUsuario() {
+export const obtenerPermisosUsuario = cache(async function obtenerPermisosUsuario() {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -96,4 +97,4 @@ export async function obtenerPermisosUsuario() {
       nunc: PERMISOS_NUNC_VACIOS,
     }
   }
-}
+})
