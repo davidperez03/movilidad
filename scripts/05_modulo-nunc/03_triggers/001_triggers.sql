@@ -1,3 +1,20 @@
+-- Hash chain e inmutabilidad
+DROP TRIGGER IF EXISTS trg_nunc_historial_hash ON public.nunc_historial_acciones;
+CREATE TRIGGER trg_nunc_historial_hash
+  BEFORE INSERT ON public.nunc_historial_acciones
+  FOR EACH ROW EXECUTE FUNCTION _nunc_historial_asignar_hash();
+
+DROP TRIGGER IF EXISTS trg_no_update_nunc_historial ON public.nunc_historial_acciones;
+CREATE TRIGGER trg_no_update_nunc_historial
+  BEFORE UPDATE ON public.nunc_historial_acciones
+  FOR EACH ROW EXECUTE FUNCTION _nunc_historial_inmutable();
+
+DROP TRIGGER IF EXISTS trg_no_delete_nunc_historial ON public.nunc_historial_acciones;
+CREATE TRIGGER trg_no_delete_nunc_historial
+  BEFORE DELETE ON public.nunc_historial_acciones
+  FOR EACH ROW EXECUTE FUNCTION _nunc_historial_inmutable();
+
+-- Auditoría de sesiones y registros
 DROP TRIGGER IF EXISTS trg_nunc_sesion_creada ON public.nunc_sesiones;
 CREATE TRIGGER trg_nunc_sesion_creada
   AFTER INSERT ON public.nunc_sesiones
