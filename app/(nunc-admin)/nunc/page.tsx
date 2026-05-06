@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Plus, Scale, Clock, CheckCircle, XCircle } from "lucide-react"
 import { formatearFechaHora } from "@/lib/parqueadero/utils"
 import { ExportarSesionesNunc } from "@/components/nunc/exportar-sesiones"
+import { ExportarHistorialNunc } from "@/components/nunc/exportar-historial"
 import type { FilaSesionNunc } from "@/lib/nunc/reportes/tipos"
 
 function estadoBadge(estado: string) {
@@ -62,6 +63,7 @@ export default async function NuncAdminPage() {
           {sesiones && sesiones.length > 0 && (
             <ExportarSesionesNunc sesiones={filasExcel} />
           )}
+          <ExportarHistorialNunc />
           {(esSuperadmin || nunc.configurar) && (
             <Button asChild>
               <Link href="/nunc/nueva">

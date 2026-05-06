@@ -5,6 +5,20 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.25.0] - 2026-05-06
+
+### Feat(nunc): Historial NUNC, base Excel compartida y correcciones
+
+#### Agregado
+- Reporte **Historial NUNC**: exporta todos los registros de todas las sesiones con filtro por rango de fechas — columna NUNC con formato `NUNC850016001169202600355` (sin separadores)
+- `lib/shared/excel-base.ts`: utilidades comunes (`excelBorder`, `aplicarEstilosTabla`, `formatFecha`, `formatFechaHora`, `descargarExcel`) reutilizadas por movilidad, parqueadero y NUNC
+
+#### Corregido
+- API `/api/nunc/reportes` usaba `requireSuperAdmin()` bloqueando a `nunc_admin` — corregido a `nunc.ver`
+- Exportadores de sesiones e historial reemplazados por `Dialog` (igual al patrón de parqueadero) — el dropdown anterior se salía del viewport en pantallas pequeñas
+
+---
+
 ## [1.24.4] - 2026-05-06
 
 ### Perf+Fix(nunc): deduplicación de permisos y múltiples placas por NUNC

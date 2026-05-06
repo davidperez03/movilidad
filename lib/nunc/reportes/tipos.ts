@@ -22,6 +22,16 @@ export interface FilaRegistroNunc {
   registrado_en: string
 }
 
+export interface FilaCustodiaNunc {
+  nunc: string           // todos los campos concatenados sin separadores
+  placa: string
+  entidad_nombre: string
+  nombre_peritos: string
+  codigo_sesion: string
+  observaciones: string | null
+  registrado_en: string
+}
+
 export interface FiltrosNunc {
   fechaInicio: string | null
   fechaFin: string | null

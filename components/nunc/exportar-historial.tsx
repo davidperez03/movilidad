@@ -1,48 +1,43 @@
 'use client'
 
-import { useState, useMemo } from 'react'
-import { Download, FileSpreadsheet } from 'lucide-react'
+import { useState } from 'react'
+import { Download, CalendarRange } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { toast } from 'sonner'
-import { generarExcelSesiones } from '@/lib/nunc/reportes/exportar-excel'
-import type { FilaSesionNunc, FiltrosNunc } from '@/lib/nunc/reportes/tipos'
+import { generarExcelHistorialNunc } from '@/lib/nunc/reportes/exportar-excel'
+import type { FiltrosNunc } from '@/lib/nunc/reportes/tipos'
 
-interface Props {
-  sesiones: FilaSesionNunc[]
-}
-
-export function ExportarSesionesNunc({ sesiones }: Props) {
+export function ExportarHistorialNunc() {
   const [open, setOpen] = useState(false)
   const [filtros, setFiltros] = useState<FiltrosNunc>({ fechaInicio: null, fechaFin: null })
   const [cargando, setCargando] = useState(false)
 
-  const datosFiltrados = useMemo(() => {
-    return sesiones
-      .filter(s => {
-        const fecha = new Date(s.creado_en)
-        if (filtros.fechaInicio && fecha < new Date(filtros.fechaInicio + 'T00:00:00')) return false
-        if (filtros.fechaFin    && fecha > new Date(filtros.fechaFin    + 'T23:59:59')) return false
-        return true
-      })
-      .sort((a, b) => new Date(a.creado_en).getTime() - new Date(b.creado_en).getTime())
-  }, [sesiones, filtros])
-
   async function handleExportar() {
-    if (!datosFiltrados.length) {
-      toast.error('No hay sesiones para exportar con los filtros aplicados')
-      return
-    }
     setCargando(true)
     try {
+      const params = new URLSearchParams()
+      if (filtros.fechaInicio) params.set('fechaInicio', filtros.fechaInicio)
+      if (filtros.fechaFin)    params.set('fechaFin',    filtros.fechaFin)
+
+      const res = await fetch(`/api/nunc/reportes?${params}`)
+      if (!res.ok) throw new Error(await res.text())
+
+      const { data, total } = await res.json()
+      if (!total) {
+        toast.error('No hay registros en el rango seleccionado')
+        return
+      }
+
       const fecha = new Date().toISOString().split('T')[0]
-      await generarExcelSesiones(datosFiltrados, filtros, `nunc-sesiones-${fecha}`)
-      toast.success(`${datosFiltrados.length} sesiones exportadas`)
+      await generarExcelHistorialNunc(data, filtros, `nunc-historial-${fecha}`)
+      toast.success(`${total} registros exportados`)
       setOpen(false)
-    } catch {
-      toast.error('Error al generar el Excel')
+    } catch (e) {
+      toast.error('Error al generar el historial')
+      console.error(e)
     } finally {
       setCargando(false)
     }
@@ -51,30 +46,30 @@ export function ExportarSesionesNunc({ sesiones }: Props) {
   return (
     <>
       <Button variant="outline" size="sm" onClick={() => setOpen(true)}>
-        <FileSpreadsheet className="h-4 w-4 mr-1.5" />
-        Sesiones Excel
+        <CalendarRange className="h-4 w-4 mr-1.5" />
+        Historial NUNC
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
-            <DialogTitle>Exportar Sesiones NUNC</DialogTitle>
+            <DialogTitle>Historial NUNC</DialogTitle>
           </DialogHeader>
 
           <div className="grid grid-cols-2 gap-4 py-2">
             <div className="space-y-2">
-              <Label htmlFor="desde-ses">Desde</Label>
+              <Label htmlFor="desde">Desde</Label>
               <Input
-                id="desde-ses"
+                id="desde"
                 type="date"
                 value={filtros.fechaInicio || ''}
                 onChange={e => setFiltros(f => ({ ...f, fechaInicio: e.target.value || null }))}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="hasta-ses">Hasta</Label>
+              <Label htmlFor="hasta">Hasta</Label>
               <Input
-                id="hasta-ses"
+                id="hasta"
                 type="date"
                 value={filtros.fechaFin || ''}
                 onChange={e => setFiltros(f => ({ ...f, fechaFin: e.target.value || null }))}
@@ -83,12 +78,12 @@ export function ExportarSesionesNunc({ sesiones }: Props) {
           </div>
 
           <p className="text-xs text-muted-foreground">
-            {datosFiltrados.length} sesión{datosFiltrados.length !== 1 ? 'es' : ''} en el rango seleccionado.
+            Sin filtro exporta todos los registros.
           </p>
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)}>Cancelar</Button>
-            <Button onClick={handleExportar} disabled={cargando || !datosFiltrados.length}>
+            <Button onClick={handleExportar} disabled={cargando}>
               <Download className="h-4 w-4 mr-1.5" />
               {cargando ? 'Generando...' : 'Exportar Excel'}
             </Button>

@@ -28,7 +28,6 @@ Registro manual de migraciones ejecutadas en producción.
 | 022 | 022_peritajes.sql | 2026-05-06 | David | v1.23.0 |
 | 023 | 023_nunc_auditoria.sql | 2026-05-06 | David | v1.24.0 |
 | 024 | 024_nunc_hash_chain.sql | 2026-05-06 | David | v1.24.1 |
-| 025 | 025_eliminar_idx_nunc_registros.sql | 2026-05-06 | David | v1.24.4 |
 
 <!--
 Al aplicar una migración, agregar una fila:
