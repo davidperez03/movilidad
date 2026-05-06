@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
         nombre_peritos: string
       } | null
       return {
-        nunc:           `${r.nunc_dpto}${r.nunc_municipio}${r.nunc_entidad}${r.nunc_unidad}${r.nunc_anio}${r.nunc_consecutivo}`,
+        nunc:           `NUNC${r.nunc_dpto}${r.nunc_municipio}${r.nunc_entidad}${r.nunc_unidad}${r.nunc_anio}${r.nunc_consecutivo}`,
         placa:          r.placa,
         entidad_nombre: sesion?.entidad_nombre ?? '',
         nombre_peritos: sesion?.nombre_peritos ?? '',

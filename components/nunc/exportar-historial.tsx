@@ -57,34 +57,38 @@ export function ExportarHistorialNunc() {
       </Button>
 
       {mostrarFiltros && (
-        <div className="absolute top-full right-0 mt-2 z-20 bg-background border rounded-lg shadow-lg p-4 flex gap-4 items-end">
-          <div className="space-y-1">
-            <Label className="text-xs">Desde</Label>
-            <Input
-              type="date"
-              className="h-8 text-sm w-36"
-              value={filtros.fechaInicio || ''}
-              onChange={e => setFiltros(f => ({ ...f, fechaInicio: e.target.value || null }))}
-            />
+        <div className="absolute top-full right-0 mt-2 z-20 bg-background border rounded-lg shadow-lg p-4 flex flex-col sm:flex-row gap-3 w-[calc(100vw-2rem)] sm:w-auto max-w-sm sm:max-w-none">
+          <div className="grid grid-cols-2 gap-3 flex-1">
+            <div className="space-y-1">
+              <Label className="text-xs">Desde</Label>
+              <Input
+                type="date"
+                className="h-8 text-sm"
+                value={filtros.fechaInicio || ''}
+                onChange={e => setFiltros(f => ({ ...f, fechaInicio: e.target.value || null }))}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">Hasta</Label>
+              <Input
+                type="date"
+                className="h-8 text-sm"
+                value={filtros.fechaFin || ''}
+                onChange={e => setFiltros(f => ({ ...f, fechaFin: e.target.value || null }))}
+              />
+            </div>
           </div>
-          <div className="space-y-1">
-            <Label className="text-xs">Hasta</Label>
-            <Input
-              type="date"
-              className="h-8 text-sm w-36"
-              value={filtros.fechaFin || ''}
-              onChange={e => setFiltros(f => ({ ...f, fechaFin: e.target.value || null }))}
-            />
-          </div>
-          {filtrosActivos && (
-            <Button variant="ghost" size="sm" onClick={() => setFiltros({ fechaInicio: null, fechaFin: null })}>
-              <X className="h-4 w-4" />
+          <div className="flex gap-2 items-end justify-end">
+            {filtrosActivos && (
+              <Button variant="ghost" size="sm" onClick={() => setFiltros({ fechaInicio: null, fechaFin: null })}>
+                <X className="h-4 w-4" />
+              </Button>
+            )}
+            <Button size="sm" onClick={() => { handleExportar(); setMostrarFiltros(false) }} disabled={cargando}>
+              <Download className="h-4 w-4 mr-1.5" />
+              {cargando ? 'Generando...' : 'Exportar'}
             </Button>
-          )}
-          <Button size="sm" onClick={() => { handleExportar(); setMostrarFiltros(false) }} disabled={cargando}>
-            <Download className="h-4 w-4 mr-1.5" />
-            {cargando ? 'Generando...' : 'Exportar'}
-          </Button>
+          </div>
         </div>
       )}
     </div>
