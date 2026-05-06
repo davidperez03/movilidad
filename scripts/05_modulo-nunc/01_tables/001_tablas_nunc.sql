@@ -33,9 +33,6 @@ CREATE TABLE public.nunc_registros (
   registrado_en timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE UNIQUE INDEX IF NOT EXISTS idx_nunc_registros_nunc_unico                                                                                                         
-  ON public.nunc_registros(nunc_dpto, nunc_municipio, nunc_entidad, nunc_unidad, nunc_anio, nunc_consecutivo);   
-
 CREATE INDEX IF NOT EXISTS idx_nunc_sesiones_codigo ON public.nunc_sesiones(codigo) WHERE estado = 'activa';
 CREATE INDEX IF NOT EXISTS idx_nunc_sesiones_generado_por ON public.nunc_sesiones(generado_por);
 CREATE INDEX IF NOT EXISTS idx_nunc_registros_sesion ON public.nunc_registros(sesion_id);

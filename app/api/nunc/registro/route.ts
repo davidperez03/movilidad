@@ -45,22 +45,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Sesión expirada' }, { status: 410 })
     }
 
-    const { data: existente } = await admin
-      .from('nunc_registros')
-      .select('id')
-      .eq('nunc_dpto', registro.nunc_dpto)
-      .eq('nunc_municipio', registro.nunc_municipio)
-      .eq('nunc_entidad', registro.nunc_entidad)
-      .eq('nunc_unidad', registro.nunc_unidad)
-      .eq('nunc_anio', registro.nunc_anio)
-      .eq('nunc_consecutivo', registro.nunc_consecutivo)
-      .maybeSingle()
-
-    if (existente) {
-      const nuncCompleto = `${registro.nunc_dpto}-${registro.nunc_municipio}-${registro.nunc_entidad}-${registro.nunc_unidad}-${registro.nunc_anio}-${registro.nunc_consecutivo}`
-      return NextResponse.json({ error: `El NUNC ${nuncCompleto} ya fue registrado` }, { status: 409 })
-    }
-
     const { data, error } = await admin
       .from('nunc_registros')
       .insert({ sesion_id: sesion.id, ...registro, placa: registro.placa.toUpperCase() })
