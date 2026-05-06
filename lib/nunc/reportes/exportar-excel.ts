@@ -171,7 +171,7 @@ export async function generarExcelRegistros(
   await descargarExcel(wb, nombreArchivo)
 }
 
-export async function generarExcelCustodia(
+export async function generarExcelHistorialNunc(
   datos: FilaCustodiaNunc[],
   filtros: FiltrosNunc,
   nombreArchivo: string
@@ -182,7 +182,7 @@ export async function generarExcelCustodia(
   wb.creator = 'Sistema Movilidad'
   wb.created = new Date()
 
-  const ws = wb.addWorksheet('Cadenas de Custodia')
+  const ws = wb.addWorksheet('Historial NUNC')
   ws.columns = [
     { header: '#',               key: 'num',            width: 6  },
     { header: 'NUNC',            key: 'nunc',           width: 30 },
@@ -205,6 +205,6 @@ export async function generarExcelCustodia(
   })))
   aplicarEstilosTabla(ws)
 
-  agregarResumen(wb, 'CADENAS DE CUSTODIA — Estudios NUNC', datos.length, filtros)
+  agregarResumen(wb, 'HISTORIAL — Estudios NUNC', datos.length, filtros)
   await descargarExcel(wb, nombreArchivo)
 }

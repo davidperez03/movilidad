@@ -6,10 +6,10 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { toast } from 'sonner'
-import { generarExcelCustodia } from '@/lib/nunc/reportes/exportar-excel'
+import { generarExcelHistorialNunc } from '@/lib/nunc/reportes/exportar-excel'
 import type { FiltrosNunc } from '@/lib/nunc/reportes/tipos'
 
-export function ExportarCustodiaNunc() {
+export function ExportarHistorialNunc() {
   const [filtros, setFiltros] = useState<FiltrosNunc>({ fechaInicio: null, fechaFin: null })
   const [cargando, setCargando] = useState(false)
   const [mostrarFiltros, setMostrarFiltros] = useState(false)
@@ -24,7 +24,7 @@ export function ExportarCustodiaNunc() {
       if (filtros.fechaFin)    params.set('fechaFin',    filtros.fechaFin)
 
       const res = await fetch(`/api/nunc/reportes?${params}`)
-      if (!res.ok) throw new Error('Error al obtener datos')
+      if (!res.ok) throw new Error(await res.text())
 
       const { data, total } = await res.json()
       if (!total) {
@@ -33,10 +33,11 @@ export function ExportarCustodiaNunc() {
       }
 
       const fecha = new Date().toISOString().split('T')[0]
-      await generarExcelCustodia(data, filtros, `nunc-custodia-${fecha}`)
+      await generarExcelHistorialNunc(data, filtros, `nunc-historial-${fecha}`)
       toast.success(`${total} registros exportados`)
-    } catch {
-      toast.error('Error al generar el Excel')
+    } catch (e) {
+      toast.error('Error al generar el historial')
+      console.error(e)
     } finally {
       setCargando(false)
     }
@@ -51,7 +52,7 @@ export function ExportarCustodiaNunc() {
         className={filtrosActivos ? 'border-amber-400 text-amber-700' : ''}
       >
         <Filter className="h-4 w-4 mr-1.5" />
-        Custodia
+        Historial NUNC
         {filtrosActivos && <span className="ml-1 bg-amber-100 text-amber-700 text-xs px-1 rounded">activo</span>}
       </Button>
 

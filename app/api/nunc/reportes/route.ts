@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { requireSuperAdmin } from '@/lib/api/require-superadmin'
+import { obtenerPermisosUsuario } from '@/lib/server/permisos'
 import { logger } from '@/lib/logger'
 import { z } from 'zod'
 
@@ -11,8 +11,10 @@ const querySchema = z.object({
 
 export async function GET(request: NextRequest) {
   try {
-    const auth = await requireSuperAdmin()
-    if ('response' in auth) return auth.response
+    const { nunc, esSuperadmin } = await obtenerPermisosUsuario()
+    if (!esSuperadmin && !nunc.ver) {
+      return NextResponse.json({ error: 'No autorizado' }, { status: 403 })
+    }
 
     const params = Object.fromEntries(request.nextUrl.searchParams)
     const parsed = querySchema.safeParse(params)
@@ -28,7 +30,7 @@ export async function GET(request: NextRequest) {
       .select(`
         nunc_dpto, nunc_municipio, nunc_entidad, nunc_unidad, nunc_anio, nunc_consecutivo,
         placa, observaciones, registrado_en,
-        nunc_sesiones!inner (
+        nunc_sesiones (
           codigo, entidad_nombre, nombre_peritos
         )
       `)
@@ -49,13 +51,13 @@ export async function GET(request: NextRequest) {
         codigo: string
         entidad_nombre: string
         nombre_peritos: string
-      }
+      } | null
       return {
-        nunc: `${r.nunc_dpto}${r.nunc_municipio}${r.nunc_entidad}${r.nunc_unidad}${r.nunc_anio}${r.nunc_consecutivo}`,
+        nunc:           `${r.nunc_dpto}${r.nunc_municipio}${r.nunc_entidad}${r.nunc_unidad}${r.nunc_anio}${r.nunc_consecutivo}`,
         placa:          r.placa,
-        entidad_nombre: sesion.entidad_nombre,
-        nombre_peritos: sesion.nombre_peritos,
-        codigo_sesion:  sesion.codigo,
+        entidad_nombre: sesion?.entidad_nombre ?? '',
+        nombre_peritos: sesion?.nombre_peritos ?? '',
+        codigo_sesion:  sesion?.codigo ?? '',
         observaciones:  r.observaciones ?? null,
         registrado_en:  r.registrado_en,
       }
