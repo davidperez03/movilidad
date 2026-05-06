@@ -5,6 +5,28 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.24.0] - 2026-05-06
+
+### Auditoría NUNC, Excel, seguridad y correcciones
+
+#### Agregado
+- Módulo NUNC: tabla `nunc_historial_acciones` con 5 triggers automáticos — registra creación/cierre de sesiones y CRUD de registros; acciones de oficiales externos quedan con `realizado_por = NULL` + `origen = EXTERNO`
+- NUNC agregado a `sys_vista_auditoria_completa` (UNION ALL junto a sistema, movilidad, parqueadero e inventarios)
+- Exportación Excel de sesiones NUNC con filtro por rango de fechas y orden cronológico
+- Exportación Excel de registros de una sesión con NUNC completo desglosado por campo
+- Estudios NUNC visible en el switcher de módulos de movilidad y parqueadero para usuarios con acceso
+- Rate limiting en las 4 rutas públicas NUNC: validar (10/15 min), registro y edición (60/10 min), cerrar (5/15 min)
+- `getClientIp()` extraído a `lib/rate-limit.ts` — centraliza la extracción de IP real considerando proxies
+
+#### Corregido
+- Página `/nunc` usaba `permisos.movilidad` en lugar de `permisos.nunc` para el guard y el botón "Nueva sesión"
+- Título "Peritajes" corregido a "Estudios NUNC" en la página de listado
+
+#### Seguridad
+- Layouts de movilidad, parqueadero y superadmin migrados de `getSession()` a `getUser()` — elimina riesgo de tokens no verificados en rutas protegidas
+
+---
+
 ## [1.23.0] - 2026-05-06
 
 ### Módulo Estudios NUNC

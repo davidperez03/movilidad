@@ -15,10 +15,7 @@ export default async function MovilidadLayout({
 }) {
   const supabase = await createClient()
 
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
-  const user = session?.user ?? null
+  const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) redirect("/auth/login")
 
@@ -30,7 +27,7 @@ export default async function MovilidadLayout({
 
   const esSuperAdmin = perfil?.rol_global === "superadmin"
 
-  const { contadores, rolModulo, tieneParqueadero } = await obtenerLayoutData(
+  const { contadores, rolModulo, tieneParqueadero, tieneNunc } = await obtenerLayoutData(
     user.id,
     esSuperAdmin
   )
@@ -53,20 +50,20 @@ export default async function MovilidadLayout({
         rolModulo={rolModulo}
         rolColors={MOVILIDAD_ROL_COLORS}
         esSuperAdmin={esSuperAdmin}
-        otrosModulos={
-          tieneParqueadero
-            ? [{ href: "/parqueadero", label: "Parqueadero", descripcion: "Inspecciones de grúas", iconName: "Truck" }]
-            : []
-        }
+        otrosModulos={[
+          ...(tieneParqueadero ? [{ href: "/parqueadero", label: "Parqueadero", descripcion: "Inspecciones de grúas", iconName: "Truck" }] : []),
+          ...(tieneNunc        ? [{ href: "/nunc",        label: "Estudios NUNC", descripcion: "Sesiones de estudio externo", iconName: "Scale" }] : []),
+        ]}
         mobileNavItems={movilidadNavItems}
         mobileUserInfo={{
           nombre: nombreCapitalizado,
           rol: rolModulo.nombre,
           rolColor: MOVILIDAD_ROL_COLORS[rolModulo.codigo] ?? MOVILIDAD_ROL_COLORS.sin_rol,
           esSuperAdmin,
-          otrosModulos: tieneParqueadero
-            ? [{ href: "/parqueadero", label: "Parqueadero", iconName: "Truck" }]
-            : [],
+          otrosModulos: [
+            ...(tieneParqueadero ? [{ href: "/parqueadero", label: "Parqueadero", iconName: "Truck" }] : []),
+            ...(tieneNunc        ? [{ href: "/nunc",        label: "Estudios NUNC", iconName: "Scale" }] : []),
+          ],
         }}
       >
         <NavTabs

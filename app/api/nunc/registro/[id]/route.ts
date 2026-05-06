@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { logger } from '@/lib/logger'
+import { nuncRegistroLimiter, getClientIp } from '@/lib/rate-limit'
 
 const schemaEditar = z.object({
   codigo: z.string(),
@@ -30,6 +31,14 @@ async function validarSesionActiva(admin: ReturnType<typeof import('@/lib/supaba
 }
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { allowed, retryAfter } = nuncRegistroLimiter.check(getClientIp(request))
+  if (!allowed) {
+    return NextResponse.json(
+      { error: 'Demasiadas solicitudes. Intenta más tarde.' },
+      { status: 429, headers: { 'Retry-After': String(retryAfter) } }
+    )
+  }
+
   try {
     const { id } = await params
     const body = await request.json().catch(() => null)
@@ -87,6 +96,14 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 }
 
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { allowed, retryAfter } = nuncRegistroLimiter.check(getClientIp(request))
+  if (!allowed) {
+    return NextResponse.json(
+      { error: 'Demasiadas solicitudes. Intenta más tarde.' },
+      { status: 429, headers: { 'Retry-After': String(retryAfter) } }
+    )
+  }
+
   try {
     const { id } = await params
     const body = await request.json().catch(() => null)

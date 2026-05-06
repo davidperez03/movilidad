@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { logger } from '@/lib/logger'
+import { nuncRegistroLimiter, getClientIp } from '@/lib/rate-limit'
 
 const schema = z.object({
   codigo: z.string(),
@@ -16,6 +17,14 @@ const schema = z.object({
 })
 
 export async function POST(request: Request) {
+  const { allowed, retryAfter } = nuncRegistroLimiter.check(getClientIp(request))
+  if (!allowed) {
+    return NextResponse.json(
+      { error: 'Demasiadas solicitudes. Intenta más tarde.' },
+      { status: 429, headers: { 'Retry-After': String(retryAfter) } }
+    )
+  }
+
   try {
     const body = await request.json().catch(() => null)
     const parsed = schema.safeParse(body)
@@ -36,7 +45,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Sesión expirada' }, { status: 410 })
     }
 
-    // Verificar que el NUNC completo no exista previamente
     const { data: existente } = await admin
       .from('nunc_registros')
       .select('id')

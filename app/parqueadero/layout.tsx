@@ -14,10 +14,7 @@ export default async function ParqueaderoLayout({
 }) {
   const supabase = await createClient()
 
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
-  const user = session?.user ?? null
+  const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) redirect("/auth/login")
 
@@ -29,7 +26,7 @@ export default async function ParqueaderoLayout({
 
   const esSuperAdmin = perfil?.rol_global === "superadmin"
 
-  const { contadores, rolModulo, rolColors, tieneMovilidad } = await obtenerLayoutData(
+  const { contadores, rolModulo, rolColors, tieneMovilidad, tieneNunc } = await obtenerLayoutData(
     user.id,
     esSuperAdmin
   )
@@ -52,20 +49,20 @@ export default async function ParqueaderoLayout({
         rolModulo={rolModulo}
         rolColors={rolColors}
         esSuperAdmin={esSuperAdmin}
-        otrosModulos={
-          tieneMovilidad
-            ? [{ href: "/movilidad", label: "Movilidad", descripcion: "Traslados y radicaciones", iconName: "Car" }]
-            : []
-        }
+        otrosModulos={[
+          ...(tieneMovilidad ? [{ href: "/movilidad", label: "Movilidad",      descripcion: "Traslados y radicaciones",   iconName: "Car"   }] : []),
+          ...(tieneNunc      ? [{ href: "/nunc",      label: "Estudios NUNC",  descripcion: "Sesiones de estudio externo", iconName: "Scale" }] : []),
+        ]}
         mobileNavItems={parqueaderoNavItems}
         mobileUserInfo={{
           nombre: nombreCapitalizado,
           rol: rolModulo.nombre,
           rolColor: rolColors[rolModulo.codigo] ?? rolColors.sin_rol,
           esSuperAdmin,
-          otrosModulos: tieneMovilidad
-            ? [{ href: "/movilidad", label: "Movilidad", iconName: "Car" }]
-            : [],
+          otrosModulos: [
+            ...(tieneMovilidad ? [{ href: "/movilidad", label: "Movilidad",     iconName: "Car"   }] : []),
+            ...(tieneNunc      ? [{ href: "/nunc",      label: "Estudios NUNC", iconName: "Scale" }] : []),
+          ],
         }}
       >
         <NavTabsParqueadero

@@ -13,6 +13,7 @@ interface LayoutData {
   rolModulo: RolModulo
   rolColors: Record<string, string>
   tieneMovilidad: boolean
+  tieneNunc: boolean
 }
 
 /**
@@ -73,6 +74,7 @@ export async function obtenerLayoutData(
   // Verificar acceso a movilidad
   const modulosUsuario = new Set(rolesUsuario?.map((r) => r.modulo_id) || [])
   const tieneMovilidad = esSuperAdmin || modulosUsuario.has("movilidad")
+  const tieneNunc      = esSuperAdmin || modulosUsuario.has("nunc")
 
   return {
     contadores: {
@@ -83,5 +85,6 @@ export async function obtenerLayoutData(
     rolModulo,
     rolColors: PARQUEADERO_ROL_COLORS,
     tieneMovilidad,
+    tieneNunc,
   }
 }

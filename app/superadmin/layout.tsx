@@ -16,8 +16,7 @@ export default async function SuperAdminLayout({
 }) {
   const supabase = await createClient()
 
-  const { data: { session } } = await supabase.auth.getSession()
-  const user = session?.user ?? null
+  const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect("/auth/login")
 
   const { data: perfil } = await supabase
