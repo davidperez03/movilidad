@@ -1,5 +1,7 @@
 import { createClient } from '@/lib/supabase/client'
 
+const SESSION_KEY = 'mov_session_id'
+
 export class SessionManager {
   private static sessionId: string | null = null
 
@@ -38,7 +40,7 @@ export class SessionManager {
 
       this.sessionId = data
       if (typeof window !== 'undefined') {
-        sessionStorage.setItem('current_session_id', data)
+        localStorage.setItem(SESSION_KEY, data)
       }
       return data
     } catch {
@@ -46,9 +48,6 @@ export class SessionManager {
     }
   }
 
-  /**
-   * Retorna 'active' si la sesión existe en BD, 'inactive' si fue cerrada/expirada, 'error' si falló la red.
-   */
   static async actualizarActividad(): Promise<'active' | 'inactive' | 'error'> {
     try {
       const sessionId = this.getSessionId()
@@ -81,7 +80,7 @@ export class SessionManager {
 
       this.sessionId = null
       if (typeof window !== 'undefined') {
-        sessionStorage.removeItem('current_session_id')
+        localStorage.removeItem(SESSION_KEY)
       }
       return true
     } catch {
@@ -92,14 +91,14 @@ export class SessionManager {
   static clearSessionId(): void {
     this.sessionId = null
     if (typeof window !== 'undefined') {
-      sessionStorage.removeItem('current_session_id')
+      localStorage.removeItem(SESSION_KEY)
     }
   }
 
   static getSessionId(): string | null {
     if (this.sessionId) return this.sessionId
     if (typeof window !== 'undefined') {
-      const stored = sessionStorage.getItem('current_session_id')
+      const stored = localStorage.getItem(SESSION_KEY)
       if (stored) {
         this.sessionId = stored
         return stored
