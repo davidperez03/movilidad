@@ -136,6 +136,21 @@ export function SessionProvider({ children }: SessionProviderProps) {
     }
     document.addEventListener('visibilitychange', handleVisibilityChange)
 
+    // beforeunload: desktop y Android Chrome.
+    // pagehide: iOS Safari (beforeunload no es confiable en iOS).
+    // pagehide con persisted=true = bfcache (minimizar app / cambiar tab) — NO cerrar sesión.
+    const handlePageClose = (event: PageTransitionEvent | Event) => {
+      if ('persisted' in event && (event as PageTransitionEvent).persisted) return
+      const sessionId = SessionManager.getSessionId()
+      if (sessionId) {
+        navigator.sendBeacon('/api/close-session', JSON.stringify({ sessionId }))
+        sessionStorage.removeItem('current_session_id')
+        sessionInitializedRef.current = false
+      }
+    }
+    window.addEventListener('beforeunload', handlePageClose)
+    window.addEventListener('pagehide', handlePageClose)
+
     updateActivity()
 
     // getUser() valida el token contra el servidor; getSession() solo lee la caché local.
@@ -146,44 +161,9 @@ export function SessionProvider({ children }: SessionProviderProps) {
         return
       }
 
-      const sessionId = SessionManager.getSessionId()
-
-      if (sessionId) {
-        if (sessionInitializedRef.current) return
-        sessionInitializedRef.current = true
-
-        // Verificar estado real de ESTA sesión en BD (más fiable que last_sign_in_at
-        // que Supabase puede actualizar en token refresh, rompiendo el filtro por fecha).
-        const { data: miSesion } = await supabase
-          .from('sys_sesiones')
-          .select('estado')
-          .eq('id', sessionId)
-          .maybeSingle()
-
-        if (miSesion?.estado === 'forzada_cierre') {
-          SessionManager.clearSessionId()
-          await supabase.auth.signOut()
-          window.location.href = '/auth/login?reason=session_closed'
-          return
-        }
-
-        if (miSesion?.estado === 'expirada') {
-          SessionManager.clearSessionId()
-          await supabase.auth.signOut()
-          window.location.href = '/auth/login?reason=session_expired'
-          return
-        }
-
-        if (!miSesion || miSesion.estado !== 'activa') {
-          // 'cerrada' (cierre normal de pestaña): recrear sesión sin expulsar al usuario.
-          SessionManager.clearSessionId()
-          await SessionManager.registrarInicio(user.id)
-        }
-        return
-      }
-
-      // Sin sessionId: puede ser nueva pestaña, primer login, o móvil tras cierre de browser.
-      // Fallback: verificar si el admin forzó cierre después del último login conocido.
+      // Evitar que el refresh token de Supabase (~60 días) regenere sesiones bloqueadas.
+      // Solo considerar cierres terminales (forzada_cierre/expirada). "cerrada" puede
+      // provenir de pagehide/beforeunload en recargas y no debe expulsar al usuario.
       const lastSignIn = user.last_sign_in_at
       if (lastSignIn) {
         const { data: closedSession } = await supabase
@@ -204,8 +184,24 @@ export function SessionProvider({ children }: SessionProviderProps) {
         }
       }
 
-      await SessionManager.registrarInicio(user.id)
+      const sessionId = SessionManager.getSessionId()
+
+      if (!sessionId) {
+        await SessionManager.registrarInicio(user.id)
+        sessionInitializedRef.current = true
+        return
+      }
+
+      if (sessionInitializedRef.current) return
       sessionInitializedRef.current = true
+
+      // Caso Ctrl+Shift+T: sessionStorage restaurado pero sesión puede estar cerrada en BD.
+      // Solo recrear si BD confirma inactiva; un error de red no es conclusivo (fail-open).
+      const estadoBD = await SessionManager.actualizarActividad()
+      if (estadoBD === 'inactive') {
+        SessionManager.clearSessionId()
+        await SessionManager.registrarInicio(user.id)
+      }
     }
     checkSession()
 
@@ -214,6 +210,8 @@ export function SessionProvider({ children }: SessionProviderProps) {
         document.removeEventListener(eventName, activityHandler)
       })
       document.removeEventListener('visibilitychange', handleVisibilityChange)
+      window.removeEventListener('beforeunload', handlePageClose)
+      window.removeEventListener('pagehide', handlePageClose)
       if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current)
       if (warningTimerRef.current) clearTimeout(warningTimerRef.current)
     }
