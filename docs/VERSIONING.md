@@ -6,6 +6,7 @@ Para el proceso de release y reglas de versionamiento semántico ver [GITFLOW.md
 
 | Versión | Fecha | Descripción |
 |---------|-------|-------------|
+| 1.25.3 | 2026-05-07 | Fix(auditoria): NUNC en card/filtro propios, limpiar sesiones con admin client |
 | 1.25.2 | 2026-05-07 | Fix(session): timeout inactividad web 5min → 30min |
 | 1.25.1 | 2026-05-07 | Fix(movilidad): ocultar novedad en estados inválidos, RLS historial acciones visible a usuarios de movilidad |
 | 1.25.0 | 2026-05-06 | Feat(nunc): Historial NUNC con formato sin separadores, base Excel compartida, Dialog para exportadores |
