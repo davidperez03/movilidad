@@ -5,6 +5,17 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.25.1] - 2026-05-07
+
+### Fix(movilidad): Novedades en estados inválidos e historial de acciones
+
+#### Corregido
+- Botón *Agregar Novedad* oculto en estados donde la transición a `con_novedades` no es válida (`aprobado`, `enviado_organismo`, `pendiente_radicar`, etc.) — evita el error "Solo se permiten transiciones de estado válidas"
+- RLS de `mov_historial_acciones` corregida: estaba limitada a superadmin, ahora permite a usuarios con acceso al módulo de movilidad — el historial de acciones ya es visible en `/movilidad/vehiculos/[placa]`
+- Migración 025: aplica corrección de política RLS en producción
+
+---
+
 ## [1.25.0] - 2026-05-06
 
 ### Feat(nunc): Historial NUNC, base Excel compartida y correcciones

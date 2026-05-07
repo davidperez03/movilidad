@@ -103,6 +103,11 @@ export function ProcesoActivo({ proceso, novedades, placa }: ProcesoActivoProps)
   const diasHabilesRestantes = proceso.dias_restantes
   const estadoFinalizado = ["trasladado", "radicado", "devuelto"].includes(proceso.proceso_estado)
 
+  const estadosConNovedades = proceso.proceso_tipo === "traslado"
+    ? ["sin_asignar", "revisado", "con_novedades"]
+    : ["recibido", "revisado", "con_novedades"]
+  const puedeAgregarNovedad = estadosConNovedades.includes(proceso.proceso_estado)
+
   return (
     <Card className="border-2 border-primary">
       <CardHeader>
@@ -330,10 +335,12 @@ export function ProcesoActivo({ proceso, novedades, placa }: ProcesoActivoProps)
             procesoTipo={proceso.proceso_tipo as "traslado" | "radicacion"}
             estadoActual={proceso.proceso_estado}
           />
-          <AgregarNovedad
-            procesoId={proceso.proceso_id}
-            procesoTipo={proceso.proceso_tipo as "traslado" | "radicacion"}
-          />
+          {puedeAgregarNovedad && (
+            <AgregarNovedad
+              procesoId={proceso.proceso_id}
+              procesoTipo={proceso.proceso_tipo as "traslado" | "radicacion"}
+            />
+          )}
         </div>
 
         {/* Novedades del proceso activo */}
