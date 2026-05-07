@@ -1,7 +1,7 @@
 'use client'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { LogIn, Car, Users, Activity, Truck, AlertTriangle, Package } from 'lucide-react'
+import { LogIn, Car, Users, Activity, Truck, AlertTriangle, Package, Scale } from 'lucide-react'
 import { useMemo } from 'react'
 import type { RegistroAuditoria } from '@/app/superadmin/auditoria/auditoria-columns'
 import { getTipoAccion } from '@/lib/hooks/useAuditoria'
@@ -33,6 +33,7 @@ export function EstadisticasAuditoria({ registros, onFiltrarTipo, onFiltrarQuick
     const roles7d          = recientes.filter((r) => getTipoAccion(r.accion) === 'rol').length
     const movilidad7d      = recientes.filter((r) => getTipoAccion(r.accion) === 'movilidad').length
     const inventarios7d    = recientes.filter((r) => getTipoAccion(r.accion) === 'inventarios').length
+    const nunc7d           = recientes.filter((r) => getTipoAccion(r.accion) === 'nunc').length
 
     return {
       accionesHoy: registrosHoy.length,
@@ -47,6 +48,7 @@ export function EstadisticasAuditoria({ registros, onFiltrarTipo, onFiltrarQuick
       inspecciones,
       subsanadas,
       inventarios7d,
+      nunc7d,
     }
   }, [registros])
 
@@ -99,6 +101,14 @@ export function EstadisticasAuditoria({ registros, onFiltrarTipo, onFiltrarQuick
       icon: Package,
       color: 'text-amber-600',
       onClick: () => onFiltrarTipo('inventarios'),
+    },
+    {
+      title: 'NUNC · 7 días',
+      value: stats.nunc7d,
+      desc: 'Sesiones y registros NUNC',
+      icon: Scale,
+      color: 'text-amber-500',
+      onClick: () => onFiltrarTipo('nunc'),
     },
   ]
 

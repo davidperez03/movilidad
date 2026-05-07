@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
 import { requireSuperAdmin } from '@/lib/api/require-superadmin'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { logger } from '@/lib/logger'
 
 export async function POST(request: NextRequest) {
@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
     const auth = await requireSuperAdmin()
     if (auth.response) return auth.response
 
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     const { data: sesiones_cerradas, error } = await supabase.rpc('cerrar_sesiones_token_expirado')
 

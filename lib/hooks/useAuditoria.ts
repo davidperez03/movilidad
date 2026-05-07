@@ -24,6 +24,7 @@ const FILTROS_INITIAL: FiltrosAuditoria = {
 }
 
 export function getTipoAccion(accion: string): string {
+  if (accion.startsWith('nunc_')) return 'nunc'
   if (accion.startsWith('usuario_') || accion === 'password_reseteado' || accion === 'password_cambiado') return 'usuario'
   if (accion.startsWith('rol_')) return 'rol'
   if (accion.includes('login') || accion.includes('logout') || accion.includes('sesion') || accion.includes('token')) return 'sesion'
