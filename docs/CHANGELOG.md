@@ -5,6 +5,17 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.25.3] - 2026-05-07
+
+### Fix(auditoria): NUNC separado, limpiar sesiones
+
+#### Corregido
+- Acciones NUNC (`nunc_sesion_*`, `nunc_registro_*`) clasificadas en módulo propio — ya no aparecen en la card de Movilidad
+- Card **NUNC · 7 días** y opción en filtro de tipo agregadas a auditoría
+- Limpiar sesiones usaba cliente autenticado (sin permiso) → ahora usa admin client
+
+---
+
 ## [1.25.2] - 2026-05-07
 
 ### Fix(session): timeout de inactividad web aumentado a 30 minutos
