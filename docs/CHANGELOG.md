@@ -5,6 +5,15 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.25.2] - 2026-05-07
+
+### Fix(session): timeout de inactividad web aumentado a 30 minutos
+
+#### Cambiado
+- Timeout de inactividad en web/escritorio: 5 min → 30 min. Móvil y tablet se mantienen en 1 hora.
+
+---
+
 ## [1.25.1] - 2026-05-07
 
 ### Fix(movilidad): Novedades en estados inválidos e historial de acciones
