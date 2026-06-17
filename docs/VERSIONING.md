@@ -6,6 +6,7 @@ Para el proceso de release y reglas de versionamiento semántico ver [GITFLOW.md
 
 | Versión | Fecha | Descripción |
 |---------|-------|-------------|
+| 1.27.0 | 2026-06-17 | feat(turnos): módulo de turnos operativos para parqueadero |
 | 1.26.3 | 2026-06-17 | fix(asistencia): excel agrupa jornadas y maneja turnos nocturnos |
 | 1.26.2 | 2026-06-17 | fix(asistencia): emparejar ingreso/salida en turnos nocturnos que cruzan medianoche |
 | 1.26.1 | 2026-06-17 | fix(asistencia): gestión de accesos muestra solo personal de parqueadero |
