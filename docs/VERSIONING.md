@@ -6,6 +6,7 @@ Para el proceso de release y reglas de versionamiento semántico ver [GITFLOW.md
 
 | Versión | Fecha | Descripción |
 |---------|-------|-------------|
+| 1.26.2 | 2026-06-17 | fix(asistencia): emparejar ingreso/salida en turnos nocturnos que cruzan medianoche |
 | 1.26.1 | 2026-06-17 | fix(asistencia): gestión de accesos muestra solo personal de parqueadero |
 | 1.26.0 | 2026-06-17 | feat(asistencia): sistema de control de ingreso/salida por QR para parqueadero |
 | 1.25.3 | 2026-05-07 | Fix(auditoria): NUNC en card/filtro propios, limpiar sesiones con admin client |
