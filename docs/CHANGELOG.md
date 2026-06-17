@@ -5,6 +5,32 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.26.0] - 2026-06-17
+
+### feat(asistencia): Sistema de control de ingreso/salida por QR para parqueadero
+
+#### Agregado
+- Flujo `/scan` completo para móvil: login con documento + PIN, registro de ingreso/salida, confirmación con hora Colombia
+- Sesión por cookie HttpOnly de 12h15m (cubre turno completo sin pedir PIN de nuevo)
+- Tablas `asist_datos_empleado` y `asist_registros` (migration 026)
+- Panel admin `/parqueadero/asistencia` con jornadas agrupadas ingreso↔salida por empleado
+- Gestión de accesos QR: habilitar, resetear PIN y revocar por usuario o masivo
+- Página `/parqueadero/asistencia/qr` para imprimir código QR listo para pegar en la entrada
+- Exportación a Excel de registros por fecha (disponible para admin parqueadero y superadmin)
+- `documento_tipo` (CC/CE/TI/PP) y `documento_numero` centralizados en tabla `perfiles`
+- Nav parqueadero en modo `compact`: íconos solos en md, texto completo en lg
+
+#### Cambiado
+- `parq_datos_personal` ya no almacena documento (migrado a `perfiles` en migration 026)
+- Modal de personal parqueadero: save separado para documento (→ `perfiles`) y licencia (→ `parq_datos_personal`)
+- NIT eliminado de opciones de tipo de documento
+
+#### Corregido
+- `esPendiente` en lista de usuarios excluye usuarios con `razon_suspension` (se muestran como Inactivo)
+- Trigger `trigger_parq_personal_actualizado` actualizado para no referenciar columnas eliminadas
+
+---
+
 ## [1.25.3] - 2026-05-07
 
 ### Fix(auditoria): NUNC separado, limpiar sesiones
