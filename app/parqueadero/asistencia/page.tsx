@@ -118,10 +118,30 @@ export default function AsistenciaPage() {
     setLoadingEmp(true)
     const supabase = createClient()
 
-    const [{ data: usuarios }, { data: conPin }] = await Promise.all([
-      supabase.from("perfiles").select("id, nombre_completo, documento_numero").eq("activo", true).order("nombre_completo"),
+    const [{ data: roles }, { data: conPin }] = await Promise.all([
+      supabase
+        .from("usuarios_roles")
+        .select("usuario_id, roles_modulo(nombre)")
+        .eq("modulo_id", "parqueadero"),
       supabase.from("asist_datos_empleado").select("perfil_id"),
     ])
+
+    const ids = (roles ?? []).map((r) => r.usuario_id)
+    const rolMap = Object.fromEntries(
+      (roles ?? []).map((r) => [
+        r.usuario_id,
+        (r.roles_modulo as unknown as { nombre: string } | null)?.nombre ?? null,
+      ])
+    )
+
+    const { data: usuarios } = ids.length
+      ? await supabase
+          .from("perfiles")
+          .select("id, nombre_completo, documento_numero")
+          .in("id", ids)
+          .eq("activo", true)
+          .order("nombre_completo")
+      : { data: [] }
 
     const pinSet = new Set((conPin ?? []).map((r) => r.perfil_id))
 
@@ -129,7 +149,7 @@ export default function AsistenciaPage() {
       id:               p.id,
       nombre_completo:  p.nombre_completo,
       documento_numero: p.documento_numero,
-      rol_nombre:       null,
+      rol_nombre:       rolMap[p.id] ?? null,
       tiene_pin:        pinSet.has(p.id),
     }))
 
