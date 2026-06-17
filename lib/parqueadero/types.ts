@@ -40,6 +40,9 @@ export interface VistaInspeccion {
   items_buenos: number
   items_regulares: number
   items_malos: number
+  turno_id:    string | null
+  km_inicio:   number | null
+  km_fin:      number | null
 }
 
 export interface VistaVehiculo {
@@ -72,6 +75,37 @@ export interface VistaPersonal {
   documento_numero: string | null
   telefono: string | null
   estado_licencia: EstadoDocumento
+}
+
+export interface VistaTurno {
+  id:                  string
+  tipo_turno:          'diurno' | 'nocturno'
+  fecha:               string
+  hora_inicio:         string
+  hora_fin:            string | null
+  km_fin:              number | null
+  estado:              'abierto' | 'cerrado'
+  creado_en:           string
+  vehiculo_id:         string
+  placa:               string
+  marca:               string | null
+  modelo:              string | null
+  km_inicio:           number | null
+  km_recorridos:       number | null
+  horas_brutas:        number | null
+  horas_novedades:     number
+  horas_operadas:      number | null
+  total_inspecciones:  number
+  operadores:          string | null
+}
+
+export interface TurnoNovedad {
+  id:          string
+  turno_id:    string
+  motivo:      string
+  hora_inicio: string
+  hora_fin:    string | null
+  creado_en:   string
 }
 
 /**

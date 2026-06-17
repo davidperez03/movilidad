@@ -407,6 +407,8 @@ interface InspeccionPDFData {
   items_malos: number
   firma_inspector: string | null
   firma_operador: string | null
+  km_inicio:      number | null
+  km_fin:         number | null
 }
 
 interface DocumentoInspeccionPDFProps {
@@ -537,6 +539,18 @@ export function DocumentoInspeccionPDF({ inspeccion, items }: DocumentoInspeccio
                 <Text style={styles.infoLabel}>Turno</Text>
                 <Text style={styles.infoValue}>{inspeccion.turno === "diurno" ? "Diurno" : "Nocturno"}</Text>
               </View>
+              {inspeccion.km_inicio != null && (
+                <View style={styles.infoItem}>
+                  <Text style={styles.infoLabel}>KM Inicial</Text>
+                  <Text style={styles.infoValue}>{inspeccion.km_inicio.toLocaleString("es-CO")}</Text>
+                </View>
+              )}
+              {inspeccion.km_fin != null && (
+                <View style={styles.infoItem}>
+                  <Text style={styles.infoLabel}>KM Final</Text>
+                  <Text style={styles.infoValue}>{inspeccion.km_fin.toLocaleString("es-CO")}</Text>
+                </View>
+              )}
               {inspeccion.auxiliar_nombre && (
                 <View style={styles.infoItem}>
                   <Text style={styles.infoLabel}>Auxiliar</Text>

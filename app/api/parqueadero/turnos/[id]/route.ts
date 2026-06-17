@@ -5,12 +5,12 @@ import { logger } from '@/lib/logger'
 import { z } from 'zod'
 
 const patchSchema = z.object({
-  fecha:         z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
-  hora:          z.string().optional(),
-  turno:         z.enum(['diurno', 'nocturno']).optional(),
-  km_inicio:     z.number().int().nonnegative().nullable().optional(),
-  observaciones: z.string().nullable().optional(),
-  es_apto:       z.boolean().optional(),
+  tipo_turno:  z.enum(['diurno', 'nocturno']).optional(),
+  fecha:       z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  hora_inicio: z.string().optional(),
+  hora_fin:    z.string().nullable().optional(),
+  km_fin:      z.number().int().nonnegative().nullable().optional(),
+  estado:      z.enum(['abierto', 'cerrado']).optional(),
 })
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -23,13 +23,13 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   if (!parsed.success) return NextResponse.json({ error: 'Datos inválidos' }, { status: 400 })
 
   const { error } = await createAdminClient()
-    .from('parq_inspecciones')
+    .from('parq_turnos')
     .update(parsed.data)
     .eq('id', id)
 
   if (error) {
-    logger.error('Error editando inspección', { id, error })
-    return NextResponse.json({ error: 'Error al editar la inspección' }, { status: 500 })
+    logger.error('Error editando turno', { id, error })
+    return NextResponse.json({ error: 'Error al editar el turno' }, { status: 500 })
   }
   return NextResponse.json({ ok: true })
 }
@@ -41,13 +41,13 @@ export async function DELETE(_req: Request, { params }: { params: Promise<{ id: 
   const { id } = await params
 
   const { error } = await createAdminClient()
-    .from('parq_inspecciones')
+    .from('parq_turnos')
     .delete()
     .eq('id', id)
 
   if (error) {
-    logger.error('Error eliminando inspección', { id, error })
-    return NextResponse.json({ error: 'Error al eliminar la inspección' }, { status: 500 })
+    logger.error('Error eliminando turno', { id, error })
+    return NextResponse.json({ error: 'Error al eliminar el turno' }, { status: 500 })
   }
   return NextResponse.json({ ok: true })
 }

@@ -9,13 +9,17 @@ CREATE TABLE IF NOT EXISTS public.perfiles (
   suspendido_hasta TIMESTAMP WITH TIME ZONE,
   razon_suspension TEXT,
   ultima_conexion TIMESTAMP WITH TIME ZONE,
+  -- Documento de identidad (migration 026: movido desde parq_datos_personal)
+  documento_tipo   TEXT CHECK (documento_tipo IN ('CC', 'CE', 'TI', 'PP')),
+  documento_numero TEXT,
   creado_en TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
   actualizado_en TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL
 );
 
-CREATE INDEX IF NOT EXISTS idx_perfiles_correo ON public.perfiles(correo);
-CREATE INDEX IF NOT EXISTS idx_perfiles_rol_global ON public.perfiles(rol_global);
-CREATE INDEX IF NOT EXISTS idx_perfiles_activo ON public.perfiles(activo);
+CREATE INDEX IF NOT EXISTS idx_perfiles_correo          ON public.perfiles(correo);
+CREATE INDEX IF NOT EXISTS idx_perfiles_rol_global       ON public.perfiles(rol_global);
+CREATE INDEX IF NOT EXISTS idx_perfiles_activo           ON public.perfiles(activo);
+CREATE INDEX IF NOT EXISTS idx_perfiles_documento_numero ON public.perfiles(documento_numero) WHERE documento_numero IS NOT NULL;
 
 COMMENT ON TABLE public.perfiles IS
   'Perfiles de usuarios del sistema. Extiende auth.users de Supabase con información adicional. Cada usuario tiene un rol global (usuario o superadmin) que determina su nivel de acceso base.';

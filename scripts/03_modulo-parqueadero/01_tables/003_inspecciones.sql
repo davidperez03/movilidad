@@ -19,16 +19,20 @@ create table if not exists public.parq_inspecciones (
   firma_inspector text,
   firma_operador text,
   observaciones_fotos JSONB DEFAULT '[]'::jsonb, -- [{url: string, timestamp: string}]. Máximo 5.
+  -- Turno operativo (migration 027)
+  turno_id    uuid references public.parq_turnos(id) on delete set null,
+  km_inicio   integer,
   creado_por uuid references public.perfiles(id),
   creado_en timestamptz default now() not null,
   actualizado_en timestamptz default now() not null,
   version integer not null default 1
 );
 
-create index if not exists idx_parq_inspecciones_vehiculo on public.parq_inspecciones(vehiculo_id);
-create index if not exists idx_parq_inspecciones_fecha on public.parq_inspecciones(fecha desc);
+create index if not exists idx_parq_inspecciones_vehiculo  on public.parq_inspecciones(vehiculo_id);
+create index if not exists idx_parq_inspecciones_fecha     on public.parq_inspecciones(fecha desc);
 create index if not exists idx_parq_inspecciones_fecha_creado on public.parq_inspecciones(fecha desc, creado_en desc);
-create index if not exists idx_parq_inspecciones_operador on public.parq_inspecciones(operador_id);
+create index if not exists idx_parq_inspecciones_operador  on public.parq_inspecciones(operador_id);
+create index if not exists idx_parq_inspecciones_turno_id  on public.parq_inspecciones(turno_id);
 
 alter table public.parq_inspecciones
   add constraint if not exists check_observaciones_fotos_max_5 check (jsonb_array_length(observaciones_fotos) <= 5);

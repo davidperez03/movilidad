@@ -20,7 +20,7 @@ interface NavTabsGenericProps {
   globalBadge?: { count: number; label: string } | null
   activeClass?: string
   inactiveHoverClass?: string
-  /** En md muestra solo íconos, en lg muestra ícono + texto */
+  /** En md muestra solo íconos, en lg muestra ícono + texto. Default: true */
   compact?: boolean
 }
 
@@ -30,7 +30,7 @@ export function NavTabsGeneric({
   globalBadge,
   activeClass,
   inactiveHoverClass,
-  compact = false,
+  compact = true,
 }: NavTabsGenericProps) {
   return (
     <nav
@@ -49,12 +49,20 @@ export function NavTabsGeneric({
             {...(inactiveHoverClass ? { inactiveHoverClass } : {})}
             {...(compact ? { compact: true } : {})}
           >
-            <Icon className="h-4 w-4" />
+            {/* Ícono con badge numérico pequeño en md, badge completo en lg */}
+            <span className="relative">
+              <Icon className="h-4 w-4" />
+              {compact && item.badge != null && item.badge > 0 && (
+                <span className="lg:hidden absolute -top-1.5 -right-1.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-primary text-[9px] font-bold text-primary-foreground">
+                  {item.badge > 9 ? "9+" : item.badge}
+                </span>
+              )}
+            </span>
             <span className={compact ? "hidden lg:inline" : undefined}>{item.label}</span>
             {item.badge != null && item.badge > 0 && (
               <Badge
                 variant={item.badgeVariant ?? "secondary"}
-                className="ml-1 h-5 min-w-5 px-1 text-xs"
+                className={`ml-1 h-5 min-w-5 px-1 text-xs ${compact ? "hidden lg:inline-flex" : ""}`}
               >
                 {item.badge}
                 {item.badgeSuffix ? ` ${item.badgeSuffix}` : ""}
