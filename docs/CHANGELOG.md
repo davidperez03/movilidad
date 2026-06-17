@@ -5,6 +5,15 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.26.1] - 2026-06-17
+
+### fix(asistencia): gestión de accesos muestra solo personal de parqueadero
+
+#### Corregido
+- La tabla de gestión de accesos QR filtra por `modulo_id = parqueadero`; los superadmins ya no aparecen
+
+---
+
 ## [1.26.0] - 2026-06-17
 
 ### feat(asistencia): Sistema de control de ingreso/salida por QR para parqueadero
