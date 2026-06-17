@@ -25,6 +25,14 @@ END; $$;
 CREATE OR REPLACE FUNCTION _parq_historial_inmutable()
 RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
 BEGIN
-  RAISE EXCEPTION 'AUDIT_IMMUTABLE: parq_historial_acciones es inmutable. Operación % denegada.', TG_OP
+  -- Permitir SET NULL en inspeccion_id cuando se elimina una inspeccion (ON DELETE SET NULL)
+  IF TG_OP = 'UPDATE'
+     AND OLD.inspeccion_id IS NOT NULL
+     AND NEW.inspeccion_id IS NULL
+     AND OLD.accion = NEW.accion
+     AND COALESCE(OLD.vehiculo_id::text,'') = COALESCE(NEW.vehiculo_id::text,'') THEN
+    RETURN NEW;
+  END IF;
+  RAISE EXCEPTION 'AUDIT_IMMUTABLE: parq_historial_acciones es inmutable. Operacion % denegada.', TG_OP
     USING ERRCODE = 'insufficient_privilege';
 END; $$;

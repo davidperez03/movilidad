@@ -38,10 +38,12 @@ import { CapturaFoto, VistaFotos } from "./captura-foto"
 type VehiculoFormulario = Pick<VistaVehiculo, 'id' | 'placa' | 'marca' | 'modelo' | 'tipo' | 'soat_vencimiento' | 'tecnomecanica_vencimiento' | 'estado_soat' | 'estado_tecnomecanica'>
 
 interface FormularioInspeccionProps {
-  vehiculos: VehiculoFormulario[]
-  itemsCatalogo: ItemCatalogo[]
-  operadores: VistaPersonal[]
-  auxiliares: VistaPersonal[]
+  vehiculos:          VehiculoFormulario[]
+  itemsCatalogo:      ItemCatalogo[]
+  operadores:         VistaPersonal[]
+  auxiliares:         VistaPersonal[]
+  turnoId?:           string
+  vehiculoIdInicial?: string
 }
 
 interface ItemInspeccion {
@@ -68,16 +70,19 @@ export function FormularioInspeccion({
   itemsCatalogo,
   operadores,
   auxiliares,
+  turnoId,
+  vehiculoIdInicial,
 }: FormularioInspeccionProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
 
   const [formData, setFormData] = useState({
-    vehiculo_id: "",
-    operador_id: "",
-    auxiliar_id: "",
-    turno: "diurno" as "diurno" | "nocturno",
+    vehiculo_id:  vehiculoIdInicial ?? "",
+    operador_id:  "",
+    auxiliar_id:  "",
+    turno:        "diurno" as "diurno" | "nocturno",
     observaciones: "",
+    km_inicio:    "",
   })
 
   // El inspector decide si es apto (por defecto sí)
@@ -406,19 +411,49 @@ export function FormularioInspeccion({
         }
       }
 
+      // Validar km_inicio contra último km registrado del vehículo
+      if (formData.km_inicio) {
+        const { data: ultimoKm } = await supabase
+          .from('parq_inspecciones')
+          .select('km_inicio')
+          .eq('vehiculo_id', formData.vehiculo_id)
+          .not('km_inicio', 'is', null)
+          .order('creado_en', { ascending: false })
+          .limit(1)
+          .single()
+
+        const { data: ultimoTurno } = await supabase
+          .from('parq_turnos')
+          .select('km_fin')
+          .eq('vehiculo_id', formData.vehiculo_id)
+          .not('km_fin', 'is', null)
+          .order('creado_en', { ascending: false })
+          .limit(1)
+          .single()
+
+        const maxKm = Math.max(ultimoKm?.km_inicio ?? 0, ultimoTurno?.km_fin ?? 0)
+        if (maxKm > 0 && Number(formData.km_inicio) < maxKm) {
+          toast.error(`KM inicial (${Number(formData.km_inicio).toLocaleString('es-CO')}) no puede ser menor al último registrado (${maxKm.toLocaleString('es-CO')})`)
+          setLoading(false)
+          return
+        }
+      }
+
       // Crear la inspección con snapshot de documentos y firmas
       const { data: inspeccion, error: errorInspeccion } = await supabase
         .from("parq_inspecciones")
         .insert({
-          vehiculo_id: formData.vehiculo_id,
-          operador_id: formData.operador_id,
-          auxiliar_id: formData.auxiliar_id || null,
+          vehiculo_id:  formData.vehiculo_id,
+          operador_id:  formData.operador_id,
+          auxiliar_id:  formData.auxiliar_id || null,
           inspector_id: user.id,
           fecha,
           hora,
-          turno: formData.turno,
-          es_apto: esApto,
+          turno:        formData.turno,
+          es_apto:      esApto,
           observaciones: formData.observaciones || null,
+          turno_id:     turnoId ?? null,
+          km_inicio:    formData.km_inicio ? Number(formData.km_inicio) : null,
           observaciones_fotos: observacionesFotos.length > 0 ? observacionesFotos : null,
           creado_por: user.id,
           // Snapshot de documentos al momento de la inspección
@@ -482,7 +517,7 @@ export function FormularioInspeccion({
       }
 
       toast.success("Inspección registrada correctamente")
-      router.push("/parqueadero/inspecciones")
+      router.push(turnoId ? `/parqueadero/turnos/${turnoId}` : "/parqueadero/inspecciones")
       router.refresh()
     } catch {
       toast.error("Error al crear la inspección")
@@ -506,6 +541,7 @@ export function FormularioInspeccion({
             <Select
               value={formData.vehiculo_id}
               onValueChange={(value) => setFormData({ ...formData, vehiculo_id: value })}
+              disabled={!!turnoId}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Selecciona vehículo" />
@@ -518,6 +554,9 @@ export function FormularioInspeccion({
                 ))}
               </SelectContent>
             </Select>
+            {turnoId && (
+              <p className="text-xs text-muted-foreground">Vehículo asignado desde el turno</p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -598,6 +637,18 @@ export function FormularioInspeccion({
                 ))}
               </SelectContent>
             </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label>KM inicial *</Label>
+            <input
+              type="number"
+              min={0}
+              placeholder="Ej: 1000"
+              value={formData.km_inicio}
+              onChange={(e) => setFormData({ ...formData, km_inicio: e.target.value })}
+              className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+            />
           </div>
         </CardContent>
       </Card>

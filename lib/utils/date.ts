@@ -175,6 +175,16 @@ export function getNowTimestampColombia(): string {
 }
 
 /**
+ * Convierte un string "YYYY-MM-DDTHH:mm" de un input datetime-local
+ * (interpretado como hora Colombia UTC-5) a ISO UTC string para guardar en BD.
+ */
+export function localColombiaToUTC(localStr: string): string | null {
+  if (!localStr) return null
+  const d = new Date(localStr + ':00-05:00')
+  return isNaN(d.getTime()) ? null : d.toISOString()
+}
+
+/**
  * Formatea una fecha de PostgreSQL para mostrar en formato local (dd/mm/yyyy)
  * Similar a formatDateShort pero sin conversión de timezone (para campos tipo DATE)
  *
