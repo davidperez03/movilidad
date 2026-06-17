@@ -6,6 +6,7 @@ Para el proceso de release y reglas de versionamiento semántico ver [GITFLOW.md
 
 | Versión | Fecha | Descripción |
 |---------|-------|-------------|
+| 1.27.2 | 2026-06-17 | fix(scan): botón y estado visual para solicitar ubicación GPS nuevamente |
 | 1.27.1 | 2026-06-17 | feat(asistencia): validación GPS geofence al registrar ingreso/salida |
 | 1.27.0 | 2026-06-17 | feat(turnos): módulo de turnos operativos para parqueadero |
 | 1.26.3 | 2026-06-17 | fix(asistencia): excel agrupa jornadas y maneja turnos nocturnos |

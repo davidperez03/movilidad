@@ -5,6 +5,18 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.27.2] - 2026-06-17
+
+### fix(scan): botón y estado visual para solicitar ubicación GPS nuevamente
+
+#### Corregido
+- Badge dinámico en pantalla de registro: activa / denegada / sin GPS
+- Botón para reintentar cuando el permiso fue denegado o el GPS está inactivo
+- Verifica estado del permiso al cargar la página (Permissions API)
+- Mensajes de error específicos por tipo de fallo de geolocalización
+
+---
+
 ## [1.27.1] - 2026-06-17
 
 ### feat(asistencia): validación GPS geofence al registrar ingreso/salida
