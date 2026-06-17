@@ -5,6 +5,17 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.27.1] - 2026-06-17
+
+### feat(asistencia): validación GPS geofence al registrar ingreso/salida
+
+#### Agregado
+- El empleado debe estar dentro de 100m de la oficina para registrar asistencia
+- Cálculo Haversine server-side con coordenadas configurables por env vars (`OFFICE_LAT`, `OFFICE_LNG`, `OFFICE_RADIUS_M`)
+- Mensajes de error claros: permiso GPS denegado, GPS inactivo, fuera de rango con distancia exacta
+
+---
+
 ## [1.27.0] - 2026-06-17
 
 ### feat(turnos): módulo de turnos operativos para parqueadero
