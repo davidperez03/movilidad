@@ -103,14 +103,46 @@ export default function AsistenciaPage() {
   const cargarRegistros = useCallback(async (f: string) => {
     setLoading(true)
     const supabase = createClient()
-    const { data, error } = await supabase
+
+    const { data: hoy, error } = await supabase
       .from("asist_vista_registros")
       .select("id, usuario_id, tipo, timestamp, nombre_completo, documento_numero, rol_nombre")
       .gte("timestamp", `${f}T00:00:00.000Z`)
       .lte("timestamp", `${f}T23:59:59.999Z`)
       .order("timestamp", { ascending: true })
-    if (error) toast.error("Error al cargar registros")
-    setRegistros(data ?? [])
+
+    if (error) { toast.error("Error al cargar registros"); setLoading(false); return }
+
+    // Detectar SALIDAs huérfanas: usuarios cuyo primer registro del día es SALIDA
+    // (entraron el día anterior en turno nocturno)
+    const primerosPorUsuario: Record<string, Registro> = {}
+    for (const r of hoy ?? []) {
+      if (!primerosPorUsuario[r.usuario_id]) primerosPorUsuario[r.usuario_id] = r
+    }
+    const huerfanos = Object.values(primerosPorUsuario)
+      .filter((r) => r.tipo === "SALIDA")
+      .map((r) => r.usuario_id)
+
+    let ingresosNocturnosAnteriores: Registro[] = []
+    if (huerfanos.length > 0) {
+      const { data: prev } = await supabase
+        .from("asist_vista_registros")
+        .select("id, usuario_id, tipo, timestamp, nombre_completo, documento_numero, rol_nombre")
+        .in("usuario_id", huerfanos)
+        .eq("tipo", "INGRESO")
+        .lt("timestamp", `${f}T00:00:00.000Z`)
+        .order("timestamp", { ascending: false })
+
+      // Tomar solo el último INGRESO por usuario
+      const ultimo: Record<string, Registro> = {}
+      for (const r of prev ?? []) {
+        if (!ultimo[r.usuario_id]) ultimo[r.usuario_id] = r
+      }
+      ingresosNocturnosAnteriores = Object.values(ultimo)
+    }
+
+    // Prefijar los ingresos del día anterior para que agruparJornadas los empareje
+    setRegistros([...ingresosNocturnosAnteriores, ...(hoy ?? [])])
     setLoading(false)
   }, [])
 
