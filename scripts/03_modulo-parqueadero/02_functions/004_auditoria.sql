@@ -254,9 +254,7 @@ begin
       'correo', v_correo,
       'licencia_numero', new.licencia_numero,
       'licencia_categoria', new.licencia_categoria,
-      'licencia_vencimiento', new.licencia_vencimiento,
-      'documento_tipo', new.documento_tipo,
-      'documento_numero', new.documento_numero
+      'licencia_vencimiento', new.licencia_vencimiento
     );
   else
     -- En UPDATE registrar solo los cambios

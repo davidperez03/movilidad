@@ -53,8 +53,9 @@ export async function updateSession(request: NextRequest) {
   const isPublicRoute = publicRoutes.includes(request.nextUrl.pathname)
   const isPublicApi = request.nextUrl.pathname.startsWith("/api/consulta") || request.nextUrl.pathname.startsWith("/api/nunc")
   const isAuthRoute = request.nextUrl.pathname.startsWith("/auth") || request.nextUrl.pathname.startsWith("/api/auth")
+  const isScanRoute = request.nextUrl.pathname.startsWith("/scan") || request.nextUrl.pathname.startsWith("/api/scan")
   const isApiRoute  = request.nextUrl.pathname.startsWith("/api/")
-  const isProtected = !isPublicRoute && !isPublicApi && !isAuthRoute
+  const isProtected = !isPublicRoute && !isPublicApi && !isAuthRoute && !isScanRoute
 
   // Fail-closed: si getUser() falla en rutas protegidas, redirigir a login.
   let user = null
