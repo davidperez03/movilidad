@@ -5,6 +5,39 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.27.0] - 2026-06-17
+
+### feat(turnos): módulo de turnos operativos para parqueadero
+
+#### Agregado
+- Módulo completo de turnos: abrir, inspeccionar desde turno, registrar salidas de operación, cerrar
+- Tablas `parq_turnos` y `parq_turno_novedades` (migration 027)
+- `turno_id` y `km_inicio` en inspecciones; `km_fin` del turno en la vista
+- Vista `parq_vista_turnos` con horas operadas netas, km recorridos y operadores
+- Exportar Excel de turnos por rango de fechas
+- `require-parqueadero.ts`: helper centralizado para permisos de módulo
+- PDF de inspección incluye `km_inicio` y `km_fin`
+- Modal de edición de inspección (fecha, hora, turno, km, observaciones, apto)
+- Nav compact por defecto en todos los módulos; Turnos en segunda posición
+- Badge modo compact: punto sobre ícono en md, texto completo en lg
+- `localColombiaToUTC()` centralizada en `lib/utils/date.ts`
+- Sources SQL sincronizados (levantamiento desde cero funcional)
+
+#### Permisos
+- Superadmin: todo incluyendo eliminar inspecciones y turnos
+- Admin parqueadero: editar inspecciones, abrir/cerrar turnos, novedades — sin eliminar
+- Auxiliar: ver turnos + crear inspecciones desde turno activo
+- Operario: solo ver
+
+#### Corregido
+- Endpoints de turnos/novedades sin validación de rol → ahora requieren `gestionar_vehiculos`
+- PATCH inspecciones: permite `editar_inspecciones` (no solo superadmin)
+- Trigger inmutabilidad historial: permite `SET NULL` al eliminar inspecciones
+- Validación de kilometraje: no permite ingresar km menor al histórico del vehículo
+- Botón "Nueva inspección" eliminado de la página de inspecciones (se crea desde turnos)
+
+---
+
 ## [1.26.3] - 2026-06-17
 
 ### fix(asistencia): excel agrupa jornadas y maneja turnos nocturnos

@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server"
 import { notFound } from "next/navigation"
+import { obtenerPermisosUsuario } from "@/lib/server/permisos"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -22,6 +23,7 @@ import { formatearFecha, formatearFechaLarga, formatearFechaHora, formatearFecha
 import type { FotoConTimestamp } from "@/lib/parqueadero/types"
 import { SeccionNovedades } from "@/components/parqueadero/inspecciones/seccion-novedades"
 import { BotonDescargarInspeccion } from "@/components/parqueadero/inspecciones/boton-descargar-inspeccion"
+import { ModalEditarInspeccion } from "@/components/parqueadero/inspecciones/modal-editar-inspeccion"
 import { cn } from "@/lib/utils"
 import { capitalizeName } from "@/lib/utils/capitalize"
 
@@ -32,6 +34,7 @@ interface PageProps {
 export default async function InspeccionDetallePage({ params }: PageProps) {
   const { id } = await params
   const supabase = await createClient()
+  const { esSuperadmin, parqueadero: permisos } = await obtenerPermisosUsuario()
 
   // firmas y observaciones_fotos no están en la vista, se leen directamente de la tabla.
   const [
@@ -103,6 +106,19 @@ export default async function InspeccionDetallePage({ params }: PageProps) {
           </p>
         </div>
         <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-2">
+          {(esSuperadmin || permisos.editar_inspecciones) && (
+            <ModalEditarInspeccion
+              id={id}
+              inicial={{
+                fecha:         inspeccion.fecha,
+                hora:          inspeccion.hora,
+                turno:         inspeccion.turno,
+                km_inicio:     inspeccion.km_inicio,
+                observaciones: inspeccion.observaciones,
+                es_apto:       inspeccion.es_apto,
+              }}
+            />
+          )}
           <BotonDescargarInspeccion
             inspeccionId={id}
             placa={inspeccion.placa}
