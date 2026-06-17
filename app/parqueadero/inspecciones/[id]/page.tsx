@@ -34,7 +34,7 @@ interface PageProps {
 export default async function InspeccionDetallePage({ params }: PageProps) {
   const { id } = await params
   const supabase = await createClient()
-  const { esSuperadmin } = await obtenerPermisosUsuario()
+  const { esSuperadmin, parqueadero: permisos } = await obtenerPermisosUsuario()
 
   // firmas y observaciones_fotos no están en la vista, se leen directamente de la tabla.
   const [
@@ -106,7 +106,7 @@ export default async function InspeccionDetallePage({ params }: PageProps) {
           </p>
         </div>
         <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-2">
-          {esSuperadmin && (
+          {(esSuperadmin || permisos.editar_inspecciones) && (
             <ModalEditarInspeccion
               id={id}
               inicial={{

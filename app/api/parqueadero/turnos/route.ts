@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { requireParqueadero } from '@/lib/api/require-parqueadero'
 import { logger } from '@/lib/logger'
 
 const schema = z.object({
@@ -13,9 +13,8 @@ const schema = z.object({
 
 export async function POST(req: NextRequest) {
   try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return NextResponse.json({ error: 'No autenticado' }, { status: 401 })
+    const auth = await requireParqueadero('gestionar_vehiculos')
+    if (auth.response) return auth.response
 
     const body = await req.json()
     const parsed = schema.safeParse(body)
@@ -23,6 +22,7 @@ export async function POST(req: NextRequest) {
 
     const { tipo_turno, fecha, vehiculo_id, hora_inicio } = parsed.data
     const admin = createAdminClient()
+    const userId = auth.userId
 
     const { data: existente } = await admin
       .from('parq_turnos')
@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
 
     const { data, error } = await admin
       .from('parq_turnos')
-      .insert({ tipo_turno, fecha, vehiculo_id, hora_inicio, creado_por: user.id })
+      .insert({ tipo_turno, fecha, vehiculo_id, hora_inicio, creado_por: userId })
       .select('id')
       .single()
 

@@ -1,18 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { requireParqueadero } from '@/lib/api/require-parqueadero'
 import { logger } from '@/lib/logger'
 
 const patchSchema = z.object({
-  hora_fin: z.string(),
+  hora_fin: z.string().min(1),
 })
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string; novedadId: string }> }) {
   try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return NextResponse.json({ error: 'No autenticado' }, { status: 401 })
+    const auth = await requireParqueadero('gestionar_vehiculos')
+    if (auth.response) return auth.response
 
     const { novedadId } = await params
     const body = await req.json()
@@ -34,9 +33,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
 export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string; novedadId: string }> }) {
   try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return NextResponse.json({ error: 'No autenticado' }, { status: 401 })
+    const auth = await requireParqueadero('gestionar_vehiculos')
+    if (auth.response) return auth.response
 
     const { novedadId } = await params
 

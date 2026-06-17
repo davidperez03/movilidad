@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireSuperAdmin } from '@/lib/api/require-superadmin'
+import { requireParqueadero } from '@/lib/api/require-parqueadero'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { logger } from '@/lib/logger'
 import { z } from 'zod'
@@ -14,7 +15,7 @@ const patchSchema = z.object({
 })
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const auth = await requireSuperAdmin()
+  const auth = await requireParqueadero('editar_inspecciones')
   if (auth.response) return auth.response
 
   const { id } = await params
