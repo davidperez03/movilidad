@@ -59,5 +59,4 @@ export const OPCIONES_TIPO_DOCUMENTO: ConfigOpcion[] = [
   { value: 'CE', label: 'Cédula de Extranjería', color: 'bg-gray-100 text-gray-700' },
   { value: 'TI', label: 'Tarjeta de Identidad', color: 'bg-gray-100 text-gray-700' },
   { value: 'PP', label: 'Pasaporte', color: 'bg-gray-100 text-gray-700' },
-  { value: 'NIT', label: 'NIT', color: 'bg-gray-100 text-gray-700' },
 ]

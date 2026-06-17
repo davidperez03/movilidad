@@ -56,26 +56,23 @@ export function ModalDatosPersonal({ persona, onCerrar }: ModalDatosPersonalProp
   useEffect(() => {
     async function cargarDatos() {
       const supabase = createClient()
-      const { data } = await supabase
-        .from("parq_datos_personal")
-        .select("*")
-        .eq("perfil_id", persona.id)
-        .single()
+      const [{ data: dp }, { data: perfil }] = await Promise.all([
+        supabase.from("parq_datos_personal").select("*").eq("perfil_id", persona.id).single(),
+        supabase.from("perfiles").select("documento_tipo, documento_numero").eq("id", persona.id).single(),
+      ])
 
-      if (data) {
-        setFormData({
-          licencia_numero: data.licencia_numero || "",
-          licencia_categoria: data.licencia_categoria || "",
-          licencia_vencimiento: data.licencia_vencimiento || "",
-          licencia_restricciones: data.licencia_restricciones || "",
-          documento_tipo: data.documento_tipo || "CC",
-          documento_numero: data.documento_numero || "",
-          telefono: data.telefono || "",
-          contacto_emergencia: data.contacto_emergencia || "",
-          telefono_emergencia: data.telefono_emergencia || "",
-          observaciones: data.observaciones || "",
-        })
-      }
+      setFormData({
+        licencia_numero: dp?.licencia_numero || "",
+        licencia_categoria: dp?.licencia_categoria || "",
+        licencia_vencimiento: dp?.licencia_vencimiento || "",
+        licencia_restricciones: dp?.licencia_restricciones || "",
+        documento_tipo: perfil?.documento_tipo || "CC",
+        documento_numero: perfil?.documento_numero || "",
+        telefono: dp?.telefono || "",
+        contacto_emergencia: dp?.contacto_emergencia || "",
+        telefono_emergencia: dp?.telefono_emergencia || "",
+        observaciones: dp?.observaciones || "",
+      })
     }
     cargarDatos()
   }, [persona.id])
@@ -87,25 +84,26 @@ export function ModalDatosPersonal({ persona, onCerrar }: ModalDatosPersonalProp
     try {
       const supabase = createClient()
 
-      const dataToSave = {
-        perfil_id: persona.id,
-        licencia_numero: formData.licencia_numero || null,
-        licencia_categoria: formData.licencia_categoria || null,
-        licencia_vencimiento: formData.licencia_vencimiento || null,
-        licencia_restricciones: formData.licencia_restricciones || null,
-        documento_tipo: formData.documento_tipo,
-        documento_numero: formData.documento_numero || null,
-        telefono: formData.telefono || null,
-        contacto_emergencia: formData.contacto_emergencia || null,
-        telefono_emergencia: formData.telefono_emergencia || null,
-        observaciones: formData.observaciones || null,
-      }
+      const [{ error: errDoc }, { error: errDp }] = await Promise.all([
+        supabase.from("perfiles").update({
+          documento_tipo:   formData.documento_tipo,
+          documento_numero: formData.documento_numero || null,
+        }).eq("id", persona.id),
+        supabase.from("parq_datos_personal").upsert({
+          perfil_id:            persona.id,
+          licencia_numero:      formData.licencia_numero || null,
+          licencia_categoria:   formData.licencia_categoria || null,
+          licencia_vencimiento: formData.licencia_vencimiento || null,
+          licencia_restricciones: formData.licencia_restricciones || null,
+          telefono:             formData.telefono || null,
+          contacto_emergencia:  formData.contacto_emergencia || null,
+          telefono_emergencia:  formData.telefono_emergencia || null,
+          observaciones:        formData.observaciones || null,
+        }, { onConflict: "perfil_id" }),
+      ])
 
-      const { error } = await supabase
-        .from("parq_datos_personal")
-        .upsert(dataToSave, { onConflict: "perfil_id" })
-
-      if (error) throw error
+      if (errDoc) throw errDoc
+      if (errDp)  throw errDp
 
       toast.success("Datos guardados")
       router.refresh()

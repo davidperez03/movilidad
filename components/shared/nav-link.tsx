@@ -10,6 +10,7 @@ interface NavLinkProps {
   exact?: boolean
   activeClass?: string
   inactiveHoverClass?: string
+  compact?: boolean
 }
 
 export function NavLink({
@@ -18,6 +19,7 @@ export function NavLink({
   exact = false,
   activeClass = "border-primary text-foreground",
   inactiveHoverClass = "hover:border-primary/50",
+  compact = false,
 }: NavLinkProps) {
   const pathname = usePathname()
   const isActive = exact ? pathname === href : pathname.startsWith(href)
@@ -26,7 +28,8 @@ export function NavLink({
     <Link
       href={href}
       className={cn(
-        "flex items-center gap-2 border-b-2 px-5 py-3.5 text-sm font-medium transition-colors",
+        "flex items-center gap-2 border-b-2 py-3.5 text-sm font-medium transition-colors",
+        compact ? "px-3 lg:px-5" : "px-5",
         isActive
           ? activeClass
           : cn("border-transparent text-muted-foreground hover:text-foreground", inactiveHoverClass)

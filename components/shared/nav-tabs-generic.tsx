@@ -17,10 +17,11 @@ export interface NavTabItem {
 interface NavTabsGenericProps {
   items: NavTabItem[]
   ariaLabel?: string
-  /** Badge global a la derecha (ej: "N novedades pendientes") */
   globalBadge?: { count: number; label: string } | null
   activeClass?: string
   inactiveHoverClass?: string
+  /** En md muestra solo íconos, en lg muestra ícono + texto */
+  compact?: boolean
 }
 
 export function NavTabsGeneric({
@@ -29,6 +30,7 @@ export function NavTabsGeneric({
   globalBadge,
   activeClass,
   inactiveHoverClass,
+  compact = false,
 }: NavTabsGenericProps) {
   return (
     <nav
@@ -45,9 +47,10 @@ export function NavTabsGeneric({
             exact={item.exact}
             {...(activeClass ? { activeClass } : {})}
             {...(inactiveHoverClass ? { inactiveHoverClass } : {})}
+            {...(compact ? { compact: true } : {})}
           >
             <Icon className="h-4 w-4" />
-            {item.label}
+            <span className={compact ? "hidden lg:inline" : undefined}>{item.label}</span>
             {item.badge != null && item.badge > 0 && (
               <Badge
                 variant={item.badgeVariant ?? "secondary"}
