@@ -5,6 +5,17 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.26.3] - 2026-06-17
+
+### fix(asistencia): excel agrupa jornadas y maneja turnos nocturnos
+
+#### Corregido
+- Excel muestra una fila por jornada (Ingreso + Salida) en lugar de una fila por registro
+- Columnas: Nombre, Documento, Tipo doc., Rol, Ingreso, Salida, Estado
+- Detecta SALIDAs huérfanas de turnos nocturnos y busca el INGRESO del día anterior
+
+---
+
 ## [1.26.2] - 2026-06-17
 
 ### fix(asistencia): emparejar ingreso/salida en turnos nocturnos que cruzan medianoche
