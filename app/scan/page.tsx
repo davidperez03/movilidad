@@ -47,7 +47,20 @@ export default function ScanPage() {
     if (!estado || saving) return
     setSaving(true)
     try {
-      const res  = await fetch("/api/scan/registrar", { method: "POST" })
+      // Obtener ubicación GPS
+      const pos = await new Promise<GeolocationPosition>((resolve, reject) =>
+        navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 10000, maximumAge: 0 })
+      ).catch((err: GeolocationPositionError) => {
+        if (err.code === 1) throw new Error("Debes permitir el acceso a tu ubicación para registrar asistencia")
+        if (err.code === 2) throw new Error("No se pudo obtener tu ubicación. Verifica que el GPS esté activo")
+        throw new Error("Tiempo de espera agotado para obtener ubicación")
+      })
+
+      const res  = await fetch("/api/scan/registrar", {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body:    JSON.stringify({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+      })
       const data = await res.json()
       if (!res.ok) {
         toast.error(data.error ?? "Error al registrar")
@@ -56,8 +69,8 @@ export default function ScanPage() {
       router.push(
         `/scan/confirm?tipo=${data.tipo}&ts=${encodeURIComponent(data.timestamp)}&nombre=${encodeURIComponent(data.nombre)}`
       )
-    } catch {
-      toast.error("Error de conexión")
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Error de conexión")
     } finally {
       setSaving(false)
     }
