@@ -30,7 +30,7 @@ export function ListaUsuarios({
   onResetearPassword,
   onEliminarUsuario,
 }: ListaUsuariosProps) {
-  const esPendiente = (usuario: Usuario) => !usuario.activo && !usuario.ultima_conexion;
+  const esPendiente = (usuario: Usuario) => !usuario.activo && !usuario.ultima_conexion && !usuario.razon_suspension;
 
   if (usuarios.length === 0) {
     return (

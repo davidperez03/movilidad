@@ -131,3 +131,9 @@
   letter-spacing: 0.08em;
   font-weight: 700;
 }
+
+@media print {
+  header, nav, [role="navigation"], [role="banner"] {
+    display: none !important;
+  }
+}
