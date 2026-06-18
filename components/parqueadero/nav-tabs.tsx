@@ -1,6 +1,6 @@
 "use client"
 
-import { LayoutDashboard, ClipboardCheck, Truck, Users, Package, CalendarCheck, Timer } from "lucide-react"
+import { LayoutDashboard, ClipboardCheck, Truck, Users, Package, CalendarCheck, Timer, ArrowUpFromLine } from "lucide-react"
 import { NavTabsGeneric } from "@/components/shared/nav-tabs-generic"
 import type { NavItem } from "@/components/shared/mobile-nav"
 import type { NavTabItem } from "@/components/shared/nav-tabs-generic"
@@ -13,6 +13,7 @@ export const parqueaderoNavItems: NavItem[] = [
   { href: "/parqueadero/personal",    label: "Personal",     icon: Users },
   { href: "/parqueadero/inventarios", label: "Inventarios",  icon: Package },
   { href: "/parqueadero/asistencia",  label: "Asistencia",   icon: CalendarCheck },
+  { href: "/parqueadero/salidas-grua", label: "Salidas",     icon: ArrowUpFromLine },
 ]
 
 interface NavTabsProps {
@@ -41,7 +42,8 @@ export function NavTabsParqueadero({ inspeccionesHoy, vehiculosActivos, alertasL
       badgeVariant: "destructive",
     },
     { href: "/parqueadero/inventarios",  label: "Inventarios",  icon: Package },
-    { href: "/parqueadero/asistencia",   label: "Asistencia",   icon: CalendarCheck },
+    { href: "/parqueadero/asistencia",    label: "Asistencia",   icon: CalendarCheck },
+    { href: "/parqueadero/salidas-grua",  label: "Salidas",      icon: ArrowUpFromLine },
   ]
 
   return (

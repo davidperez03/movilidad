@@ -11,6 +11,7 @@ import {
   XCircle,
   AlertTriangle,
   ClipboardCheck,
+  QrCode,
 } from "lucide-react"
 import { TIPOS_VEHICULO, ESTADOS_DOCUMENTO } from "@/lib/parqueadero/config"
 import { formatearFecha, formatearFechaCorta, formatearHora } from "@/lib/parqueadero/utils"
@@ -62,9 +63,16 @@ export default async function VehiculoDetallePage({ params }: PageProps) {
             {vehiculo.marca} {vehiculo.modelo}
           </p>
         </div>
-        <Badge variant="outline" className={tipoConfig?.color}>
-          {tipoConfig?.label || vehiculo.tipo}
-        </Badge>
+        <div className="flex flex-col sm:flex-row gap-2">
+          <Button variant="outline" size="sm" asChild>
+            <Link href={`/parqueadero/vehiculos/${id}/qr`}>
+              <QrCode className="h-4 w-4 mr-1" />QR Grúa
+            </Link>
+          </Button>
+          <Badge variant="outline" className={tipoConfig?.color}>
+            {tipoConfig?.label || vehiculo.tipo}
+          </Badge>
+        </div>
       </div>
 
       {/* Info cards */}
