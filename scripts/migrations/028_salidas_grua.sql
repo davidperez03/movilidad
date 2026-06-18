@@ -14,8 +14,8 @@ CREATE TABLE IF NOT EXISTS public.parq_salidas_grua (
                    )),
   trae_carga       boolean     NOT NULL DEFAULT false,
   inventario_items jsonb       NOT NULL DEFAULT '[]'::jsonb,
+  codigo_salida    char(5),
   observaciones    text,
-  registrado_por   uuid        REFERENCES public.perfiles(id) ON DELETE SET NULL,
   creado_en        timestamptz DEFAULT now() NOT NULL
 );
 
@@ -24,7 +24,7 @@ CREATE INDEX IF NOT EXISTS idx_parq_salidas_grua_salida    ON public.parq_salida
 CREATE INDEX IF NOT EXISTS idx_parq_salidas_grua_en_calle  ON public.parq_salidas_grua(vehiculo_id, hora_regreso) WHERE hora_regreso IS NULL;
 
 COMMENT ON TABLE  public.parq_salidas_grua IS 'Registro de salidas y regresos de gruas. Escaneado por el operador via QR estatico por vehiculo.';
-COMMENT ON COLUMN public.parq_salidas_grua.inventario_items IS '[{item_id, nombre, cantidad, unidad}] — snapshot del inventario que lleva la grua al salir.';
+COMMENT ON COLUMN public.parq_salidas_grua.inventario_items IS '[{item_id, nombre, desde, hasta, cantidad}] — stickers asignados en campo al regresar la grua.';
 
 ALTER TABLE public.parq_salidas_grua ENABLE ROW LEVEL SECURITY;
 

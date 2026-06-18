@@ -19,7 +19,7 @@ const MOTIVOS = [
   { value: "otros",                 label: "Otros" },
 ]
 
-interface ItemInv { item_id: string; nombre: string; unidad: string; cantidad: number }
+interface ItemInv { item_id: string; nombre: string; usados: number; rango_fin: number; disponibles: number }
 interface Personal { id: string; nombre_completo: string }
 interface EstadoData {
   vehiculo:       { id: string; placa: string; marca: string | null; modelo: string | null }
@@ -42,16 +42,16 @@ export default function GruaPage() {
   const [saving, setSaving]   = useState(false)
 
   // Formulario salida
+  // Formulario salida
   const [operadorId, setOperadorId] = useState("")
-  const [hora, setHora]             = useState(getNowTimestampColombia().slice(0, 16))
   const [motivo, setMotivo]         = useState("")
-  const [traeCarga, setTraeCarga]   = useState(false)
-  const [itemsSel, setItemsSel]     = useState<string[]>([])
   const [obs, setObs]               = useState("")
+  const [codigoSalida, setCodigoSalida] = useState<string | null>(null)
 
   // Formulario regreso
-  const [horaReg, setHoraReg] = useState(getNowTimestampColombia().slice(0, 16))
-  const [obsReg, setObsReg]   = useState("")
+  const [obsReg, setObsReg]       = useState("")
+  const [traeCarga, setTraeCarga] = useState(false)
+  const [itemsSel, setItemsSel]   = useState<Record<string, { desde: string; hasta: string }>>({})
 
   useEffect(() => {
     fetch(`/api/grua/${vehiculoId}/estado`)
@@ -69,18 +69,14 @@ export default function GruaPage() {
     if (!motivo) { toast.error("Seleccione un motivo"); return }
     setSaving(true)
     try {
-      const inventario_items = traeCarga
-        ? (data?.inventarioGrua ?? []).filter(i => itemsSel.includes(i.item_id))
-        : []
-
       const res  = await fetch(`/api/grua/${vehiculoId}/registrar`, {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ accion: "salida", operador_id: operadorId || null, hora: localColombiaToUTC(hora), motivo, trae_carga: traeCarga, inventario_items, observaciones: obs || null }),
+        body: JSON.stringify({ accion: "salida", operador_id: operadorId || null, motivo, observaciones: obs || null }),
       })
       const d = await res.json()
       if (!res.ok) { toast.error(d.error ?? "Error"); return }
-      toast.success("Salida registrada")
-      window.location.reload()
+      setCodigoSalida(d.codigo_salida)
+      setTimeout(() => { window.location.reload() }, 15000)
     } catch { toast.error("Error de conexión") }
     finally { setSaving(false) }
   }
@@ -88,9 +84,21 @@ export default function GruaPage() {
   const registrarRegreso = async () => {
     setSaving(true)
     try {
+      const inventario_items = traeCarga
+        ? Object.entries(itemsSel)
+            .filter(([, v]) => v.desde && v.hasta && Number(v.hasta) >= Number(v.desde))
+            .map(([item_id, v]) => ({
+              item_id,
+              nombre:   data?.inventarioGrua.find(i => i.item_id === item_id)?.nombre ?? "",
+              desde:    Number(v.desde),
+              hasta:    Number(v.hasta),
+              cantidad: Number(v.hasta) - Number(v.desde) + 1,
+            }))
+        : []
+
       const res  = await fetch(`/api/grua/${vehiculoId}/registrar`, {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ accion: "regreso", hora: localColombiaToUTC(horaReg), observaciones: obsReg || null }),
+        body: JSON.stringify({ accion: "regreso", trae_carga: traeCarga, inventario_items, observaciones: obsReg || null }),
       })
       const d = await res.json()
       if (!res.ok) { toast.error(d.error ?? "Error"); return }
@@ -100,8 +108,11 @@ export default function GruaPage() {
     finally { setSaving(false) }
   }
 
-  const toggleItem = (id: string) =>
-    setItemsSel(p => p.includes(id) ? p.filter(x => x !== id) : [...p, id])
+  const toggleItem = (id: string, desdeDefault: number) =>
+    setItemsSel(p => {
+      if (p[id]) { const n = { ...p }; delete n[id]; return n }
+      return { ...p, [id]: { desde: String(desdeDefault), hasta: "" } }
+    })
 
   if (loading) return <div className="flex-1 flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>
   if (!data)   return null
@@ -133,7 +144,23 @@ export default function GruaPage() {
 
       <Separator />
 
-      {!enCalle ? (
+      {codigoSalida ? (
+        // ── CÓDIGO DE SALIDA ──
+        <div className="flex flex-col items-center gap-4 text-center py-4">
+          <div className="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center">
+            <LogOut className="h-8 w-8 text-emerald-600" />
+          </div>
+          <div>
+            <p className="text-sm text-muted-foreground font-medium">Salida registrada — código para el vigilante</p>
+            <p className="text-6xl font-black tracking-widest mt-3 font-mono text-foreground">{codigoSalida}</p>
+            <p className="text-xs text-muted-foreground mt-3">Esta pantalla se cerrará en 15 segundos</p>
+          </div>
+          <button onClick={() => window.location.reload()}
+            className="text-sm text-muted-foreground hover:text-foreground underline">
+            Cerrar ahora
+          </button>
+        </div>
+      ) : !enCalle ? (
         // ── FORMULARIO SALIDA ──
         <div className="space-y-4">
           <h2 className="font-semibold flex items-center gap-2"><LogOut className="h-4 w-4 text-rose-500" />Registrar salida</h2>
@@ -149,11 +176,6 @@ export default function GruaPage() {
           </div>
 
           <div className="space-y-1.5">
-            <Label className="text-xs">Hora de salida</Label>
-            <Input type="datetime-local" value={hora} onChange={e => { if (e.target.value) setHora(e.target.value) }} />
-          </div>
-
-          <div className="space-y-1.5">
             <Label className="text-xs">Motivo *</Label>
             <Select value={motivo} onValueChange={setMotivo}>
               <SelectTrigger><SelectValue placeholder="Seleccionar motivo" /></SelectTrigger>
@@ -162,31 +184,6 @@ export default function GruaPage() {
               </SelectContent>
             </Select>
           </div>
-
-          <button
-            onClick={() => setTraeCarga(p => !p)}
-            className={`w-full flex items-center justify-between px-4 py-3 rounded-lg border text-sm font-medium transition-colors ${traeCarga ? "border-blue-500 bg-blue-50 text-blue-700" : "border-border bg-background text-foreground"}`}
-          >
-            <span className="flex items-center gap-2"><Package className="h-4 w-4" />Trae carga</span>
-            {traeCarga ? <CheckSquare className="h-4 w-4" /> : <Square className="h-4 w-4 text-muted-foreground" />}
-          </button>
-
-          {traeCarga && inventarioGrua.length > 0 && (
-            <div className="space-y-2 rounded-lg border p-3">
-              <p className="text-xs font-medium text-muted-foreground">Inventario de la grúa</p>
-              {inventarioGrua.map(item => (
-                <button key={item.item_id} onClick={() => toggleItem(item.item_id)}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-md text-sm border transition-colors ${itemsSel.includes(item.item_id) ? "border-blue-400 bg-blue-50" : "border-border bg-background"}`}>
-                  <span>{item.nombre}</span>
-                  <span className="text-muted-foreground tabular-nums">{item.cantidad} {item.unidad}</span>
-                </button>
-              ))}
-            </div>
-          )}
-
-          {traeCarga && inventarioGrua.length === 0 && (
-            <p className="text-xs text-muted-foreground text-center py-2">Sin inventario asignado a esta grúa</p>
-          )}
 
           <div className="space-y-1.5">
             <Label className="text-xs">Observaciones</Label>
@@ -204,10 +201,58 @@ export default function GruaPage() {
         <div className="space-y-4">
           <h2 className="font-semibold flex items-center gap-2"><LogIn className="h-4 w-4 text-emerald-500" />Registrar regreso</h2>
 
-          <div className="space-y-1.5">
-            <Label className="text-xs">Hora de regreso</Label>
-            <Input type="datetime-local" value={horaReg} onChange={e => { if (e.target.value) setHoraReg(e.target.value) }} />
-          </div>
+          {/* Carga y stickers al regresar */}
+          <button onClick={() => { setTraeCarga(p => !p); setItemsSel({}) }}
+            className={`w-full flex items-center justify-between px-4 py-3 rounded-lg border text-sm font-medium transition-colors ${traeCarga ? "border-blue-500 bg-blue-50 text-blue-700" : "border-border bg-background text-foreground"}`}>
+            <span className="flex items-center gap-2"><Package className="h-4 w-4" />Trajo carga (stickers)</span>
+            {traeCarga ? <CheckSquare className="h-4 w-4" /> : <Square className="h-4 w-4 text-muted-foreground" />}
+          </button>
+
+          {traeCarga && inventarioGrua.length > 0 && (
+            <div className="space-y-3 rounded-lg border p-3">
+              <p className="text-xs font-medium text-muted-foreground">Stickers asignados en campo</p>
+              {inventarioGrua.map(item => {
+                const sel = itemsSel[item.item_id]
+                return (
+                  <div key={item.item_id} className={`rounded-lg border p-3 space-y-2 ${sel ? "border-blue-400 bg-blue-50/50" : "border-border"}`}>
+                    <button onClick={() => toggleItem(item.item_id, item.usados + 1)}
+                      className="w-full flex items-center justify-between text-sm">
+                      <span className="font-medium">{item.nombre}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-muted-foreground">{item.disponibles} disp.</span>
+                        {sel ? <CheckSquare className="h-4 w-4 text-blue-500" /> : <Square className="h-4 w-4 text-muted-foreground" />}
+                      </div>
+                    </button>
+                    {sel && (
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="space-y-1">
+                          <label className="text-xs text-muted-foreground">Desde #</label>
+                          <Input type="number" inputMode="numeric" value={sel.desde}
+                            onChange={e => setItemsSel(p => ({ ...p, [item.item_id]: { ...p[item.item_id], desde: e.target.value } }))}
+                            className="h-9 text-center font-mono" />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-xs text-muted-foreground">Hasta #</label>
+                          <Input type="number" inputMode="numeric" value={sel.hasta}
+                            onChange={e => setItemsSel(p => ({ ...p, [item.item_id]: { ...p[item.item_id], hasta: e.target.value } }))}
+                            className="h-9 text-center font-mono" />
+                        </div>
+                        {sel.desde && sel.hasta && Number(sel.hasta) >= Number(sel.desde) && (
+                          <p className="col-span-2 text-xs text-center text-blue-600 font-medium tabular-nums">
+                            {Number(sel.hasta) - Number(sel.desde) + 1} sticker(s): #{sel.desde} – #{sel.hasta}
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          )}
+
+          {traeCarga && inventarioGrua.length === 0 && (
+            <p className="text-xs text-muted-foreground text-center py-2">Sin stickers disponibles en el sistema</p>
+          )}
 
           <div className="space-y-1.5">
             <Label className="text-xs">Observaciones</Label>
@@ -222,10 +267,12 @@ export default function GruaPage() {
         </div>
       )}
 
-      <button onClick={async () => { await fetch(`/api/grua/${vehiculoId}/logout`, { method: "POST" }); router.replace(`/grua/${vehiculoId}/login`) }}
-        className="text-xs text-muted-foreground hover:text-foreground text-center py-2 transition-colors mt-auto">
-        Cerrar sesión
-      </button>
+      {!codigoSalida && (
+        <button onClick={async () => { await fetch(`/api/grua/${vehiculoId}/logout`, { method: "POST" }); router.replace(`/grua/${vehiculoId}/login`) }}
+          className="text-xs text-muted-foreground hover:text-foreground text-center py-2 transition-colors mt-auto">
+          Cerrar sesión
+        </button>
+      )}
     </div>
   )
 }

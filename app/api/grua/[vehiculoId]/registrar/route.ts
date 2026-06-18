@@ -6,12 +6,11 @@ import { logger } from '@/lib/logger'
 
 const salidaSchema = z.object({
   accion:           z.enum(['salida', 'regreso']),
-  operador_id:      z.string().uuid().optional(),
-  hora:             z.string(),
+  operador_id:      z.string().uuid().nullable().optional(),
   motivo:           z.enum(['requerimiento_agentes','requerimiento_polca','mantenimiento','tanqueo','autorizacion','otros']).optional(),
   trae_carga:       z.boolean().optional(),
-  inventario_items: z.array(z.object({ item_id: z.string(), nombre: z.string(), cantidad: z.number(), unidad: z.string() })).optional(),
-  observaciones:    z.string().optional(),
+  inventario_items: z.array(z.object({ item_id: z.string(), nombre: z.string(), desde: z.number(), hasta: z.number(), cantidad: z.number() })).optional(),
+  observaciones:    z.string().nullable().optional(),
 })
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ vehiculoId: string }> }) {
@@ -24,49 +23,44 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ veh
     const parsed = salidaSchema.safeParse(body)
     if (!parsed.success) return NextResponse.json({ error: 'Datos inválidos' }, { status: 400 })
 
-    const { accion, operador_id, hora, motivo, trae_carga, inventario_items, observaciones } = parsed.data
+    const { accion, operador_id, motivo, trae_carga, inventario_items, observaciones } = parsed.data
     const admin = createAdminClient()
+    const ahora = new Date().toISOString()
 
     if (accion === 'salida') {
       const { data: abierta } = await admin
-        .from('parq_salidas_grua')
-        .select('id')
-        .eq('vehiculo_id', vehiculoId)
-        .is('hora_regreso', null)
-        .maybeSingle()
+        .from('parq_salidas_grua').select('id').eq('vehiculo_id', vehiculoId).is('hora_regreso', null).maybeSingle()
 
       if (abierta) return NextResponse.json({ error: 'La grúa ya tiene una salida sin regreso registrado' }, { status: 409 })
       if (!motivo)  return NextResponse.json({ error: 'Motivo requerido' }, { status: 400 })
 
+      const codigo_salida = String(Math.floor(10000 + Math.random() * 90000))
+
       const { data, error } = await admin.from('parq_salidas_grua').insert({
-        vehiculo_id:      vehiculoId,
-        operador_id:      operador_id ?? null,
-        hora_salida:      hora,
+        vehiculo_id:   vehiculoId,
+        operador_id:   operador_id ?? null,
+        hora_salida:   ahora,
         motivo,
-        trae_carga:       trae_carga ?? false,
-        inventario_items: inventario_items ?? [],
-        observaciones:    observaciones ?? null,
+        codigo_salida,
+        observaciones: observaciones ?? null,
       }).select('id').single()
 
       if (error) throw error
-      return NextResponse.json({ ok: true, id: data.id, accion: 'salida' })
+      return NextResponse.json({ ok: true, id: data.id, accion: 'salida', codigo_salida })
     }
 
     // Regreso
     const { data: abierta } = await admin
-      .from('parq_salidas_grua')
-      .select('id')
-      .eq('vehiculo_id', vehiculoId)
-      .is('hora_regreso', null)
-      .order('hora_salida', { ascending: false })
-      .limit(1)
-      .maybeSingle()
+      .from('parq_salidas_grua').select('id').eq('vehiculo_id', vehiculoId)
+      .is('hora_regreso', null).order('hora_salida', { ascending: false }).limit(1).maybeSingle()
 
     if (!abierta) return NextResponse.json({ error: 'No hay salida abierta para registrar regreso' }, { status: 409 })
 
     const { error } = await admin.from('parq_salidas_grua').update({
-      hora_regreso:  hora,
-      observaciones: observaciones ?? null,
+      hora_regreso:     ahora,
+      trae_carga:       trae_carga ?? false,
+      inventario_items: inventario_items ?? [],
+      observaciones:    observaciones ?? null,
     }).eq('id', abierta.id)
 
     if (error) throw error
