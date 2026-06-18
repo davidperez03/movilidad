@@ -5,6 +5,21 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.28.2] - 2026-06-18
+
+### fix(scan): quitar GPS, fix redirect a auth y codigo_salida con fecha
+
+#### Corregido
+- GPS eliminado del registro de asistencia — removida toda la lógica de geolocalización de `/scan` y el geofence del API
+- `SessionProvider` redirigía a `/auth/login` a empleados en `/scan` y `/grua` por no tener sesión Supabase — agregadas ambas rutas como públicas
+- `codigo_salida` ahora tiene formato `DDMMYYYY-XXXXX` (ej: `18062026-25484`): la fecha garantiza unicidad diaria; el vigilante ve solo los 5 dígitos en pantalla; el Excel muestra el código completo
+- Excel de salidas grúa ordenado de más reciente a más antiguo
+
+#### Migraciones
+- `029_codigo_salida_unique.sql`: cambia `char(5)` → `varchar(15)` y agrega constraint `UNIQUE` en `codigo_salida`
+
+---
+
 ## [1.28.1] - 2026-06-18
 
 ### fix(scan): corregir doble barra en URLs de QR y mejorar UX de permiso GPS

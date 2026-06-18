@@ -30,6 +30,9 @@ Registro manual de migraciones ejecutadas en producción.
 | 024 | 024_nunc_hash_chain.sql | 2026-05-06 | David | v1.24.1 |
 | 025 | 025_historial_rls_movilidad.sql | 2026-05-07 | David | v1.25.1 |
 | 026 | 026_asistencia.sql | 2026-06-17 | David | v1.26.0 |
+| 027 | 027_turnos.sql | 2026-06-17 | David | v1.27.0 |
+| 028 | 028_salidas_grua.sql | 2026-06-18 | David | v1.28.0 |
+| 029 | 029_codigo_salida_unique.sql | 2026-06-18 | — | v1.28.2 |
 
 <!--
 Al aplicar una migración, agregar una fila:

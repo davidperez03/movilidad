@@ -75,7 +75,8 @@ export default function GruaPage() {
       })
       const d = await res.json()
       if (!res.ok) { toast.error(d.error ?? "Error"); return }
-      setCodigoSalida(d.codigo_salida)
+      // Guardar solo los 5 dígitos para mostrar al vigilante
+      setCodigoSalida(d.codigo_salida?.split('-')[1] ?? d.codigo_salida)
       setTimeout(() => { window.location.reload() }, 15000)
     } catch { toast.error("Error de conexión") }
     finally { setSaving(false) }

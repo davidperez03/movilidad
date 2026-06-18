@@ -6,6 +6,7 @@ Para el proceso de release y reglas de versionamiento semántico ver [GITFLOW.md
 
 | Versión | Fecha | Descripción |
 |---------|-------|-------------|
+| 1.28.2 | 2026-06-18 | fix(scan): quitar GPS, fix redirect a auth y codigo_salida con fecha |
 | 1.28.1 | 2026-06-18 | fix(scan): doble barra en URLs de QR y UX de permiso GPS |
 | 1.28.0 | 2026-06-18 | feat(grua): QR estático por grúa — salidas, regresos, stickers y panel admin |
 | 1.27.2 | 2026-06-17 | fix(scan): botón y estado visual para solicitar ubicación GPS nuevamente |

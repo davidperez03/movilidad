@@ -23,7 +23,7 @@ export function SessionProvider({ children }: SessionProviderProps) {
   const warningTimerRef = useRef<NodeJS.Timeout | null>(null)
   const sessionInitializedRef = useRef<boolean>(false)
 
-  const isPublicRoute = pathname?.startsWith("/auth") || pathname?.startsWith("/consulta") || pathname === "/" || pathname === "/nunc/acceso"
+  const isPublicRoute = pathname?.startsWith("/auth") || pathname?.startsWith("/consulta") || pathname === "/" || pathname === "/nunc/acceso" || pathname?.startsWith("/scan") || pathname?.startsWith("/grua")
 
   const getInactivityTimeout = (): number => {
     if (typeof navigator === 'undefined') return SESSION_CONFIG.INACTIVITY_TIMEOUT_WEB

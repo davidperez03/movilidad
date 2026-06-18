@@ -34,7 +34,19 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ veh
       if (abierta) return NextResponse.json({ error: 'La grúa ya tiene una salida sin regreso registrado' }, { status: 409 })
       if (!motivo)  return NextResponse.json({ error: 'Motivo requerido' }, { status: 400 })
 
-      const codigo_salida = String(Math.floor(10000 + Math.random() * 90000))
+      const col   = new Date().toLocaleString('en-US', { timeZone: 'America/Bogota' })
+      const d     = new Date(col)
+      const fecha = `${String(d.getDate()).padStart(2,'0')}${String(d.getMonth()+1).padStart(2,'0')}${d.getFullYear()}`
+
+      let codigo_salida = ''
+      for (let i = 0; i < 10; i++) {
+        const digitos   = String(Math.floor(10000 + Math.random() * 90000))
+        const candidato = `${fecha}-${digitos}`
+        const { data: existe } = await admin
+          .from('parq_salidas_grua').select('id').eq('codigo_salida', candidato).maybeSingle()
+        if (!existe) { codigo_salida = candidato; break }
+      }
+      if (!codigo_salida) return NextResponse.json({ error: 'No se pudo generar un código único' }, { status: 500 })
 
       const { data, error } = await admin.from('parq_salidas_grua').insert({
         vehiculo_id:   vehiculoId,
@@ -45,7 +57,13 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ veh
         observaciones: observaciones ?? null,
       }).select('id').single()
 
-      if (error) throw error
+      if (error) {
+        // 23505 = unique_violation — el código colisionó por concurrencia, reintentar
+        if ((error as { code?: string }).code === '23505') {
+          return NextResponse.json({ error: 'Código duplicado, intenta de nuevo' }, { status: 409 })
+        }
+        throw error
+      }
       return NextResponse.json({ ok: true, id: data.id, accion: 'salida', codigo_salida })
     }
 
