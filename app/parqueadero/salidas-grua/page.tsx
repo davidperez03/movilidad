@@ -24,7 +24,7 @@ const MOTIVOS: Record<string, string> = {
   otros:                 "Otros",
 }
 
-const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://movilidad.vercel.app"
+const SITE = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://movilidad.vercel.app").replace(/\/+$/, "")
 
 interface ItemSticker { item_id: string; nombre: string; desde: number; hasta: number; cantidad: number }
 interface Salida {
