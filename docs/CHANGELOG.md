@@ -5,6 +5,24 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.28.0] - 2026-06-18
+
+### feat(grua): QR estático por grúa — registro de salidas, regresos y stickers
+
+#### Agregado
+- QR único por vehículo en `/grua/[vehiculoId]` — PIN genérico sin cédula
+- Salida: operador (del último turno), motivo, hora automática, código de 5 dígitos para vigilante
+- Regreso: hora automática, stickers asignados (desde # hasta #), observaciones
+- Stickers tomados de `inv_rangos` (inventario tipo rango) con rango específico por regreso
+- Panel `/parqueadero/salidas-grua`: registros con carga/stickers/observaciones + Excel por rango
+- Pestaña "QRs": seleccionar grúa y generar QR imprimible directamente desde el panel
+- Botón "QR Grúa" en el detalle de cada vehículo
+- Tab "Salidas" en la nav de parqueadero (8vo ítem)
+- Migration 028: tabla `parq_salidas_grua` con `codigo_salida`
+- `GRUA_PIN` env var para PIN genérico configurable
+
+---
+
 ## [1.27.2] - 2026-06-17
 
 ### fix(scan): botón y estado visual para solicitar ubicación GPS nuevamente
