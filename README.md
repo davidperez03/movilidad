@@ -1,6 +1,6 @@
 # Movilidad
 
-![Versión](https://img.shields.io/badge/versión-1.28.2-blue)
+![Versión](https://img.shields.io/badge/versión-1.29.0-blue)
 ![Next.js](https://img.shields.io/badge/Next.js-16.1.0-black)
 ![React](https://img.shields.io/badge/React-19-61DAFB)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6)

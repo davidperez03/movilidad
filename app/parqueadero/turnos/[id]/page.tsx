@@ -24,10 +24,21 @@ export default async function DetalleTurnoPage({ params }: { params: Promise<{ i
 
   if (!turno) notFound()
 
+  // Inspecciones del mismo vehículo/fecha/tipo sin turno asignado (hechas antes de abrir el turno)
+  const { data: sinTurno } = await supabase
+    .from("parq_vista_inspecciones")
+    .select("id, consecutivo, hora, es_apto, operador_nombre, km_inicio")
+    .eq("vehiculo_id", turno.vehiculo_id)
+    .eq("fecha", turno.fecha)
+    .eq("turno", turno.tipo_turno)
+    .is("turno_id", null)
+    .order("hora", { ascending: true })
+
   return (
     <DetalleTurno
       turno={turno}
       inspecciones={inspecciones ?? []}
+      inspeccionesSinTurno={sinTurno ?? []}
       novedades={novedades ?? []}
       permisos={permisos}
       esSuperadmin={esSuperadmin}

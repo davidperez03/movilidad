@@ -5,6 +5,20 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.29.0] - 2026-06-18
+
+### feat(turnos): múltiples turnos por día y asociar inspecciones sin turno
+
+#### Agregado
+- Múltiples turnos por día por vehículo: se elimina el constraint único por fecha/tipo y se reemplaza por un índice parcial que solo impide tener dos turnos ABIERTOS simultáneamente para el mismo vehículo
+- En el detalle de un turno, sección **Inspecciones del día sin turno asignado**: muestra inspecciones del mismo vehículo/fecha/tipo hechas antes de abrir el turno (con `turno_id = null`) y permite asociarlas con un clic
+- El botón "Nueva inspección" ya no exige que el turno esté abierto
+
+#### Migraciones
+- `030_turnos_multiples_por_dia.sql`: elimina `uq_parq_turnos_vehiculo_fecha_tipo`, agrega `uq_parq_turnos_vehiculo_abierto` (parcial, solo abiertos)
+
+---
+
 ## [1.28.2] - 2026-06-18
 
 ### fix(scan): quitar GPS, fix redirect a auth y codigo_salida con fecha
