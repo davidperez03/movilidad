@@ -11,11 +11,15 @@ create table if not exists public.parq_turnos (
   creado_por     uuid        references public.perfiles(id),
   creado_en      timestamptz default now() not null,
   actualizado_en timestamptz default now() not null,
-  constraint uq_parq_turnos_vehiculo_fecha_tipo unique (vehiculo_id, fecha, tipo_turno)
 );
 
 create index if not exists idx_parq_turnos_fecha       on public.parq_turnos(fecha desc);
 create index if not exists idx_parq_turnos_vehiculo_id on public.parq_turnos(vehiculo_id);
 create index if not exists idx_parq_turnos_estado      on public.parq_turnos(estado);
+
+-- Solo un turno abierto por vehiculo a la vez (migration 030)
+create unique index if not exists uq_parq_turnos_vehiculo_abierto
+  on public.parq_turnos (vehiculo_id)
+  where estado = 'abierto';
 
 comment on table public.parq_turnos is 'Turnos operativos de gruas. Agrupa inspecciones y registra kilometraje y horas de operacion.';
