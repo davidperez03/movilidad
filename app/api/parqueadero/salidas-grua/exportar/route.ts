@@ -39,7 +39,7 @@ export async function GET(req: NextRequest) {
         operador:perfiles!operador_id(nombre_completo)`)
       .gte('hora_salida', `${desde}T00:00:00.000Z`)
       .lte('hora_salida', `${hasta}T23:59:59.999Z`)
-      .order('hora_salida', { ascending: true })
+      .order('hora_salida', { ascending: false })
 
     if (error) throw error
 
