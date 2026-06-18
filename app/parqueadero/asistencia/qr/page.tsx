@@ -4,7 +4,7 @@ import { QRCodeSVG } from "qrcode.react"
 import { Button } from "@/components/ui/button"
 import { Printer } from "lucide-react"
 
-const URL_SCAN = `${process.env.NEXT_PUBLIC_SITE_URL ?? "https://movilidad.vercel.app"}/scan`
+const URL_SCAN = `${(process.env.NEXT_PUBLIC_SITE_URL ?? "https://movilidad.vercel.app").replace(/\/+$/, "")}/scan`
 
 export default function QRPage() {
   return (
