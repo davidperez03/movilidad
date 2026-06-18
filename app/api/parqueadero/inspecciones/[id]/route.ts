@@ -12,6 +12,7 @@ const patchSchema = z.object({
   km_inicio:     z.number().int().nonnegative().nullable().optional(),
   observaciones: z.string().nullable().optional(),
   es_apto:       z.boolean().optional(),
+  turno_id:      z.string().uuid().nullable().optional(),
 })
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
