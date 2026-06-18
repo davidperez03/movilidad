@@ -6,7 +6,7 @@ import { Printer, ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
 
-const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://movilidad.vercel.app"
+const SITE = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://movilidad.vercel.app").replace(/\/+$/, "")
 
 export default function GruaQRPage() {
   const { id } = useParams<{ id: string }>()

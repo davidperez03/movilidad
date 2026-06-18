@@ -5,6 +5,21 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.28.1] - 2026-06-18
+
+### fix(scan): corregir doble barra en URLs de QR y mejorar UX de permiso GPS
+
+#### Corregido
+- URLs de QR (grúa y scan) generaban doble barra cuando `NEXT_PUBLIC_SITE_URL` tenía trailing slash
+- Estado GPS "denegado" reintentaba `getCurrentPosition` sin éxito — reemplazado por panel de instrucciones
+- Estado GPS "prompt" (nunca pedido) no mostraba ningún indicador al usuario
+
+#### Mejorado
+- Nuevo estado GPS `"pendiente"` diferencia permiso nunca solicitado de permiso denegado activamente
+- `PermissionStatus.onchange` actualiza la UI automáticamente si el usuario activa la ubicación desde configuración del navegador sin recargar
+
+---
+
 ## [1.28.0] - 2026-06-18
 
 ### feat(grua): QR estático por grúa — registro de salidas, regresos y stickers
