@@ -24,17 +24,16 @@ export async function POST(req: NextRequest) {
     const admin = createAdminClient()
     const userId = auth.userId
 
-    const { data: existente } = await admin
+    const { data: abierto } = await admin
       .from('parq_turnos')
       .select('id')
       .eq('vehiculo_id', vehiculo_id)
-      .eq('fecha', fecha)
-      .eq('tipo_turno', tipo_turno)
+      .eq('estado', 'abierto')
       .maybeSingle()
 
-    if (existente) {
+    if (abierto) {
       return NextResponse.json(
-        { error: `Ya existe un turno ${tipo_turno} para esta grúa en esa fecha` },
+        { error: 'Esta grúa ya tiene un turno abierto. Ciérralo antes de crear uno nuevo.' },
         { status: 409 }
       )
     }

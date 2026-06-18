@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
-import { Plus, CheckCircle, XCircle, Trash2, Lock, ClipboardCheck, StopCircle, Pencil } from "lucide-react"
+import { Plus, CheckCircle, XCircle, Trash2, Lock, ClipboardCheck, StopCircle, Link2 } from "lucide-react"
 import { toast } from "sonner"
 import type { VistaTurno, TurnoNovedad } from "@/lib/parqueadero/types"
 import type { PermisoParqueadero } from "@/lib/types/permissions"
@@ -29,12 +29,22 @@ interface InspeccionResumen {
   items_malos: number
 }
 
+interface InspeccionSinTurno {
+  id: string
+  consecutivo: string | null
+  hora: string
+  es_apto: boolean
+  operador_nombre: string
+  km_inicio: number | null
+}
+
 interface DetalleTurnoProps {
-  turno:          VistaTurno
-  inspecciones:   InspeccionResumen[]
-  novedades:      TurnoNovedad[]
-  permisos:       Record<PermisoParqueadero, boolean>
-  esSuperadmin?:  boolean
+  turno:                 VistaTurno
+  inspecciones:          InspeccionResumen[]
+  inspeccionesSinTurno:  InspeccionSinTurno[]
+  novedades:             TurnoNovedad[]
+  permisos:              Record<PermisoParqueadero, boolean>
+  esSuperadmin?:         boolean
 }
 
 function horaCol(ts: string) {
@@ -50,12 +60,14 @@ function fmtHoras(h: number | null) {
   return `${hh}h ${mm.toString().padStart(2, "0")}m`
 }
 
-export function DetalleTurno({ turno, inspecciones, novedades: initialNovedades, permisos, esSuperadmin }: DetalleTurnoProps) {
+export function DetalleTurno({ turno, inspecciones, inspeccionesSinTurno: initialSinTurno, novedades: initialNovedades, permisos, esSuperadmin }: DetalleTurnoProps) {
   const router = useRouter()
-  const [novedades, setNovedades]       = useState(initialNovedades)
-  const [cierresNovedad, setCierresNovedad] = useState<Record<string, string>>({})
-  const [loadingCierre, setLoadingCierre] = useState(false)
-  const [loadingNov, setLoadingNov] = useState(false)
+  const [novedades, setNovedades]             = useState(initialNovedades)
+  const [sinTurno, setSinTurno]               = useState(initialSinTurno)
+  const [asociando, setAsociando]             = useState<string | null>(null)
+  const [cierresNovedad, setCierresNovedad]   = useState<Record<string, string>>({})
+  const [loadingCierre, setLoadingCierre]     = useState(false)
+  const [loadingNov, setLoadingNov]           = useState(false)
   const [formCierre, setFormCierre] = useState({ hora_fin: getNowTimestampColombia().slice(0, 16), km_fin: "" })
   const [formNov, setFormNov]       = useState({ motivo: "", hora_inicio: getNowTimestampColombia().slice(0, 16), hora_fin: "" })
 
@@ -63,7 +75,22 @@ export function DetalleTurno({ turno, inspecciones, novedades: initialNovedades,
   const turnoAbierto      = turno.estado === "abierto"
   const puedeGestionar    = permisos.gestionar_vehiculos && turnoAbierto
   const tieneApta         = inspecciones.some((i) => i.es_apto)
-  const puedeInspeccionar = permisos.crear_inspecciones && turnoAbierto && !tieneApta
+  const puedeInspeccionar = permisos.crear_inspecciones && !tieneApta
+
+  const asociarInspeccion = async (inspeccionId: string) => {
+    setAsociando(inspeccionId)
+    try {
+      const res = await fetch(`/api/parqueadero/inspecciones/${inspeccionId}`, {
+        method: "PATCH", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ turno_id: turno.id }),
+      })
+      if (!res.ok) { toast.error("Error al asociar inspección"); return }
+      toast.success("Inspección asociada al turno")
+      setSinTurno(p => p.filter(i => i.id !== inspeccionId))
+      router.refresh()
+    } catch { toast.error("Error de conexión") }
+    finally { setAsociando(null) }
+  }
 
   const eliminarTurno = async () => {
     if (!confirm("¿Eliminar este turno? Esta acción es irreversible.")) return
@@ -233,6 +260,37 @@ export function DetalleTurno({ turno, inspecciones, novedades: initialNovedades,
                   ))}
                 </tbody>
               </table>
+            )}
+
+            {/* Inspecciones del día sin turno asignado */}
+            {sinTurno.length > 0 && permisos.crear_inspecciones && (
+              <div className="border-t px-4 py-3 space-y-2">
+                <p className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
+                  <Link2 className="h-3.5 w-3.5" />
+                  Inspecciones del día sin turno asignado
+                </p>
+                {sinTurno.map((i) => (
+                  <div key={i.id} className="flex items-center justify-between gap-2 rounded-lg border border-dashed px-3 py-2 text-sm">
+                    <div className="flex items-center gap-2 min-w-0">
+                      {i.es_apto
+                        ? <CheckCircle className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                        : <XCircle className="h-3.5 w-3.5 text-rose-500 shrink-0" />}
+                      <div className="min-w-0">
+                        <p className="font-mono text-xs truncate">{i.consecutivo ?? i.id.slice(0, 8)}</p>
+                        <p className="text-xs text-muted-foreground truncate">{i.operador_nombre} · {i.hora?.slice(0, 5)}</p>
+                      </div>
+                    </div>
+                    <Button
+                      size="sm" variant="outline"
+                      className="shrink-0 text-xs h-7"
+                      disabled={asociando === i.id}
+                      onClick={() => asociarInspeccion(i.id)}
+                    >
+                      {asociando === i.id ? "…" : "Asociar"}
+                    </Button>
+                  </div>
+                ))}
+              </div>
             )}
           </CardContent>
         </Card>
