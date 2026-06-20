@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react"
 import { createClient } from "@/lib/supabase/client"
+import { getNowDateColombia } from "@/lib/utils/date"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -91,7 +92,7 @@ function horaCol(ts: string) {
 }
 
 export default function AsistenciaPage() {
-  const hoy = new Date().toISOString().slice(0, 10)
+  const hoy = getNowDateColombia()
   const [fecha, setFecha]         = useState(hoy)
   const [busqueda, setBusqueda]   = useState("")
   const [registros, setRegistros] = useState<Registro[]>([])

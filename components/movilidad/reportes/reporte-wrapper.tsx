@@ -6,6 +6,7 @@
 // =====================================================
 
 import { useState, useMemo } from 'react'
+import { getNowDateColombia } from '@/lib/utils/date'
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -70,7 +71,7 @@ export function ReporteWrapper<T extends DatoReporte>({
   }, [datos, filtros, campoFecha])
 
   const nombreArchivo = useMemo(() => {
-    const fecha = new Date().toISOString().split('T')[0]
+    const fecha = getNowDateColombia()
     return `${tipoReporte}-${fecha}`
   }, [tipoReporte])
 

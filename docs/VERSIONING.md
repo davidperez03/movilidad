@@ -6,6 +6,7 @@ Para el proceso de release y reglas de versionamiento semántico ver [GITFLOW.md
 
 | Versión | Fecha | Descripción |
 |---------|-------|-------------|
+| 1.29.1 | 2026-06-20 | fix(fechas): zona horaria Colombia en filtros y exportaciones |
 | 1.29.0 | 2026-06-18 | feat(turnos): múltiples turnos por día y asociar inspecciones sin turno |
 | 1.28.2 | 2026-06-18 | fix(scan): quitar GPS, fix redirect a auth y codigo_salida con fecha |
 | 1.28.1 | 2026-06-18 | fix(scan): doble barra en URLs de QR y UX de permiso GPS |

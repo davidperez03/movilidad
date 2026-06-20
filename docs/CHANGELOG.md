@@ -5,6 +5,16 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.29.1] - 2026-06-20
+
+### fix(fechas): corregir zona horaria Colombia en filtros de fecha y nombres de archivo
+
+#### Corregido
+- `new Date().toISOString()` devuelve fecha UTC — después de las 7pm hora Colombia ya marca el día siguiente
+- Reemplazado por `getNowDateColombia()` en 9 archivos: filtro por defecto de asistencia, exportador de scan, inventarios, cambiar estado, reportes, PDFs y exportadores de NUNC
+
+---
+
 ## [1.29.0] - 2026-06-18
 
 ### feat(turnos): múltiples turnos por día y asociar inspecciones sin turno

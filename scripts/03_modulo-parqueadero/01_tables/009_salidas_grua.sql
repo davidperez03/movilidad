@@ -11,7 +11,7 @@ create table if not exists public.parq_salidas_grua (
                    )),
   trae_carga       boolean     not null default false,
   inventario_items jsonb       not null default '[]'::jsonb,
-  codigo_salida    char(5),
+  codigo_salida    varchar(15) unique,  -- formato DDMMYYYY-XXXXX (migration 029)
   observaciones    text,
   creado_en        timestamptz default now() not null
 );
@@ -26,5 +26,5 @@ create policy "Autenticados gestionan parq_salidas_grua"
   on public.parq_salidas_grua for all to authenticated using (true) with check (true);
 
 comment on table  public.parq_salidas_grua is 'Registro de salidas y regresos de gruas via QR estatico por vehiculo.';
-comment on column public.parq_salidas_grua.codigo_salida      is 'Codigo de 5 digitos generado al salir para verificacion del vigilante.';
+comment on column public.parq_salidas_grua.codigo_salida      is 'Codigo formato DDMMYYYY-XXXXX (ej: 18062026-25484). Unico por dia. Al vigilante se muestran solo los 5 digitos.';
 comment on column public.parq_salidas_grua.inventario_items   is '[{item_id, nombre, desde, hasta, cantidad}] — stickers asignados en campo al regresar la grua.';

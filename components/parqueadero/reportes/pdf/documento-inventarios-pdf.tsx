@@ -3,6 +3,7 @@ import { basePdfStyles, PDF_COLORS } from '@/components/movilidad/reportes/pdf/b
 import { PdfHeader } from '@/components/movilidad/reportes/pdf/pdf-header'
 import { PdfTableHeader } from '@/components/movilidad/reportes/pdf/pdf-table-header'
 import type { FilaStock, FilaSticker, FilaCierre } from '@/lib/parqueadero/reportes/tipos'
+import { getNowDateColombia } from '@/lib/utils/date'
 
 function fmt(f: string): string {
   try {
@@ -11,7 +12,7 @@ function fmt(f: string): string {
   } catch { return f }
 }
 function fechaHoy(): string {
-  return fmt(new Date().toISOString().split('T')[0])
+  return fmt(getNowDateColombia())
 }
 
 // ── Stock actual ──────────────────────────────────────────────────────────────
