@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react'
 import { useMutation } from '@/lib/hooks/use-mutation'
 import { apiFetch } from '@/lib/utils/api-fetch'
+import { getNowDateColombia } from '@/lib/utils/date'
 import { toast } from 'sonner'
 import { generarCSVInventario } from '@/lib/parqueadero/reportes/exportar-csv'
 import { generarExcelInventario } from '@/lib/parqueadero/reportes/exportar-excel'
@@ -280,7 +281,7 @@ export function InventariosClient({ gruas, items: itemsIniciales, sticker: stick
     mutate(
       () => apiFetch('/api/parqueadero/inventarios/cierre-turno', 'POST', {
         vehiculo_id: turnoGruaId,
-        fecha:       new Date().toISOString().split('T')[0],
+        fecha:       getNowDateColombia(),
         items:       turnoResumen
           .filter(r => r.final !== null)
           .map(r => ({ item_id: r.item.id, cantidad_inicial: r.inicial, cantidad_final: r.final! })),
@@ -326,7 +327,7 @@ export function InventariosClient({ gruas, items: itemsIniciales, sticker: stick
       setLoadingPDF(true)
       await generarPDFReporte(
         <DocumentoStockPDF stock={toFilaStock()} sticker={toFilaSticker()} />,
-        `inventarios-stock-${new Date().toISOString().split('T')[0]}`
+        `inventarios-stock-${getNowDateColombia()}`
       )
       toast.success('PDF generado')
     } catch { toast.error('Error al generar PDF') } finally { setLoadingPDF(false) }
@@ -335,7 +336,7 @@ export function InventariosClient({ gruas, items: itemsIniciales, sticker: stick
   async function exportarExcel() {
     try {
       setLoadingExcel(true)
-      await generarExcelInventario(toFilaStock(), 'stock', `inventarios-stock-${new Date().toISOString().split('T')[0]}`)
+      await generarExcelInventario(toFilaStock(), 'stock', `inventarios-stock-${getNowDateColombia()}`)
       toast.success('Excel generado')
     } catch { toast.error('Error al generar Excel') } finally { setLoadingExcel(false) }
   }
@@ -343,7 +344,7 @@ export function InventariosClient({ gruas, items: itemsIniciales, sticker: stick
   function exportarCSV() {
     try {
       setLoadingCSV(true)
-      generarCSVInventario(toFilaStock(), 'stock', `inventarios-stock-${new Date().toISOString().split('T')[0]}`)
+      generarCSVInventario(toFilaStock(), 'stock', `inventarios-stock-${getNowDateColombia()}`)
       toast.success('CSV generado')
     } catch { toast.error('Error al generar CSV') } finally { setLoadingCSV(false) }
   }

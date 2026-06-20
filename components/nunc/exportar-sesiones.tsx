@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react'
 import { Download, FileSpreadsheet } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { getNowDateColombia } from '@/lib/utils/date'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
@@ -37,7 +38,7 @@ export function ExportarSesionesNunc({ sesiones }: Props) {
     }
     setCargando(true)
     try {
-      const fecha = new Date().toISOString().split('T')[0]
+      const fecha = getNowDateColombia()
       await generarExcelSesiones(datosFiltrados, filtros, `nunc-sesiones-${fecha}`)
       toast.success(`${datosFiltrados.length} sesiones exportadas`)
       setOpen(false)

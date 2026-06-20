@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Download, CalendarRange } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { getNowDateColombia } from '@/lib/utils/date'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
@@ -31,7 +32,7 @@ export function ExportarHistorialNunc() {
         return
       }
 
-      const fecha = new Date().toISOString().split('T')[0]
+      const fecha = getNowDateColombia()
       await generarExcelHistorialNunc(data, filtros, `nunc-historial-${fecha}`)
       toast.success(`${total} registros exportados`)
       setOpen(false)
