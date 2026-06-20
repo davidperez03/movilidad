@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
+import { getNowDateColombia } from "@/lib/utils/date"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -60,7 +61,7 @@ export function CambiarEstado({ procesoId, procesoTipo, estadoActual }: CambiarE
   const [cargandoTransiciones, setCargandoTransiciones] = useState(true)
 
   // Fecha máxima es hoy
-  const hoy = new Date().toISOString().split("T")[0]
+  const hoy = getNowDateColombia()
 
   const estados = procesoTipo === "traslado" ? ESTADOS_TRASLADO : ESTADOS_RADICACION
   const tabla = procesoTipo === "traslado" ? "mov_traslados" : "mov_radicaciones"

@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Download } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { getNowDateColombia } from '@/lib/utils/date'
 import { toast } from 'sonner'
 import { generarExcelRegistros } from '@/lib/nunc/reportes/exportar-excel'
 import type { FilaRegistroNunc } from '@/lib/nunc/reportes/tipos'
@@ -23,7 +24,7 @@ export function ExportarRegistrosNunc({ registros, codigoSesion, entidad }: Prop
     }
     setCargando(true)
     try {
-      const fecha = new Date().toISOString().split('T')[0]
+      const fecha = getNowDateColombia()
       await generarExcelRegistros(registros, codigoSesion, entidad, `nunc-${codigoSesion}-${fecha}`)
       toast.success(`${registros.length} registros exportados`)
     } catch {

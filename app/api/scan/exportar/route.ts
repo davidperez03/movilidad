@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import ExcelJS from 'exceljs'
 import { logger } from '@/lib/logger'
+import { getNowDateColombia } from '@/lib/utils/date'
 
 async function requireParqueaderoOSuperAdmin() {
   const supabase = await createClient()
@@ -101,7 +102,7 @@ export async function GET(req: NextRequest) {
     if (auth.error) return auth.error
 
     const { searchParams } = new URL(req.url)
-    const fecha = searchParams.get('fecha') ?? new Date().toISOString().slice(0, 10)
+    const fecha = searchParams.get('fecha') ?? getNowDateColombia()
 
     const desde = `${fecha}T00:00:00.000Z`
     const hasta = `${fecha}T23:59:59.999Z`
