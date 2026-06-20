@@ -108,8 +108,8 @@ export default function AsistenciaPage() {
     const { data: hoy, error } = await supabase
       .from("asist_vista_registros")
       .select("id, usuario_id, tipo, timestamp, nombre_completo, documento_numero, rol_nombre")
-      .gte("timestamp", `${f}T00:00:00.000Z`)
-      .lte("timestamp", `${f}T23:59:59.999Z`)
+      .gte("timestamp", `${f}T00:00:00-05:00`)
+      .lte("timestamp", `${f}T23:59:59.999-05:00`)
       .order("timestamp", { ascending: true })
 
     if (error) { toast.error("Error al cargar registros"); setLoading(false); return }
@@ -131,7 +131,7 @@ export default function AsistenciaPage() {
         .select("id, usuario_id, tipo, timestamp, nombre_completo, documento_numero, rol_nombre")
         .in("usuario_id", huerfanos)
         .eq("tipo", "INGRESO")
-        .lt("timestamp", `${f}T00:00:00.000Z`)
+        .lt("timestamp", `${f}T00:00:00-05:00`)
         .order("timestamp", { ascending: false })
 
       // Tomar solo el último INGRESO por usuario

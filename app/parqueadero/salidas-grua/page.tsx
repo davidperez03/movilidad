@@ -59,8 +59,8 @@ export default function SalidasGruaPage() {
       .select(`id, hora_salida, hora_regreso, motivo, trae_carga, inventario_items, observaciones, vehiculo_id,
         parq_vehiculos(placa, marca),
         operador:perfiles!operador_id(nombre_completo)`)
-      .gte("hora_salida", `${desde}T00:00:00.000Z`)
-      .lte("hora_salida", `${hasta}T23:59:59.999Z`)
+      .gte("hora_salida", `${desde}T00:00:00-05:00`)
+      .lte("hora_salida", `${hasta}T23:59:59.999-05:00`)
       .order("hora_salida", { ascending: false })
 
     if (placaFiltro !== "todos") query.eq("vehiculo_id", placaFiltro)
