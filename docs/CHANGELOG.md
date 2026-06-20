@@ -5,6 +5,16 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.29.2] - 2026-06-20
+
+### fix(fechas): rangos de query con zona horaria Colombia
+
+#### Corregido
+- Los filtros de fecha usaban `T00:00:00.000Z` / `T23:59:59.999Z` (medianoche UTC) — registros después de las 7pm Colombia aparecían en el día siguiente
+- Corregido a `-05:00` en los 4 lugares: asistencia, salidas-grua (vista y exportar Excel), exportar asistencia scan
+
+---
+
 ## [1.29.1] - 2026-06-20
 
 ### fix(fechas): corregir zona horaria Colombia en filtros de fecha y nombres de archivo
