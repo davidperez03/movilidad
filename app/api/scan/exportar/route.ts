@@ -104,8 +104,8 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url)
     const fecha = searchParams.get('fecha') ?? getNowDateColombia()
 
-    const desde = `${fecha}T00:00:00.000Z`
-    const hasta = `${fecha}T23:59:59.999Z`
+    const desde = `${fecha}T00:00:00-05:00`
+    const hasta = `${fecha}T23:59:59.999-05:00`
 
     const supabase = createAdminClient()
 
