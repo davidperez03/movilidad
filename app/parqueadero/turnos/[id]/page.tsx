@@ -34,6 +34,18 @@ export default async function DetalleTurnoPage({ params }: { params: Promise<{ i
     .is("turno_id", null)
     .order("hora", { ascending: true })
 
+  // Primera inspección del mismo vehículo posterior a este turno (turno siguiente)
+  // Su km_inicio = km_fin sugerido para cerrar este turno
+  const { data: inspeccionPosterior } = await supabase
+    .from("parq_vista_inspecciones")
+    .select("km_inicio")
+    .eq("vehiculo_id", turno.vehiculo_id)
+    .neq("turno_id", id)
+    .gt("creado_en", turno.hora_inicio)
+    .order("creado_en", { ascending: true })
+    .limit(1)
+    .maybeSingle()
+
   return (
     <DetalleTurno
       turno={turno}
@@ -42,6 +54,7 @@ export default async function DetalleTurnoPage({ params }: { params: Promise<{ i
       novedades={novedades ?? []}
       permisos={permisos}
       esSuperadmin={esSuperadmin}
+      kmFinSugerido={inspeccionPosterior?.km_inicio ?? null}
     />
   )
 }

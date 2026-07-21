@@ -84,66 +84,61 @@ interface Empleado {
   tiene_pin:        boolean
 }
 
-function horaCol(ts: string) {
-  return new Date(ts).toLocaleString("es-CO", {
-    timeZone: "America/Bogota",
-    hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: true,
-  })
+function fechaHoraCol(ts: string) {
+  const d = new Date(ts)
+  const fecha = d.toLocaleDateString("es-CO", { timeZone: "America/Bogota", day: "2-digit", month: "2-digit", year: "numeric" })
+  const hora  = d.toLocaleTimeString("es-CO", { timeZone: "America/Bogota", hour: "2-digit", minute: "2-digit", hour12: true })
+  return `${fecha} ${hora}`
 }
 
 export default function AsistenciaPage() {
   const hoy = getNowDateColombia()
-  const [fecha, setFecha]         = useState(hoy)
-  const [busqueda, setBusqueda]   = useState("")
-  const [registros, setRegistros] = useState<Registro[]>([])
-  const [empleados, setEmpleados] = useState<Empleado[]>([])
-  const [loading, setLoading]     = useState(true)
-  const [loadingEmp, setLoadingEmp] = useState(true)
-  const [procesando, setProcesando] = useState<string | null>(null)
+  const [fecha, setFecha]               = useState(hoy)
+  const [busqueda, setBusqueda]         = useState("")
+  const [registros, setRegistros]       = useState<Registro[]>([])
+  const [empleados, setEmpleados]       = useState<Empleado[]>([])
+  const [loading, setLoading]           = useState(true)
+  const [loadingEmp, setLoadingEmp]     = useState(true)
+  const [procesando, setProcesando]     = useState<string | null>(null)
+  const [historial, setHistorial]       = useState<Registro[]>([])
+  const [loadingHist, setLoadingHist]   = useState(false)
+  const [histCargado, setHistCargado]   = useState(false)
+  const [busquedaHist, setBusquedaHist] = useState("")
 
   const cargarRegistros = useCallback(async (f: string) => {
     setLoading(true)
     const supabase = createClient()
 
-    const { data: hoy, error } = await supabase
+    // Solo INGRESOs del día seleccionado — la jornada se ancla al día de entrada
+    const { data: ingresos, error } = await supabase
       .from("asist_vista_registros")
       .select("id, usuario_id, tipo, timestamp, nombre_completo, documento_numero, rol_nombre")
       .gte("timestamp", `${f}T00:00:00-05:00`)
       .lte("timestamp", `${f}T23:59:59.999-05:00`)
+      .eq("tipo", "INGRESO")
       .order("timestamp", { ascending: true })
 
     if (error) { toast.error("Error al cargar registros"); setLoading(false); return }
 
-    // Detectar SALIDAs huérfanas: usuarios cuyo primer registro del día es SALIDA
-    // (entraron el día anterior en turno nocturno)
-    const primerosPorUsuario: Record<string, Registro> = {}
-    for (const r of hoy ?? []) {
-      if (!primerosPorUsuario[r.usuario_id]) primerosPorUsuario[r.usuario_id] = r
-    }
-    const huerfanos = Object.values(primerosPorUsuario)
-      .filter((r) => r.tipo === "SALIDA")
-      .map((r) => r.usuario_id)
+    const ingresosData = ingresos ?? []
 
-    let ingresosNocturnosAnteriores: Registro[] = []
-    if (huerfanos.length > 0) {
-      const { data: prev } = await supabase
-        .from("asist_vista_registros")
-        .select("id, usuario_id, tipo, timestamp, nombre_completo, documento_numero, rol_nombre")
-        .in("usuario_id", huerfanos)
-        .eq("tipo", "INGRESO")
-        .lt("timestamp", `${f}T00:00:00-05:00`)
-        .order("timestamp", { ascending: false })
-
-      // Tomar solo el último INGRESO por usuario
-      const ultimo: Record<string, Registro> = {}
-      for (const r of prev ?? []) {
-        if (!ultimo[r.usuario_id]) ultimo[r.usuario_id] = r
-      }
-      ingresosNocturnosAnteriores = Object.values(ultimo)
+    if (ingresosData.length === 0) {
+      setRegistros([])
+      setLoading(false)
+      return
     }
 
-    // Prefijar los ingresos del día anterior para que agruparJornadas los empareje
-    setRegistros([...ingresosNocturnosAnteriores, ...(hoy ?? [])])
+    // SALIDAs de esos usuarios desde el inicio del día (pueden ser del día siguiente en turno nocturno)
+    const usuarioIds = [...new Set(ingresosData.map((r) => r.usuario_id))]
+    const { data: salidas } = await supabase
+      .from("asist_vista_registros")
+      .select("id, usuario_id, tipo, timestamp, nombre_completo, documento_numero, rol_nombre")
+      .in("usuario_id", usuarioIds)
+      .eq("tipo", "SALIDA")
+      .gte("timestamp", `${f}T00:00:00-05:00`)
+      .order("timestamp", { ascending: true })
+
+    setRegistros([...ingresosData, ...(salidas ?? [])])
     setLoading(false)
   }, [])
 
@@ -190,12 +185,32 @@ export default function AsistenciaPage() {
     setLoadingEmp(false)
   }, [])
 
+  const cargarHistorial = useCallback(async () => {
+    setLoadingHist(true)
+    const supabase = createClient()
+    const { data, error } = await supabase
+      .from("asist_vista_registros")
+      .select("id, usuario_id, tipo, timestamp, nombre_completo, documento_numero, rol_nombre")
+      .order("timestamp", { ascending: false })
+      .limit(2000)
+    if (error) { toast.error("Error al cargar historial"); setLoadingHist(false); return }
+    setHistorial(data ?? [])
+    setHistCargado(true)
+    setLoadingHist(false)
+  }, [])
+
   useEffect(() => { cargarRegistros(fecha) }, [fecha, cargarRegistros])
   useEffect(() => { cargarEmpleados() }, [cargarEmpleados])
 
   const jornadas = agruparJornadas(registros)
   const filtrados = jornadas.filter((j) => {
     const q = busqueda.toLowerCase()
+    return j.nombre_completo?.toLowerCase().includes(q) || j.documento_numero?.includes(q)
+  })
+
+  const jornadasHist = agruparJornadas(historial)
+  const filtradosHist = jornadasHist.filter((j) => {
+    const q = busquedaHist.toLowerCase()
     return j.nombre_completo?.toLowerCase().includes(q) || j.documento_numero?.includes(q)
   })
 
@@ -254,8 +269,11 @@ export default function AsistenciaPage() {
       <Tabs defaultValue="registros">
         <TabsList>
           <TabsTrigger value="registros">
-            <span className="sm:hidden">Registros</span>
+            <span className="sm:hidden">Día</span>
             <span className="hidden sm:inline">Registros del día</span>
+          </TabsTrigger>
+          <TabsTrigger value="historial" onClick={() => { if (!histCargado) cargarHistorial() }}>
+            Historial
           </TabsTrigger>
           <TabsTrigger value="accesos">
             <span className="sm:hidden">Accesos</span>
@@ -309,10 +327,84 @@ export default function AsistenciaPage() {
                     <td className="px-4 py-3 font-medium">{j.nombre_completo ?? "—"}</td>
                     <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{j.documento_numero ?? "—"}</td>
                     <td className="px-4 py-3 tabular-nums text-emerald-600 font-medium">
-                      {j.ingreso ? horaCol(j.ingreso) : "—"}
+                      {j.ingreso ? fechaHoraCol(j.ingreso) : "—"}
                     </td>
                     <td className="px-4 py-3 tabular-nums text-rose-600 font-medium">
-                      {j.salida ? horaCol(j.salida) : (
+                      {j.salida ? fechaHoraCol(j.salida) : (
+                        <span className="text-amber-500 text-xs font-normal">En turno</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 hidden sm:table-cell">
+                      {j.salida ? (
+                        <Badge variant="outline" className="border-muted-foreground text-muted-foreground text-xs">
+                          Completado
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline" className="border-amber-500 text-amber-600 text-xs">
+                          En turno
+                        </Badge>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </TabsContent>
+
+        {/* ── HISTORIAL ── */}
+        <TabsContent value="historial" className="space-y-4 pt-2">
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Input
+              placeholder="Buscar por nombre o documento…"
+              value={busquedaHist} onChange={(e) => setBusquedaHist(e.target.value)}
+              className="max-w-xs"
+            />
+            <Button variant="outline" size="sm" onClick={cargarHistorial} disabled={loadingHist}>
+              <RefreshCw className={`h-4 w-4 mr-1 ${loadingHist ? "animate-spin" : ""}`} />
+              Actualizar
+            </Button>
+          </div>
+
+          {histCargado && (
+            <p className="text-sm text-muted-foreground">{filtradosHist.length} jornada{filtradosHist.length !== 1 ? "s" : ""}</p>
+          )}
+
+          <div className="rounded-lg border overflow-hidden">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b bg-muted/50">
+                  <th className="text-left px-4 py-3 font-medium">Nombre</th>
+                  <th className="text-left px-4 py-3 font-medium hidden md:table-cell">Documento</th>
+                  <th className="text-left px-4 py-3 font-medium">
+                    <span className="flex items-center gap-1 text-emerald-600">
+                      <LogIn className="h-3 w-3" />Ingreso
+                    </span>
+                  </th>
+                  <th className="text-left px-4 py-3 font-medium">
+                    <span className="flex items-center gap-1 text-rose-600">
+                      <LogOut className="h-3 w-3" />Salida
+                    </span>
+                  </th>
+                  <th className="text-left px-4 py-3 font-medium hidden sm:table-cell">Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                {loadingHist ? (
+                  <tr><td colSpan={5} className="text-center py-10 text-muted-foreground">Cargando…</td></tr>
+                ) : !histCargado ? (
+                  <tr><td colSpan={5} className="text-center py-10 text-muted-foreground">Abra esta pestaña para cargar el historial</td></tr>
+                ) : filtradosHist.length === 0 ? (
+                  <tr><td colSpan={5} className="text-center py-10 text-muted-foreground">Sin registros</td></tr>
+                ) : filtradosHist.map((j) => (
+                  <tr key={j.key} className="border-b last:border-0 hover:bg-muted/30 transition-colors">
+                    <td className="px-4 py-3 font-medium">{j.nombre_completo ?? "—"}</td>
+                    <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{j.documento_numero ?? "—"}</td>
+                    <td className="px-4 py-3 tabular-nums text-emerald-600 font-medium">
+                      {j.ingreso ? fechaHoraCol(j.ingreso) : "—"}
+                    </td>
+                    <td className="px-4 py-3 tabular-nums text-rose-600 font-medium">
+                      {j.salida ? fechaHoraCol(j.salida) : (
                         <span className="text-amber-500 text-xs font-normal">En turno</span>
                       )}
                     </td>

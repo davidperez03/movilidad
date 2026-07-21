@@ -16,6 +16,9 @@ yarn.lock
 
 .claude
 
+# documentos de trabajo locales
+/ot/
+
 # debug
 npm-debug.log*
 yarn-debug.log*
