@@ -5,6 +5,20 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.30.0] - 2026-07-21
+
+### feat(asistencia): historial completo y corrección de duplicados en turno nocturno
+
+#### Agregado
+- Nueva pestaña **Historial** en asistencia: muestra todas las jornadas registradas (hasta 2000 registros), con búsqueda por nombre o documento y carga lazy al abrir la pestaña
+- Campo **KM final** del cierre de turno se autocompleta con el `km_inicio` de la primera inspección del turno siguiente para el mismo vehículo (editable)
+
+#### Corregido
+- Las jornadas nocturnas que cruzan medianoche aparecían duplicadas en dos días; ahora cada jornada se ancla al día de **ingreso** y aparece una sola vez
+- Las columnas de ingreso/salida mostraban solo la hora — ahora muestran **fecha y hora completa** (`dd/mm/aaaa hh:mm a.m./p.m.`)
+
+---
+
 ## [1.29.2] - 2026-06-20
 
 ### fix(fechas): rangos de query con zona horaria Colombia
