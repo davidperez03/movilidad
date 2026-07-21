@@ -45,6 +45,7 @@ interface DetalleTurnoProps {
   novedades:             TurnoNovedad[]
   permisos:              Record<PermisoParqueadero, boolean>
   esSuperadmin?:         boolean
+  kmFinSugerido?:        number | null
 }
 
 function horaCol(ts: string) {
@@ -60,7 +61,7 @@ function fmtHoras(h: number | null) {
   return `${hh}h ${mm.toString().padStart(2, "0")}m`
 }
 
-export function DetalleTurno({ turno, inspecciones, inspeccionesSinTurno: initialSinTurno, novedades: initialNovedades, permisos, esSuperadmin }: DetalleTurnoProps) {
+export function DetalleTurno({ turno, inspecciones, inspeccionesSinTurno: initialSinTurno, novedades: initialNovedades, permisos, esSuperadmin, kmFinSugerido }: DetalleTurnoProps) {
   const router = useRouter()
   const [novedades, setNovedades]             = useState(initialNovedades)
   const [sinTurno, setSinTurno]               = useState(initialSinTurno)
@@ -68,7 +69,7 @@ export function DetalleTurno({ turno, inspecciones, inspeccionesSinTurno: initia
   const [cierresNovedad, setCierresNovedad]   = useState<Record<string, string>>({})
   const [loadingCierre, setLoadingCierre]     = useState(false)
   const [loadingNov, setLoadingNov]           = useState(false)
-  const [formCierre, setFormCierre] = useState({ hora_fin: getNowTimestampColombia().slice(0, 16), km_fin: "" })
+  const [formCierre, setFormCierre] = useState({ hora_fin: getNowTimestampColombia().slice(0, 16), km_fin: kmFinSugerido != null ? String(kmFinSugerido) : "" })
   const [formNov, setFormNov]       = useState({ motivo: "", hora_inicio: getNowTimestampColombia().slice(0, 16), hora_fin: "" })
 
   const [deletingTurno, setDeletingTurno] = useState(false)
@@ -393,6 +394,11 @@ export function DetalleTurno({ turno, inspecciones, inspeccionesSinTurno: initia
                 <Input type="number" min={0} placeholder="Ej: 1250"
                   value={formCierre.km_fin}
                   onChange={(e) => setFormCierre((p) => ({ ...p, km_fin: e.target.value }))} />
+                {kmFinSugerido != null && (
+                  <p className="text-xs text-muted-foreground">
+                    Sugerido del turno siguiente: {kmFinSugerido.toLocaleString("es-CO")} km
+                  </p>
+                )}
               </div>
               <Button onClick={cerrarTurno} disabled={loadingCierre} variant="default">
                 <Lock className="h-4 w-4 mr-2" />
