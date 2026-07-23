@@ -14,7 +14,8 @@ create table if not exists public.parq_historial_acciones (
     'parq_vehiculo_desactivado',
     'parq_inspeccion_creada',
     'parq_novedad_subsanada',
-    'parq_personal_actualizado'
+    'parq_personal_actualizado',
+    'parq_personal_creado'
   )),
 
   detalles jsonb default '{}'::jsonb,

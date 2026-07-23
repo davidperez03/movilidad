@@ -84,11 +84,11 @@ export function ModalDatosPersonal({ persona, onCerrar }: ModalDatosPersonalProp
     try {
       const supabase = createClient()
 
-      const [{ error: errDoc }, { error: errDp }] = await Promise.all([
+      const [{ data: docActualizado, error: errDoc }, { error: errDp }] = await Promise.all([
         supabase.from("perfiles").update({
           documento_tipo:   formData.documento_tipo,
           documento_numero: formData.documento_numero || null,
-        }).eq("id", persona.id),
+        }).eq("id", persona.id).select(),
         supabase.from("parq_datos_personal").upsert({
           perfil_id:            persona.id,
           licencia_numero:      formData.licencia_numero || null,
@@ -105,7 +105,14 @@ export function ModalDatosPersonal({ persona, onCerrar }: ModalDatosPersonalProp
       if (errDoc) throw errDoc
       if (errDp)  throw errDp
 
-      toast.success("Datos guardados")
+      const documentoGuardado = docActualizado && docActualizado.length > 0
+
+      if (documentoGuardado) {
+        toast.success("Datos guardados")
+      } else {
+        toast.warning("Datos de licencia guardados, pero no fue posible guardar el documento. Actualícelo desde el panel de administración.")
+      }
+
       router.refresh()
       onCerrar()
     } catch (error: unknown) {

@@ -175,10 +175,13 @@ BEGIN
   END IF;
 
   PERFORM registrar_auditoria_parqueadero(
-    NULL, NULL,
-    new.perfil_id,
-    CASE WHEN TG_OP = 'INSERT' THEN 'personal_creado' ELSE 'personal_actualizado' END,
-    v_detalles
+    NULL,                                                                                   -- p_vehiculo_id
+    NULL,                                                                                   -- p_inspeccion_id
+    CASE WHEN TG_OP = 'INSERT' THEN 'personal_creado' ELSE 'personal_actualizado' END,    -- p_accion
+    v_detalles,                                                                             -- p_detalles
+    NULL,                                                                                   -- p_valor_anterior
+    NULL,                                                                                   -- p_valor_nuevo
+    new.perfil_id                                                                           -- p_realizado_por
   );
 
   RETURN new;

@@ -5,6 +5,17 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.30.1] - 2026-07-23
+
+### fix(parqueadero): corregir trigger y constraint de auditoría de personal
+
+#### Corregido
+- Orden de parámetros incorrecto en `trigger_parq_personal_actualizado` causaba error al guardar datos de personal
+- Valores de acción sin prefijo `parq_` violaban el check constraint de `parq_historial_acciones`
+- Modal de personal mostraba éxito aunque el documento (cédula) no se guardara por restricción de permisos; ahora muestra advertencia clara
+
+---
+
 ## [1.30.0] - 2026-07-21
 
 ### feat(asistencia): historial completo y corrección de duplicados en turno nocturno
