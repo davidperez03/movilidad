@@ -6,6 +6,7 @@ Para el proceso de release y reglas de versionamiento semántico ver [GITFLOW.md
 
 | Versión | Fecha | Descripción |
 |---------|-------|-------------|
+| 1.30.1 | 2026-07-23 | fix(parqueadero): corregir trigger y constraint de auditoría de personal |
 | 1.30.0 | 2026-07-21 | feat(asistencia): historial completo, km autocomplete y corrección duplicados nocturnos |
 | 1.29.2 | 2026-06-20 | fix(fechas): rangos de query con zona horaria Colombia (-05:00) |
 | 1.29.1 | 2026-06-20 | fix(fechas): zona horaria Colombia en filtros y exportaciones |
