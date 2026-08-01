@@ -5,6 +5,20 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.33.0] - 2026-08-01
+
+### feat(nunc): eliminar sesiones y registros desde admin
+
+#### Agregado
+- Admin puede eliminar sesiones completas desde la página de detalle (con confirmación)
+- Admin puede eliminar registros individuales de sesiones activas (botón inline en tabla)
+- Nuevos endpoints: `DELETE /api/nunc/sesion/[id]` y `DELETE /api/nunc/sesion/[id]/registro/[registroId]`
+
+#### Corregido
+- Migration 032: trigger `AFTER DELETE` en `nunc_registros` fallaba con FK violation — pasaba `OLD.id` (ya eliminado) como `registro_id` al historial de auditoría. Fix: pasa `NULL` y guarda el ID en `detalles`
+
+---
+
 ## [1.32.5] - 2026-08-01
 
 ### fix(nunc): botón X para cerrar advertencia de duplicado

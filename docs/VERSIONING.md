@@ -6,6 +6,7 @@ Para el proceso de release y reglas de versionamiento semántico ver [GITFLOW.md
 
 | Versión | Fecha | Descripción |
 |---------|-------|-------------|
+| 1.33.0 | 2026-08-01 | feat(nunc): eliminar sesiones y registros desde admin + fix trigger delete |
 | 1.32.5 | 2026-08-01 | fix(nunc): botón X para cerrar advertencia de duplicado |
 | 1.32.4 | 2026-08-01 | fix(nunc): advertencia duplicados estática en formulario, no toast |
 | 1.32.3 | 2026-08-01 | fix(nunc): duplicados verificados contra toda la BD (todas las sesiones) |
