@@ -45,9 +45,30 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Sesión expirada' }, { status: 410 })
     }
 
+    const placa = registro.placa.toUpperCase()
+
+    // Verificar duplicados contra toda la BD (todas las sesiones)
+    const [{ data: dupPlaca }, { data: dupNunc }] = await Promise.all([
+      admin.from('nunc_registros')
+        .select('placa, nunc_dpto, nunc_municipio, nunc_entidad, nunc_unidad, nunc_anio, nunc_consecutivo')
+        .eq('placa', placa)
+        .limit(1)
+        .maybeSingle(),
+      admin.from('nunc_registros')
+        .select('placa, nunc_dpto, nunc_municipio, nunc_entidad, nunc_unidad, nunc_anio, nunc_consecutivo')
+        .eq('nunc_dpto', registro.nunc_dpto)
+        .eq('nunc_municipio', registro.nunc_municipio)
+        .eq('nunc_entidad', registro.nunc_entidad)
+        .eq('nunc_unidad', registro.nunc_unidad)
+        .eq('nunc_anio', registro.nunc_anio)
+        .eq('nunc_consecutivo', registro.nunc_consecutivo)
+        .limit(1)
+        .maybeSingle(),
+    ])
+
     const { data, error } = await admin
       .from('nunc_registros')
-      .insert({ sesion_id: sesion.id, ...registro, placa: registro.placa.toUpperCase() })
+      .insert({ sesion_id: sesion.id, ...registro, placa })
       .select('id')
       .single()
 
@@ -56,7 +77,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Error al guardar' }, { status: 500 })
     }
 
-    return NextResponse.json({ ok: true, id: data.id })
+    const advertencia =
+      dupPlaca && dupNunc ? `La placa ${placa} y este NUNC ya existen en la base de datos`
+      : dupPlaca          ? `La placa ${placa} ya está registrada en la base de datos`
+      : dupNunc           ? `Este NUNC ya fue registrado con la placa ${dupNunc.placa}`
+      : null
+
+    return NextResponse.json({ ok: true, id: data.id, advertencia })
   } catch (error) {
     logger.error('Error en POST nunc/registro', { error: String(error) })
     return NextResponse.json({ error: 'Error interno' }, { status: 500 })
