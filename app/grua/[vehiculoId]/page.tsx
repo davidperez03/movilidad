@@ -24,7 +24,7 @@ interface Personal { id: string; nombre_completo: string }
 interface EstadoData {
   vehiculo:       { id: string; placa: string; marca: string | null; modelo: string | null }
   enCalle:        boolean
-  ultimaSalida:   { id: string; hora_salida: string; motivo: string; operador_id: string | null } | null
+  ultimaSalida:   { id: string; hora_salida: string; motivo: string; operador_id: string | null; codigo_salida: string | null } | null
   operadorActual: { id: string; nombre: string } | null
   personal:       Personal[]
   inventarioGrua: ItemInv[]
@@ -75,9 +75,7 @@ export default function GruaPage() {
       })
       const d = await res.json()
       if (!res.ok) { toast.error(d.error ?? "Error"); return }
-      // Guardar solo los 5 dígitos para mostrar al vigilante
       setCodigoSalida(d.codigo_salida?.split('-')[1] ?? d.codigo_salida)
-      setTimeout(() => { window.location.reload() }, 15000)
     } catch { toast.error("Error de conexión") }
     finally { setSaving(false) }
   }
@@ -140,6 +138,14 @@ export default function GruaPage() {
         <div className="rounded-lg bg-rose-50 border border-rose-200 px-4 py-3 text-sm space-y-1">
           <p className="font-medium text-rose-700">Salida registrada</p>
           <p className="text-rose-600">{horaCol(ultimaSalida.hora_salida)} — {MOTIVOS.find(m => m.value === ultimaSalida.motivo)?.label}</p>
+          {ultimaSalida.codigo_salida && (
+            <div className="pt-1 flex items-center gap-2">
+              <span className="text-xs text-rose-500">Código vigilante:</span>
+              <span className="font-mono font-black text-2xl text-rose-700 tracking-widest">
+                {ultimaSalida.codigo_salida.split('-')[1] ?? ultimaSalida.codigo_salida}
+              </span>
+            </div>
+          )}
         </div>
       )}
 
@@ -154,11 +160,11 @@ export default function GruaPage() {
           <div>
             <p className="text-sm text-muted-foreground font-medium">Salida registrada — código para el vigilante</p>
             <p className="text-6xl font-black tracking-widest mt-3 font-mono text-foreground">{codigoSalida}</p>
-            <p className="text-xs text-muted-foreground mt-3">Esta pantalla se cerrará en 15 segundos</p>
+            <p className="text-xs text-muted-foreground mt-3">El código también quedará visible en el panel de salida</p>
           </div>
           <button onClick={() => window.location.reload()}
-            className="text-sm text-muted-foreground hover:text-foreground underline">
-            Cerrar ahora
+            className="mt-2 w-full h-11 rounded-xl bg-foreground text-background font-semibold text-sm flex items-center justify-center gap-2 active:scale-95 transition-all">
+            Listo, continuar
           </button>
         </div>
       ) : !enCalle ? (
