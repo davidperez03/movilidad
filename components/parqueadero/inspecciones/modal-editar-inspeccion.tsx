@@ -8,7 +8,6 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Switch } from "@/components/ui/switch"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Pencil, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -17,7 +16,6 @@ interface Props {
   inicial: {
     fecha:         string
     hora:          string
-    turno:         string | null
     km_inicio:     number | null
     observaciones: string | null
     es_apto:       boolean
@@ -31,7 +29,6 @@ export function ModalEditarInspeccion({ id, inicial }: Props) {
   const [form, setForm]     = useState({
     fecha:         inicial.fecha,
     hora:          inicial.hora,
-    turno:         inicial.turno ?? "diurno",
     km_inicio:     inicial.km_inicio?.toString() ?? "",
     observaciones: inicial.observaciones ?? "",
     es_apto:       inicial.es_apto,
@@ -46,7 +43,6 @@ export function ModalEditarInspeccion({ id, inicial }: Props) {
         body:    JSON.stringify({
           fecha:         form.fecha,
           hora:          form.hora,
-          turno:         form.turno,
           km_inicio:     form.km_inicio ? Number(form.km_inicio) : null,
           observaciones: form.observaciones || null,
           es_apto:       form.es_apto,
@@ -84,17 +80,6 @@ export function ModalEditarInspeccion({ id, inicial }: Props) {
                 <Label className="text-xs">Hora</Label>
                 <Input type="time" value={form.hora} onChange={(e) => setForm((p) => ({ ...p, hora: e.target.value }))} />
               </div>
-            </div>
-
-            <div className="space-y-1.5">
-              <Label className="text-xs">Turno</Label>
-              <Select value={form.turno} onValueChange={(v) => setForm((p) => ({ ...p, turno: v }))}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="diurno">Diurno</SelectItem>
-                  <SelectItem value="nocturno">Nocturno</SelectItem>
-                </SelectContent>
-              </Select>
             </div>
 
             <div className="space-y-1.5">

@@ -34,6 +34,7 @@ Registro manual de migraciones ejecutadas en producción.
 | 028 | 028_salidas_grua.sql | 2026-06-18 | David | v1.28.0 |
 | 029 | 029_codigo_salida_unique.sql | 2026-06-18 | — | v1.28.2 |
 | 030 | 030_turnos_multiples_por_dia.sql | — | — | v1.29.0 |
+| 031 | 031_drop_turnos.sql | — | — | v1.32.0 |
 
 <!--
 Al aplicar una migración, agregar una fila:

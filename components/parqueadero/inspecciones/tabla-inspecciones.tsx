@@ -13,7 +13,6 @@ import { toast } from "sonner"
 import type { VistaInspeccion } from "@/lib/parqueadero/types"
 import { capitalizeName } from "@/lib/utils/capitalize"
 import type { PermisoParqueadero } from "@/lib/types/permissions"
-import { TURNOS } from "@/lib/parqueadero/config"
 import { formatearFecha, formatearHora } from "@/lib/parqueadero/utils"
 import {
   DropdownMenu,
@@ -69,20 +68,6 @@ export function TablaInspecciones({ inspecciones, permisos, esSuperadmin }: Tabl
       cell: ({ row }) => (
         <span className="font-plate">{row.getValue("placa")}</span>
       ),
-    },
-    {
-      accessorKey: "turno",
-      header: ({ column }) => <DataTableColumnHeader column={column} title="Turno" />,
-      cell: ({ row }) => {
-        const turno = row.getValue("turno") as string | null
-        if (!turno) return "-"
-        const config = TURNOS[turno]
-        return config ? (
-          <Badge variant="outline" className={config.color}>
-            {config.label}
-          </Badge>
-        ) : turno
-      },
     },
     {
       accessorKey: "operador_nombre",

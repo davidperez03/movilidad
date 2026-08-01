@@ -7,12 +7,12 @@ import type { VistaPersonal } from "@/lib/parqueadero/types"
 export default async function NuevaInspeccionPage({
   searchParams,
 }: {
-  searchParams: Promise<{ turno_id?: string; vehiculo_id?: string }>
+  searchParams: Promise<{ vehiculo_id?: string }>
 }) {
   const { parqueadero: permisos } = await obtenerPermisosUsuario()
   if (!permisos.crear_inspecciones) redirect("/parqueadero")
 
-  const { turno_id, vehiculo_id } = await searchParams
+  const { vehiculo_id } = await searchParams
   const supabase = await createClient()
 
   const { data: vehiculos } = await supabase
@@ -53,7 +53,6 @@ export default async function NuevaInspeccionPage({
         itemsCatalogo={itemsCatalogo || []}
         operadores={operadores}
         auxiliares={auxiliares}
-        turnoId={turno_id}
         vehiculoIdInicial={vehiculo_id}
       />
     </div>

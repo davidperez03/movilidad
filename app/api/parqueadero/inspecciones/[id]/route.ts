@@ -8,11 +8,9 @@ import { z } from 'zod'
 const patchSchema = z.object({
   fecha:         z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
   hora:          z.string().optional(),
-  turno:         z.enum(['diurno', 'nocturno']).optional(),
   km_inicio:     z.number().int().nonnegative().nullable().optional(),
   observaciones: z.string().nullable().optional(),
   es_apto:       z.boolean().optional(),
-  turno_id:      z.string().uuid().nullable().optional(),
 })
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {

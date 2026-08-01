@@ -18,7 +18,7 @@ import {
   Shield,
   PenTool,
 } from "lucide-react"
-import { TURNOS, CATEGORIAS_ITEMS, ESTADOS_ITEM, ESTADOS_DOCUMENTO } from "@/lib/parqueadero/config"
+import { CATEGORIAS_ITEMS, ESTADOS_ITEM, ESTADOS_DOCUMENTO } from "@/lib/parqueadero/config"
 import { formatearFecha, formatearFechaLarga, formatearFechaHora, formatearFechaCorta, formatearHora, ESTADO_ITEM_ICONS, ESTADO_ITEM_COLORS, type EstadoItem } from "@/lib/parqueadero/utils"
 import type { FotoConTimestamp } from "@/lib/parqueadero/types"
 import { SeccionNovedades } from "@/components/parqueadero/inspecciones/seccion-novedades"
@@ -112,7 +112,6 @@ export default async function InspeccionDetallePage({ params }: PageProps) {
               inicial={{
                 fecha:         inspeccion.fecha,
                 hora:          inspeccion.hora,
-                turno:         inspeccion.turno,
                 km_inicio:     inspeccion.km_inicio,
                 observaciones: inspeccion.observaciones,
                 es_apto:       inspeccion.es_apto,
@@ -197,13 +196,8 @@ export default async function InspeccionDetallePage({ params }: PageProps) {
               <Clock className="h-5 w-5 text-amber-600" />
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Hora / Turno</p>
+              <p className="text-sm text-muted-foreground">Hora</p>
               <p className="font-semibold">{formatearHora(inspeccion.hora)}</p>
-              {inspeccion.turno && (
-                <Badge variant="outline" className={TURNOS[inspeccion.turno]?.color}>
-                  {TURNOS[inspeccion.turno]?.label}
-                </Badge>
-              )}
             </div>
           </CardContent>
         </Card>
