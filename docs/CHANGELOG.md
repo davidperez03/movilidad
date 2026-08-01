@@ -5,6 +5,27 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.32.0] - 2026-08-01
+
+### feat(parqueadero): eliminar módulo de turnos
+
+#### Eliminado
+- Módulo completo de turnos: páginas, API routes, componentes (`parq_turnos`, `parq_turno_novedades`)
+- Pestaña "Turnos" del nav de parqueadero
+- Campos `turno` (diurno/nocturno) y `turno_id` del formulario y tabla de inspecciones
+- Tipos `VistaTurno`, `TurnoNovedad` y constantes `TURNOS`, `OPCIONES_TURNO`
+
+#### Agregado
+- Migración `031_drop_turnos.sql`: elimina las tablas, columnas y vista de turnos en la BD
+
+### fix(nunc): advertencia de duplicados corregida
+
+#### Corregido
+- La advertencia de duplicados ahora se muestra dentro del formulario (visible al escribir)
+- Cubre tres casos: placa+NUNC duplicados, solo placa duplicada, solo NUNC duplicado
+
+---
+
 ## [1.31.0] - 2026-08-01
 
 ### feat(nunc,grua): validación de duplicados en NUNC y código de salida persistente en grúa
