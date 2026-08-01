@@ -6,6 +6,7 @@ Para el proceso de release y reglas de versionamiento semántico ver [GITFLOW.md
 
 | Versión | Fecha | Descripción |
 |---------|-------|-------------|
+| 1.32.4 | 2026-08-01 | fix(nunc): advertencia duplicados estática en formulario, no toast |
 | 1.32.3 | 2026-08-01 | fix(nunc): duplicados verificados contra toda la BD (todas las sesiones) |
 | 1.32.2 | 2026-08-01 | fix(nunc): advertencia duplicados contra registros reales de la BD |
 | 1.32.1 | 2026-08-01 | fix(nunc): advertencia duplicados con sessionStorage y useMemo |
