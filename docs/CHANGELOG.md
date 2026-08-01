@@ -5,6 +5,16 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.32.3] - 2026-08-01
+
+### fix(nunc): duplicados verificados contra toda la base de datos
+
+#### Corregido
+- El endpoint de guardar registro consulta toda la tabla `nunc_registros` (todas las sesiones) antes de insertar
+- Si la placa o el NUNC ya existen en cualquier sesión, se muestra un toast de advertencia sin bloquear el guardado
+
+---
+
 ## [1.32.2] - 2026-08-01
 
 ### fix(nunc): advertencia de duplicados contra registros reales de la BD

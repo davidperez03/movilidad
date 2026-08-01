@@ -86,14 +86,6 @@ export default function AccesoNuncPage() {
   async function guardarVehiculo(e: React.FormEvent) {
     e.preventDefault()
     if (!sesion || !placa.trim() || !nunc.consecutivo.trim()) { toast.error("Placa y consecutivo son obligatorios"); return }
-    const placaUp   = placa.trim().toUpperCase()
-    const nuncFull  = `${nunc.dpto}-${nunc.municipio}-${nunc.entidad}-${nunc.unidad}-${nunc.anio}-${nunc.consecutivo.trim()}`
-    const dupExacto = registros.find(r => r.placa === placaUp && nuncStr(r) === nuncFull)
-    const dupPlaca  = !dupExacto ? registros.find(r => r.placa === placaUp) : null
-    const dupNunc   = !dupExacto ? registros.find(r => nuncStr(r) === nuncFull) : null
-    if (dupExacto) toast.warning(`La placa ${placaUp} ya fue registrada con este mismo NUNC en esta sesión`)
-    else if (dupPlaca) toast.warning(`La placa ${placaUp} ya aparece en esta sesión con el NUNC ${nuncStr(dupPlaca)}`)
-    else if (dupNunc) toast.warning(`Este NUNC ya fue registrado con la placa ${dupNunc.placa} en esta sesión`)
     setLoading(true)
     try {
       const body = { codigo: sesion.codigo, placa: placa.trim().toUpperCase(), nunc_dpto: nunc.dpto, nunc_municipio: nunc.municipio, nunc_entidad: nunc.entidad, nunc_unidad: nunc.unidad, nunc_anio: nunc.anio, nunc_consecutivo: nunc.consecutivo.trim(), observaciones: observaciones.trim() || undefined }
@@ -105,7 +97,8 @@ export default function AccesoNuncPage() {
       setPlaca("")
       setNunc((n) => ({ ...n, consecutivo: "" }))
       setObservaciones("")
-      toast.success(`${body.placa} registrado`)
+      if (data.advertencia) toast.warning(data.advertencia)
+      else toast.success(`${body.placa} registrado`)
     } catch (err) { toast.error(err instanceof Error ? err.message : "Error al guardar") }
     finally { setLoading(false) }
   }
