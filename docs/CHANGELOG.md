@@ -5,6 +5,16 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.32.2] - 2026-08-01
+
+### fix(nunc): advertencia de duplicados contra registros reales de la BD
+
+#### Corregido
+- Al validar el código de sesión, el endpoint ahora retorna todos los registros existentes guardados en la BD para esa sesión
+- La advertencia de duplicados funciona desde el primer ingreso, contra todos los vehículos históricos de la sesión (no solo los del tab actual)
+
+---
+
 ## [1.32.1] - 2026-08-01
 
 ### fix(nunc): advertencia de duplicados ahora funciona tras recargas de página

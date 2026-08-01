@@ -35,7 +35,13 @@ export async function POST(request: Request) {
 
     if (sesion.estado === 'expirada') return NextResponse.json({ error: 'Este código ha expirado' }, { status: 410 })
 
-    return NextResponse.json({ sesion })
+    const { data: registros } = await admin
+      .from('nunc_registros')
+      .select('id, placa, nunc_dpto, nunc_municipio, nunc_entidad, nunc_unidad, nunc_anio, nunc_consecutivo, observaciones')
+      .eq('sesion_id', sesion.id)
+      .order('creado_en', { ascending: false })
+
+    return NextResponse.json({ sesion, registros: registros ?? [] })
   } catch (error) {
     logger.error('Error validando código nunc', { error: String(error) })
     return NextResponse.json({ error: 'Error interno' }, { status: 500 })

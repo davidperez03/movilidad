@@ -77,10 +77,7 @@ export default function AccesoNuncPage() {
       const s: Sesion = data.sesion
       setSesion(s)
       setNunc({ dpto: s.nunc_dpto, municipio: s.nunc_municipio, entidad: s.nunc_entidad, unidad: s.nunc_unidad, anio: s.nunc_anio, consecutivo: "" })
-      try {
-        const stored = sessionStorage.getItem(`nunc-reg-${s.codigo}`)
-        if (stored) setRegistros(JSON.parse(stored))
-      } catch { /* ignore */ }
+      setRegistros(data.registros ?? [])
       setFase("formulario")
     } catch (err) { toast.error(err instanceof Error ? err.message : "Error al validar") }
     finally { setLoading(false) }
@@ -89,6 +86,14 @@ export default function AccesoNuncPage() {
   async function guardarVehiculo(e: React.FormEvent) {
     e.preventDefault()
     if (!sesion || !placa.trim() || !nunc.consecutivo.trim()) { toast.error("Placa y consecutivo son obligatorios"); return }
+    const placaUp   = placa.trim().toUpperCase()
+    const nuncFull  = `${nunc.dpto}-${nunc.municipio}-${nunc.entidad}-${nunc.unidad}-${nunc.anio}-${nunc.consecutivo.trim()}`
+    const dupExacto = registros.find(r => r.placa === placaUp && nuncStr(r) === nuncFull)
+    const dupPlaca  = !dupExacto ? registros.find(r => r.placa === placaUp) : null
+    const dupNunc   = !dupExacto ? registros.find(r => nuncStr(r) === nuncFull) : null
+    if (dupExacto) toast.warning(`La placa ${placaUp} ya fue registrada con este mismo NUNC en esta sesión`)
+    else if (dupPlaca) toast.warning(`La placa ${placaUp} ya aparece en esta sesión con el NUNC ${nuncStr(dupPlaca)}`)
+    else if (dupNunc) toast.warning(`Este NUNC ya fue registrado con la placa ${dupNunc.placa} en esta sesión`)
     setLoading(true)
     try {
       const body = { codigo: sesion.codigo, placa: placa.trim().toUpperCase(), nunc_dpto: nunc.dpto, nunc_municipio: nunc.municipio, nunc_entidad: nunc.entidad, nunc_unidad: nunc.unidad, nunc_anio: nunc.anio, nunc_consecutivo: nunc.consecutivo.trim(), observaciones: observaciones.trim() || undefined }
@@ -96,11 +101,7 @@ export default function AccesoNuncPage() {
       const data = await res.json()
       if (!res.ok) { if (res.status === 410) { toast.error(data.error); setFase("finalizada"); return } throw new Error(data.error) }
       const newReg: RegistroLocal = { id: data.id, placa: body.placa, nunc_dpto: nunc.dpto, nunc_municipio: nunc.municipio, nunc_entidad: nunc.entidad, nunc_unidad: nunc.unidad, nunc_anio: nunc.anio, nunc_consecutivo: nunc.consecutivo.trim(), observaciones: observaciones.trim() }
-      setRegistros((prev) => {
-        const next = [newReg, ...prev]
-        try { sessionStorage.setItem(`nunc-reg-${sesion!.codigo}`, JSON.stringify(next)) } catch { /* ignore */ }
-        return next
-      })
+      setRegistros((prev) => [newReg, ...prev])
       setPlaca("")
       setNunc((n) => ({ ...n, consecutivo: "" }))
       setObservaciones("")
@@ -119,11 +120,7 @@ export default function AccesoNuncPage() {
       const res = await fetch(`/api/nunc/registro/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ codigo: sesion.codigo, ...datos }) })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
-      setRegistros((prev) => {
-        const next = prev.map((r) => r.id === id ? { ...datos } : r)
-        try { sessionStorage.setItem(`nunc-reg-${sesion!.codigo}`, JSON.stringify(next)) } catch { /* ignore */ }
-        return next
-      })
+      setRegistros((prev) => prev.map((r) => r.id === id ? { ...datos } : r))
       setAccion(id, "normal")
       toast.success("Actualizado")
     } catch (err) { toast.error(err instanceof Error ? err.message : "Error al editar") }
@@ -137,11 +134,7 @@ export default function AccesoNuncPage() {
       const res = await fetch(`/api/nunc/registro/${id}`, { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ codigo: sesion.codigo }) })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
-      setRegistros((prev) => {
-        const next = prev.filter((r) => r.id !== id)
-        try { sessionStorage.setItem(`nunc-reg-${sesion!.codigo}`, JSON.stringify(next)) } catch { /* ignore */ }
-        return next
-      })
+      setRegistros((prev) => prev.filter((r) => r.id !== id))
       setAccion(id, "normal")
       toast.success("Eliminado")
     } catch (err) { toast.error(err instanceof Error ? err.message : "Error al eliminar") }
