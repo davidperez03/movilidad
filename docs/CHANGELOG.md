@@ -5,6 +5,15 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.33.1] - 2026-08-01
+
+### fix(nunc): eliminar registros y sesiones funcionando correctamente
+
+#### Corregido
+- Migration 033: elimina los FK constraints `sesion_id_fkey` y `registro_id_fkey` en `nunc_historial_acciones` que tenían `ON DELETE SET NULL` — al borrar sesiones o registros, el CASCADE UPDATE chocaba con el trigger de inmutabilidad del historial. Los IDs quedan como soft references (se preservan en el historial, mejor para auditoría)
+
+---
+
 ## [1.33.0] - 2026-08-01
 
 ### feat(nunc): eliminar sesiones y registros desde admin
