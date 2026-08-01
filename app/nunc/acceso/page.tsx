@@ -288,7 +288,8 @@ export default function AccesoNuncPage() {
                 {advertenciaDB && (
                   <div className="flex items-start gap-2 text-sm text-amber-800 bg-amber-50 border border-amber-300 rounded-md px-3 py-2.5">
                     <AlertTriangle className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                    <span>{advertenciaDB}</span>
+                    <span className="flex-1">{advertenciaDB}</span>
+                    <button type="button" onClick={() => setAdvertenciaDB(null)} className="ml-1 flex-shrink-0 text-amber-600 hover:text-amber-900"><X className="h-4 w-4" /></button>
                   </div>
                 )}
 
