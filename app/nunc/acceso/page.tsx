@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -62,6 +62,7 @@ export default function AccesoNuncPage() {
   const [editData, setEditData] = useState<Record<string, RegistroLocal>>({})
   const [loading, setLoading] = useState(false)
   const [cerrando, setCerrando] = useState(false)
+  const [advertenciaDB, setAdvertenciaDB] = useState<string | null>(null)
 
   function getAccion(id: string): AccionFila { return accionFila[id] ?? "normal" }
   function setAccion(id: string, a: AccionFila) { setAccionFila((p) => ({ ...p, [id]: a })) }
@@ -94,11 +95,11 @@ export default function AccesoNuncPage() {
       if (!res.ok) { if (res.status === 410) { toast.error(data.error); setFase("finalizada"); return } throw new Error(data.error) }
       const newReg: RegistroLocal = { id: data.id, placa: body.placa, nunc_dpto: nunc.dpto, nunc_municipio: nunc.municipio, nunc_entidad: nunc.entidad, nunc_unidad: nunc.unidad, nunc_anio: nunc.anio, nunc_consecutivo: nunc.consecutivo.trim(), observaciones: observaciones.trim() }
       setRegistros((prev) => [newReg, ...prev])
+      setAdvertenciaDB(data.advertencia ?? null)
       setPlaca("")
       setNunc((n) => ({ ...n, consecutivo: "" }))
       setObservaciones("")
-      if (data.advertencia) toast.warning(data.advertencia)
-      else toast.success(`${body.placa} registrado`)
+      if (!data.advertencia) toast.success(`${body.placa} registrado`)
     } catch (err) { toast.error(err instanceof Error ? err.message : "Error al guardar") }
     finally { setLoading(false) }
   }
@@ -144,18 +145,6 @@ export default function AccesoNuncPage() {
     } catch (err) { toast.error(err instanceof Error ? err.message : "Error al finalizar") }
     finally { setCerrando(false) }
   }
-
-  const advertenciaDuplicado = useMemo(() => {
-    if (!registros.length) return null
-    const placaUp = placa.trim().toUpperCase()
-    const consec  = nunc.consecutivo.trim()
-    const base    = `${nunc.dpto}-${nunc.municipio}-${nunc.entidad}-${nunc.unidad}-${nunc.anio}`
-    const nuncFull = consec ? `${base}-${consec}` : ''
-    const dupExacto = (placaUp && nuncFull) ? (registros.find(r => r.placa === placaUp && nuncStr(r) === nuncFull) ?? null) : null
-    const dupPlaca  = (placaUp && !dupExacto) ? (registros.find(r => r.placa === placaUp) ?? null) : null
-    const dupNunc   = (nuncFull && !dupExacto) ? (registros.find(r => nuncStr(r) === nuncFull) ?? null) : null
-    return (dupExacto || dupPlaca || dupNunc) ? { dupExacto, dupPlaca, dupNunc, placaUp } : null
-  }, [placa, nunc, registros])
 
   if (fase === "codigo") {
     return (
@@ -296,12 +285,10 @@ export default function AccesoNuncPage() {
               </div>
 
               <form onSubmit={guardarVehiculo} className="space-y-3">
-                {advertenciaDuplicado && (
-                  <div className="flex items-start gap-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-3 py-2">
-                    <AlertTriangle className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" />
-                    {advertenciaDuplicado.dupExacto && <span>La placa <strong>{advertenciaDuplicado.placaUp}</strong> ya fue registrada con este mismo NUNC en esta sesión</span>}
-                    {advertenciaDuplicado.dupPlaca  && <span>La placa <strong>{advertenciaDuplicado.placaUp}</strong> ya aparece en esta sesión con el NUNC <span className="font-mono">{nuncStr(advertenciaDuplicado.dupPlaca)}</span></span>}
-                    {advertenciaDuplicado.dupNunc   && <span>Este NUNC ya fue registrado con la placa <strong>{advertenciaDuplicado.dupNunc.placa}</strong> en esta sesión</span>}
+                {advertenciaDB && (
+                  <div className="flex items-start gap-2 text-sm text-amber-800 bg-amber-50 border border-amber-300 rounded-md px-3 py-2.5">
+                    <AlertTriangle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                    <span>{advertenciaDB}</span>
                   </div>
                 )}
 
