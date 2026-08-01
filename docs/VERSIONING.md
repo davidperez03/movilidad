@@ -6,6 +6,7 @@ Para el proceso de release y reglas de versionamiento semántico ver [GITFLOW.md
 
 | Versión | Fecha | Descripción |
 |---------|-------|-------------|
+| 1.32.1 | 2026-08-01 | fix(nunc): advertencia duplicados con sessionStorage y useMemo |
 | 1.32.0 | 2026-08-01 | feat(parqueadero): eliminar módulo de turnos + fix(nunc): advertencia duplicados |
 | 1.31.0 | 2026-08-01 | feat(nunc,grua): validación duplicados NUNC y código de salida persistente en grúa |
 | 1.30.1 | 2026-07-23 | fix(parqueadero): corregir trigger y constraint de auditoría de personal |
