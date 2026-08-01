@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -77,6 +77,10 @@ export default function AccesoNuncPage() {
       const s: Sesion = data.sesion
       setSesion(s)
       setNunc({ dpto: s.nunc_dpto, municipio: s.nunc_municipio, entidad: s.nunc_entidad, unidad: s.nunc_unidad, anio: s.nunc_anio, consecutivo: "" })
+      try {
+        const stored = sessionStorage.getItem(`nunc-reg-${s.codigo}`)
+        if (stored) setRegistros(JSON.parse(stored))
+      } catch { /* ignore */ }
       setFase("formulario")
     } catch (err) { toast.error(err instanceof Error ? err.message : "Error al validar") }
     finally { setLoading(false) }
@@ -91,7 +95,12 @@ export default function AccesoNuncPage() {
       const res = await fetch("/api/nunc/registro", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
       const data = await res.json()
       if (!res.ok) { if (res.status === 410) { toast.error(data.error); setFase("finalizada"); return } throw new Error(data.error) }
-      setRegistros((prev) => [{ id: data.id, placa: body.placa, nunc_dpto: nunc.dpto, nunc_municipio: nunc.municipio, nunc_entidad: nunc.entidad, nunc_unidad: nunc.unidad, nunc_anio: nunc.anio, nunc_consecutivo: nunc.consecutivo.trim(), observaciones: observaciones.trim() }, ...prev])
+      const newReg: RegistroLocal = { id: data.id, placa: body.placa, nunc_dpto: nunc.dpto, nunc_municipio: nunc.municipio, nunc_entidad: nunc.entidad, nunc_unidad: nunc.unidad, nunc_anio: nunc.anio, nunc_consecutivo: nunc.consecutivo.trim(), observaciones: observaciones.trim() }
+      setRegistros((prev) => {
+        const next = [newReg, ...prev]
+        try { sessionStorage.setItem(`nunc-reg-${sesion!.codigo}`, JSON.stringify(next)) } catch { /* ignore */ }
+        return next
+      })
       setPlaca("")
       setNunc((n) => ({ ...n, consecutivo: "" }))
       setObservaciones("")
@@ -110,7 +119,11 @@ export default function AccesoNuncPage() {
       const res = await fetch(`/api/nunc/registro/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ codigo: sesion.codigo, ...datos }) })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
-      setRegistros((prev) => prev.map((r) => r.id === id ? { ...datos } : r))
+      setRegistros((prev) => {
+        const next = prev.map((r) => r.id === id ? { ...datos } : r)
+        try { sessionStorage.setItem(`nunc-reg-${sesion!.codigo}`, JSON.stringify(next)) } catch { /* ignore */ }
+        return next
+      })
       setAccion(id, "normal")
       toast.success("Actualizado")
     } catch (err) { toast.error(err instanceof Error ? err.message : "Error al editar") }
@@ -124,7 +137,11 @@ export default function AccesoNuncPage() {
       const res = await fetch(`/api/nunc/registro/${id}`, { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ codigo: sesion.codigo }) })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
-      setRegistros((prev) => prev.filter((r) => r.id !== id))
+      setRegistros((prev) => {
+        const next = prev.filter((r) => r.id !== id)
+        try { sessionStorage.setItem(`nunc-reg-${sesion!.codigo}`, JSON.stringify(next)) } catch { /* ignore */ }
+        return next
+      })
       setAccion(id, "normal")
       toast.success("Eliminado")
     } catch (err) { toast.error(err instanceof Error ? err.message : "Error al eliminar") }
@@ -141,6 +158,18 @@ export default function AccesoNuncPage() {
     } catch (err) { toast.error(err instanceof Error ? err.message : "Error al finalizar") }
     finally { setCerrando(false) }
   }
+
+  const advertenciaDuplicado = useMemo(() => {
+    if (!registros.length) return null
+    const placaUp = placa.trim().toUpperCase()
+    const consec  = nunc.consecutivo.trim()
+    const base    = `${nunc.dpto}-${nunc.municipio}-${nunc.entidad}-${nunc.unidad}-${nunc.anio}`
+    const nuncFull = consec ? `${base}-${consec}` : ''
+    const dupExacto = (placaUp && nuncFull) ? (registros.find(r => r.placa === placaUp && nuncStr(r) === nuncFull) ?? null) : null
+    const dupPlaca  = (placaUp && !dupExacto) ? (registros.find(r => r.placa === placaUp) ?? null) : null
+    const dupNunc   = (nuncFull && !dupExacto) ? (registros.find(r => nuncStr(r) === nuncFull) ?? null) : null
+    return (dupExacto || dupPlaca || dupNunc) ? { dupExacto, dupPlaca, dupNunc, placaUp } : null
+  }, [placa, nunc, registros])
 
   if (fase === "codigo") {
     return (
@@ -281,23 +310,14 @@ export default function AccesoNuncPage() {
               </div>
 
               <form onSubmit={guardarVehiculo} className="space-y-3">
-                {(() => {
-                  const placaUp  = placa.trim().toUpperCase()
-                  const consec   = nunc.consecutivo.trim()
-                  const nuncFull = consec ? `${nuncBase}-${consec}` : ''
-                  const dupPlacaNunc = placaUp && nuncFull ? registros.find(r => r.placa === placaUp && nuncStr(r) === nuncFull) : null
-                  const dupSoloPlaca = placaUp && !dupPlacaNunc ? registros.find(r => r.placa === placaUp) : null
-                  const dupSoloNunc  = nuncFull && !dupPlacaNunc ? registros.find(r => nuncStr(r) === nuncFull) : null
-                  if (!dupPlacaNunc && !dupSoloPlaca && !dupSoloNunc) return null
-                  return (
-                    <div className="flex items-start gap-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-3 py-2">
-                      <AlertTriangle className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" />
-                      {dupPlacaNunc && <span>La placa <strong>{placaUp}</strong> ya fue registrada con este mismo NUNC en esta sesión</span>}
-                      {dupSoloPlaca && <span>La placa <strong>{placaUp}</strong> ya aparece en esta sesión con el NUNC <span className="font-mono">{nuncStr(dupSoloPlaca)}</span></span>}
-                      {dupSoloNunc  && <span>Este NUNC ya fue registrado con la placa <strong>{dupSoloNunc.placa}</strong> en esta sesión</span>}
-                    </div>
-                  )
-                })()}
+                {advertenciaDuplicado && (
+                  <div className="flex items-start gap-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-3 py-2">
+                    <AlertTriangle className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" />
+                    {advertenciaDuplicado.dupExacto && <span>La placa <strong>{advertenciaDuplicado.placaUp}</strong> ya fue registrada con este mismo NUNC en esta sesión</span>}
+                    {advertenciaDuplicado.dupPlaca  && <span>La placa <strong>{advertenciaDuplicado.placaUp}</strong> ya aparece en esta sesión con el NUNC <span className="font-mono">{nuncStr(advertenciaDuplicado.dupPlaca)}</span></span>}
+                    {advertenciaDuplicado.dupNunc   && <span>Este NUNC ya fue registrado con la placa <strong>{advertenciaDuplicado.dupNunc.placa}</strong> en esta sesión</span>}
+                  </div>
+                )}
 
                 <div className="space-y-2">
                   <Label>Placa *</Label>
