@@ -5,6 +5,16 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.32.1] - 2026-08-01
+
+### fix(nunc): advertencia de duplicados ahora funciona tras recargas de página
+
+#### Corregido
+- Los registros de la sesión NUNC se persisten en `sessionStorage` (clave por código de sesión), por lo que la advertencia de duplicados funciona incluso si el usuario recarga la página entre registros
+- Reemplazado IIFE inline por `useMemo` para garantizar reactividad correcta de la advertencia al cambiar placa o consecutivo
+
+---
+
 ## [1.32.0] - 2026-08-01
 
 ### feat(parqueadero): eliminar módulo de turnos
