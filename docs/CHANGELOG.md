@@ -5,6 +5,15 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.32.5] - 2026-08-01
+
+### fix(nunc): botón X para cerrar advertencia de duplicado
+
+#### Corregido
+- El banner de advertencia de duplicados ahora tiene un botón X para descartarlo manualmente
+
+---
+
 ## [1.32.4] - 2026-08-01
 
 ### fix(nunc): advertencia de duplicados estática en el formulario
