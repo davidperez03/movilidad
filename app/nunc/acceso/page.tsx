@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Scale, Pencil, CheckCircle, X, Loader2, Trash2, Save, ClipboardList, PlusCircle } from "lucide-react"
+import { Scale, Pencil, CheckCircle, X, Loader2, Trash2, Save, ClipboardList, PlusCircle, AlertTriangle } from "lucide-react"
 import { toast } from "sonner"
 
 type Fase = "codigo" | "formulario" | "finalizada"
@@ -39,6 +39,13 @@ interface RegistroLocal {
 
 function nuncStr(r: Pick<RegistroLocal, "nunc_dpto"|"nunc_municipio"|"nunc_entidad"|"nunc_unidad"|"nunc_anio"|"nunc_consecutivo">) {
   return `${r.nunc_dpto}-${r.nunc_municipio}-${r.nunc_entidad}-${r.nunc_unidad}-${r.nunc_anio}-${r.nunc_consecutivo}`
+}
+
+function checkDuplicados(placa: string, nuncCompleto: string, registros: RegistroLocal[], excludeId?: string) {
+  const pool = excludeId ? registros.filter(r => r.id !== excludeId) : registros
+  const exacto  = pool.find(r => r.placa === placa && nuncStr(r) === nuncCompleto)
+  const soloPlaca = !exacto ? pool.find(r => r.placa === placa) : undefined
+  return { exacto, soloPlaca }
 }
 
 export default function AccesoNuncPage() {
@@ -273,6 +280,26 @@ export default function AccesoNuncPage() {
                 </Button>
               </div>
 
+              {(() => {
+                const placaUp  = placa.trim().toUpperCase()
+                const nuncFull = nunc.consecutivo.trim() ? `${nuncBase}-${nunc.consecutivo.trim()}` : ''
+                if (!placaUp || !nuncFull) return null
+                const { exacto, soloPlaca } = checkDuplicados(placaUp, nuncFull, registros)
+                if (exacto) return (
+                  <div className="flex items-start gap-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-3 py-2">
+                    <AlertTriangle className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" />
+                    <span>La placa <strong>{placaUp}</strong> ya fue registrada con este mismo NUNC en esta sesión</span>
+                  </div>
+                )
+                if (soloPlaca) return (
+                  <div className="flex items-start gap-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-3 py-2">
+                    <AlertTriangle className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" />
+                    <span>La placa <strong>{placaUp}</strong> ya aparece en esta sesión con el NUNC <span className="font-mono">{nuncStr(soloPlaca)}</span></span>
+                  </div>
+                )
+                return null
+              })()}
+
               <form onSubmit={guardarVehiculo} className="space-y-3">
                 <div className="space-y-2">
                   <Label>Placa *</Label>
@@ -326,6 +353,8 @@ export default function AccesoNuncPage() {
                     }
 
                     if (accion === "editando") {
+                      const editNuncFull = nuncStr(ed)
+                      const { exacto: editExacto, soloPlaca: editSoloPlaca } = checkDuplicados(ed.placa, editNuncFull, registros, r.id)
                       return (
                         <div key={r.id} className="rounded-lg border border-blue-200 bg-blue-50 p-3 space-y-2">
                           <div className="grid grid-cols-2 gap-2">
@@ -338,6 +367,15 @@ export default function AccesoNuncPage() {
                               <Input value={ed.nunc_consecutivo} onChange={(e) => setEditData((p) => ({ ...p, [r.id]: { ...ed, nunc_consecutivo: e.target.value } }))} className="h-8 font-mono" />
                             </div>
                           </div>
+                          {(editExacto || editSoloPlaca) && (
+                            <div className="flex items-start gap-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-2.5 py-1.5">
+                              <AlertTriangle className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" />
+                              {editExacto
+                                ? <span>La placa <strong>{ed.placa}</strong> ya fue registrada con este mismo NUNC</span>
+                                : <span>La placa <strong>{ed.placa}</strong> ya aparece con el NUNC <span className="font-mono">{nuncStr(editSoloPlaca!)}</span></span>
+                              }
+                            </div>
+                          )}
                           <div>
                             <p className="text-xs text-muted-foreground mb-1">Observaciones</p>
                             <Input value={ed.observaciones} onChange={(e) => setEditData((p) => ({ ...p, [r.id]: { ...ed, observaciones: e.target.value } }))} className="h-8" placeholder="Opcional" />
