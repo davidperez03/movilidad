@@ -24,11 +24,6 @@ export const TIPOS_VEHICULO: Record<string, ConfigOpcion> = {
   otro: { value: 'otro', label: 'Otro', color: 'bg-gray-100 text-gray-700' },
 }
 
-export const TURNOS: Record<string, ConfigOpcion> = {
-  diurno: { value: 'diurno', label: 'Diurno', color: 'bg-amber-100 text-amber-700' },
-  nocturno: { value: 'nocturno', label: 'Nocturno', color: 'bg-indigo-100 text-indigo-700' },
-}
-
 export const CATEGORIAS_ITEMS: Record<string, ConfigOpcion> = {
   niveles: { value: 'niveles', label: 'Niveles', color: 'bg-blue-100 text-blue-700' },
   luces: { value: 'luces', label: 'Luces', color: 'bg-amber-100 text-amber-700' },
@@ -41,7 +36,6 @@ export const CATEGORIAS_ITEMS: Record<string, ConfigOpcion> = {
 }
 
 export const OPCIONES_TIPO_VEHICULO = Object.values(TIPOS_VEHICULO)
-export const OPCIONES_TURNO = Object.values(TURNOS)
 
 export const OPCIONES_CATEGORIA_LICENCIA: ConfigOpcion[] = [
   { value: 'A1', label: 'A1', color: 'bg-gray-100 text-gray-700' },

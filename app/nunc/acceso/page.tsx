@@ -280,27 +280,25 @@ export default function AccesoNuncPage() {
                 </Button>
               </div>
 
-              {(() => {
-                const placaUp  = placa.trim().toUpperCase()
-                const nuncFull = nunc.consecutivo.trim() ? `${nuncBase}-${nunc.consecutivo.trim()}` : ''
-                if (!placaUp || !nuncFull) return null
-                const { exacto, soloPlaca } = checkDuplicados(placaUp, nuncFull, registros)
-                if (exacto) return (
-                  <div className="flex items-start gap-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-3 py-2">
-                    <AlertTriangle className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" />
-                    <span>La placa <strong>{placaUp}</strong> ya fue registrada con este mismo NUNC en esta sesión</span>
-                  </div>
-                )
-                if (soloPlaca) return (
-                  <div className="flex items-start gap-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-3 py-2">
-                    <AlertTriangle className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" />
-                    <span>La placa <strong>{placaUp}</strong> ya aparece en esta sesión con el NUNC <span className="font-mono">{nuncStr(soloPlaca)}</span></span>
-                  </div>
-                )
-                return null
-              })()}
-
               <form onSubmit={guardarVehiculo} className="space-y-3">
+                {(() => {
+                  const placaUp  = placa.trim().toUpperCase()
+                  const consec   = nunc.consecutivo.trim()
+                  const nuncFull = consec ? `${nuncBase}-${consec}` : ''
+                  const dupPlacaNunc = placaUp && nuncFull ? registros.find(r => r.placa === placaUp && nuncStr(r) === nuncFull) : null
+                  const dupSoloPlaca = placaUp && !dupPlacaNunc ? registros.find(r => r.placa === placaUp) : null
+                  const dupSoloNunc  = nuncFull && !dupPlacaNunc ? registros.find(r => nuncStr(r) === nuncFull) : null
+                  if (!dupPlacaNunc && !dupSoloPlaca && !dupSoloNunc) return null
+                  return (
+                    <div className="flex items-start gap-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-3 py-2">
+                      <AlertTriangle className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" />
+                      {dupPlacaNunc && <span>La placa <strong>{placaUp}</strong> ya fue registrada con este mismo NUNC en esta sesión</span>}
+                      {dupSoloPlaca && <span>La placa <strong>{placaUp}</strong> ya aparece en esta sesión con el NUNC <span className="font-mono">{nuncStr(dupSoloPlaca)}</span></span>}
+                      {dupSoloNunc  && <span>Este NUNC ya fue registrado con la placa <strong>{dupSoloNunc.placa}</strong> en esta sesión</span>}
+                    </div>
+                  )
+                })()}
+
                 <div className="space-y-2">
                   <Label>Placa *</Label>
                   <Input placeholder="ABC123" value={placa} onChange={(e) => setPlaca(e.target.value.toUpperCase())} className="font-plate text-lg" autoFocus />

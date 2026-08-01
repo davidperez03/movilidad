@@ -25,7 +25,7 @@ import {
   PenTool,
   Camera,
 } from "lucide-react"
-import { OPCIONES_TURNO, CATEGORIAS_ITEMS, ESTADOS_DOCUMENTO } from "@/lib/parqueadero/config"
+import { CATEGORIAS_ITEMS, ESTADOS_DOCUMENTO } from "@/lib/parqueadero/config"
 import { formatearFecha, getEstadoDocumentoColor, ESTADO_ITEM_ICONS, ESTADO_ITEM_COLORS, type EstadoItem } from "@/lib/parqueadero/utils"
 import { getNowDateColombia, getNowTimeColombia, getNowTimestampColombia } from "@/lib/utils/date"
 import type { ItemCatalogo, VistaPersonal, VistaVehiculo, EstadoDocumento, FotoConTimestamp } from "@/lib/parqueadero/types"
@@ -42,7 +42,6 @@ interface FormularioInspeccionProps {
   itemsCatalogo:      ItemCatalogo[]
   operadores:         VistaPersonal[]
   auxiliares:         VistaPersonal[]
-  turnoId?:           string
   vehiculoIdInicial?: string
 }
 
@@ -70,7 +69,6 @@ export function FormularioInspeccion({
   itemsCatalogo,
   operadores,
   auxiliares,
-  turnoId,
   vehiculoIdInicial,
 }: FormularioInspeccionProps) {
   const router = useRouter()
@@ -80,7 +78,6 @@ export function FormularioInspeccion({
     vehiculo_id:  vehiculoIdInicial ?? "",
     operador_id:  "",
     auxiliar_id:  "",
-    turno:        "diurno" as "diurno" | "nocturno",
     observaciones: "",
     km_inicio:    "",
   })
@@ -422,18 +419,9 @@ export function FormularioInspeccion({
           .limit(1)
           .single()
 
-        const { data: ultimoTurno } = await supabase
-          .from('parq_turnos')
-          .select('km_fin')
-          .eq('vehiculo_id', formData.vehiculo_id)
-          .not('km_fin', 'is', null)
-          .order('creado_en', { ascending: false })
-          .limit(1)
-          .single()
-
-        const maxKm = Math.max(ultimoKm?.km_inicio ?? 0, ultimoTurno?.km_fin ?? 0)
-        if (maxKm > 0 && Number(formData.km_inicio) < maxKm) {
-          toast.error(`KM inicial (${Number(formData.km_inicio).toLocaleString('es-CO')}) no puede ser menor al último registrado (${maxKm.toLocaleString('es-CO')})`)
+        const ultimoKmVal = ultimoKm?.km_inicio ?? 0
+        if (ultimoKmVal > 0 && Number(formData.km_inicio) < ultimoKmVal) {
+          toast.error(`KM inicial (${Number(formData.km_inicio).toLocaleString('es-CO')}) no puede ser menor al último registrado (${ultimoKmVal.toLocaleString('es-CO')})`)
           setLoading(false)
           return
         }
@@ -449,10 +437,8 @@ export function FormularioInspeccion({
           inspector_id: user.id,
           fecha,
           hora,
-          turno:        formData.turno,
           es_apto:      esApto,
           observaciones: formData.observaciones || null,
-          turno_id:     turnoId ?? null,
           km_inicio:    formData.km_inicio ? Number(formData.km_inicio) : null,
           observaciones_fotos: observacionesFotos.length > 0 ? observacionesFotos : null,
           creado_por: user.id,
@@ -517,7 +503,7 @@ export function FormularioInspeccion({
       }
 
       toast.success("Inspección registrada correctamente")
-      router.push(turnoId ? `/parqueadero/turnos/${turnoId}` : "/parqueadero/inspecciones")
+      router.push("/parqueadero/inspecciones")
       router.refresh()
     } catch {
       toast.error("Error al crear la inspección")
@@ -541,7 +527,6 @@ export function FormularioInspeccion({
             <Select
               value={formData.vehiculo_id}
               onValueChange={(value) => setFormData({ ...formData, vehiculo_id: value })}
-              disabled={!!turnoId}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Selecciona vehículo" />
@@ -554,9 +539,6 @@ export function FormularioInspeccion({
                 ))}
               </SelectContent>
             </Select>
-            {turnoId && (
-              <p className="text-xs text-muted-foreground">Vehículo asignado desde el turno</p>
-            )}
           </div>
 
           <div className="space-y-2">
@@ -612,27 +594,6 @@ export function FormularioInspeccion({
                 {auxiliares.map((a) => (
                   <SelectItem key={a.id} value={a.id}>
                     {capitalizeName(a.nombre_completo) || a.correo}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Turno *</Label>
-            <Select
-              value={formData.turno}
-              onValueChange={(value: "diurno" | "nocturno") =>
-                setFormData({ ...formData, turno: value })
-              }
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {OPCIONES_TURNO.map((t) => (
-                  <SelectItem key={t.value} value={t.value}>
-                    {t.label}
                   </SelectItem>
                 ))}
               </SelectContent>

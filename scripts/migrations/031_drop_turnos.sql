@@ -1,3 +1,10 @@
+-- Migración 031: Eliminar módulo de turnos
+-- Elimina tablas, vistas, triggers y columnas asociados al módulo parq_turnos.
+
+-- 1. Eliminar vista de turnos
+drop view if exists public.parq_vista_turnos;
+
+-- 2. Eliminar vista de inspecciones que referencia parq_turnos y recrear sin el join
 drop view if exists public.parq_vista_inspecciones;
 
 create view public.parq_vista_inspecciones as
@@ -5,7 +12,6 @@ select
   i.id, i.consecutivo, i.fecha, i.hora, i.es_apto, i.observaciones, i.creado_en,
   i.km_inicio,
   v.id as vehiculo_id, v.placa, v.marca, v.modelo, v.tipo as vehiculo_tipo,
-  -- Documentos: usa snapshot si existe, sino datos actuales (retrocompatibilidad)
   coalesce(i.snapshot_soat_vencimiento, v.soat_vencimiento) as soat_vencimiento,
   coalesce(i.snapshot_tecnomecanica_vencimiento, v.tecnomecanica_vencimiento) as tecnomecanica_vencimiento,
   parq_estado_documento(coalesce(i.snapshot_soat_vencimiento, v.soat_vencimiento), i.fecha) as estado_soat,
@@ -28,4 +34,11 @@ left join public.parq_datos_personal dp on dp.perfil_id = i.operador_id;
 
 alter view public.parq_vista_inspecciones set (security_invoker = true);
 
-comment on view public.parq_vista_inspecciones is 'Vista consolidada de inspecciones con datos de vehiculo, operador, inspector y km_inicio';
+-- 3. Eliminar columnas de inspecciones relacionadas con turnos
+alter table public.parq_inspecciones
+  drop column if exists turno_id,
+  drop column if exists turno;
+
+-- 4. Eliminar tablas de turnos (turno_novedades primero por FK)
+drop table if exists public.parq_turno_novedades;
+drop table if exists public.parq_turnos;
