@@ -9,6 +9,9 @@ import { ArrowLeft } from "lucide-react"
 import { CerrarSesionNunc } from "@/components/nunc/cerrar-sesion"
 import { CopiarCodigoNunc } from "@/components/nunc/copiar-codigo"
 import { ExportarRegistrosNunc } from "@/components/nunc/exportar-registros"
+import { EliminarSesionNunc } from "@/components/nunc/eliminar-sesion"
+import { TablaRegistrosAdmin } from "@/components/nunc/tabla-registros-admin"
+import { obtenerPermisosUsuario } from "@/lib/server/permisos"
 import type { FilaRegistroNunc } from "@/lib/nunc/reportes/tipos"
 
 function nuncCompleto(r: { nunc_dpto: string; nunc_municipio: string; nunc_entidad: string; nunc_unidad: string; nunc_anio: number; nunc_consecutivo: string }) {
@@ -33,10 +36,13 @@ export default async function DetalleSesionPage({ params }: { params: Promise<{ 
   const { id } = await params
   const supabase = await createClient()
 
-  const [{ data: sesion }, { data: registros }] = await Promise.all([
+  const [{ data: sesion }, { data: registros }, { nunc: permsNunc, esSuperadmin }] = await Promise.all([
     supabase.from("nunc_sesiones").select("*").eq("id", id).single(),
     supabase.from("nunc_registros").select("*").eq("sesion_id", id).order("registrado_en", { ascending: true }),
+    obtenerPermisosUsuario(),
   ])
+
+  const puedeAdmin = esSuperadmin || permsNunc.configurar
 
   if (!sesion) notFound()
 
@@ -112,6 +118,9 @@ export default async function DetalleSesionPage({ params }: { params: Promise<{ 
               {sesion.estado === "activa" && (
                 <CerrarSesionNunc codigo={sesion.codigo} />
               )}
+              {puedeAdmin && (
+                <EliminarSesionNunc sesionId={sesion.id} />
+              )}
             </div>
           </CardContent>
         </Card>
@@ -122,34 +131,17 @@ export default async function DetalleSesionPage({ params }: { params: Promise<{ 
           <CardTitle className="text-base">Vehículos registrados</CardTitle>
         </CardHeader>
         <CardContent>
-          {!registros || registros.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-6">Sin registros aún</p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b text-muted-foreground">
-                    <th className="text-left py-2 pr-4 font-medium">#</th>
-                    <th className="text-left py-2 pr-4 font-medium">Placa</th>
-                    <th className="text-left py-2 pr-4 font-medium">NUNC completo</th>
-                    <th className="text-left py-2 pr-4 font-medium hidden md:table-cell">Observaciones</th>
-                    <th className="text-left py-2 font-medium hidden sm:table-cell">Hora</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {registros.map((r, i) => (
-                    <tr key={r.id} className="border-b last:border-0">
-                      <td className="py-2 pr-4 text-muted-foreground">{i + 1}</td>
-                      <td className="py-2 pr-4 font-plate font-semibold">{r.placa}</td>
-                      <td className="py-2 pr-4 font-mono text-xs">{nuncCompleto(r)}</td>
-                      <td className="py-2 pr-4 text-muted-foreground hidden md:table-cell">{r.observaciones || "—"}</td>
-                      <td className="py-2 text-muted-foreground hidden sm:table-cell">{formatearHoraColombia(r.registrado_en)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+          <TablaRegistrosAdmin
+            sesionId={sesion.id}
+            puedeEliminar={puedeAdmin && sesion.estado === "activa"}
+            registros={(registros ?? []).map((r, i) => ({
+              id: r.id,
+              placa: r.placa,
+              nunc_completo: nuncCompleto(r),
+              observaciones: r.observaciones ?? null,
+              hora: formatearHoraColombia(r.registrado_en),
+            }))}
+          />
         </CardContent>
       </Card>
     </div>
