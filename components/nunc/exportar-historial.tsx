@@ -38,7 +38,6 @@ export function ExportarHistorialNunc() {
       setOpen(false)
     } catch (e) {
       toast.error('Error al generar el historial')
-      console.error(e)
     } finally {
       setCargando(false)
     }

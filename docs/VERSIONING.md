@@ -6,6 +6,7 @@ Para el proceso de release y reglas de versionamiento semántico ver [GITFLOW.md
 
 | Versión | Fecha | Descripción |
 |---------|-------|-------------|
+| 1.33.2 | 2026-08-02 | fix(parqueadero): restaurar inspecciones — trigger auditoria referenciaba columna turno eliminada |
 | 1.33.1 | 2026-08-01 | fix(nunc): drop FKs inmutables en historial — habilita borrado de sesiones y registros |
 | 1.33.0 | 2026-08-01 | feat(nunc): eliminar sesiones y registros desde admin + fix trigger delete |
 | 1.32.5 | 2026-08-01 | fix(nunc): botón X para cerrar advertencia de duplicado |
