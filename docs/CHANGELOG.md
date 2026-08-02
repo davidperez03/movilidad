@@ -5,6 +5,19 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.33.2] - 2026-08-02
+
+### fix(parqueadero): inspecciones preoperacionales restauradas
+
+#### Corregido
+- Error 400 al crear inspecciones: el trigger `trigger_parq_inspeccion_creada` referenciaba `NEW.turno` que fue eliminada por la migración 031, causando SQLSTATE 42703. Migración 034 corrige la función con `CREATE OR REPLACE`.
+
+#### Mantenimiento
+- Eliminados `lib/hooks/use-form-validation.ts` y `lib/utils/lazy-components.tsx` (archivos sin ningún uso en el proyecto)
+- Quitado `console.error` residual en `components/nunc/exportar-historial.tsx`
+
+---
+
 ## [1.33.1] - 2026-08-01
 
 ### fix(nunc): eliminar registros y sesiones funcionando correctamente
