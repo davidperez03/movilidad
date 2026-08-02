@@ -174,7 +174,6 @@ begin
       'placa', v_placa,
       'consecutivo', new.consecutivo,
       'fecha', new.fecha,
-      'turno', new.turno,
       'es_apto', new.es_apto,
       'operador', v_operador,
       'inspector', v_inspector

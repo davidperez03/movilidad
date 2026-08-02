@@ -34,9 +34,10 @@ Registro manual de migraciones ejecutadas en producción.
 | 028 | 028_salidas_grua.sql | 2026-06-18 | David | v1.28.0 |
 | 029 | 029_codigo_salida_unique.sql | 2026-06-18 | — | v1.28.2 |
 | 030 | 030_turnos_multiples_por_dia.sql | — | — | v1.29.0 |
-| 031 | 031_drop_turnos.sql | — | — | v1.32.0 |
+| 031 | 031_drop_turnos.sql | 2026-08-01 | David | v1.32.0 |
 | 032 | 032_fix_nunc_delete_trigger.sql | 2026-08-01 | David | v1.33.0 |
 | 033 | 033_nunc_historial_drop_registro_fk.sql | 2026-08-01 | David | v1.33.1 |
+| 034 | 034_fix_audit_trigger_drop_turno_ref.sql | 2026-08-02 | David | v1.33.2 |
 
 <!--
 Al aplicar una migración, agregar una fila:
