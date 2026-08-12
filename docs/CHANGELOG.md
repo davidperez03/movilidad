@@ -5,6 +5,19 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.35.0] - 2026-08-02
+
+### feat(parqueadero): modal edición completa de carga en salidas de grúa
+
+#### Agregado
+- Ícono de lápiz por fila en la tabla de salidas (visible para superadmin y `parq_administrador`)
+- Modal con toggle "Trajo carga", selección de stickers por rango (Desde # / Hasta #) y campo de observaciones
+- Pantalla de confirmación antes de guardar que muestra un resumen de los cambios
+- Nuevo endpoint `GET /api/parqueadero/salidas-grua/inventario` para cargar items disponibles
+- El endpoint `PATCH /api/parqueadero/salidas-grua/[id]` ahora acepta también `inventario_items` y `observaciones`
+
+---
+
 ## [1.34.0] - 2026-08-02
 
 ### feat(parqueadero): editar carga en salidas de grúa
