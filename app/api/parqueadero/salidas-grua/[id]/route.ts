@@ -4,8 +4,18 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { logger } from '@/lib/logger'
 import { z } from 'zod'
 
+const itemSchema = z.object({
+  item_id:  z.string(),
+  nombre:   z.string(),
+  desde:    z.number().int().nonnegative(),
+  hasta:    z.number().int().nonnegative(),
+  cantidad: z.number().int().nonnegative(),
+})
+
 const patchSchema = z.object({
-  trae_carga: z.boolean(),
+  trae_carga:       z.boolean(),
+  inventario_items: z.array(itemSchema).optional(),
+  observaciones:    z.string().nullable().optional(),
 })
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -17,9 +27,15 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   const parsed = patchSchema.safeParse(body)
   if (!parsed.success) return NextResponse.json({ error: 'Datos inválidos' }, { status: 400 })
 
+  const { trae_carga, inventario_items, observaciones } = parsed.data
+
   const { error } = await createAdminClient()
     .from('parq_salidas_grua')
-    .update({ trae_carga: parsed.data.trae_carga })
+    .update({
+      trae_carga,
+      inventario_items: trae_carga ? (inventario_items ?? []) : [],
+      ...(observaciones !== undefined && { observaciones }),
+    })
     .eq('id', id)
 
   if (error) {

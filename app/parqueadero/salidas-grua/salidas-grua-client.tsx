@@ -7,10 +7,10 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { RefreshCw, ArrowUpFromLine, ArrowDownToLine, Printer, Download, Package, PackageX } from "lucide-react"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
-import Link from "next/link"
+import { RefreshCw, ArrowUpFromLine, ArrowDownToLine, Printer, Download, Package, PackageX, Pencil, CheckSquare, Square, Loader2 } from "lucide-react"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { toast } from "sonner"
 import { getNowDateColombia } from "@/lib/utils/date"
 import { QRCodeSVG } from "qrcode.react"
@@ -27,6 +27,7 @@ const MOTIVOS: Record<string, string> = {
 const SITE = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://movilidad.vercel.app").replace(/\/+$/, "")
 
 interface ItemSticker { item_id: string; nombre: string; desde: number; hasta: number; cantidad: number }
+interface ItemInv { item_id: string; nombre: string; usados: number; rango_fin: number; disponibles: number }
 interface Salida {
   id: string; hora_salida: string; hora_regreso: string | null
   motivo: string; trae_carga: boolean; vehiculo_id: string
@@ -34,6 +35,15 @@ interface Salida {
   inventario_items: ItemSticker[]; observaciones: string | null
 }
 interface Vehiculo { id: string; placa: string; marca: string | null; modelo: string | null }
+
+// Estado interno del modal de edición
+interface EditState {
+  salidaId:    string
+  traeCarga:   boolean
+  itemsSel:    Record<string, { desde: string; hasta: string }>
+  observaciones: string
+  confirmando: boolean  // segunda pantalla de confirmación
+}
 
 function horaCol(ts: string) {
   return new Date(ts).toLocaleString("es-CO", {
@@ -43,14 +53,18 @@ function horaCol(ts: string) {
 
 export default function SalidasGruaClient({ puedeEditar }: { puedeEditar: boolean }) {
   const hoy = getNowDateColombia()
-  const [desde, setDesde]           = useState(hoy)
-  const [hasta, setHasta]           = useState(hoy)
+  const [desde, setDesde]             = useState(hoy)
+  const [hasta, setHasta]             = useState(hoy)
   const [placaFiltro, setPlacaFiltro] = useState("todos")
-  const [salidas, setSalidas]       = useState<Salida[]>([])
-  const [vehiculos, setVehiculos]   = useState<Vehiculo[]>([])
-  const [loading, setLoading]       = useState(true)
-  const [guardando, setGuardando]   = useState<string | null>(null)
+  const [salidas, setSalidas]         = useState<Salida[]>([])
+  const [vehiculos, setVehiculos]     = useState<Vehiculo[]>([])
+  const [loading, setLoading]         = useState(true)
   const [qrSeleccionado, setQrSeleccionado] = useState<string | null>(null)
+
+  // Modal edición
+  const [edit, setEdit]           = useState<EditState | null>(null)
+  const [inventario, setInventario] = useState<ItemInv[]>([])
+  const [guardando, setGuardando] = useState(false)
 
   const cargar = useCallback(async () => {
     setLoading(true)
@@ -81,21 +95,6 @@ export default function SalidasGruaClient({ puedeEditar }: { puedeEditar: boolea
     setLoading(false)
   }, [desde, hasta, placaFiltro])
 
-  async function toggleCarga(id: string, actual: boolean) {
-    setGuardando(id)
-    try {
-      const res = await fetch(`/api/parqueadero/salidas-grua/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ trae_carga: !actual }),
-      })
-      if (!res.ok) { toast.error('Error al actualizar'); return }
-      setSalidas(prev => prev.map(s => s.id === id ? { ...s, trae_carga: !actual } : s))
-    } finally {
-      setGuardando(null)
-    }
-  }
-
   useEffect(() => {
     createClient().from("parq_vehiculos").select("id, placa, marca, modelo")
       .eq("activo", true).order("placa")
@@ -104,7 +103,80 @@ export default function SalidasGruaClient({ puedeEditar }: { puedeEditar: boolea
 
   useEffect(() => { cargar() }, [cargar])
 
-  const enCalle   = salidas.filter(s => !s.hora_regreso).length
+  // Cargar inventario disponible al abrir modal (una sola vez)
+  useEffect(() => {
+    if (!puedeEditar) return
+    fetch("/api/parqueadero/salidas-grua/inventario")
+      .then(r => r.json())
+      .then(d => setInventario(d.items ?? []))
+      .catch(() => {})
+  }, [puedeEditar])
+
+  function abrirModal(s: Salida) {
+    // Pre-cargar con los items ya guardados en el registro
+    const itemsSel: Record<string, { desde: string; hasta: string }> = {}
+    for (const item of s.inventario_items) {
+      itemsSel[item.item_id] = { desde: String(item.desde), hasta: String(item.hasta) }
+    }
+    setEdit({
+      salidaId:     s.id,
+      traeCarga:    s.trae_carga,
+      itemsSel,
+      observaciones: s.observaciones ?? "",
+      confirmando:  false,
+    })
+  }
+
+  function toggleItem(item_id: string, usados: number) {
+    if (!edit) return
+    const next = { ...edit.itemsSel }
+    if (next[item_id]) {
+      delete next[item_id]
+    } else {
+      next[item_id] = { desde: String(usados + 1), hasta: "" }
+    }
+    setEdit({ ...edit, itemsSel: next })
+  }
+
+  async function guardar() {
+    if (!edit) return
+    setGuardando(true)
+    try {
+      const inventario_items = edit.traeCarga
+        ? Object.entries(edit.itemsSel)
+            .filter(([, v]) => v.desde && v.hasta && Number(v.hasta) >= Number(v.desde))
+            .map(([item_id, v]) => ({
+              item_id,
+              nombre:   inventario.find(i => i.item_id === item_id)?.nombre ?? "",
+              desde:    Number(v.desde),
+              hasta:    Number(v.hasta),
+              cantidad: Number(v.hasta) - Number(v.desde) + 1,
+            }))
+        : []
+
+      const res = await fetch(`/api/parqueadero/salidas-grua/${edit.salidaId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          trae_carga:       edit.traeCarga,
+          inventario_items,
+          observaciones:    edit.observaciones || null,
+        }),
+      })
+      if (!res.ok) { toast.error("Error al guardar"); return }
+
+      setSalidas(prev => prev.map(s => s.id === edit.salidaId
+        ? { ...s, trae_carga: edit.traeCarga, inventario_items, observaciones: edit.observaciones || null }
+        : s
+      ))
+      toast.success("Registro actualizado")
+      setEdit(null)
+    } finally {
+      setGuardando(false)
+    }
+  }
+
+  const enCalle    = salidas.filter(s => !s.hora_regreso).length
   const regresadas = salidas.filter(s => s.hora_regreso).length
 
   return (
@@ -183,13 +255,14 @@ export default function SalidasGruaClient({ puedeEditar }: { puedeEditar: boolea
                   <th className="text-left px-4 py-3 font-medium">Carga</th>
                   <th className="text-left px-4 py-3 font-medium hidden lg:table-cell">Observaciones</th>
                   <th className="text-center px-4 py-3 font-medium">Estado</th>
+                  {puedeEditar && <th className="px-4 py-3" />}
                 </tr>
               </thead>
               <tbody>
                 {loading ? (
-                  <tr><td colSpan={8} className="text-center py-10 text-muted-foreground">Cargando…</td></tr>
+                  <tr><td colSpan={puedeEditar ? 9 : 8} className="text-center py-10 text-muted-foreground">Cargando…</td></tr>
                 ) : salidas.length === 0 ? (
-                  <tr><td colSpan={8} className="text-center py-10 text-muted-foreground">Sin registros para este período</td></tr>
+                  <tr><td colSpan={puedeEditar ? 9 : 8} className="text-center py-10 text-muted-foreground">Sin registros para este período</td></tr>
                 ) : salidas.map(s => (
                   <tr key={s.id} className="border-b last:border-0 hover:bg-muted/30 transition-colors align-top">
                     <td className="px-4 py-3 font-mono font-semibold">{s.placa ?? "—"}</td>
@@ -200,39 +273,23 @@ export default function SalidasGruaClient({ puedeEditar }: { puedeEditar: boolea
                       {s.hora_regreso ? horaCol(s.hora_regreso) : <span className="text-muted-foreground">—</span>}
                     </td>
                     <td className="px-4 py-3">
-                      <div className="space-y-1">
-                        {s.trae_carga && s.inventario_items.length > 0 && (
-                          <div className="space-y-0.5">
-                            {s.inventario_items.map((item, i) => (
-                              <p key={i} className="text-xs tabular-nums">
-                                {item.nombre}: <span className="font-mono font-medium">#{item.desde}–#{item.hasta}</span>
-                                <span className="text-muted-foreground ml-1">({item.cantidad})</span>
-                              </p>
-                            ))}
-                          </div>
-                        )}
-                        {puedeEditar ? (
-                          <button
-                            onClick={() => toggleCarga(s.id, s.trae_carga)}
-                            disabled={guardando === s.id}
-                            title={s.trae_carga ? "Clic para marcar sin carga" : "Clic para marcar con carga"}
-                            className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full border transition-colors ${
-                              s.trae_carga
-                                ? "border-emerald-400 bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
-                                : "border-border text-muted-foreground hover:bg-muted"
-                            } ${guardando === s.id ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
-                          >
-                            {s.trae_carga
-                              ? <><Package className="h-3 w-3" />Con carga</>
-                              : <><PackageX className="h-3 w-3" />Sin carga</>
-                            }
-                          </button>
-                        ) : (
-                          <span className="text-xs text-muted-foreground">
-                            {s.trae_carga ? "Sí" : "—"}
+                      {s.trae_carga ? (
+                        <div className="space-y-0.5">
+                          <span className="inline-flex items-center gap-1 text-xs text-emerald-700 font-medium">
+                            <Package className="h-3 w-3" />Con carga
                           </span>
-                        )}
-                      </div>
+                          {s.inventario_items.map((item, i) => (
+                            <p key={i} className="text-xs tabular-nums text-muted-foreground">
+                              {item.nombre}: <span className="font-mono font-medium">#{item.desde}–#{item.hasta}</span>
+                              <span className="ml-1">({item.cantidad})</span>
+                            </p>
+                          ))}
+                        </div>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                          <PackageX className="h-3 w-3" />Sin carga
+                        </span>
+                      )}
                     </td>
                     <td className="px-4 py-3 text-xs text-muted-foreground hidden lg:table-cell max-w-[200px] truncate" title={s.observaciones ?? ""}>
                       {s.observaciones ?? "—"}
@@ -248,6 +305,17 @@ export default function SalidasGruaClient({ puedeEditar }: { puedeEditar: boolea
                         </Badge>
                       )}
                     </td>
+                    {puedeEditar && (
+                      <td className="px-3 py-3 text-center">
+                        <button
+                          onClick={() => abrirModal(s)}
+                          title="Editar carga y observaciones"
+                          className="p-1.5 rounded-md hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
+                        >
+                          <Pencil className="h-3.5 w-3.5" />
+                        </button>
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>
@@ -303,6 +371,150 @@ export default function SalidasGruaClient({ puedeEditar }: { puedeEditar: boolea
           )}
         </TabsContent>
       </Tabs>
+
+      {/* ── MODAL EDICIÓN ── */}
+      <Dialog open={!!edit} onOpenChange={open => { if (!open) setEdit(null) }}>
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+          {edit && !edit.confirmando && (
+            <>
+              <DialogHeader>
+                <DialogTitle>Editar registro de carga</DialogTitle>
+              </DialogHeader>
+
+              <div className="space-y-5 py-2">
+                {/* Toggle trae_carga */}
+                <button
+                  onClick={() => setEdit({ ...edit, traeCarga: !edit.traeCarga, itemsSel: {} })}
+                  className={`w-full flex items-center justify-between px-4 py-3 rounded-lg border text-sm font-medium transition-colors ${
+                    edit.traeCarga
+                      ? "border-emerald-500 bg-emerald-50 text-emerald-700"
+                      : "border-border bg-background text-foreground"
+                  }`}
+                >
+                  <span className="flex items-center gap-2">
+                    <Package className="h-4 w-4" />
+                    Trajo carga (stickers)
+                  </span>
+                  {edit.traeCarga
+                    ? <CheckSquare className="h-4 w-4" />
+                    : <Square className="h-4 w-4 text-muted-foreground" />
+                  }
+                </button>
+
+                {/* Stickers */}
+                {edit.traeCarga && (
+                  <div className="space-y-3">
+                    {inventario.length === 0 ? (
+                      <p className="text-xs text-muted-foreground text-center py-2">Sin stickers disponibles en el sistema</p>
+                    ) : (
+                      <div className="rounded-lg border p-3 space-y-3">
+                        <p className="text-xs font-medium text-muted-foreground">Stickers asignados en campo</p>
+                        {inventario.map(item => {
+                          const sel = edit.itemsSel[item.item_id]
+                          return (
+                            <div key={item.item_id} className={`rounded-lg border p-3 space-y-2 ${sel ? "border-emerald-400 bg-emerald-50/50" : "border-border"}`}>
+                              <button
+                                onClick={() => toggleItem(item.item_id, item.usados)}
+                                className="w-full flex items-center justify-between text-sm"
+                              >
+                                <span className="font-medium">{item.nombre}</span>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xs text-muted-foreground">{item.disponibles} disp.</span>
+                                  {sel
+                                    ? <CheckSquare className="h-4 w-4 text-emerald-600" />
+                                    : <Square className="h-4 w-4 text-muted-foreground" />
+                                  }
+                                </div>
+                              </button>
+                              {sel && (
+                                <div className="grid grid-cols-2 gap-2">
+                                  <div className="space-y-1">
+                                    <label className="text-xs text-muted-foreground">Desde #</label>
+                                    <Input
+                                      type="number" inputMode="numeric" value={sel.desde}
+                                      onChange={e => setEdit({ ...edit, itemsSel: { ...edit.itemsSel, [item.item_id]: { ...sel, desde: e.target.value } } })}
+                                      className="h-9 text-center font-mono"
+                                    />
+                                  </div>
+                                  <div className="space-y-1">
+                                    <label className="text-xs text-muted-foreground">Hasta #</label>
+                                    <Input
+                                      type="number" inputMode="numeric" value={sel.hasta}
+                                      onChange={e => setEdit({ ...edit, itemsSel: { ...edit.itemsSel, [item.item_id]: { ...sel, hasta: e.target.value } } })}
+                                      className="h-9 text-center font-mono"
+                                    />
+                                  </div>
+                                  {sel.desde && sel.hasta && Number(sel.hasta) >= Number(sel.desde) && (
+                                    <p className="col-span-2 text-xs text-center text-emerald-700 font-medium tabular-nums">
+                                      {Number(sel.hasta) - Number(sel.desde) + 1} sticker(s): #{sel.desde} – #{sel.hasta}
+                                    </p>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          )
+                        })}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Observaciones */}
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Observaciones</Label>
+                  <textarea
+                    rows={3}
+                    value={edit.observaciones}
+                    onChange={e => setEdit({ ...edit, observaciones: e.target.value })}
+                    placeholder="Opcional…"
+                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm resize-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                  />
+                </div>
+              </div>
+
+              <DialogFooter className="gap-2">
+                <Button variant="outline" onClick={() => setEdit(null)}>Cancelar</Button>
+                <Button onClick={() => setEdit({ ...edit, confirmando: true })}>
+                  Continuar
+                </Button>
+              </DialogFooter>
+            </>
+          )}
+
+          {edit?.confirmando && (
+            <>
+              <DialogHeader>
+                <DialogTitle>¿Confirmar cambios?</DialogTitle>
+              </DialogHeader>
+
+              <div className="py-3 space-y-3 text-sm">
+                <div className="rounded-lg bg-muted px-4 py-3 space-y-1">
+                  <p><span className="text-muted-foreground">Carga:</span> <span className="font-medium">{edit.traeCarga ? "Con carga" : "Sin carga"}</span></p>
+                  {edit.traeCarga && Object.entries(edit.itemsSel).filter(([, v]) => v.desde && v.hasta).map(([id, v]) => {
+                    const nombre = inventario.find(i => i.item_id === id)?.nombre ?? id
+                    return (
+                      <p key={id}><span className="text-muted-foreground">{nombre}:</span> <span className="font-mono font-medium">#{v.desde} – #{v.hasta}</span></p>
+                    )
+                  })}
+                  {edit.observaciones && (
+                    <p><span className="text-muted-foreground">Obs:</span> {edit.observaciones}</p>
+                  )}
+                </div>
+                <p className="text-muted-foreground text-xs">Esta acción sobreescribirá los datos actuales del registro.</p>
+              </div>
+
+              <DialogFooter className="gap-2">
+                <Button variant="outline" onClick={() => setEdit({ ...edit, confirmando: false })}>
+                  Atrás
+                </Button>
+                <Button onClick={guardar} disabled={guardando}>
+                  {guardando ? <><Loader2 className="h-4 w-4 mr-1 animate-spin" />Guardando…</> : "Guardar cambios"}
+                </Button>
+              </DialogFooter>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
