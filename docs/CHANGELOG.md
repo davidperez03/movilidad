@@ -5,6 +5,17 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.34.0] - 2026-08-02
+
+### feat(parqueadero): editar carga en salidas de grúa
+
+#### Agregado
+- Superadmin y `parq_administrador` pueden cambiar el campo "trae carga" directamente desde la tabla de salidas de grúa, sin necesidad de editar desde el QR
+- Botón pill clicable en columna Carga: verde "Con carga" / gris "Sin carga", con feedback visual mientras guarda
+- Nuevo endpoint `PATCH /api/parqueadero/salidas-grua/[id]` protegido por permiso `configurar`
+
+---
+
 ## [1.33.2] - 2026-08-02
 
 ### fix(parqueadero): inspecciones preoperacionales restauradas
