@@ -1,15 +1,18 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Switch } from "@/components/ui/switch"
 import { Pencil, Loader2 } from "lucide-react"
 import { toast } from "sonner"
+
+interface Auxiliar { id: string; nombre_completo: string | null }
 
 interface Props {
   id:      string
@@ -19,20 +22,33 @@ interface Props {
     km_inicio:     number | null
     observaciones: string | null
     es_apto:       boolean
+    auxiliar_id:   string | null
   }
 }
 
 export function ModalEditarInspeccion({ id, inicial }: Props) {
   const router  = useRouter()
-  const [open, setOpen]     = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [form, setForm]     = useState({
+  const [open, setOpen]         = useState(false)
+  const [loading, setLoading]   = useState(false)
+  const [auxiliares, setAuxiliares] = useState<Auxiliar[]>([])
+  const [form, setForm]         = useState({
     fecha:         inicial.fecha,
     hora:          inicial.hora,
     km_inicio:     inicial.km_inicio?.toString() ?? "",
     observaciones: inicial.observaciones ?? "",
     es_apto:       inicial.es_apto,
+    auxiliar_id:   inicial.auxiliar_id ?? "",
   })
+
+  useEffect(() => {
+    fetch("/api/parqueadero/personal")
+      .then(r => r.json())
+      .then(d => {
+        const aux = (d.personal ?? []).filter((p: { rol_codigo: string }) => p.rol_codigo === "parq_auxiliar")
+        setAuxiliares(aux)
+      })
+      .catch(() => {})
+  }, [])
 
   const guardar = async () => {
     setLoading(true)
@@ -46,6 +62,7 @@ export function ModalEditarInspeccion({ id, inicial }: Props) {
           km_inicio:     form.km_inicio ? Number(form.km_inicio) : null,
           observaciones: form.observaciones || null,
           es_apto:       form.es_apto,
+          auxiliar_id:   form.auxiliar_id || null,
         }),
       })
       const data = await res.json()
@@ -89,6 +106,26 @@ export function ModalEditarInspeccion({ id, inicial }: Props) {
                 value={form.km_inicio}
                 onChange={(e) => setForm((p) => ({ ...p, km_inicio: e.target.value }))}
               />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-xs">Auxiliar</Label>
+              <Select
+                value={form.auxiliar_id}
+                onValueChange={(v) => setForm((p) => ({ ...p, auxiliar_id: v }))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Sin auxiliar" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">Sin auxiliar</SelectItem>
+                  {auxiliares.map((a) => (
+                    <SelectItem key={a.id} value={a.id}>
+                      {a.nombre_completo ?? a.id}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-1.5">
