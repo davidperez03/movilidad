@@ -1,4 +1,4 @@
-const CACHE_NAME = 'movilidad-v1.36.2'
+const CACHE_NAME = 'movilidad-v1.36.3'
 
 self.addEventListener('install', (event) => {
   event.waitUntil(

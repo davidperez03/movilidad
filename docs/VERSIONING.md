@@ -6,6 +6,7 @@ Para el proceso de release y reglas de versionamiento semántico ver [GITFLOW.md
 
 | Versión | Fecha | Descripción |
 |---------|-------|-------------|
+| 1.36.3 | 2026-08-19 | fix(parqueadero): fecha+hora en columnas salida/regreso de salidas de grúa |
 | 1.36.2 | 2026-08-19 | fix(parqueadero): campo editable salidas grúa es hora_regreso, no hora_salida |
 | 1.36.1 | 2026-08-19 | fix(parqueadero): crash SelectItem auxiliar — Radix no acepta value="" |
 | 1.36.0 | 2026-08-19 | feat(parqueadero): edición auxiliar en inspecciones, hora salida grúa y salida asistencia |

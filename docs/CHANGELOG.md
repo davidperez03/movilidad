@@ -5,6 +5,15 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.36.3] - 2026-08-19
+
+### fix(parqueadero): fecha+hora en columnas salida/regreso de salidas de grúa
+
+#### Corregido
+- Las columnas H. Salida y H. Regreso solo mostraban la hora; ahora muestran fecha y hora (ej: `19/08 10:30 a.m.`)
+
+---
+
 ## [1.36.2] - 2026-08-19
 
 ### fix(parqueadero): campo editable en salidas de grúa es hora_regreso, no hora_salida
