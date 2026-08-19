@@ -115,6 +115,7 @@ export default async function InspeccionDetallePage({ params }: PageProps) {
                 km_inicio:     inspeccion.km_inicio,
                 observaciones: inspeccion.observaciones,
                 es_apto:       inspeccion.es_apto,
+                auxiliar_id:   inspeccion.auxiliar_id ?? null,
               }}
             />
           )}
