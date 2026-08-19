@@ -42,7 +42,7 @@ interface EditState {
   traeCarga:    boolean
   itemsSel:     Record<string, { desde: string; hasta: string }>
   observaciones: string
-  horaSalida:   string  // datetime-local format (Colombia)
+  horaRegreso:  string  // datetime-local format (Colombia)
   confirmando:  boolean  // segunda pantalla de confirmación
 }
 
@@ -134,7 +134,7 @@ export default function SalidasGruaClient({ puedeEditar }: { puedeEditar: boolea
       traeCarga:    s.trae_carga,
       itemsSel,
       observaciones: s.observaciones ?? "",
-      horaSalida:   tsToDatetimeLocal(s.hora_salida),
+      horaRegreso:  s.hora_regreso ? tsToDatetimeLocal(s.hora_regreso) : "",
       confirmando:  false,
     })
   }
@@ -166,7 +166,7 @@ export default function SalidasGruaClient({ puedeEditar }: { puedeEditar: boolea
             }))
         : []
 
-      const horaSalidaISO = edit.horaSalida ? datetimeLocalToISO(edit.horaSalida) : undefined
+      const horaRegresoISO = edit.horaRegreso ? datetimeLocalToISO(edit.horaRegreso) : undefined
 
       const res = await fetch(`/api/parqueadero/salidas-grua/${edit.salidaId}`, {
         method: "PATCH",
@@ -175,14 +175,14 @@ export default function SalidasGruaClient({ puedeEditar }: { puedeEditar: boolea
           trae_carga:       edit.traeCarga,
           inventario_items,
           observaciones:    edit.observaciones || null,
-          hora_salida:      horaSalidaISO,
+          hora_regreso:     horaRegresoISO,
         }),
       })
       if (!res.ok) { toast.error("Error al guardar"); return }
 
       setSalidas(prev => prev.map(s => s.id === edit.salidaId
         ? { ...s, trae_carga: edit.traeCarga, inventario_items, observaciones: edit.observaciones || null,
-            hora_salida: horaSalidaISO ?? s.hora_salida }
+            hora_regreso: horaRegresoISO ?? s.hora_regreso }
         : s
       ))
       toast.success("Registro actualizado")
@@ -475,13 +475,13 @@ export default function SalidasGruaClient({ puedeEditar }: { puedeEditar: boolea
                   </div>
                 )}
 
-                {/* Hora de salida */}
+                {/* Hora de regreso */}
                 <div className="space-y-1.5">
-                  <Label className="text-xs">Hora de salida</Label>
+                  <Label className="text-xs">Hora de regreso</Label>
                   <Input
                     type="datetime-local"
-                    value={edit.horaSalida}
-                    onChange={e => setEdit({ ...edit, horaSalida: e.target.value })}
+                    value={edit.horaRegreso}
+                    onChange={e => setEdit({ ...edit, horaRegreso: e.target.value })}
                   />
                 </div>
 
@@ -515,8 +515,8 @@ export default function SalidasGruaClient({ puedeEditar }: { puedeEditar: boolea
 
               <div className="py-3 space-y-3 text-sm">
                 <div className="rounded-lg bg-muted px-4 py-3 space-y-1">
-                  {edit.horaSalida && (
-                    <p><span className="text-muted-foreground">H. salida:</span> <span className="font-medium tabular-nums">{edit.horaSalida.replace("T", " ")}</span></p>
+                  {edit.horaRegreso && (
+                    <p><span className="text-muted-foreground">H. regreso:</span> <span className="font-medium tabular-nums">{edit.horaRegreso.replace("T", " ")}</span></p>
                   )}
                   <p><span className="text-muted-foreground">Carga:</span> <span className="font-medium">{edit.traeCarga ? "Con carga" : "Sin carga"}</span></p>
                   {edit.traeCarga && Object.entries(edit.itemsSel).filter(([, v]) => v.desde && v.hasta).map(([id, v]) => {
