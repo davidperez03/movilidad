@@ -5,6 +5,15 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.36.2] - 2026-08-19
+
+### fix(parqueadero): campo editable en salidas de grúa es hora_regreso, no hora_salida
+
+#### Corregido
+- El modal de edición de salidas de grúa mostraba "Hora de salida" como campo editable; corregido a "Hora de regreso" (`hora_regreso`)
+
+---
+
 ## [1.36.1] - 2026-08-19
 
 ### fix(parqueadero): crash al abrir modal editar auxiliar en inspecciones
