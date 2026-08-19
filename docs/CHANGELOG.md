@@ -5,6 +5,19 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.36.0] - 2026-08-19
+
+### feat(parqueadero): edición de auxiliar, hora de salida grúa y salida de asistencia
+
+#### Agregado
+- Inspecciones: selector de auxiliar en modal de edición — asignar, cambiar o quitar auxiliar (`parq_auxiliar`) en inspecciones existentes
+- Salidas de grúa: campo de hora de salida editable en el modal de edición de carga/stickers/observaciones
+- Asistencia personal: botón editar/registrar hora de salida por jornada (solo admins con permiso `configurar`)
+- Nuevo endpoint `GET /api/parqueadero/personal` para cargar personal del módulo
+- Nuevos endpoints `PATCH /api/parqueadero/asistencia/[id]` y `POST /api/parqueadero/asistencia`
+
+---
+
 ## [1.35.0] - 2026-08-02
 
 ### feat(parqueadero): modal edición completa de carga en salidas de grúa

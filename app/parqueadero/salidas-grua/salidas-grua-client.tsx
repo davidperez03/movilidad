@@ -38,17 +38,28 @@ interface Vehiculo { id: string; placa: string; marca: string | null; modelo: st
 
 // Estado interno del modal de edición
 interface EditState {
-  salidaId:    string
-  traeCarga:   boolean
-  itemsSel:    Record<string, { desde: string; hasta: string }>
+  salidaId:     string
+  traeCarga:    boolean
+  itemsSel:     Record<string, { desde: string; hasta: string }>
   observaciones: string
-  confirmando: boolean  // segunda pantalla de confirmación
+  horaSalida:   string  // datetime-local format (Colombia)
+  confirmando:  boolean  // segunda pantalla de confirmación
 }
 
 function horaCol(ts: string) {
   return new Date(ts).toLocaleString("es-CO", {
     timeZone: "America/Bogota", hour: "2-digit", minute: "2-digit", hour12: true,
   })
+}
+
+// Convierte un timestamp ISO a formato datetime-local en hora Colombia
+function tsToDatetimeLocal(ts: string): string {
+  return new Intl.DateTimeFormat("sv", { timeZone: "America/Bogota" }).format(new Date(ts)).slice(0, 16)
+}
+
+// Convierte datetime-local (Colombia) a ISO con offset -05:00
+function datetimeLocalToISO(dtl: string): string {
+  return `${dtl}:00-05:00`
 }
 
 export default function SalidasGruaClient({ puedeEditar }: { puedeEditar: boolean }) {
@@ -123,6 +134,7 @@ export default function SalidasGruaClient({ puedeEditar }: { puedeEditar: boolea
       traeCarga:    s.trae_carga,
       itemsSel,
       observaciones: s.observaciones ?? "",
+      horaSalida:   tsToDatetimeLocal(s.hora_salida),
       confirmando:  false,
     })
   }
@@ -154,6 +166,8 @@ export default function SalidasGruaClient({ puedeEditar }: { puedeEditar: boolea
             }))
         : []
 
+      const horaSalidaISO = edit.horaSalida ? datetimeLocalToISO(edit.horaSalida) : undefined
+
       const res = await fetch(`/api/parqueadero/salidas-grua/${edit.salidaId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -161,12 +175,14 @@ export default function SalidasGruaClient({ puedeEditar }: { puedeEditar: boolea
           trae_carga:       edit.traeCarga,
           inventario_items,
           observaciones:    edit.observaciones || null,
+          hora_salida:      horaSalidaISO,
         }),
       })
       if (!res.ok) { toast.error("Error al guardar"); return }
 
       setSalidas(prev => prev.map(s => s.id === edit.salidaId
-        ? { ...s, trae_carga: edit.traeCarga, inventario_items, observaciones: edit.observaciones || null }
+        ? { ...s, trae_carga: edit.traeCarga, inventario_items, observaciones: edit.observaciones || null,
+            hora_salida: horaSalidaISO ?? s.hora_salida }
         : s
       ))
       toast.success("Registro actualizado")
@@ -459,6 +475,16 @@ export default function SalidasGruaClient({ puedeEditar }: { puedeEditar: boolea
                   </div>
                 )}
 
+                {/* Hora de salida */}
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Hora de salida</Label>
+                  <Input
+                    type="datetime-local"
+                    value={edit.horaSalida}
+                    onChange={e => setEdit({ ...edit, horaSalida: e.target.value })}
+                  />
+                </div>
+
                 {/* Observaciones */}
                 <div className="space-y-1.5">
                   <Label className="text-xs">Observaciones</Label>
@@ -489,6 +515,9 @@ export default function SalidasGruaClient({ puedeEditar }: { puedeEditar: boolea
 
               <div className="py-3 space-y-3 text-sm">
                 <div className="rounded-lg bg-muted px-4 py-3 space-y-1">
+                  {edit.horaSalida && (
+                    <p><span className="text-muted-foreground">H. salida:</span> <span className="font-medium tabular-nums">{edit.horaSalida.replace("T", " ")}</span></p>
+                  )}
                   <p><span className="text-muted-foreground">Carga:</span> <span className="font-medium">{edit.traeCarga ? "Con carga" : "Sin carga"}</span></p>
                   {edit.traeCarga && Object.entries(edit.itemsSel).filter(([, v]) => v.desde && v.hasta).map(([id, v]) => {
                     const nombre = inventario.find(i => i.item_id === id)?.nombre ?? id
