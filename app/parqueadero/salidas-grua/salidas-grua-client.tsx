@@ -47,9 +47,10 @@ interface EditState {
 }
 
 function horaCol(ts: string) {
-  return new Date(ts).toLocaleString("es-CO", {
-    timeZone: "America/Bogota", hour: "2-digit", minute: "2-digit", hour12: true,
-  })
+  const d = new Date(ts)
+  const fecha = d.toLocaleDateString("es-CO", { timeZone: "America/Bogota", day: "2-digit", month: "2-digit" })
+  const hora  = d.toLocaleTimeString("es-CO", { timeZone: "America/Bogota", hour: "2-digit", minute: "2-digit", hour12: true })
+  return `${fecha} ${hora}`
 }
 
 // Convierte un timestamp ISO a formato datetime-local en hora Colombia
@@ -266,8 +267,8 @@ export default function SalidasGruaClient({ puedeEditar }: { puedeEditar: boolea
                   <th className="text-left px-4 py-3 font-medium">Grúa</th>
                   <th className="text-left px-4 py-3 font-medium">Operador</th>
                   <th className="text-left px-4 py-3 font-medium">Motivo</th>
-                  <th className="text-right px-4 py-3 font-medium">H. Salida</th>
-                  <th className="text-right px-4 py-3 font-medium">H. Regreso</th>
+                  <th className="text-left px-4 py-3 font-medium">H. Salida</th>
+                  <th className="text-left px-4 py-3 font-medium">H. Regreso</th>
                   <th className="text-left px-4 py-3 font-medium">Carga</th>
                   <th className="text-left px-4 py-3 font-medium hidden lg:table-cell">Observaciones</th>
                   <th className="text-center px-4 py-3 font-medium">Estado</th>
@@ -284,8 +285,8 @@ export default function SalidasGruaClient({ puedeEditar }: { puedeEditar: boolea
                     <td className="px-4 py-3 font-mono font-semibold">{s.placa ?? "—"}</td>
                     <td className="px-4 py-3 text-muted-foreground">{s.operador_nombre ?? "—"}</td>
                     <td className="px-4 py-3">{MOTIVOS[s.motivo] ?? s.motivo}</td>
-                    <td className="px-4 py-3 text-right tabular-nums">{horaCol(s.hora_salida)}</td>
-                    <td className="px-4 py-3 text-right tabular-nums">
+                    <td className="px-4 py-3 tabular-nums">{horaCol(s.hora_salida)}</td>
+                    <td className="px-4 py-3 tabular-nums">
                       {s.hora_regreso ? horaCol(s.hora_regreso) : <span className="text-muted-foreground">—</span>}
                     </td>
                     <td className="px-4 py-3">
