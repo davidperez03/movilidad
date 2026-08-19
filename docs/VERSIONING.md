@@ -6,6 +6,7 @@ Para el proceso de release y reglas de versionamiento semántico ver [GITFLOW.md
 
 | Versión | Fecha | Descripción |
 |---------|-------|-------------|
+| 1.36.1 | 2026-08-19 | fix(parqueadero): crash SelectItem auxiliar — Radix no acepta value="" |
 | 1.36.0 | 2026-08-19 | feat(parqueadero): edición auxiliar en inspecciones, hora salida grúa y salida asistencia |
 | 1.35.0 | 2026-08-02 | feat(parqueadero): modal edición carga en salidas — stickers, observaciones y confirmación |
 | 1.34.0 | 2026-08-02 | feat(parqueadero): editar trae_carga en salidas de grúa para admin y parq_administrador |

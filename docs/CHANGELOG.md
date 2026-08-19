@@ -5,6 +5,15 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/),
 y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.36.1] - 2026-08-19
+
+### fix(parqueadero): crash al abrir modal editar auxiliar en inspecciones
+
+#### Corregido
+- SelectItem con `value=""` causaba crash global (Radix UI no acepta string vacío como valor de ítem); reemplazado por centinela `"_none_"`
+
+---
+
 ## [1.36.0] - 2026-08-19
 
 ### feat(parqueadero): edición de auxiliar, hora de salida grúa y salida de asistencia
