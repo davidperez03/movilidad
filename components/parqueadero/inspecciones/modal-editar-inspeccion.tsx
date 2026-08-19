@@ -37,7 +37,7 @@ export function ModalEditarInspeccion({ id, inicial }: Props) {
     km_inicio:     inicial.km_inicio?.toString() ?? "",
     observaciones: inicial.observaciones ?? "",
     es_apto:       inicial.es_apto,
-    auxiliar_id:   inicial.auxiliar_id ?? "",
+    auxiliar_id:   inicial.auxiliar_id ?? "_none_",
   })
 
   useEffect(() => {
@@ -62,7 +62,7 @@ export function ModalEditarInspeccion({ id, inicial }: Props) {
           km_inicio:     form.km_inicio ? Number(form.km_inicio) : null,
           observaciones: form.observaciones || null,
           es_apto:       form.es_apto,
-          auxiliar_id:   form.auxiliar_id || null,
+          auxiliar_id:   form.auxiliar_id === "_none_" ? null : form.auxiliar_id || null,
         }),
       })
       const data = await res.json()
@@ -118,7 +118,7 @@ export function ModalEditarInspeccion({ id, inicial }: Props) {
                   <SelectValue placeholder="Sin auxiliar" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Sin auxiliar</SelectItem>
+                  <SelectItem value="_none_">Sin auxiliar</SelectItem>
                   {auxiliares.map((a) => (
                     <SelectItem key={a.id} value={a.id}>
                       {a.nombre_completo ?? a.id}
